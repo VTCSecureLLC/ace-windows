@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.40629.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VATRP.App", "VATRP.App\VATRP.App.csproj", "{CF503001-3771-48E8-A425-73A11F38EDBC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VATRP.Core", "VATRP.Core\VATRP.Core.csproj", "{A4B764EF-2558-4DA9-9A43-0FFAA0E93D0B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VATRP.LinphoneWrapper", "VATRP.LinphoneWrapper\VATRP.LinphoneWrapper.csproj", "{29E0CC8F-232A-4CB6-89C1-C3F6C7453B36}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CF503001-3771-48E8-A425-73A11F38EDBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF503001-3771-48E8-A425-73A11F38EDBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF503001-3771-48E8-A425-73A11F38EDBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF503001-3771-48E8-A425-73A11F38EDBC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4B764EF-2558-4DA9-9A43-0FFAA0E93D0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4B764EF-2558-4DA9-9A43-0FFAA0E93D0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4B764EF-2558-4DA9-9A43-0FFAA0E93D0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4B764EF-2558-4DA9-9A43-0FFAA0E93D0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29E0CC8F-232A-4CB6-89C1-C3F6C7453B36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29E0CC8F-232A-4CB6-89C1-C3F6C7453B36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29E0CC8F-232A-4CB6-89C1-C3F6C7453B36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29E0CC8F-232A-4CB6-89C1-C3F6C7453B36}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
