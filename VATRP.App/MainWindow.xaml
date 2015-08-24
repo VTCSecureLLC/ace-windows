@@ -1,0 +1,111 @@
+﻿<Window x:Class="VATRP.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="VATRP" Height="500" Width="300" SizeToContent="Height" ResizeMode="NoResize" Closing="Window_Closing" Closed="Window_Closed" SourceInitialized="Window_SourceInitialized">
+    <Grid x:Name="LayoutGrid" Background="#FFF0F0F0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="1"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition Height="1"></RowDefinition>
+            <RowDefinition Height="20"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Menu IsMainMenu="True" Height="27" HorizontalAlignment="Left" x:Name="WndMenu" VerticalAlignment="Top" Width="Auto" >
+            <MenuItem x:Name="VATRPItem" Header="_VATRP">
+                <MenuItem Header="_About US VATRP"/>
+                <MenuItem Header="_Preferences"/>
+                <MenuItem Header="_Provide VTRP Feedback"/>
+                <MenuItem Header="_Check for Updates"/>
+                <MenuItem Header="_Hide VATRP"/>
+                <MenuItem Header="_Show All"/>
+                <MenuItem Header="_Quit VATRP" Click="MenuItem_Click"/>
+            </MenuItem>
+            <MenuItem x:Name="ViewItem" Header="_View" >
+                <MenuItem Header="_Minimize"/>
+                <MenuItem Header="_Zoom"/>
+                <MenuItem Header="_Bring All Front"/>
+                <MenuItem Header="_Viewspace">
+                    <!--new items will go here-->
+                    </MenuItem>
+                <MenuItem Header="_Next Window"/>
+                <MenuItem Header="_Previews Window"/>
+                <MenuItem Header="_Go To Window"/>
+                <MenuItem x:Name="MediaWindowItem" Header="_Media Window" IsCheckable="True"/>
+                <MenuItem x:Name="SelfViewItem" Header="_Media Self-View" IsCheckable="True"/>
+                <MenuItem Header="_Media Text Window"/>
+                <MenuItem Header="_"/>
+                <MenuItem x:Name="DialpadItem" Header="_DialPad Window" IsCheckable="True"/>
+                <MenuItem x:Name="RegistrationStatusItem" Header="_Registration Status" IsCheckable="True"/>
+                <MenuItem Header="_Media Dock Window"/>
+                <MenuItem x:Name="ContactsWindowItem" Header="_Contact Window" IsCheckable="True"/>
+                </MenuItem>
+            <MenuItem x:Name="VideoItem" Header="_Video" >
+                <MenuItem Header="_Hide Window"/>
+                <MenuItem Header="_Volume"/>
+                <MenuItem Header="_Enter Full"/>
+                </MenuItem>
+            <MenuItem x:Name="AudioItem" Header="_Audio" >
+                <MenuItem Header="_Mute Microphone"/>
+                <MenuItem Header="_Increase Volume"/>
+                <MenuItem Header="_Decrease Volume"/>
+                <MenuItem Header="_Speaker"/>
+                </MenuItem>
+            <MenuItem x:Name="EditItem" Header="_Edit" >
+                <MenuItem Header="_New"/>
+                <MenuItem Header="_Edit Profile"/>
+                <MenuItem Header="_Close Window"/>
+                <MenuItem Header="_Change"/>
+                <MenuItem Header="_My Account"/>
+                <MenuItem Header="_Sign Out"/>
+                
+                </MenuItem>
+            <MenuItem x:Name="HelpItem" Header="_Help" >
+                <MenuItem Header="_Search"/>
+                <MenuItem Header="_Learn about"/>
+                <MenuItem Header="_Go to Support"/>
+                <MenuItem Header="_Welcome Tour"/>
+                <MenuItem Header="_Privacy Policy"/>
+                </MenuItem>
+            </Menu>
+
+        <Grid Grid.Row="0" >
+            <DockPanel x:Name="WizardPagepanel" Dock="Top" Visibility="Collapsed"/>
+        <StackPanel x:Name="ServiceSelector" Visibility="Visible">
+            <Label Content="VATRP" FontSize="28" FontWeight="Bold"  HorizontalAlignment="Center" Margin="0, 30,0, 0"/>
+            <Label Content="Let's Get Started..." FontSize="16"  HorizontalAlignment="Center" Margin="0, 10,0, 0"/>
+            <Label Content="Which Service you use the most?" FontSize="16"  HorizontalAlignment="Center" Margin="0, 5,0, 0"/>
+            <Button Margin="20,5" Height="40" FontSize="18" Content="Video Relay Service" FontWeight="SemiBold" Click="OnVideoRelaySelect"/>
+                <Button Margin="20,5" Height="40" FontSize="18" Content="IP-Relay" FontWeight="SemiBold" Click="onIPRelaySelect"/>
+                <Button Margin="20,5, 20, 30" Height="40" FontSize="18" Content="IP-CTS" FontWeight="SemiBold" Click="onIPCTSSelect"/>
+            </StackPanel>
+        </Grid>
+        <!--Navigation panel-->
+        <Grid x:Name="NavPanel"  Grid.Row="2" Visibility="Visible">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="50"/>
+                <ColumnDefinition Width="*" MinWidth="50"/>
+                <ColumnDefinition Width="*" MinWidth="50"/>
+                <ColumnDefinition Width="*" MinWidth="50"/>
+                <ColumnDefinition Width="*" MinWidth="50"/>
+            </Grid.ColumnDefinitions>
+            <ToggleButton x:Name="BtnRecents" Grid.Column="0" Click="btnRecents_Click" Width="50" Height="56" HorizontalAlignment="Center" VerticalAlignment="Center">
+                Recents
+            </ToggleButton>
+            <ToggleButton x:Name="BtnContacts" Grid.Column="1" Click="btnContacts_Click" Width="52" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center">
+                Contacts
+            </ToggleButton>
+            <ToggleButton x:Name="BtnDialpad" Grid.Column="2" Click="btnDialpad_Click" Width="52" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center">
+                Dialpad
+            </ToggleButton>
+            <ToggleButton x:Name="BtnVideoMail" Grid.Column="3" Click="btnVideoMail_Click" Width="60" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center">
+                VideoMail
+            </ToggleButton>
+            <ToggleButton x:Name="BtnSettings" Grid.Column="4" Click="btnSettings_Click" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center">
+                Settings
+            </ToggleButton>
+
+        </Grid>
+
+        <StatusBar Background="#c0c0c0" Grid.Row ="4" HorizontalAlignment="Stretch" Margin="1" VerticalAlignment="Top" Height="20"/>
+    </Grid>
+</Window>
