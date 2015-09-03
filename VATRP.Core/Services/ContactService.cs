@@ -15,8 +15,8 @@ namespace VATRP.Core.Services
 
         private bool _isStarting = false;
         private bool _isStarted = false;
-        private bool _isStopping;
-        private bool _isStopped;
+        private bool _isStopping = false;
+        private bool _isStopped = false;
         private readonly ServiceManagerBase manager;
 
         public ContactService(ServiceManagerBase manager)

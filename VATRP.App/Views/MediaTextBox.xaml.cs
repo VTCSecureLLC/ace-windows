@@ -10,16 +10,17 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using VATRP.App.Model;
 
 namespace VATRP.App.Views
 {
     /// <summary>
     /// Interaction logic for MediaTextWindow.xaml
     /// </summary>
-    public partial class MediaTextWindow : Window
+    public partial class MediaTextWindow
     {
         private bool _isActivated = false;
-        public MediaTextWindow()
+        public MediaTextWindow() : base(VATRPWindowType.MESSAGE_VIEW)
         {
             InitializeComponent();
         }

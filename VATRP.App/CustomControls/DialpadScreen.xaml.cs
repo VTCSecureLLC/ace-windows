@@ -3,6 +3,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using log4net;
+using VATRP.App.Model;
+using VATRP.App.Services;
 using VATRP.App.ViewModel;
 using VATRP.Core.Interfaces;
 
@@ -13,26 +15,24 @@ namespace VATRP.App.CustomControls
     /// </summary>
     public partial class DialPadScreen : UserControl
     {
+        #region Members
         private static readonly ILog LOG = LogManager.GetLogger(typeof(DialPadScreen));
-        private readonly IConfigurationService configurationService;
-        private bool isRegistered;
-        private bool isSeven = false;
-        internal string conf = "";
-        internal string confText = "";
-        internal string resText = "";
         private DialpadViewModel mViewModel;
         private readonly MainWindow mainWindow;
+        public event EventHandler<KeyPadEventArgs> KeypadPressed;
+
+        #endregion
         public DialPadScreen():
-            this(null, null)
+            this(null)
         {
             
         }
 
-        public DialPadScreen(MainWindow wnd, DockPanel scrPanel)
+        public DialPadScreen(MainWindow wnd)
         {
+            DataContext = ViewModel;
             InitializeComponent();
             this.mainWindow = wnd;
-            DataContext = ViewModel;
         }
 
        public DialpadViewModel ViewModel
@@ -45,60 +45,83 @@ namespace VATRP.App.CustomControls
         private void buttonKeyPad_Click(object sender, RoutedEventArgs e)
         {
             int oldNumberLendth = ViewModel.RemotePartyNumber.Length;
+            var key = DialpadKey.DialpadKey_KeyNone;
 
             if (Equals(e.OriginalSource, buttonKeyPad0))
             {
+                key = DialpadKey.DialpadKey_Key0;
                 ViewModel.RemotePartyNumber += "0";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad1))
             {
+                key = DialpadKey.DialpadKey_Key1;
                 ViewModel.RemotePartyNumber += "1";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad2))
             {
+                key = DialpadKey.DialpadKey_Key2;
                 ViewModel.RemotePartyNumber += "2";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad3))
             {
+                key = DialpadKey.DialpadKey_Key3;
                 ViewModel.RemotePartyNumber += "3";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad4))
             {
+                key = DialpadKey.DialpadKey_Key4;
                 ViewModel.RemotePartyNumber += "4";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad5))
             {
+                key = DialpadKey.DialpadKey_Key5;
                 ViewModel.RemotePartyNumber += "5";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad6))
             {
+                key = DialpadKey.DialpadKey_Key6;
                 ViewModel.RemotePartyNumber += "6";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad7))
             {
+                key = DialpadKey.DialpadKey_Key7;
                 ViewModel.RemotePartyNumber += "7";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad8))
             {
+                key = DialpadKey.DialpadKey_Key8;
                 ViewModel.RemotePartyNumber += "8";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad9))
             {
+                key = DialpadKey.DialpadKey_Key9;
                 ViewModel.RemotePartyNumber += "9";
             }
             else if (Equals(e.OriginalSource, buttonKeyPadStar))
             {
+                key = DialpadKey.DialpadKey_KeyStar;
                 ViewModel.RemotePartyNumber += "*";
             }
             else if (Equals(e.OriginalSource, buttonKeyPadSharp))
             {
+                key = DialpadKey.DialpadKey_KeyPound;
                 ViewModel.RemotePartyNumber += "#";
             }
+
+            if (key != DialpadKey.DialpadKey_KeyNone)
+            {
+                if (KeypadPressed != null)
+                {
+                    var args = new KeyPadEventArgs(key);
+
+                    KeypadPressed(this, args);
+                }
+            }
+
         }
-        
+
         #endregion
-
-
+        
        
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
@@ -122,13 +145,41 @@ namespace VATRP.App.CustomControls
 
         private void numberTextBox_PreviewKeyUp(object sender, KeyEventArgs e)
         {
-            //if (e.Key == Key.Enter) call to number
+            try
+            {
+                if (e.Key == Key.Enter)
+                    MediaActionHandler.MakeVideoCall(numberTextBox.Text);
+            }
+            catch (Exception ex)
+            {
                 
-            
-           
+            }
+        }
+        
+        private void AudioCallClick(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(numberTextBox.Text))
+            {
+                MessageBox.Show("Destination address is empty", "VATRP", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            MediaActionHandler.MakeAudioCall(numberTextBox.Text);
         }
 
+        private void VideoCallClick(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(numberTextBox.Text))
+            {
+                MessageBox.Show("Destination address is empty", "VATRP", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            MediaActionHandler.MakeVideoCall(numberTextBox.Text);
+        }
 
+        private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            
+        }
     }
         
    

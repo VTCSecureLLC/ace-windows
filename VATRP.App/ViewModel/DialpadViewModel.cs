@@ -6,6 +6,8 @@ namespace VATRP.App.ViewModel
     public class DialpadViewModel : ViewModelBase
     {
         private string _remotePartyNumber = string.Empty;
+        private bool _allowAudioCall = false;
+        private bool _allowVideoCall = false;
         private int _remotePartyDigitLimit = 10;
 
         public DialpadViewModel()
@@ -25,10 +27,30 @@ namespace VATRP.App.ViewModel
                     return;
 
                 _remotePartyNumber = value;
+                AllowAudioCall = !string.IsNullOrWhiteSpace(_remotePartyNumber);
+                AllowVideoCall = !string.IsNullOrWhiteSpace(_remotePartyNumber);
                 OnPropertyChanged("RemotePartyNumber");
             }
         }
 
+        public bool AllowAudioCall
+        {
+            get { return _allowAudioCall; }
+            set
+            {
+                _allowAudioCall = value;
+                OnPropertyChanged("AllowAudioCall");
+            }
+        }
+        public bool AllowVideoCall
+        {
+            get { return _allowVideoCall && App.CanMakeVideoCall; }
+            set
+            {
+                _allowVideoCall = value;
+                OnPropertyChanged("AllowVideoCall");
+            }
+        }
         #endregion
 
     }

@@ -2,7 +2,7 @@
 
 namespace VATRP.Core.Interfaces
 {
-    public interface IHistoryService
+    public interface IHistoryService : IVATRPservice
     {
        
     }

@@ -1,6 +1,6 @@
 ﻿namespace VATRP.Core.Interfaces
 {
-    public interface IContactService
+    public interface IContactService : IVATRPservice
     {
 
     }

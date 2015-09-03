@@ -42,6 +42,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -59,6 +60,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="MainWindow.Events.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\VisibilityConverter.cs" />
     <Compile Include="CustomControls\DialpadScreen.xaml.cs">
       <DependentUpon>DialpadScreen.xaml</DependentUpon>
@@ -70,6 +74,11 @@
       <DependentUpon>ProviderLoginScreen.xaml</DependentUpon>
     </Compile>
     <Compile Include="Interfaces\IMediaBox.cs" />
+    <Compile Include="Model\DialpadKey.cs" />
+    <Compile Include="Model\KeyPadEventArgs.cs" />
+    <Compile Include="Model\VATRPWindow.cs" />
+    <Compile Include="Model\VATRPWindowType.cs" />
+    <Compile Include="Services\MediaActionHandler.cs" />
     <Compile Include="Services\ServiceManager.cs" />
     <Compile Include="ViewModel\DialpadViewModel.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
@@ -82,11 +91,8 @@
     <Compile Include="Views\MediaTextBox.xaml.cs">
       <DependentUpon>MediaTextBox.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\RegistrationBox.xaml.cs">
-      <DependentUpon>RegistrationBox.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SelfView.xaml.cs">
-      <DependentUpon>SelfView.xaml</DependentUpon>
+    <Compile Include="Views\HistoryView.xaml.cs">
+      <DependentUpon>HistoryView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VideoBox.xaml.cs">
       <DependentUpon>VideoBox.xaml</DependentUpon>
@@ -131,11 +137,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\RegistrationBox.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SelfView.xaml">
+    <Page Include="Views\HistoryView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -172,9 +174,7 @@
     </None>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Model\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\VATRP.Core\VATRP.Core.csproj">
       <Project>{a4b764ef-2558-4da9-9a43-0ffaa0e93d0b}</Project>
@@ -190,7 +190,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /b $(SolutionDir)thirdparties\liblinphone\*.dll $(TargetDir)</PostBuildEvent>
+    <PostBuildEvent>copy /b "$(SolutionDir)thirdparties\liblinphone\*.dll" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

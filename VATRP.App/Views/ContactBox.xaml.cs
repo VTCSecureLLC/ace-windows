@@ -11,16 +11,17 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using VATRP.App.Interfaces;
+using VATRP.App.Model;
 
 namespace VATRP.App.Views
 {
     /// <summary>
     /// Interaction logic for ContactBox.xaml
     /// </summary>
-    public partial class ContactBox : IMediaBox
+    public partial class ContactBox
     {
         private bool _isActivated = false;
-        public ContactBox()
+        public ContactBox() : base(VATRPWindowType.CONTACT_VIEW)
         {
             InitializeComponent();
         }

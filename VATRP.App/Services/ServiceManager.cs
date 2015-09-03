@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Media;
 using System.Net;
-using System.Windows;
+using System.Text;
+using System.Web.Script.Serialization;
 using log4net;
+using VATRP.Core.Model;
 using VATRP.Core.Services;
 using VATRP.Core.Interfaces;
 
@@ -18,6 +21,7 @@ namespace VATRP.App.Services
         private IContactService _contactService;
         private IHistoryService _historyService;
         private ISoundService _soundService;
+        private IAccountService _accountService;
         private LinphoneService _linphoneSipService;
         private WebClient _webClient;
         private bool _initialized;
@@ -41,6 +45,7 @@ namespace VATRP.App.Services
             }
         }
 
+        #region Overrides
         public override string BuildStoragePath(string folder)
         {
             return Path.Combine(this.ApplicationDataPath, folder);
@@ -66,6 +71,17 @@ namespace VATRP.App.Services
             get { return _soundService ?? (_soundService = new SoundService(this)); }
         }
 
+        public override IAccountService AccountService
+        {
+            get { return _accountService ?? (_accountService = new AccountService(this)); }
+        }
+
+        public override System.Windows.Threading.Dispatcher Dispatcher
+        {
+            get { return App.Current.Dispatcher; }
+        }
+ #endregion
+
         public LinphoneService LinphoneSipService
         {
             get { return _linphoneSipService ?? (_linphoneSipService = new LinphoneService(this)); }
@@ -88,64 +104,119 @@ namespace VATRP.App.Services
         {
             bool retVal = true;
             retVal &= ConfigurationService.Start();
-            UpdateLinphoneConfig();
-            LinphoneSipService.Start(true);
+            retVal &= AccountService.Start();
             return retVal;
         }
 
-        public void UpdateLinphoneConfig()
+        public bool UpdateLinphoneConfig()
         {
-            LinphoneSipService.LinphoneConfig.ProxyHost = "192.168.24.25";
-            LinphoneSipService.LinphoneConfig.ProxyPort = 5060;
-            LinphoneSipService.LinphoneConfig.UserAgent = "VATRP";
-            LinphoneSipService.LinphoneConfig.Username = "master";
-            LinphoneSipService.LinphoneConfig.DisplayName = "John Doe";
-            LinphoneSipService.LinphoneConfig.Password = "123456";
+            if (App.CurrentAccount == null)
+                return false;
+
+            LinphoneSipService.LinphoneConfig.ProxyHost = string.IsNullOrEmpty(App.CurrentAccount.ProxyHostname) ?
+                Configuration.LINPHONE_SIP_SERVER : App.CurrentAccount.ProxyHostname;
+            LinphoneSipService.LinphoneConfig.ProxyPort = App.CurrentAccount.ProxyPort;
+            LinphoneSipService.LinphoneConfig.UserAgent = this.ConfigurationService.Get(Configuration.ConfSection.LINPHONE, Configuration.ConfEntry.LINPHONE_USERAGENT,
+                    Configuration.LINPHONE_USERAGENT);
+            LinphoneSipService.LinphoneConfig.Username = App.CurrentAccount.RegistrationUser;
+            LinphoneSipService.LinphoneConfig.DisplayName = App.CurrentAccount.DisplayName;
+            LinphoneSipService.LinphoneConfig.Password = App.CurrentAccount.RegistrationPassword;
+
+            return true;
         }
 
         internal void Stop()
         {
             ConfigurationService.Stop();
+            LinphoneSipService.Unregister();
             LinphoneSipService.Stop();
+            AccountService.Stop();
         }
 
         internal bool RequestLinphoneCredentials(string username, string passwd)
         {
-            if (_webClient == null)
-                return false;
+            bool retValue = true;
+            var requestLink = ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.REQUEST_LINK, Configuration.DEFAULT_REQUEST);
+            var request = (HttpWebRequest)WebRequest.Create(requestLink);
 
-            string url = "https://crm.videoremoteassistance.com";
-            var myCache =  new CredentialCache();
-            myCache.Add(new Uri(url), "Basic", new NetworkCredential(username, passwd));
+            var postData = string.Format("{{ \"user\" : {{ \"email\" : \"{0}\", \"password\" : \"{1}\" }} }}", username, passwd);
+            var data = Encoding.ASCII.GetBytes(postData);
 
-            _webClient.Credentials = myCache;
-
+            request.Method = "POST";
+            request.Accept = "application/json";
+            request.ContentType = "application/json";
+            request.ContentLength = data.Length;
+            
             try
             {
-                _webClient.DownloadStringAsync(new Uri(url), null);
+                using (var stream = request.GetRequestStream())
+                {
+                    stream.Write(data, 0, data.Length);
+                }
             }
             catch (Exception ex)
             {
-                return false;
+                Debug.WriteLine(ex.ToString());
             }
 
-            return true;
+            try
+            {
+                var response = (HttpWebResponse) request.GetResponse();
+
+                var responseStream = response.GetResponseStream();
+                if (responseStream != null)
+                {
+                    var responseString = new StreamReader(responseStream).ReadToEnd();
+                    ParseHttpResponse(responseString);
+                }
+                else
+                {
+                    retValue = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+            return retValue;
+        }
+
+        private void ParseHttpResponse(string response)
+        {
+            // parse response stream, 
+            var jss = new JavaScriptSerializer();
+            var dict = jss.Deserialize<Dictionary<string, string>>(response);
+
+            if (dict.ContainsKey("pbx_extension"))
+            {
+                App.CurrentAccount.RegistrationUser = dict["pbx_extension"];
+            }
+            if (dict.ContainsKey("auth_token"))
+            {
+                App.CurrentAccount.RegistrationPassword = dict["auth_token"];
+            }
+
+            if (UpdateLinphoneConfig())
+            {
+                if (LinphoneSipService.Start(true))
+                    LinphoneSipService.Register();
+            }
         }
 
         private void CredentialsReceived(object sender, DownloadStringCompletedEventArgs e)
         {
-            if (e.Cancelled)
-            {
-                return;
-            }
+            
+        }
 
-            if (e.Error != null)
-            {
-                return;
-            }
+        internal VATRPAccount LoadActiveAccount()
+        {
+            var accountUID = ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.ACCOUNT_IN_USE, "");
+            if (string.IsNullOrEmpty(accountUID))
+                return null;
 
-            var credentialsParams = e.Result;
-
+            return AccountService.FindAccount(accountUID);
         }
     }
 }

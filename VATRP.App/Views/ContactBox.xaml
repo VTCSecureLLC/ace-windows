@@ -1,8 +1,14 @@
-﻿<Window x:Class="VATRP.App.Views.ContactBox"
+﻿<model:VATRPWindow x:Class="VATRP.App.Views.ContactBox"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Contact Box" Height="300" Width="300" Closing="Window_Closing" Activated="Window_Activated" ShowInTaskbar="False">
+        xmlns:model="clr-namespace:VATRP.App.Model"
+        Title="Contact Box" Height="300" Width="300" 
+                   Activated="Window_Activated" 
+                   Closing="Window_Closing" 
+                   StateChanged="Window_StateChanged" 
+                   LocationChanged="Window_LocationChanged" 
+                   Unloaded="Window_Unloaded">
     <Grid>
         
     </Grid>
-</Window>
+</model:VATRPWindow>

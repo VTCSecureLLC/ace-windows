@@ -100,7 +100,7 @@
         </Style.Triggers>
     </Style>
     
-    <Style x:Key="DialpadCallHover" TargetType="{x:Type Button}">
+    <Style x:Key="DialpadAudioCallHover" TargetType="{x:Type Button}">
         <Setter Property="Background" Value="#FF38CA20" />
         <Setter Property="Template">
             <Setter.Value>
@@ -121,6 +121,27 @@
         </Style.Triggers>
     </Style>
 
+    <Style x:Key="DialpadVideoCallHover" TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="#FF0D757A" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border Background="{TemplateBinding Background}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#FF0D757A"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True" >
+                <Setter Property="Background" Value="#FF118F95"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
     <!--Region button sound-->
     <Style x:Key="ButtonSound0" TargetType="{x:Type Button}" BasedOn="{StaticResource DialpadHover}">
     </Style>

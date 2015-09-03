@@ -27,16 +27,19 @@ namespace VATRP.App
             get { return _allowDestroyWindows; }
             set { _allowDestroyWindows = value; }
         }
+        public static Core.Model.VATRPAccount CurrentAccount { get; set; }
+        public static bool CanMakeVideoCall { get; set; }
         #endregion
 
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
-            _log.Debug("====================================================");
-            _log.Debug(String.Format("====== Starting VATRP v{0} ====",
+            _log.Info("====================================================");
+            _log.Info(String.Format("====== Starting VATRP v{0} ====",
                 System.Reflection.Assembly.GetEntryAssembly().GetName().Version));
-            _log.Debug("====================================================");
+            _log.Info("====================================================");
             try
             {
+                CurrentAccount = null;
                 AppDomain.CurrentDomain.SetData("DataDirectory", Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
                 this.StartupUri = new Uri("MainWindow.xaml", UriKind.RelativeOrAbsolute);
 

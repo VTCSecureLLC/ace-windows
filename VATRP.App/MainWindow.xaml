@@ -1,14 +1,21 @@
-﻿<Window x:Class="VATRP.App.MainWindow"
+﻿<model:VATRPWindow x:Class="VATRP.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="VATRP" Height="500" Width="300" SizeToContent="Height" ResizeMode="NoResize" Closing="Window_Closing" Closed="Window_Closed" SourceInitialized="Window_SourceInitialized">
+        xmlns:model="clr-namespace:VATRP.App.Model"
+        Title="VATRP" Height="500" Width="300" SizeToContent="Height" ResizeMode="NoResize"
+                   Closing="OnClosing" Closed="OnClosed" 
+                   SourceInitialized="OnSourceInitialized" 
+                   Loaded="OnLoaded"
+                   StateChanged="Window_StateChanged" 
+                   LocationChanged="Window_LocationChanged" 
+                   Unloaded="Window_Unloaded">
     <Grid x:Name="LayoutGrid" Background="#FFF0F0F0">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="1"></RowDefinition>
             <RowDefinition Height="50"></RowDefinition>
             <RowDefinition Height="1"></RowDefinition>
-            <RowDefinition Height="20"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
         </Grid.RowDefinitions>
         <Menu IsMainMenu="True" Height="27" HorizontalAlignment="Left" x:Name="WndMenu" VerticalAlignment="Top" Width="Auto" >
             <MenuItem x:Name="VATRPItem" Header="_VATRP">
@@ -88,7 +95,7 @@
                 <ColumnDefinition Width="*" MinWidth="50"/>
                 <ColumnDefinition Width="*" MinWidth="50"/>
             </Grid.ColumnDefinitions>
-            <ToggleButton x:Name="BtnRecents" Grid.Column="0" Click="btnRecents_Click" Width="50" Height="56" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <ToggleButton x:Name="BtnRecents" Grid.Column="0" Click="btnRecents_Click" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center">
                 Recents
             </ToggleButton>
             <ToggleButton x:Name="BtnContacts" Grid.Column="1" Click="btnContacts_Click" Width="52" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -97,15 +104,14 @@
             <ToggleButton x:Name="BtnDialpad" Grid.Column="2" Click="btnDialpad_Click" Width="52" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center">
                 Dialpad
             </ToggleButton>
-            <ToggleButton x:Name="BtnVideoMail" Grid.Column="3" Click="btnVideoMail_Click" Width="60" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center">
-                VideoMail
+            <ToggleButton x:Name="BtnCallView" Grid.Column="3" Click="btnVideoMail_Click" Width="60" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center">
+                Call View
             </ToggleButton>
             <ToggleButton x:Name="BtnSettings" Grid.Column="4" Click="btnSettings_Click" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center">
                 Settings
             </ToggleButton>
 
         </Grid>
-
-        <StatusBar Background="#c0c0c0" Grid.Row ="4" HorizontalAlignment="Stretch" Margin="1" VerticalAlignment="Top" Height="20"/>
+        <Label x:Name="RegStatusLabel" Content="Registration status: Unregistered" HorizontalAlignment="Stretch" Margin="2" Grid.Row="4" VerticalAlignment="Top"/>
     </Grid>
-</Window>
+</model:VATRPWindow>

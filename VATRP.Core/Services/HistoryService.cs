@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Data;
+using System.Data.SQLite;
+using System.Diagnostics;
 using System.IO;
 using log4net;
 using VATRP.Core.Interfaces;
@@ -15,27 +18,19 @@ namespace VATRP.Core.Services
         private bool _isStarted;
         private bool _isStopping;
         private bool _isStopped;
-
+        private string connectionString = "history.db";
+        
         public HistoryService(ServiceManagerBase manager)
         {
             this.manager = manager;
             _isStarting = false;
             _isStarted = false;
 
-            var historyDirPath = this.manager.BuildStoragePath("History");
-
-            try
-            {
-                if (!Directory.Exists(historyDirPath))
-                    Directory.CreateDirectory(historyDirPath);
-            }
-            catch (Exception ex)
-            {
-                LOG.Debug("Failed to create history path");
-            }
+            CreateHistoryTables();
         }
 
 
+        #region IService
         public bool IsStarting
         {
             get
@@ -68,7 +63,9 @@ namespace VATRP.Core.Services
                 return _isStopped;
             }
         }
+        #endregion
 
+        #region IVATRPService
         public bool Start()
         {
             if (IsStarting)
@@ -77,6 +74,8 @@ namespace VATRP.Core.Services
             if (IsStarted)
                 return true;
 
+            LoadCalls();
+            LoadMessages();
             return false;
         }
 
@@ -87,9 +86,94 @@ namespace VATRP.Core.Services
 
             if (IsStopped)
                 return true;
-
+            _isStopping = true;
+            _isStopped = true;
             return false;
         }
+        #endregion
 
+        private void CreateHistoryTables()
+        {
+            var connection = new SQLiteConnection(connectionString);
+            var sqlString = string.Empty;
+            var cmd = new SQLiteCommand
+            {
+                Connection = connection
+            };
+
+            sqlString = @"CREATE TABLE IF NOT EXISTS log_calls (
+'log_id'  integer NOT NULL, 'caller' string, 'callee' string, 'start_uts' integer, 'call_state' string,
+PRIMARY KEY ('log_id' ASC)";
+            try
+            {
+                if (connection.State != ConnectionState.Open)
+                    connection.Open();
+
+                cmd.CommandText = sqlString;
+                cmd.ExecuteNonQuery();
+            }
+            catch (SQLiteException ex)
+            {
+                Debug.WriteLine("SQLite exception: " + ex.ToString());
+            }
+            catch (Exception ex)
+            {
+            }
+
+            sqlString = @"CREATE TABLE IF NOT EXISTS log_messages (
+'log_id'  integer NOT NULL, 'sender' string, 'receiver' string, 'message_uts' integer, 'call_state' string, 'message' string,
+PRIMARY KEY ('log_id' ASC)";
+            try
+            {
+                if (connection.State != ConnectionState.Open)
+                    connection.Open();
+
+                cmd.CommandText = sqlString;
+                cmd.ExecuteNonQuery();
+            }
+            catch (SQLiteException ex)
+            {
+                Debug.WriteLine("SQLite exception: " + ex.ToString());
+            }
+            catch (Exception ex)
+            {
+            }
+
+            if (connection.State != ConnectionState.Closed)
+                connection.Close();
+        }
+
+        private void LoadMessages()
+        {
+
+        }
+
+        private void LoadCalls()
+        {
+            var connection = new SQLiteConnection(connectionString);
+            var cmd = new SQLiteCommand
+            {
+                Connection = connection,
+                CommandText = "SELECT * FROM log_calls"
+            };
+
+            try
+            {
+                if (connection.State != ConnectionState.Open)
+                    connection.Open();
+
+                using (var reader = cmd.ExecuteReader())
+                {
+
+                }
+            }
+            catch (SQLiteException ex)
+            {
+                Debug.WriteLine("SQLite exception: " + ex.ToString());
+            }
+            catch (Exception ex)
+            {
+            }
+        }
     }
 }

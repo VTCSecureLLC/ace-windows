@@ -26,5 +26,14 @@ namespace VATRP.Core.Services
             get;
         }
 
+        public abstract IAccountService AccountService
+        {
+            get;
+        }
+
+        public abstract System.Windows.Threading.Dispatcher Dispatcher
+        {
+            get;
+        }
     }
 }

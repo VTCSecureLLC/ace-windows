@@ -1,7 +1,7 @@
 ﻿
 namespace VATRP.Core.Interfaces
 {
-    public interface ISoundService 
+    public interface ISoundService : IVATRPservice
     {
 
     }

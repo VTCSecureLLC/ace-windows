@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -12,8 +14,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using VATRP.App.CustomControls;
+using VATRP.App.Model;
 using VATRP.App.Services;
 using VATRP.App.Views;
+using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using VATRP.Core.Services;
 using VATRP.LinphoneWrapper.Enums;
@@ -23,16 +27,32 @@ namespace VATRP.App
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow 
     {
+        #region Members
         private ContactBox _contactBox =  new ContactBox();
         private Dialpad _dialpadBox = new Dialpad();
-        private VideoBox _videoBox = new VideoBox();
-        private SelfView _selfView = new SelfView();
+        private CallProcessingBox _videoBox = new CallProcessingBox();
+        private HistoryView _selfView = new HistoryView();
         private LinphoneService _linphoneService;
+        private ServiceManager _serviceManager;
 
-        public MainWindow()
+        #endregion
+
+        #region Properties
+        public static LinphoneRegistrationState RegistrationState { get; set; }
+        #endregion
+        public MainWindow() : base(VATRPWindowType.MAIN_VIEW)
         {
+            DataContext = this;
+            _serviceManager = ServiceManager.Instance;
+            if (_serviceManager != null)
+                _serviceManager.Start();
+            _linphoneService = ServiceManager.Instance.LinphoneSipService;
+            _linphoneService.RegistrationStateChangedEvent += OnRegistrationChanged;
+            _linphoneService.CallStateChangedEvent += OnCallStateChanged;
+            _linphoneService.GlobalStateChangedEvent += OnGlobalStateChanged;
+            _linphoneService.ErrorEvent += OnErrorEvent;
             InitializeComponent();
         }
 
@@ -67,7 +87,8 @@ namespace VATRP.App
 
         private void btnVideoMail_Click(object sender, RoutedEventArgs e)
         {
-            ToggleWindow(_videoBox);
+            if (_videoBox.ActiveCall != null)
+                ToggleWindow(_videoBox);
         }
 
         private void btnSettings_Click(object sender, RoutedEventArgs e)
@@ -80,10 +101,11 @@ namespace VATRP.App
             
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             App.AllowDestroyWindows = true;
             CloseAllWindows();
+            base.Window_Closing(sender, e);
         }
 
         private void CloseAllWindows()
@@ -94,7 +116,7 @@ namespace VATRP.App
             }
         }
 
-        private void Window_Closed(object sender, EventArgs e)
+        private void OnClosed(object sender, EventArgs e)
         {
             _linphoneService.RegistrationStateChangedEvent -= OnRegistrationChanged;
             _linphoneService.CallStateChangedEvent -= OnCallStateChanged;
@@ -107,6 +129,11 @@ namespace VATRP.App
         private void OnVideoRelaySelect(object sender, RoutedEventArgs e)
         {
             var wizardPage = new ProviderLoginScreen(this);
+            var newAccount = new VATRPAccount {AccountType = VATRPAccountType.VideoRelayService};
+            App.CurrentAccount = newAccount;
+            ServiceManager.Instance.AccountService.AddAccount(newAccount);
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);
             ChangeWizardPage(wizardPage);
         }
 
@@ -126,28 +153,45 @@ namespace VATRP.App
             WizardPagepanel.Children.Add(wizardPage);
             WizardPagepanel.LastChildFill = true;
 
-            ServiceSelector.Visibility = Visibility.Hidden;
+            ServiceSelector.Visibility = Visibility.Collapsed;
             WizardPagepanel.Visibility = Visibility.Visible;
         }
 
         private void onIPRelaySelect(object sender, RoutedEventArgs e)
         {
-            
+            var wizardPage = new ProviderLoginScreen(this);
+            var newAccount = new VATRPAccount { AccountType = VATRPAccountType.IP_Relay };
+            App.CurrentAccount = newAccount;
+            ServiceManager.Instance.AccountService.AddAccount(newAccount);
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);
+            ChangeWizardPage(wizardPage);
         }
 
         private void onIPCTSSelect(object sender, RoutedEventArgs e)
         {
-            
+            var wizardPage = new ProviderLoginScreen(this);
+            var newAccount = new VATRPAccount { AccountType = VATRPAccountType.IP_CTS };
+            App.CurrentAccount = newAccount;
+            ServiceManager.Instance.AccountService.AddAccount(newAccount);
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);
+            ChangeWizardPage(wizardPage);
         }
 
-        private void Window_SourceInitialized(object sender, EventArgs e)
+        private void OnSourceInitialized(object sender, EventArgs e)
         {
-            _linphoneService = ServiceManager.Instance.LinphoneSipService;
-            _linphoneService.RegistrationStateChangedEvent += OnRegistrationChanged;
-            _linphoneService.CallStateChangedEvent += OnCallStateChanged;
-            _linphoneService.GlobalStateChangedEvent += OnGlobalStateChanged;
-            ServiceManager.Instance.Start();
+            base.Window_Initialized(sender, e);
+            if (_serviceManager.UpdateLinphoneConfig())
+            {
+                if (_linphoneService.Start(true))
+                    _linphoneService.Register();
+            }
+        }
 
+        private void OnErrorEvent(VATRPCall call, string message)
+        {
+            Console.WriteLine("Error occurred: " + message);
         }
 
         private void OnGlobalStateChanged(LinphoneGlobalState state)
@@ -155,14 +199,46 @@ namespace VATRP.App
             Console.WriteLine("Global State changed: " + state);
         }
 
-        private void OnCallStateChanged(VATRPCall call)
+        private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            
+            IConfigurationService confService = ServiceManager.Instance.ConfigurationService;
+
+            App.CurrentAccount = ServiceManager.Instance.LoadActiveAccount();
+            if (App.CurrentAccount != null)
+            {
+                if (!string.IsNullOrEmpty(App.CurrentAccount.ProxyHostname) &&
+                    !string.IsNullOrEmpty(App.CurrentAccount.RegistrationPassword) &&
+                    !string.IsNullOrEmpty(App.CurrentAccount.RegistrationUser) &&
+                    App.CurrentAccount.ProxyPort != 0)
+                {
+                    ServiceSelector.Visibility = Visibility.Collapsed;
+                }
+            }
+            else
+            {
+                Debug.WriteLine("Current AccountService is ");
+            }
         }
 
-        private void OnRegistrationChanged(LinphoneWrapper.Enums.LinphoneRegistrationState state)
+        internal void ResetToggleButton(VATRPWindowType wndType)
         {
-            Console.WriteLine("Registration State changed: " + state);
+            switch (wndType)
+            {
+                case VATRPWindowType.CALL_VIEW:
+                    this.BtnCallView.IsChecked = false;
+                    break;
+                case VATRPWindowType.CONTACT_VIEW:
+                    this.BtnContacts.IsChecked = false;
+                    break;
+                case VATRPWindowType.DIALPAD_VIEW:
+                    this.BtnDialpad.IsChecked = false;
+                    break;
+                case VATRPWindowType.RECENTS_VIEW:
+                    BtnRecents.IsChecked = false;
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
