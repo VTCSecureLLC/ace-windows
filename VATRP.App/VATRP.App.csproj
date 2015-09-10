@@ -94,8 +94,14 @@
     <Compile Include="Views\HistoryView.xaml.cs">
       <DependentUpon>HistoryView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\VideoBox.xaml.cs">
-      <DependentUpon>VideoBox.xaml</DependentUpon>
+    <Compile Include="Views\CallProcessingBox.xaml.cs">
+      <DependentUpon>CallProcessingBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SelfView.xaml.cs">
+      <DependentUpon>SelfView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CallView.xaml.cs">
+      <DependentUpon>CallView.xaml</DependentUpon>
     </Compile>
     <Page Include="CustomControls\DialpadScreen.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -141,7 +147,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\VideoBox.xaml">
+    <Page Include="Views\CallProcessingBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SelfView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CallView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
