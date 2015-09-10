@@ -66,15 +66,23 @@ namespace VATRP.App.Model
                 this.Left = Convert.ToInt32(ServiceManager.Instance.ConfigurationService.Get(section,
                     Configuration.ConfEntry.WINDOW_LEFT, GetWindowDefaultCoordinates(WindowType).X.ToString()));
             }
+            catch (FormatException)
+            {
+                this.Left = GetWindowDefaultCoordinates(WindowType).X;
+            }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                
             }
 
             try
             {
                 this.Top = Convert.ToInt32(ServiceManager.Instance.ConfigurationService.Get(section,
                     Configuration.ConfEntry.WINDOW_TOP, GetWindowDefaultCoordinates(WindowType).Y.ToString()));
+            }
+            catch (FormatException)
+            {
+                this.Top = GetWindowDefaultCoordinates(WindowType).Y;
             }
             catch (Exception ex)
             {
