@@ -105,6 +105,7 @@ namespace VATRP.App.Services
             bool retVal = true;
             retVal &= ConfigurationService.Start();
             retVal &= AccountService.Start();
+            retVal &= SoundService.Start();
             return retVal;
         }
 
@@ -217,6 +218,11 @@ namespace VATRP.App.Services
                 return null;
 
             return AccountService.FindAccount(accountUID);
+        }
+
+        internal static void LogError(string message, Exception ex)
+        {
+            Debug.WriteLine(string.Format("Exception occurred in {0}: {1}", message, ex.Message));
         }
     }
 }
