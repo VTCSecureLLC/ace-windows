@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 using VATRP.LinphoneWrapper.Enums;
+using VATRP.LinphoneWrapper.Structs;
 
 namespace VATRP.LinphoneWrapper
 {
@@ -453,7 +454,7 @@ namespace VATRP.LinphoneWrapper
 **/
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_core_set_preferred_video_size(IntPtr lc, MSVideoSize vsize);
+        public static extern void linphone_core_set_preferred_video_size(IntPtr lc, IntPtr vsize);
 
 /**
  * Sets the video size for the captured (preview) video.
@@ -466,7 +467,7 @@ namespace VATRP.LinphoneWrapper
 **/
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_core_set_preview_video_size(IntPtr lc, MSVideoSize vsize);
+        public static extern void linphone_core_set_preview_video_size(IntPtr lc, IntPtr vsize);
 
 /**
  * Sets the preview video size by its name. See linphone_core_set_preview_video_size() for more information about this feature.
@@ -645,13 +646,13 @@ namespace VATRP.LinphoneWrapper
 **/
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_core_set_native_video_window_id(IntPtr lc, IntPtr id);
+        public static extern void linphone_core_set_native_video_window_id(IntPtr lc, long id);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_core_get_native_preview_window_id(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_core_set_native_preview_window_id(IntPtr lc, IntPtr id);
+        public static extern void linphone_core_set_native_preview_window_id(IntPtr lc, long id);
 
 /**
  * Tells the core to use a separate window for local camera preview video, instead of
@@ -682,6 +683,281 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_core_get_camera_sensor_rotation(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+
+        public static extern bool linphone_call_asked_to_autoanswer(IntPtr call);
+
+/**
+ * Get the remote address of the current call.
+ * @param[in] lc LinphoneCore object.
+ * @return The remote address of the current call or NULL if there is no current call.
+ * @ingroup call_control
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_current_call_remote_address(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_get_remote_address(IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_call_get_dir(IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_get_call_log(IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_get_refer_to(IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_call_has_transfer_pending(IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_get_transferer_call(IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_get_transfer_target_call(IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_get_replaced_call(IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_call_get_duration(IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_get_current_params(IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_get_remote_params(IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_call_enable_camera(IntPtr lc, bool enabled);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_call_camera_enabled(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_call_take_video_snapshot(IntPtr call, string file);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_call_take_preview_snapshot(IntPtr call, string file);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_call_get_reason(IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_video_jittcomp(IntPtr lc, int milliseconds);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_get_audio_port(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_get_audio_port_range(IntPtr lc, ref int min_port, ref int max_port);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_get_video_port(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_get_video_port_range(IntPtr lc, ref int min_port, ref int max_port);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_get_nortp_timeout(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_audio_port(IntPtr lc, int port);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_audio_port_range(IntPtr lc, int min_port, int max_port);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_video_port(IntPtr lc, int port);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_video_port_range(IntPtr lc, int min_port, int max_port);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_nortp_timeout(IntPtr lc, int port);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_use_info_for_dtmf(IntPtr lc, bool use_info);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_core_get_use_info_for_dtmf(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_use_rfc2833_for_dtmf(IntPtr lc, bool use_rfc2833);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_core_get_use_rfc2833_for_dtmf(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_sip_port(IntPtr lc, int port);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_get_sip_port(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_get_sip_transports(IntPtr lc, IntPtr transports);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_get_sip_transports_used(IntPtr lc, IntPtr tr);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_core_sip_transport_supported(IntPtr lc, LinphoneTransportType tp);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_inc_timeout(IntPtr lc, int seconds);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_get_inc_timeout(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_in_call_timeout(IntPtr lc, int seconds);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_get_in_call_timeout(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_delayed_timeout(IntPtr lc, int seconds);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_get_delayed_timeout(IntPtr lc);
+
+        /**
+ * Returns the list of available audio codecs.
+ * @param[in] lc The LinphoneCore object
+ * @return \mslist{PayloadType}
+ *
+ * This list is unmodifiable. The ->data field of the MSList points a PayloadType
+ * structure holding the codec information.
+ * It is possible to make copy of the list with ms_list_copy() in order to modify it
+ * (such as the order of codecs).
+
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_audio_codecs(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_set_audio_codecs(IntPtr lc, IntPtr codecs);
+
+/**
+ * Returns the list of available video codecs.
+ * @param[in] lc The LinphoneCore object
+ * @return \mslist{PayloadType}
+ *
+ * This list is unmodifiable. The ->data field of the MSList points a PayloadType
+ * structure holding the codec information.
+ * It is possible to make copy of the list with ms_list_copy() in order to modify it
+ * (such as the order of codecs).
+
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_video_codecs(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_set_video_codecs(IntPtr lc, IntPtr codecs);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_enable_generic_confort_noise(IntPtr lc, bool enabled);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_core_generic_confort_noise_enabled(IntPtr lc);
+
+/**
+ * Tells whether the specified payload type is enabled.
+ * @param[in] lc #LinphoneCore object.
+ * @param[in] pt The #LinphonePayloadType we want to know is enabled or not.
+ * @return TRUE if the payload type is enabled, FALSE if disabled.
+
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_core_payload_type_enabled(IntPtr lc, IntPtr pt);
+
+/**
+ * Tells whether the specified payload type represents a variable bitrate codec.
+ * @param[in] lc #LinphoneCore object.
+ * @param[in] pt The #LinphonePayloadType we want to know
+ * @return TRUE if the payload type represents a VBR codec, FALSE if disabled.
+
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_core_payload_type_is_vbr(IntPtr lc, IntPtr pt);
+
+/**
+ * Set an explicit bitrate (IP bitrate, not codec bitrate) for a given codec, in kbit/s.
+ * @param[in] lc the #LinphoneCore object
+ * @param[in] pt the #LinphonePayloadType to modify.
+ * @param[in] bitrate the IP bitrate in kbit/s.
+
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_payload_type_bitrate(IntPtr lc, IntPtr pt, int bitrate);
+
+/**
+ * Get the bitrate explicitely set with linphone_core_set_payload_type_bitrate().
+ * @param[in] lc the #LinphoneCore object
+ * @param[in] pt the #LinphonePayloadType to modify.
+ * @return bitrate the IP bitrate in kbit/s, or -1 if an error occurred.
+
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_get_payload_type_bitrate(IntPtr lc, IntPtr pt);
+
+/**
+ * Enable or disable the use of the specified payload type.
+ * @param[in] lc #LinphoneCore object.
+ * @param[in] pt The #LinphonePayloadType to enable or disable. It can be retrieved using #linphone_core_find_payload_type
+ * @param[in] enable TRUE to enable the payload type, FALSE to disable it.
+ * @return 0 if successful, any other value otherwise.
+
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_enable_payload_type(IntPtr lc, IntPtr pt, bool enable);
+
+
+/**
+ * Get payload type from mime type and clock rate
+
+ * This function searches in audio and video codecs for the given payload type name and clockrate.
+ * @param lc #LinphoneCore object
+ * @param type payload mime type (I.E SPEEX, PCMU, VP8)
+ * @param rate can be #LINPHONE_FIND_PAYLOAD_IGNORE_RATE
+ * @param channels  number of channels, can be #LINPHONE_FIND_PAYLOAD_IGNORE_CHANNELS
+ * @return Returns NULL if not found.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_find_payload_type(IntPtr lc, string type, int rate, int channels);
+
+/**
+
+ * Returns the payload type number assigned for this codec.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_get_payload_type_number(IntPtr lc, IntPtr pt);
+
+/**
+ * Force a number for a payload type. The LinphoneCore does payload type number assignment automatically. THis function is to be used mainly for tests, in order
+ * to override the automatic assignment mechanism.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_payload_type_number(IntPtr lc, IntPtr pt, int number);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_payload_type_description(IntPtr lc, IntPtr pt);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_core_check_payload_type_usability(IntPtr lc, IntPtr pt);
 
         #endregion
 
