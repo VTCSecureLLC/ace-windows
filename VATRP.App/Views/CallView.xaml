@@ -1,0 +1,15 @@
+﻿<model:VATRPWindow x:Class="VATRP.App.Views.CallView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:model="clr-namespace:VATRP.App.Model"
+        Title="VATRP Remote Video" 
+                   Activated="Window_Activated" 
+                   Closing="Window_Closing" 
+                   StateChanged="Window_StateChanged" 
+                   LocationChanged="Window_LocationChanged" 
+                   Unloaded="OnUnloaded"
+                   Loaded="OnLoaded"
+                   SizeChanged="OnSizeChanged" IsVisibleChanged="OnVisibilityChanged" >
+    <Grid>
+    </Grid>
+</model:VATRPWindow>
