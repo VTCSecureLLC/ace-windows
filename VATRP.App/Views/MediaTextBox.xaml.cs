@@ -19,28 +19,9 @@ namespace VATRP.App.Views
     /// </summary>
     public partial class MediaTextWindow
     {
-        private bool _isActivated = false;
         public MediaTextWindow() : base(VATRPWindowType.MESSAGE_VIEW)
         {
             InitializeComponent();
-        }
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (!App.AllowDestroyWindows)
-            {
-                this.Hide();
-                e.Cancel = true;
-            }
-        }
-
-        public bool IsActivated
-        {
-            get { return _isActivated; }
-        }
-
-        private void Window_Activated(object sender, EventArgs e)
-        {
-            _isActivated = true;
         }
     }
 }

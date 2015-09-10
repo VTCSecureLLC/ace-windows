@@ -20,29 +20,9 @@ namespace VATRP.App.Views
     /// </summary>
     public partial class ContactBox
     {
-        private bool _isActivated = false;
         public ContactBox() : base(VATRPWindowType.CONTACT_VIEW)
         {
             InitializeComponent();
-        }
-
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (!App.AllowDestroyWindows)
-            {
-                this.Hide();
-                e.Cancel = true;
-            }
-        }
-
-        public bool IsActivated
-        {
-            get { return _isActivated; }
-        }
-
-        private void Window_Activated(object sender, EventArgs e)
-        {
-            _isActivated = true;
         }
     }
 }
