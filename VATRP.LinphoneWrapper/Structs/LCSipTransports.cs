@@ -1,6 +1,9 @@
-﻿namespace VATRP.LinphoneWrapper.Structs
+﻿using System.Runtime.InteropServices;
+
+namespace VATRP.LinphoneWrapper.Structs
 {
     // Linphone core SIP transport ports.
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public struct LCSipTransports
     {
         public int udp_port; // udp port to listening on, negative value if not set

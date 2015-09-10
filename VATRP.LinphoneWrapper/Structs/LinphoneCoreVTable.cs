@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace VATRP.LinphoneWrapper.Structs
 {
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public struct LinphoneCoreVTable
     {
         public IntPtr global_state_changed; //<Notifies global state changes
