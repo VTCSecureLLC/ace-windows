@@ -29,11 +29,6 @@ namespace VATRP.App.Services
             _linphoneService.MakeCall(remoteUri, false);
         }
 
-        internal static void ReceiveCall()
-        {
-           
-        }
-
         internal static void MakeVideoCall(string remoteUri)
         {
             LinphoneService _linphoneService = ServiceManager.Instance.LinphoneSipService;
