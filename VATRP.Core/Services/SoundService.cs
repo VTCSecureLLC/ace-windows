@@ -1,4 +1,7 @@
-﻿using VATRP.Core.Interfaces;
+﻿using System;
+using System.Media;
+using System.Timers;
+using VATRP.Core.Interfaces;
 
 namespace VATRP.Core.Services
 {
@@ -10,6 +13,11 @@ namespace VATRP.Core.Services
         private bool _isStarted;
         private bool _isStopping;
         private bool _isStopped;
+
+        private SoundPlayer ringTonePlayer;
+        private SoundPlayer ringBackTonePlayer;
+        private SoundPlayer eventPlayer;
+        private SoundPlayer connPlayer;
 
         public SoundService(ServiceManagerBase manager)
         {
@@ -37,6 +45,19 @@ namespace VATRP.Core.Services
         {
             if (IsStarting || IsStarted)
                 return true;
+            try
+            {
+                this.ringTonePlayer = new SoundPlayer(Properties.Resources.ringtone);
+                this.ringBackTonePlayer = new SoundPlayer(Properties.Resources.ringbacktone);
+                this.eventPlayer = new SoundPlayer(Properties.Resources.newmsg);
+                this.connPlayer = new SoundPlayer(Properties.Resources.connevent);               
+            }
+            catch (Exception e)
+            {
+                _isStarting = false;
+                _isStarted = false;
+                return false;
+            }
 
             return true;
         }
@@ -50,5 +71,46 @@ namespace VATRP.Core.Services
 
             return true;
         }
+
+        public void PlayRingTone()
+        {
+            this.ringTonePlayer.PlayLooping();
+        }
+
+        public void StopRingTone()
+        {
+            this.ringTonePlayer.Stop();
+        }
+
+        public void PlayRingBackTone()
+        {
+            this.ringBackTonePlayer.PlayLooping();
+        }
+
+        public void StopRingBackTone()
+        {
+            this.ringBackTonePlayer.Stop();
+        }
+
+        public void PlayNewEvent()
+        {
+            this.eventPlayer.Play();
+        }
+
+        public void StopNewEvent()
+        {
+            this.eventPlayer.Stop();
+        }
+
+        public void PlayConnectionChanged(bool connected)
+        {
+            this.connPlayer.Play();
+        }
+
+        public void StopConnectionChanged(bool connected)
+        {
+            this.connPlayer.Stop();
+        }
+
     }
 }
