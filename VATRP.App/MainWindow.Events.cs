@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows;
+using System.Windows.Interop;
 using System.Windows.Media;
+using VATRP.App.Services;
 using VATRP.Core.Model;
 using VATRP.LinphoneWrapper.Enums;
 
@@ -25,25 +27,50 @@ namespace VATRP.App
             {
                 case VATRPCallState.Trying:
                     // call started, 
-                    ToggleWindow(_videoBox);
+                    if (_callView.Visibility != Visibility.Visible)
+                        _callView.Show();
+                    _remoteVideoView.Title = call.To.DisplayName;
                     break;
                 case VATRPCallState.InProgress:
+                    ServiceManager.Instance.SoundService.PlayRingTone();
+                    _remoteVideoView.Title = call.From.DisplayName;
+                    break;
                 case VATRPCallState.Ringing:
-                    if (_videoBox.Visibility != Visibility.Visible)
-                        _videoBox.Show();
+                    if (_callView.Visibility != Visibility.Visible)
+                        _callView.Show();
                     callStatusString = "It is now ringing remotely !";
+                    ServiceManager.Instance.SoundService.PlayRingBackTone();
                     break;
                 case VATRPCallState.EarlyMedia:
                     callStatusString = "Receiving some early media";
                     break;
                 case VATRPCallState.Connected:
                     callStatusString = "We are connected !";
+                    ServiceManager.Instance.SoundService.StopRingBackTone();
+                    ServiceManager.Instance.SoundService.StopRingTone();
+                    if (ServiceManager.Instance.LinphoneSipService.IsVideoEnabled(call))
+                    {
+                        _remoteVideoView.Show();
+                    }
+                    Window window = Window.GetWindow(_remoteVideoView);
+                    if (window != null)
+                    {
+                        var wih = new WindowInteropHelper(window);
+                        IntPtr hWnd = wih.Handle;
+                        ServiceManager.Instance.LinphoneSipService.SetVideoCallWindowHandle(hWnd);
+                    }
                     break;
                 case VATRPCallState.Closed:
                     callStatusString = "Call is terminated.";
+                    ServiceManager.Instance.SoundService.StopRingBackTone();
+                    ServiceManager.Instance.SoundService.StopRingTone();
+                    _remoteVideoView.Hide();
                     break;
                 case VATRPCallState.Error:
                     callStatusString = "Call failure !";
+                    ServiceManager.Instance.SoundService.StopRingBackTone();
+                    ServiceManager.Instance.SoundService.StopRingTone();
+                    _remoteVideoView.Hide();
                     break;
                 default:
                     callStatusString = call.CallState.ToString();
@@ -73,9 +100,11 @@ namespace VATRP.App
                 case LinphoneRegistrationState.LinphoneRegistrationOk:
                     statusString = "Registered";
                     RegStatusLabel.Foreground = Brushes.Green;
+                    ServiceManager.Instance.SoundService.PlayConnectionChanged(true);
                     break;
                 case LinphoneRegistrationState.LinphoneRegistrationFailed:
                     RegStatusLabel.Foreground = Brushes.Red;
+                    ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
                     break;
                 default:
                     RegStatusLabel.Foreground = Brushes.Black;
