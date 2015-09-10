@@ -32,8 +32,10 @@ namespace VATRP.App
         #region Members
         private ContactBox _contactBox =  new ContactBox();
         private Dialpad _dialpadBox = new Dialpad();
-        private CallProcessingBox _videoBox = new CallProcessingBox();
-        private HistoryView _selfView = new HistoryView();
+        private CallProcessingBox _callView = new CallProcessingBox();
+        private HistoryView _historyView = new HistoryView();
+        private CallView _remoteVideoView = new CallView();
+        private SelfView _selfView = new SelfView();
         private LinphoneService _linphoneService;
         private ServiceManager _serviceManager;
 
@@ -58,7 +60,7 @@ namespace VATRP.App
 
         private void btnRecents_Click(object sender, RoutedEventArgs e)
         {
-            ToggleWindow(_selfView);
+            ToggleWindow(_historyView);
         }
 
         private void btnContacts_Click(object sender, RoutedEventArgs e)
@@ -87,8 +89,14 @@ namespace VATRP.App
 
         private void btnVideoMail_Click(object sender, RoutedEventArgs e)
         {
-            if (_videoBox.ActiveCall != null)
-                ToggleWindow(_videoBox);
+            if (_callView.ActiveCall == null)
+            {
+                ToggleWindow(_selfView);
+            }
+            else
+            {
+                ToggleWindow(_callView);
+            }
         }
 
         private void btnSettings_Click(object sender, RoutedEventArgs e)
