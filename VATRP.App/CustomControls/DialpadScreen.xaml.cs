@@ -127,6 +127,7 @@ namespace VATRP.App.CustomControls
         {
             LOG.Debug("*************** Dialpad page OnLoaded ********* ");
             this.ViewModel.RemotePartyNumber = string.Empty;
+            this.ProviderCmboBox.SelectedIndex = 0;
         }
 
        private void OnUnloaded(object sender, RoutedEventArgs e)
@@ -156,16 +157,6 @@ namespace VATRP.App.CustomControls
             }
         }
         
-        private void AudioCallClick(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(numberTextBox.Text))
-            {
-                MessageBox.Show("Destination address is empty", "VATRP", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-            MediaActionHandler.MakeAudioCall(numberTextBox.Text);
-        }
-
         private void VideoCallClick(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(numberTextBox.Text))
