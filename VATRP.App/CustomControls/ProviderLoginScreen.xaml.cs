@@ -78,9 +78,6 @@ namespace VATRP.App.CustomControls
                 return;
             }
 
-            var config = ServiceManager.Instance.ConfigurationService;
-            if (config == null)
-                return;
             App.CurrentAccount.Username = LoginBox.Text;
             App.CurrentAccount.Password = PasswdBox.Password;
             App.CurrentAccount.ProxyHostname = HostnameBox.Text;
@@ -92,15 +89,7 @@ namespace VATRP.App.CustomControls
             App.CurrentAccount.AutoLogin = AutoLoginBox.IsChecked ?? false;
 
             ServiceManager.Instance.AccountService.Save();
-            if (ServiceManager.Instance.UpdateLinphoneConfig())
-            {
-                if (ServiceManager.Instance.LinphoneSipService.Start(true))
-                    ServiceManager.Instance.LinphoneSipService.Register();
-            }
-            else
-            {
-                MessageBox.Show("Failed to update settings", "VATRP", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            ServiceManager.Instance.RegisterNewAccount(App.CurrentAccount.AccountID);
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
@@ -129,13 +118,6 @@ namespace VATRP.App.CustomControls
                     VatrpDefaultLabel.Content = "Select Default IP-CTS Provider";
                     break;
             }
-        }
-
-        private void PasswdBox_PasswordChanged(object sender, RoutedEventArgs e)
-        {
-            PasswordHint.Visibility = string.IsNullOrEmpty(PasswdBox.Password)
-                ? Visibility.Visible
-                : Visibility.Collapsed;
         }
     }
 }
