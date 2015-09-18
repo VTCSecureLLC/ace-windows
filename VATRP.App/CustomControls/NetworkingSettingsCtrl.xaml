@@ -1,0 +1,33 @@
+﻿<UserControl x:Class="VATRP.App.CustomControls.NetworkSettingsCtrl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="300" 
+             MinWidth="300"
+             Loaded="OnLoaded">
+    <Grid>
+        <StackPanel Orientation="Vertical" Margin="10,10,0,0">
+            <CheckBox x:Name="EnableStunCheckBox" Margin="3,2,3,2" Content="Use STUN" FontSize="13"  
+                          VerticalAlignment="Center"/>
+
+            <Grid Margin="15,10" x:Name="STUNParamsTable">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="90"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Margin="3,2,3,2" Text="Server Address" FontSize="13" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"/>
+                <TextBox  x:Name="StunHostnameBox" FontSize="14" Grid.Column="1" Margin="3" Grid.Row="0" Width="150" Height="24"/>
+
+                <TextBlock Margin="3,2,3,2" Text="Server Port" FontSize="13" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"/>
+                <TextBox  x:Name="StunHostPortBox" FontSize="14" Grid.Column="1" Margin="3" Grid.Row="1" Width="150" Height="24"/>
+
+            </Grid>
+        </StackPanel>
+    </Grid>
+</UserControl>
