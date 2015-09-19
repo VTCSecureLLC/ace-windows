@@ -4,16 +4,22 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 using System.Windows.Interop;
 using System.Windows.Media;
+using VATRP.App.Model;
 using VATRP.App.Services;
 using VATRP.Core.Model;
+using VATRP.Core.Services;
 using VATRP.LinphoneWrapper.Enums;
 
 namespace VATRP.App
 {
     public partial class MainWindow
     {
+        private bool registerRequested = false;
+        private bool isRegistering = true;
+
         private void OnCallStateChanged(VATRPCall call)
         {
             if (this.Dispatcher.Thread != Thread.CurrentThread)
@@ -22,6 +28,7 @@ namespace VATRP.App
                 return;
             }
 
+            var stopPlayback = false;
             var callStatusString = "";
             switch (call.CallState)
             {
@@ -46,8 +53,7 @@ namespace VATRP.App
                     break;
                 case VATRPCallState.Connected:
                     callStatusString = "We are connected !";
-                    ServiceManager.Instance.SoundService.StopRingBackTone();
-                    ServiceManager.Instance.SoundService.StopRingTone();
+                    stopPlayback = true;
                     if (ServiceManager.Instance.LinphoneSipService.IsVideoEnabled(call))
                     {
                         _remoteVideoView.Show();
@@ -62,14 +68,16 @@ namespace VATRP.App
                     break;
                 case VATRPCallState.Closed:
                     callStatusString = "Call is terminated.";
-                    ServiceManager.Instance.SoundService.StopRingBackTone();
-                    ServiceManager.Instance.SoundService.StopRingTone();
+                    stopPlayback = true;
                     _remoteVideoView.Hide();
+                    if (registerRequested)
+                    {
+                        _linphoneService.Unregister();
+                    }
                     break;
                 case VATRPCallState.Error:
                     callStatusString = "Call failure !";
-                    ServiceManager.Instance.SoundService.StopRingBackTone();
-                    ServiceManager.Instance.SoundService.StopRingTone();
+                    stopPlayback = true;
                     _remoteVideoView.Hide();
                     break;
                 default:
@@ -77,6 +85,11 @@ namespace VATRP.App
                     break;
             }
 
+            if (stopPlayback)
+            {
+                ServiceManager.Instance.SoundService.StopRingBackTone();
+                ServiceManager.Instance.SoundService.StopRingTone();
+            }
             Console.WriteLine("Call StateChanged " + call.NativeCallPtr + " State: " + callStatusString);
         }
 
@@ -90,34 +103,82 @@ namespace VATRP.App
 
             RegistrationState = state;
             var statusString = "Unregistered";
+            this.BtnSettings.IsEnabled = true;
 
             switch (state)
             {
                 case LinphoneRegistrationState.LinphoneRegistrationProgress:
                     RegStatusLabel.Foreground = Brushes.Black;
-                    statusString = "In progress";
+                    statusString = isRegistering ? "Registering..." : "Unregistering...";
+                    this.BtnSettings.IsEnabled = false;
                     break;
                 case LinphoneRegistrationState.LinphoneRegistrationOk:
                     statusString = "Registered";
                     RegStatusLabel.Foreground = Brushes.Green;
                     ServiceManager.Instance.SoundService.PlayConnectionChanged(true);
+                    isRegistering = false;
                     break;
                 case LinphoneRegistrationState.LinphoneRegistrationFailed:
                     RegStatusLabel.Foreground = Brushes.Red;
                     ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
                     break;
+                case LinphoneRegistrationState.LinphoneRegistrationCleared:
+                    RegStatusLabel.Foreground = Brushes.Red;
+                    statusString = "Unregistered";
+                    isRegistering = true;
+                    ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
+                    if (registerRequested)
+                    {
+                        registerRequested = false;
+                        _linphoneService.Register();
+                    }
+                    break;
                 default:
                     RegStatusLabel.Foreground = Brushes.Black;
                     break;
             }
-            var regString = string.Format("Registration status: {0}", statusString);
+            var regString = string.Format("{0}", statusString);
             RegStatusLabel.Content = regString;
-            Console.WriteLine("Registration State changed: " + state);
-            if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk)
+        }
+
+        private void OnNewAccountRegistered(string accountId)
+        {
+            ServiceSelector.Visibility = Visibility.Collapsed;
+            WizardPagepanel.Visibility = Visibility.Collapsed;
+            RegUserLabel.Text = string.Format( "Account: {0}", App.CurrentAccount.RegistrationUser);
+            NavPanel.Visibility = Visibility.Visible;
+            StatusPanel.Visibility = Visibility.Visible;
+
+            if (ServiceManager.Instance.UpdateLinphoneConfig())
             {
-                // hide panels
-                ServiceSelector.Visibility = Visibility.Collapsed;
-                WizardPagepanel.Visibility = Visibility.Collapsed;
+                if (ServiceManager.Instance.StartLinphoneService())
+                    ServiceManager.Instance.Register();
+            }
+        }
+        private void OnChildVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (App.AllowDestroyWindows)
+                return;
+            var window = sender as VATRPWindow;
+            if (window == null)
+                return;
+            switch (window.WindowType)
+            {
+                case VATRPWindowType.CONTACT_VIEW:
+                    BtnContacts.IsChecked = (bool) e.NewValue;
+                    break;
+                case VATRPWindowType.SELF_VIEW:
+                    BtnCallView.IsChecked = (bool)e.NewValue;
+                    break;
+                case VATRPWindowType.RECENTS_VIEW:
+                    BtnRecents.IsChecked = (bool)e.NewValue;
+                    break;
+                case VATRPWindowType.DIALPAD_VIEW:
+                    BtnDialpad.IsChecked = (bool)e.NewValue;
+                    break;
+                case VATRPWindowType.SETTINGS_VIEW:
+                    BtnSettings.IsChecked = (bool)e.NewValue;
+                    break;
             }
         }
     }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows;
+using System.Windows.Annotations;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -30,15 +31,14 @@ namespace VATRP.App
     public partial class MainWindow 
     {
         #region Members
-        private ContactBox _contactBox =  new ContactBox();
-        private Dialpad _dialpadBox = new Dialpad();
-        private CallProcessingBox _callView = new CallProcessingBox();
-        private HistoryView _historyView = new HistoryView();
-        private CallView _remoteVideoView = new CallView();
-        private SelfView _selfView = new SelfView();
-        private LinphoneService _linphoneService;
-        private ServiceManager _serviceManager;
-
+        private readonly ContactBox _contactBox =  new ContactBox();
+        private readonly Dialpad _dialpadBox = new Dialpad();
+        private readonly CallProcessingBox _callView = new CallProcessingBox();
+        private readonly HistoryView _historyView = new HistoryView();
+        private readonly CallView _remoteVideoView = new CallView();
+        private readonly SelfView _selfView = new SelfView();
+        private readonly SettingsView _settingsView = new SettingsView();
+        private readonly LinphoneService _linphoneService;
         #endregion
 
         #region Properties
@@ -47,15 +47,15 @@ namespace VATRP.App
         public MainWindow() : base(VATRPWindowType.MAIN_VIEW)
         {
             DataContext = this;
-            _serviceManager = ServiceManager.Instance;
-            if (_serviceManager != null)
-                _serviceManager.Start();
+            ServiceManager.Instance.Start();
             _linphoneService = ServiceManager.Instance.LinphoneSipService;
             _linphoneService.RegistrationStateChangedEvent += OnRegistrationChanged;
             _linphoneService.CallStateChangedEvent += OnCallStateChanged;
             _linphoneService.GlobalStateChangedEvent += OnGlobalStateChanged;
             _linphoneService.ErrorEvent += OnErrorEvent;
+            ServiceManager.Instance.NewAccountRegisteredEvent += OnNewAccountRegistered;
             InitializeComponent();
+
         }
 
         private void btnRecents_Click(object sender, RoutedEventArgs e)
@@ -68,7 +68,7 @@ namespace VATRP.App
             ToggleWindow(_contactBox);
         }
 
-        private void ToggleWindow(Window window)
+        private void ToggleWindow(VATRPWindow window)
         {
             if (window == null)
                 return;
@@ -101,7 +101,51 @@ namespace VATRP.App
 
         private void btnSettings_Click(object sender, RoutedEventArgs e)
         {
-            
+            ToggleWindow(_settingsView);
+        }
+
+        private void OnSettingsSaved()
+        {
+            if (_settingsView.SipSettingsChanged ||
+                _settingsView.CodecSettingsChanged ||
+                _settingsView.NetworkSettingsChanged)
+            {
+                ServiceManager.Instance.SaveAccountSettings();
+                if (_settingsView.SipSettingsChanged)
+                    ApplyRegsitrationChanges();
+                if (_settingsView.CodecSettingsChanged)
+                    ServiceManager.Instance.ApplyCodecChanges();
+                if (_settingsView.NetworkSettingsChanged)
+                    ServiceManager.Instance.ApplyNetworkingChanges();
+            }
+        }
+
+        private void ApplyRegsitrationChanges()
+        {
+            this.registerRequested = true;
+            RegUserLabel.Text = string.Format("Account: {0}", App.CurrentAccount.RegistrationUser);
+            ServiceManager.Instance.UpdateLinphoneConfig();
+
+            if (_callView.ActiveCall != null)
+            {
+                var r = MessageBox.Show("The active call will be terminated. Continue?", "VATRP",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (r == MessageBoxResult.OK)
+                {
+                    _linphoneService.TerminateCall(_callView.ActiveCall);
+                }
+                return;
+            }
+            if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk)
+            {
+                _linphoneService.Unregister();
+            }
+            else
+            {
+                _linphoneService.Register();
+            }
+
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
@@ -129,6 +173,7 @@ namespace VATRP.App
             _linphoneService.RegistrationStateChangedEvent -= OnRegistrationChanged;
             _linphoneService.CallStateChangedEvent -= OnCallStateChanged;
             _linphoneService.GlobalStateChangedEvent -= OnGlobalStateChanged;
+            ServiceManager.Instance.NewAccountRegisteredEvent -= OnNewAccountRegistered;
 
             ServiceManager.Instance.Stop();
             Application.Current.Shutdown();
@@ -190,10 +235,10 @@ namespace VATRP.App
         private void OnSourceInitialized(object sender, EventArgs e)
         {
             base.Window_Initialized(sender, e);
-            if (_serviceManager.UpdateLinphoneConfig())
+            if (ServiceManager.Instance.UpdateLinphoneConfig())
             {
-                if (_linphoneService.Start(true))
-                    _linphoneService.Register();
+                if (ServiceManager.Instance.StartLinphoneService())
+                    ServiceManager.Instance.Register();
             }
         }
 
@@ -209,9 +254,15 @@ namespace VATRP.App
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            IConfigurationService confService = ServiceManager.Instance.ConfigurationService;
+            _historyView.IsVisibleChanged += OnChildVisibilityChanged;
+            _contactBox.IsVisibleChanged += OnChildVisibilityChanged;
+            _dialpadBox.IsVisibleChanged += OnChildVisibilityChanged;
+            _settingsView.IsVisibleChanged += OnChildVisibilityChanged;
+            _selfView.IsVisibleChanged += OnChildVisibilityChanged;
+            _settingsView.SettingsSavedEvent += OnSettingsSaved;
 
             App.CurrentAccount = ServiceManager.Instance.LoadActiveAccount();
+            bool hideNavigation = true;
             if (App.CurrentAccount != null)
             {
                 if (!string.IsNullOrEmpty(App.CurrentAccount.ProxyHostname) &&
@@ -220,11 +271,15 @@ namespace VATRP.App
                     App.CurrentAccount.ProxyPort != 0)
                 {
                     ServiceSelector.Visibility = Visibility.Collapsed;
+                    RegUserLabel.Text = string.Format("Account: {0}", App.CurrentAccount.RegistrationUser);
+                    hideNavigation = false;
                 }
             }
-            else
+            
+            if (hideNavigation)
             {
-                Debug.WriteLine("Current AccountService is ");
+                NavPanel.Visibility = Visibility.Collapsed;
+                StatusPanel.Visibility = Visibility.Collapsed;
             }
         }
 

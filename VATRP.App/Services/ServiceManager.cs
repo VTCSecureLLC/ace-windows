@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Web.Script.Serialization;
-using log4net;
+using System.Windows;
 using VATRP.Core.Model;
 using VATRP.Core.Services;
 using VATRP.Core.Interfaces;
@@ -14,9 +15,9 @@ namespace VATRP.App.Services
 {
     internal class ServiceManager : ServiceManagerBase
     {
+        #region Members
         private string _applicationDataPath;
-        private static ServiceManager _singleton = null; // only one instance
-        private static ILog _log = LogManager.GetLogger(typeof(ServiceManager));
+        private static ServiceManager _singleton;
         private IConfigurationService _configurationService;
         private IContactService _contactService;
         private IHistoryService _historyService;
@@ -25,7 +26,13 @@ namespace VATRP.App.Services
         private LinphoneService _linphoneSipService;
         private WebClient _webClient;
         private bool _initialized;
-        
+        #endregion
+
+        #region Event
+        public delegate void NewAccountRegisteredDelegate(string accountId);
+        public event NewAccountRegisteredDelegate NewAccountRegisteredEvent;
+        #endregion
+
         public static ServiceManager Instance
         {
             get { return _singleton ?? (_singleton = new ServiceManager()); }
@@ -38,17 +45,17 @@ namespace VATRP.App.Services
                 if (_applicationDataPath == null)
                 {
                     String applicationData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                    this._applicationDataPath = Path.Combine(applicationData, "VATRP");
-                    Directory.CreateDirectory(this._applicationDataPath);
+                    _applicationDataPath = Path.Combine(applicationData, "VATRP");
+                    Directory.CreateDirectory(_applicationDataPath);
                 }
-                return this._applicationDataPath;
+                return _applicationDataPath;
             }
         }
 
         #region Overrides
         public override string BuildStoragePath(string folder)
         {
-            return Path.Combine(this.ApplicationDataPath, folder);
+            return Path.Combine(ApplicationDataPath, folder);
         }
 
         public override IConfigurationService ConfigurationService
@@ -78,17 +85,13 @@ namespace VATRP.App.Services
 
         public override System.Windows.Threading.Dispatcher Dispatcher
         {
-            get { return App.Current.Dispatcher; }
+            get { return Application.Current.Dispatcher; }
         }
  #endregion
 
         public LinphoneService LinphoneSipService
         {
             get { return _linphoneSipService ?? (_linphoneSipService = new LinphoneService(this)); }
-        }
-        public ServiceManager()
-        {
-            
         }
 
         public bool Initialize()
@@ -102,10 +105,11 @@ namespace VATRP.App.Services
 
         internal bool Start()
         {
-            bool retVal = true;
+            var retVal = true;
             retVal &= ConfigurationService.Start();
             retVal &= AccountService.Start();
             retVal &= SoundService.Start();
+            retVal &= HistoryService.Start();
             return retVal;
         }
 
@@ -117,17 +121,30 @@ namespace VATRP.App.Services
             LinphoneSipService.LinphoneConfig.ProxyHost = string.IsNullOrEmpty(App.CurrentAccount.ProxyHostname) ?
                 Configuration.LINPHONE_SIP_SERVER : App.CurrentAccount.ProxyHostname;
             LinphoneSipService.LinphoneConfig.ProxyPort = App.CurrentAccount.ProxyPort;
-            LinphoneSipService.LinphoneConfig.UserAgent = this.ConfigurationService.Get(Configuration.ConfSection.LINPHONE, Configuration.ConfEntry.LINPHONE_USERAGENT,
+            LinphoneSipService.LinphoneConfig.UserAgent = ConfigurationService.Get(Configuration.ConfSection.LINPHONE, Configuration.ConfEntry.LINPHONE_USERAGENT,
                     Configuration.LINPHONE_USERAGENT);
             LinphoneSipService.LinphoneConfig.Username = App.CurrentAccount.RegistrationUser;
             LinphoneSipService.LinphoneConfig.DisplayName = App.CurrentAccount.DisplayName;
             LinphoneSipService.LinphoneConfig.Password = App.CurrentAccount.RegistrationPassword;
+            string[] transportList = {"UDP", "TCP", "DTLS", "TLS"};
 
+            if (transportList.All(s => App.CurrentAccount.Transport != s))
+            {
+                App.CurrentAccount.Transport = "TCP";
+                AccountService.Save();
+            }
+
+            LinphoneSipService.LinphoneConfig.Transport = App.CurrentAccount.Transport;
+            LinphoneSipService.LinphoneConfig.EnableSTUN = App.CurrentAccount.EnubleSTUN;
+            LinphoneSipService.LinphoneConfig.STUNAddress = App.CurrentAccount.STUNAddress;
+            LinphoneSipService.LinphoneConfig.STUNPort = App.CurrentAccount.STUNPort;
             return true;
+
         }
 
         internal void Stop()
         {
+            HistoryService.Stop();
             ConfigurationService.Stop();
             LinphoneSipService.Unregister();
             LinphoneSipService.Stop();
@@ -216,13 +233,69 @@ namespace VATRP.App.Services
                 Configuration.ConfEntry.ACCOUNT_IN_USE, "");
             if (string.IsNullOrEmpty(accountUID))
                 return null;
-
-            return AccountService.FindAccount(accountUID);
+            var account = AccountService.FindAccount(accountUID);
+            return account;
         }
 
         internal static void LogError(string message, Exception ex)
         {
-            Debug.WriteLine(string.Format("Exception occurred in {0}: {1}", message, ex.Message));
+            Debug.WriteLine("Exception occurred in {0}: {1}", message, ex.Message);
+        }
+
+        internal void SaveAccountSettings()
+        {
+            if (App.CurrentAccount == null)
+                return;
+
+            AccountService.Save();
+        }
+
+        internal bool StartLinphoneService()
+        {
+            if (App.CurrentAccount == null)
+                return false;
+            if (!LinphoneSipService.Start(true))
+                return false;
+            
+            if (App.CurrentAccount.AudioCodecsList.Count > 0)
+                LinphoneSipService.UpdateNativeCodecs(App.CurrentAccount, CodecType.Audio);
+            else
+                LinphoneSipService.FillCodecsList(App.CurrentAccount, CodecType.Audio);
+
+            if (App.CurrentAccount.VideoCodecsList.Count > 0)
+                LinphoneSipService.UpdateNativeCodecs(App.CurrentAccount, CodecType.Video);
+            else
+                LinphoneSipService.FillCodecsList(App.CurrentAccount, CodecType.Video);
+
+            LinphoneSipService.UpdateNetworkingParameters(App.CurrentAccount);
+            return true;
+        }
+
+        internal void Register()
+        {
+            LinphoneSipService.Register();
+        }
+
+        internal void RegisterNewAccount(string id)
+        {
+            if (NewAccountRegisteredEvent != null)
+                NewAccountRegisteredEvent(id);
+        }
+
+        internal void ApplyCodecChanges()
+        {
+            var retValue = LinphoneSipService.UpdateNativeCodecs(App.CurrentAccount,
+                CodecType.Audio);
+
+            retValue &= LinphoneSipService.UpdateNativeCodecs(App.CurrentAccount, CodecType.Video);
+
+            if (!retValue)
+                SaveAccountSettings();
+        }
+
+        internal void ApplyNetworkingChanges()
+        {
+            LinphoneSipService.UpdateNetworkingParameters(App.CurrentAccount);
         }
     }
 }
