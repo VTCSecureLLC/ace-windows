@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>VATRP.LinphoneWrapper</RootNamespace>
-    <AssemblyName>VATRP.LinphoneWrapper</AssemblyName>
+    <AssemblyName>ACE.LinphoneWrapper</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -29,6 +29,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -37,6 +38,7 @@
   <ItemGroup>
     <Compile Include="Enums\LinphoneCallStatus.cs" />
     <Compile Include="Enums\LinphoneCallDir.cs" />
+    <Compile Include="Enums\LinphoneFirewallPolicy.cs" />
     <Compile Include="Enums\LinphoneMediaDirection.cs" />
     <Compile Include="Enums\LinphoneGlobalState.cs" />
     <Compile Include="Enums\LinphoneCallState.cs" />
@@ -48,7 +50,10 @@
     <Compile Include="Structs\LCSipTransports.cs" />
     <Compile Include="Structs\LinphoneCoreVTable.cs" />
     <Compile Include="Structs\LinphoneVideoPolicy.cs" />
+    <Compile Include="Structs\MSList.cs" />
     <Compile Include="Structs\MSVideoSizeDef.cs" />
+    <Compile Include="Structs\PayloadType.cs" />
+    <Compile Include="Structs\PayloadTypeAvpfParams.cs" />
     <Compile Include="Win32NativeAPI.cs" />
   </ItemGroup>
   <ItemGroup />
