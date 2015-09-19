@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Linq.Mapping;
 
 namespace VATRP.Core.Model
@@ -43,6 +44,21 @@ namespace VATRP.Core.Model
 
         [Column]
         public ushort ProxyPort { get; set; }
+
+        [Column]
+        public string Transport { get; set; }
+
+        [Column]
+        public bool EnubleSTUN { get; set; }
+
+        [Column]
+        public string STUNAddress { get; set; }
+
+        [Column]
+        public ushort STUNPort { get; set; }
+
+        public List<VATRPCodec> AudioCodecsList = new List<VATRPCodec>();
+        public List<VATRPCodec> VideoCodecsList = new List<VATRPCodec>();
         #endregion
 
         #region Methods
@@ -52,6 +68,7 @@ namespace VATRP.Core.Model
             AccountID = Guid.NewGuid().ToString();
             ProxyPort = Configuration.LINPHONE_SIP_PORT;
             ProxyHostname = Configuration.LINPHONE_SIP_SERVER;
+            Transport = "TCP";
         }
 
         #endregion
