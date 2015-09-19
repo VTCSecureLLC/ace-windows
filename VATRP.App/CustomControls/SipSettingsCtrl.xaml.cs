@@ -67,27 +67,52 @@ namespace VATRP.App.CustomControls
             ushort.TryParse(HostPortBox.Text, out port);
 
             if (port != App.CurrentAccount.ProxyPort && port != 0)
-                return false;
+                return true;
 
             var s = TransportBox.SelectedItem as TextBlock;
             if (s != null && s.Text != App.CurrentAccount.Transport)
             {
                 return true;
             }
-            return true;
+
+            return false;
         }
 
         public bool Save()
         {
             if (App.CurrentAccount == null)
                 return false;
-            App.CurrentAccount.Username = LoginBox.Text;
-            App.CurrentAccount.Password = PasswdBox.Password;
-            App.CurrentAccount.ProxyHostname = HostnameBox.Text;
+            
+            if (string.IsNullOrWhiteSpace(LoginBox.Text))
+            {
+                MessageBox.Show("Incorrect login", "VATRP", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(PasswdBox.Password))
+            {
+                MessageBox.Show("Empty password is not allowed", "VATRP", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(HostnameBox.Text))
+            {
+                MessageBox.Show("Incorrect SIP Server Address", "VATRP", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+            
             ushort port = 0;
 
             ushort.TryParse(HostPortBox.Text, out port);
+            if (port < 1 || port > 65535)
+            {
+                MessageBox.Show("Incorrect SIP Server Port", "VATRP", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
             App.CurrentAccount.ProxyPort = port;
+            App.CurrentAccount.Username = LoginBox.Text;
+            App.CurrentAccount.Password = PasswdBox.Password;
+            App.CurrentAccount.ProxyHostname = HostnameBox.Text;
             App.CurrentAccount.RegistrationUser = LoginBox.Text;
             App.CurrentAccount.RegistrationPassword = PasswdBox.Password;
             var s = TransportBox.SelectedItem as TextBlock;

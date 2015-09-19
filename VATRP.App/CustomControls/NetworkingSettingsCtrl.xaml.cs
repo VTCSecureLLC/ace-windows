@@ -62,12 +62,29 @@ namespace VATRP.App.CustomControls
         {
             if (App.CurrentAccount == null)
                 return false;
-            App.CurrentAccount.EnubleSTUN = EnableStunCheckBox.IsChecked ?? false;
-            App.CurrentAccount.STUNAddress = StunHostnameBox.Text;
+            var stunEnabled = EnableStunCheckBox.IsChecked ?? false;
+
+            if (!stunEnabled)
+                return true;
+
+            if (string.IsNullOrWhiteSpace(StunHostnameBox.Text))
+            {
+                MessageBox.Show("Incorrect STUN address", "VATRP", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            
             ushort port = 0;
 
             ushort.TryParse(StunHostPortBox.Text, out port);
+            if ( port < 1 || port > 65535)
+            {
+                MessageBox.Show("Incorrect STUN port", "VATRP", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+            App.CurrentAccount.STUNAddress = StunHostnameBox.Text;
             App.CurrentAccount.STUNPort = port;
+            App.CurrentAccount.EnubleSTUN = stunEnabled;
             return true;
         }
 
