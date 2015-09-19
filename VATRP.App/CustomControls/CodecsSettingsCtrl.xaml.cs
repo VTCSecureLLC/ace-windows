@@ -52,7 +52,6 @@ namespace VATRP.App.CustomControls
             if (App.CurrentAccount == null)
                 return false;
 
-           
             return true;
         }
 
@@ -65,5 +64,40 @@ namespace VATRP.App.CustomControls
         }
 
         #endregion
+
+        private void AudioCodecsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+        }
+
+        public static T FindAncestorOrSelf<T>(DependencyObject obj)
+        where T : DependencyObject
+        {
+            while (obj != null)
+            {
+                T objTest = obj as T;
+
+                if (objTest != null)
+                    return objTest;
+
+                obj = VisualTreeHelper.GetParent(obj);
+            }
+            return null;
+        }
+
+        private void CheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            var lvItem = FindAncestorOrSelf<ListViewItem>(sender as CheckBox);
+            var listView = ItemsControl.ItemsControlFromItemContainer(lvItem) as ListView;
+            if (listView != null)
+            {
+                listView.SelectedItem = null;
+                var index = listView.ItemContainerGenerator.IndexFromContainer(lvItem);
+                listView.SelectedIndex = index;
+            }
+        }
+
+        private void VideoCodecsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+        }
     }
 }

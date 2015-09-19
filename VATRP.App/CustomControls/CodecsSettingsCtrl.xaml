@@ -5,20 +5,22 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="300" 
-             MinWidth="300"
              Loaded="OnLoaded">
     <Grid>
         <StackPanel Orientation="Vertical" Margin="10">
             <TextBlock Margin="0,5,0,5" Text="Audio Codecs" FontSize="14"/>
-            <ListView Height="150" x:Name="AudioCodecsListView" SelectionMode="Single">
+            <ListView Height="150" x:Name="AudioCodecsListView" SelectionMode="Single" SelectionChanged="AudioCodecsListView_SelectionChanged">
                 <ListView.View>
                     <GridView >
                         <GridViewColumn Header="Name" Width="100" DisplayMemberBinding="{Binding Path=CodecName}"/>
-                        <GridViewColumn Header="Status" Width="100">
+                        <GridViewColumn Header="Rate (Hz)" Width="80" DisplayMemberBinding="{Binding Path=Rate}"/>
+                        <GridViewColumn Header="Channels" Width="80" DisplayMemberBinding="{Binding Path=Channels}"/>
+                        <GridViewColumn Header="Status" Width="50">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <StackPanel Width="100">
-                                    <CheckBox IsChecked="{Binding Path=Status}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                    <StackPanel Width="50">
+                                        <CheckBox IsChecked="{Binding Path=Status, Mode=TwoWay}" 
+                                              VerticalAlignment="Center" HorizontalAlignment="Center" Click="CheckBox_Click" />
                                     </StackPanel>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
@@ -28,15 +30,19 @@
                 
             </ListView>
             <TextBlock Margin="0,10,0,5" Text="Video Codecs" FontSize="14"/>
-            <ListView Height="130" x:Name="VideoCodecsListView" SelectionMode="Single">
+            <ListView Height="130" x:Name="VideoCodecsListView" SelectionMode="Single" SelectionChanged="VideoCodecsListView_SelectionChanged">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Name" Width="100" DisplayMemberBinding="{Binding Path=CodecName}"/>
-                        <GridViewColumn Header="Status" Width="100">
+                        <GridViewColumn Header="Rate (Hz)" Width="80" DisplayMemberBinding="{Binding Path=Rate}"/>
+                        <GridViewColumn Header="Channels" Width="80" DisplayMemberBinding="{Binding Path=Channels}"/>
+                        <GridViewColumn Header="Status" Width="50">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <StackPanel Width="100">
-                                        <CheckBox IsChecked="{Binding Path=Status}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                    <StackPanel Width="50">
+                                        <CheckBox IsChecked="{Binding Path=Status, Mode=TwoWay}" 
+                                                  Click="CheckBox_Click"
+                                                  VerticalAlignment="Center" HorizontalAlignment="Center" />
                                     </StackPanel>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
