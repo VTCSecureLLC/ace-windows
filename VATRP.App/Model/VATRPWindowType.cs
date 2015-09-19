@@ -13,6 +13,7 @@ namespace VATRP.App.Model
         MAIN_VIEW,
         MESSAGE_VIEW,
         RECENTS_VIEW,
-        SELF_VIEW
+        SELF_VIEW,
+        SETTINGS_VIEW
     }
 }

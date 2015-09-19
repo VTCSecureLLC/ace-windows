@@ -13,7 +13,8 @@ namespace VATRP.App.Model
     public class VATRPWindow : Window
     {
         private readonly System.Timers.Timer moveDetectionTimer;
-        protected  VATRPWindowType WindowType { get; private set; }
+        public  VATRPWindowType WindowType { get; private set; }
+        
         protected VATRPWindow(VATRPWindowType wndType)
         {
             IsActivated = false;
@@ -181,6 +182,9 @@ namespace VATRP.App.Model
                     return Configuration.ConfSection.HISTORY_WINDOW;
                 case VATRPWindowType.SELF_VIEW:
                     return Configuration.ConfSection.SELF_WINDOW;
+                case VATRPWindowType.SETTINGS_VIEW:
+                    return Configuration.ConfSection.SETTINGS_WINDOW;
+
                 default:
                     throw new ArgumentOutOfRangeException("wndType");
             }
@@ -204,6 +208,9 @@ namespace VATRP.App.Model
                     return new Point() { X = 500, Y = 100 };
                 case VATRPWindowType.SELF_VIEW:
                     return new Point() { X = 100, Y = 400 };
+                case VATRPWindowType.SETTINGS_VIEW:
+                    return new Point() { X = 100, Y = 400 };
+
                 default:
                     throw new ArgumentOutOfRangeException("wndType");
             }
