@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Threading;
 using log4net;
 using VATRP.App.Services;
+using VATRP.Core.Model;
 
 namespace VATRP.App
 {
@@ -29,6 +30,8 @@ namespace VATRP.App
         }
         public static Core.Model.VATRPAccount CurrentAccount { get; set; }
         public static bool CanMakeVideoCall { get; set; }
+
+        internal static VATRPCallEvent ActiveCallHistoryEvent { get; set; }
         #endregion
 
         private void App_OnStartup(object sender, StartupEventArgs e)
