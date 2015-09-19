@@ -12,6 +12,7 @@ namespace VATRP.Core.Model
         protected DateTime _date;
         protected string _displayName;
         protected VATRPContact _contact;
+        protected string _guid;
 
         [Flags]
         public enum StatusType
@@ -28,11 +29,13 @@ namespace VATRP.Core.Model
 
         protected VATRPHistoryEvent()
         {
-            this._status = StatusType.Missed;
-            this._date = DateTime.Now;
+            _status = StatusType.Missed;
+            _date = DateTime.Now;
+            _guid = Guid.NewGuid().ToString();
         }
 
-        protected VATRPHistoryEvent(string localParty, string remoteParty)
+        protected VATRPHistoryEvent(string localParty, string remoteParty):
+            this()
         {
             this._localParty = localParty;
             this._remoteParty = remoteParty;
@@ -63,6 +66,11 @@ namespace VATRP.Core.Model
             }
         }
 
+        public string CallGuid
+        {
+            get { return _guid; }
+            set { _guid = value; }
+        }
 
         public int CompareTo(VATRPHistoryEvent other)
         {
