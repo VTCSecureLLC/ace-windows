@@ -15,6 +15,7 @@ namespace VATRP.Core.Model
             DOCK_WINDOW,
             HISTORY_WINDOW,
             SELF_WINDOW,
+            SETTINGS_WINDOW,
             MENUBAR,
             LINPHONE,
             ACCOUNT
