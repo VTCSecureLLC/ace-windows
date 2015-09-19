@@ -21,7 +21,11 @@ namespace VATRP.Core.Services
 
             public string UserAgent { get; set; }
             public string Version { get; set; }
-         
+
+            public string Transport { get; set; }
+            public string STUNAddress { get; set; }
+            public int STUNPort { get; set; }
+            public bool EnableSTUN { get; set; }
         }
 
     }
