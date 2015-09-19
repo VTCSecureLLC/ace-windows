@@ -2,7 +2,7 @@
 
 namespace VATRP.Core.Events
 {
-    public class ConfigurationEventArgs : MyEventArgs
+    public class ConfigurationEventArgs : VATRPEventArgs
     {
         private readonly Configuration.ConfSection section;
         private readonly Configuration.ConfEntry entry;
