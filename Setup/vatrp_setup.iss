@@ -2,26 +2,26 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 [Setup]
-AppName=VATRP
-AppVerName=VATRP 0.0.0.3
+AppName=ACE
+AppVerName=ACE 0.0.0.3
 AppPublisher=
-DefaultDirName={pf}\VATRP
-DefaultGroupName=VATRP
+DefaultDirName={pf}\ACE
+DefaultGroupName=ACE
 Compression=zip/9
 DisableStartupPrompt=true
-OutputBaseFilename=VATRP_0.0.0.3_x86_18.09.2015
+OutputBaseFilename=ACE_0.0.0.3_x86
 ; uncomment the following line if you want your installation to run on NT 3.51 too.
 ; MinVersion=4,3.51
 OutputDir=Out
 AppVersion=0.0.0.3
-UninstallDisplayIcon={app}\VATRP.exe,1
-UninstallDisplayName=VATRP 
+UninstallDisplayIcon={app}\ACE.exe,1
+UninstallDisplayName=ACE 
 LicenseFile=license.txt
 VersionInfoVersion=0.0.0.3
-VersionInfoDescription=VATRP
+VersionInfoDescription=ACE
 VersionInfoTextVersion=0.0.0.3
 VersionInfoCopyright=Copyright (C) 2015
-VersionInfoProductName=VATRP
+VersionInfoProductName=ACE
 VersionInfoProductVersion=0.0.0.3
 AppendDefaultGroupName=false
 UsePreviousAppDir=false
@@ -33,7 +33,7 @@ Name: desktopicon; Description: Create a &desktop icon; GroupDescription: Additi
 
 [Files]
 
-Source: ..\VATRP.App\bin\Release\VATRP.exe; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\ACE.exe; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\avcodec-53.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\avutil-51.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\intl.dll; DestDir: {app}; Flags: ignoreversion
@@ -60,14 +60,14 @@ Source: ..\VATRP.App\bin\Release\pthreadGC2.dll; DestDir: {app}; Flags: ignoreve
 Source: ..\VATRP.App\bin\Release\SQLite.Interop.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\swscale-2.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\System.Data.SQLite.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\VATRP.Core.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\VATRP.LinphoneWrapper.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\ACE.Core.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\ACE.LinphoneWrapper.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\zlib1.dll; DestDir: {app}; Flags: ignoreversion
 
 [Icons]
-Name: {group}\VATRP; Filename: {app}\VATRP.exe; IconIndex: 0
-Name: {group}\Uninstall VATRP; Filename: {app}\unins000.exe; WorkingDir: {app}
-Name: {userdesktop}\VATRP; Filename: {app}\VATRP.exe; Tasks: desktopicon; IconIndex: 0
+Name: {group}\ACE; Filename: {app}\ACE.exe; IconIndex: 0
+Name: {group}\Uninstall ACE; Filename: {app}\unins000.exe; WorkingDir: {app}
+Name: {userdesktop}\ACE; Filename: {app}\ACE.exe; Tasks: desktopicon; IconIndex: 0
 
 [Run]
-Filename: {app}\VATRP.exe; Description: Launch VATRP; Flags: nowait postinstall skipifsilent
+Filename: {app}\ACE.exe; Description: Launch ACE; Flags: nowait postinstall skipifsilent
