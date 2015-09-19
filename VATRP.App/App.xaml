@@ -8,6 +8,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Styles/VATRPRD.xaml"/>
+                <ResourceDictionary Source="Styles/ListBoxRD.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
 
