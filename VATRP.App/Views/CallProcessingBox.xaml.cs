@@ -53,11 +53,28 @@ namespace VATRP.App.Views
                     secondsInCall = 0;
                     this.CallDurationBox.Visibility = Visibility.Collapsed;
                     this.CallStateBox.Text = "Trying";
+                    if (App.ActiveCallHistoryEvent == null)
+                    {
+                        App.ActiveCallHistoryEvent = new VATRPCallEvent(App.CurrentAccount.RegistrationUser, call.To.Username)
+                        {
+                            DisplayName = call.To.DisplayName,
+                            Status = VATRPHistoryEvent.StatusType.Outgoing
+                        };
+                    }
                     break;
                 case VATRPCallState.InProgress:
                     secondsInCall = 0;
+                    _currentCall.CallState = VATRPCallState.Ringing;
                     CallerDisplayNameBox.Text = _currentCall.From.DisplayName;
                     CallerNumberBox.Text = _currentCall.From.Username;
+                    if (App.ActiveCallHistoryEvent == null)
+                    {
+                        App.ActiveCallHistoryEvent = new VATRPCallEvent(App.CurrentAccount.RegistrationUser, call.From.Username)
+                        {
+                            DisplayName = call.From.DisplayName,
+                            Status = VATRPHistoryEvent.StatusType.Incoming
+                        };
+                    }
                     ReceiveCall(call);
                     break;
                 case VATRPCallState.Ringing:
@@ -75,17 +92,51 @@ namespace VATRP.App.Views
                     this.IncomingPanel.Visibility = Visibility.Collapsed;
                     this.InCallPanel.Visibility = Visibility.Visible;
                     this.timerCall.Start();
+                    _currentCall.CallEstablishTime = DateTime.Now;
                     BtnMute.Content = _linphoneService.IsCallMuted() ? "UnMute" : "Mute";
                     break;
                 case VATRPCallState.Closed:
                     callStatusString = "Call is terminated.";
                     this.CallStateBox.Text = "Terminated";
                     this.Hide();
+                    
+                    if (App.ActiveCallHistoryEvent != null)
+                    {
+                        if (secondsInCall == 0)
+                        {
+                            if (App.ActiveCallHistoryEvent.Status == VATRPHistoryEvent.StatusType.Incoming)
+                                App.ActiveCallHistoryEvent.Status = VATRPHistoryEvent.StatusType.Missed;
+                        }
+                        else
+                        {
+                            App.ActiveCallHistoryEvent.EndTime = DateTime.Now;
+                        }
+                        ServiceManager.Instance.HistoryService.AddCallEvent(App.ActiveCallHistoryEvent);
+                        App.ActiveCallHistoryEvent = null;
+                    }
                     ActiveCall = null;
+                    secondsInCall = 0;
                     break;
                 case VATRPCallState.Error:
                     callStatusString = "Call failure !";
                     this.CallStateBox.Text = "Error occurred";
+                    if (App.ActiveCallHistoryEvent != null)
+                    {
+                        if (secondsInCall == 0)
+                        {
+                            if (App.ActiveCallHistoryEvent.Status == VATRPHistoryEvent.StatusType.Incoming)
+                                App.ActiveCallHistoryEvent.Status = VATRPHistoryEvent.StatusType.Missed;
+                        }
+                        else
+                        {
+                            App.ActiveCallHistoryEvent.EndTime = DateTime.Now;
+                        }
+                        ServiceManager.Instance.HistoryService.AddCallEvent(App.ActiveCallHistoryEvent);
+                        App.ActiveCallHistoryEvent = null;
+                    }
+                    ActiveCall = null;
+                    secondsInCall = 0;
+                    this.Hide();
                     break;
                 default:
                     break;
