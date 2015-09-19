@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using log4net;
+using VATRP.Core.Events;
 using VATRP.Core.Interfaces;
+using VATRP.Core.Model;
 
 namespace VATRP.Core.Services
 {
@@ -13,97 +17,50 @@ namespace VATRP.Core.Services
         private static readonly ILog LOG = LogManager.GetLogger(typeof (HistoryService));
 
         private readonly ServiceManagerBase manager;
+        private readonly string connectionString;
+        private readonly string dbFilePath;
+        private bool isLoadingCalls;
 
-        private bool _isStarting;
-        private bool _isStarted;
-        private bool _isStopping;
-        private bool _isStopped;
-        private string connectionString = "history.db";
-        
+        public event EventHandler<VATRPCallEventArgs> OnCallHistoryEvent;
+
         public HistoryService(ServiceManagerBase manager)
         {
             this.manager = manager;
-            _isStarting = false;
-            _isStarted = false;
-
+            dbFilePath = manager.BuildStoragePath("history.db");
+            connectionString = string.Format("Data Source={0};Version=3;UseUTF16Encoding=True;", dbFilePath);
             CreateHistoryTables();
         }
 
 
-        #region IService
-        public bool IsStarting
-        {
-            get
-            {
-                return _isStarting;
-            }
-        }
-
-        public bool IsStarted
-        {
-            get
-            {
-                return _isStarted;
-            }
-        }
-
-        public bool IsStopping
-        {
-            get
-            {
-                return _isStopping;
-            }
-        }
-
-        public bool IsStopped
-        {
-            get
-            {
-                _isStopped = true;
-                return _isStopped;
-            }
-        }
-        #endregion
-
         #region IVATRPService
         public bool Start()
         {
-            if (IsStarting)
-                return false;
+            CreateHistoryTables();
 
-            if (IsStarted)
-                return true;
-
-            LoadCalls();
-            LoadMessages();
             return false;
         }
 
         public bool Stop()
         {
-            if (IsStarting || IsStopping)
-                return false;
-
-            if (IsStopped)
-                return true;
-            _isStopping = true;
-            _isStopped = true;
             return false;
         }
         #endregion
 
         private void CreateHistoryTables()
         {
+            if (!File.Exists(dbFilePath))
+                SQLiteConnection.CreateFile(dbFilePath);
+
             var connection = new SQLiteConnection(connectionString);
-            var sqlString = string.Empty;
             var cmd = new SQLiteCommand
             {
                 Connection = connection
             };
 
-            sqlString = @"CREATE TABLE IF NOT EXISTS log_calls (
-'log_id'  integer NOT NULL, 'caller' string, 'callee' string, 'start_uts' integer, 'call_state' string,
-PRIMARY KEY ('log_id' ASC)";
+            var sqlString = @"CREATE TABLE IF NOT EXISTS log_calls (
+'log_id'  integer PRIMARY KEY AUTOINCREMENT NOT NULL, 'call_guid' string, 'local' string, 
+ 'remote' string, 'log_uts' integer, 'duration' integer default 0, 'call_state' string, 'contact' string, 
+ 'codec' string)";
             try
             {
                 if (connection.State != ConnectionState.Open)
@@ -118,38 +75,18 @@ PRIMARY KEY ('log_id' ASC)";
             }
             catch (Exception ex)
             {
-            }
-
-            sqlString = @"CREATE TABLE IF NOT EXISTS log_messages (
-'log_id'  integer NOT NULL, 'sender' string, 'receiver' string, 'message_uts' integer, 'call_state' string, 'message' string,
-PRIMARY KEY ('log_id' ASC)";
-            try
-            {
-                if (connection.State != ConnectionState.Open)
-                    connection.Open();
-
-                cmd.CommandText = sqlString;
-                cmd.ExecuteNonQuery();
-            }
-            catch (SQLiteException ex)
-            {
-                Debug.WriteLine("SQLite exception: " + ex.ToString());
-            }
-            catch (Exception ex)
-            {
+                Debug.WriteLine(ex.Message);
             }
 
             if (connection.State != ConnectionState.Closed)
                 connection.Close();
         }
 
-        private void LoadMessages()
+        #region IHistoryService
+        public List<VATRPCallEvent> LoadCallEvents(int limit)
         {
-
-        }
-
-        private void LoadCalls()
-        {
+            isLoadingCalls = true;
+            var calls = new List<VATRPCallEvent>();
             var connection = new SQLiteConnection(connectionString);
             var cmd = new SQLiteCommand
             {
@@ -164,7 +101,32 @@ PRIMARY KEY ('log_id' ASC)";
 
                 using (var reader = cmd.ExecuteReader())
                 {
+                    while (reader.Read())
+                    {
+                        var local = reader["local"].ToString();
+                        var remote = reader["remote"].ToString();
+                        var callevent = new VATRPCallEvent(local, remote);
 
+                        callevent.CallGuid = reader["call_guid"].ToString();
+                        callevent.StartTime = new DateTime(Convert.ToInt64(reader["log_uts"]));
+
+                        callevent.EndTime = callevent.StartTime.AddSeconds(Convert.ToInt32(reader["duration"]));
+                        try
+                        {
+                            callevent.Status =
+                                (VATRPHistoryEvent.StatusType)
+                                    Enum.Parse(typeof (VATRPHistoryEvent.StatusType), reader["call_state"].ToString());
+                        }
+                        catch 
+                        {
+                            continue;
+                        }
+                        if (!reader.IsDBNull(7))
+                            callevent.Contact = manager.ContactService.FindContactId(reader["contact"].ToString());
+                        if (!reader.IsDBNull(8))
+                            callevent.Codec = reader["codec"].ToString();
+                        calls.Add(callevent);
+                    }
                 }
             }
             catch (SQLiteException ex)
@@ -173,7 +135,97 @@ PRIMARY KEY ('log_id' ASC)";
             }
             catch (Exception ex)
             {
+                Debug.WriteLine(ex.Message);
+            }
+            isLoadingCalls = false;
+            return calls;
+        }
+
+        public bool IsLoadingCalls
+        {
+            get { return isLoadingCalls; }
+        }
+
+        public int AddCallEvent(VATRPCallEvent callEvent)
+        {
+            var retVal = 0;
+            using (var sql_con = new SQLiteConnection(connectionString))
+            {
+                try
+                {
+                    var insertSQL =
+                        new SQLiteCommand("INSERT INTO log_calls (log_id, call_guid, local, remote, log_uts, " +
+                                          "duration, call_state, contact, codec) VALUES (null, @call_guid, @local, @remote, @log_uts, " +
+                                          "@duration, @call_state, @contact, @codec)",
+                            sql_con);
+                    insertSQL.Parameters.AddWithValue("@call_guid", callEvent.CallGuid);
+                    insertSQL.Parameters.AddWithValue("@local", callEvent.LocalParty);
+                    insertSQL.Parameters.AddWithValue("@remote", callEvent.RemoteParty);
+                    insertSQL.Parameters.AddWithValue("@log_uts", callEvent.StartTime.Ticks);
+                    insertSQL.Parameters.AddWithValue("@duration", callEvent.Duration);
+                    insertSQL.Parameters.AddWithValue("@call_state", callEvent.Status.ToString());
+                    insertSQL.Parameters.AddWithValue("@contact", callEvent.Contact != null ? callEvent.Contact.ContactID : null);
+                    insertSQL.Parameters.AddWithValue("@codec", callEvent.Codec);
+
+
+                    sql_con.Open();
+                    retVal = insertSQL.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.ToString());
+                }
+            }
+
+            if (retVal > 0)
+            {
+                if (OnCallHistoryEvent != null)
+                {
+                    OnCallHistoryEvent(callEvent, new VATRPCallEventArgs());
+                }
+            }
+            return retVal;
+        }
+
+        public int DeleteCallEvent(string call_guid)
+        {
+            var retVal = 0;
+            using (var sql_con = new SQLiteConnection(connectionString))
+            {
+                var deleteSQL = new SQLiteCommand("DELETE FROM log_calls WHERE call_guid = ?",
+                    sql_con);
+                deleteSQL.Parameters.Add(call_guid);
+                try
+                {
+                    sql_con.Open();
+                    retVal = deleteSQL.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("DeleteCallEvent: " + ex.ToString());
+                }
+            }
+            return retVal;
+        }
+
+        public void ClearCallsItems()
+        {
+            using (var sql_con = new SQLiteConnection(connectionString))
+            {
+                var deleteSQL = new SQLiteCommand("DELETE FROM log_calls",
+                    sql_con);
+                try
+                {
+                    sql_con.Open();
+                    deleteSQL.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("DeleteCallEvent: " + ex.ToString());
+                }
             }
         }
+
+        #endregion
     }
 }
