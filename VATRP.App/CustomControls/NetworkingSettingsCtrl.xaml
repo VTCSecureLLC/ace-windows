@@ -14,7 +14,7 @@
 
             <Grid Margin="15,10" x:Name="STUNParamsTable">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="90"/>
+                    <ColumnDefinition Width="110"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
@@ -22,10 +22,10 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <TextBlock Margin="3,2,3,2" Text="Server Address" FontSize="13" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"/>
-                <TextBox  x:Name="StunHostnameBox" FontSize="14" Grid.Column="1" Margin="3" Grid.Row="0" Width="150" Height="24"/>
+                <TextBox  x:Name="StunHostnameBox" FontSize="14" Grid.Column="1" Margin="3" Grid.Row="0" Width="150" Height="24" IsEnabled="{Binding IsChecked, ElementName=EnableStunCheckBox}"/>
 
                 <TextBlock Margin="3,2,3,2" Text="Server Port" FontSize="13" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"/>
-                <TextBox  x:Name="StunHostPortBox" FontSize="14" Grid.Column="1" Margin="3" Grid.Row="1" Width="150" Height="24"/>
+                <TextBox  x:Name="StunHostPortBox" FontSize="14" Grid.Column="1" Margin="3" Grid.Row="1" Width="150" Height="24" IsEnabled="{Binding IsChecked, ElementName=EnableStunCheckBox}"/>
 
             </Grid>
         </StackPanel>

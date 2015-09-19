@@ -20,7 +20,7 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="45" />
+                    <RowDefinition Height="50" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -138,10 +138,12 @@
                 </Button>
                     <Button x:Name="buttonAudioCall" Margin="2,2" Grid.Column="0"  Grid.Row="5" Grid.ColumnSpan="3" Style="{StaticResource DialpadAudioCallHover}" Click="VideoCallClick"  Cursor="Hand">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
-                        <TextBlock Margin="0,0,0,0" HorizontalAlignment="Center" 
-                                   VerticalAlignment="Center" FontSize="14">
-								<Run Text="Call"/>
-                        </TextBlock>
+                        <Rectangle Width="26" Height="26" Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="#FF1C2518">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="..\Resources\cameraview.png" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock Margin="10,0,0,0" FontSize="20" Text="Call" VerticalAlignment="Center" FontWeight="SemiBold"/>
                     </StackPanel>
                     </Button>
             </Grid>
