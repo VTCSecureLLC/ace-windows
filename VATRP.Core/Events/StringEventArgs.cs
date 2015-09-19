@@ -1,7 +1,7 @@
 ﻿
 namespace VATRP.Core.Events
 {
-    public class StringEventArgs : MyEventArgs
+    public class StringEventArgs : VATRPEventArgs
     {
         private readonly string _value;
 
