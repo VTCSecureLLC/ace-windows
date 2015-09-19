@@ -3,26 +3,26 @@
 
 [Setup]
 AppName=ACE
-AppVerName=ACE 0.0.0.3
+AppVerName=ACE 0.0.0.4
 AppPublisher=
 DefaultDirName={pf}\ACE
 DefaultGroupName=ACE
 Compression=zip/9
 DisableStartupPrompt=true
-OutputBaseFilename=ACE_0.0.0.3_x86
+OutputBaseFilename=ACE_0.0.0.4_x86
 ; uncomment the following line if you want your installation to run on NT 3.51 too.
 ; MinVersion=4,3.51
 OutputDir=Out
-AppVersion=0.0.0.3
+AppVersion=0.0.0.4
 UninstallDisplayIcon={app}\ACE.exe,1
 UninstallDisplayName=ACE 
 LicenseFile=license.txt
-VersionInfoVersion=0.0.0.3
+VersionInfoVersion=0.0.0.4
 VersionInfoDescription=ACE
-VersionInfoTextVersion=0.0.0.3
+VersionInfoTextVersion=0.0.0.4
 VersionInfoCopyright=Copyright (C) 2015
 VersionInfoProductName=ACE
-VersionInfoProductVersion=0.0.0.3
+VersionInfoProductVersion=0.0.0.4
 AppendDefaultGroupName=false
 UsePreviousAppDir=false
 DirExistsWarning=no
