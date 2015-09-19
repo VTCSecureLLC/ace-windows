@@ -6,23 +6,26 @@ namespace VATRP.Core.Model
     {
         private DateTime startTime;
         private DateTime endTime;
-        private string _callCost;
-        private double _duration;
-        private string _codecs;
+        private int _duration = 0;
+        private string _codecs = string.Empty;
 
         public VATRPCallEvent() 
-            : this(null, null, null)
+            : this(null, null)
         {
             
         }
 
-        public VATRPCallEvent(string codec,  string localParty, string remoteParty)
+        public VATRPCallEvent(string localParty, string remoteParty)
             : base (localParty, remoteParty)
         {
             this.startTime = base._date;
             this.endTime = base._date;
-            _duration = 0;
-            _codecs = codec;
+        }
+
+        public string Codec
+        {
+            get { return _codecs; }
+            set { _codecs = value; }
         }
 
         public DateTime StartTime
@@ -77,17 +80,7 @@ namespace VATRP.Core.Model
             }
         }
 
-        public string Cost
-        {
-            get { return this._callCost; }
-            set
-            {
-                this._callCost = value;
-                NotifyPropertyChanged("Cost");
-            }
-        }
-
-        public double Duration
+        public int Duration
         {
             get
             {
