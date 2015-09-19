@@ -91,7 +91,14 @@ namespace VATRP.Core.Model
                 this._lastName = value;
                 this.OnPropertyChanged("LastName");
             }
-        }  
+        }
+        public string ContactID
+        {
+            get
+            {
+                return _contactId;
+            }
+        } 
         public string ImageUrl
         {
             get { return _imageurl; }
