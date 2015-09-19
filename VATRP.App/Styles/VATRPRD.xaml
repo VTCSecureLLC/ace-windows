@@ -24,6 +24,12 @@
     <SolidColorBrush x:Key="AcceptButtonNormalBrush" Color="#ff1ba1e2"/>
     <SolidColorBrush x:Key="AcceptButtonClickedBrush" Color="#ff1fb4ff"/>
 
+    <SolidColorBrush x:Key="NavigationBarBg" Color ="#FFDBDBDB"/>
+    <SolidColorBrush x:Key="NavigationBarNormalButtonBg" Color ="#FF484848"/>
+    <SolidColorBrush x:Key="NavigationBarNormalButtonFont" Color ="#FFDBDBDB"/>
+    <SolidColorBrush x:Key="NavigationBarPressedButtonBg" Color ="#FFB9B9B9"/>
+    <SolidColorBrush x:Key="NavigationBarPressedButtonFont" Color ="#FF484848"/>
+
     <SolidColorBrush x:Key="DialpadPageBackButtonNormalFont" Color ="#FFb9ecff"/>
     <SolidColorBrush x:Key="DialpadPageBackButtonXNormalFont" Color ="#FFFFFFFF"/>
     <SolidColorBrush x:Key="DialpadPageBackButtonPressedFont" Color ="#FFb9ecff"/>
@@ -36,6 +42,22 @@
     <SolidColorBrush x:Key="DialpadPageKeyButtonNormalTextFont" Color ="#FF000000"/>
     <SolidColorBrush x:Key="DialpadPageKeyButtonDisabledTextFont" Color ="#FF000000"/>
 
+    <SolidColorBrush x:Key="RecentsPageMainBg" Color ="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="RecentsPageControlBg" Color ="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="RecentsPageActiveTabFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="RecentsPageActiveTabBg" Color ="#FF88FF00"/>
+    <SolidColorBrush x:Key="RecentsPageInactiveTabFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="RecentsPageInactiveTabBg" Color ="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="RecentsPageCallerFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="RecentsPageDateFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="RecentsPageMissedFont" Color ="#FF00A8E6"/>
+    <SolidColorBrush x:Key="RecentsPageCostFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="RecentsPageDurationFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="RecentsPageSearchTextboxBorder" Color ="#FFc6c6c6"/>
+    <SolidColorBrush x:Key="RecentsPageHeaderBg" Color ="#FFDBDBDB"/>
+    <SolidColorBrush x:Key="RecentsPageSearchHintFont" Color ="#FFDBDBDB"/>
+    <SolidColorBrush x:Key="RecentsPageSearchTextboxFont" Color ="#FF000000"/>
+    
     <Style x:Key="VATRPTextStyle" TargetType="TextBlock">
         <Setter Property="Foreground" Value="#ff000000" />
     </Style>
