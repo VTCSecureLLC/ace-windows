@@ -14,6 +14,12 @@ namespace VATRP.LinphoneWrapper
         public const int LC_SIP_TRANSPORT_RANDOM = -1; // Randomly chose a sip port for this transport
         public const int LC_SIP_TRANSPORT_DISABLED = 0; // Disable a sip transport
 
+        public const int LINPHONE_FIND_PAYLOAD_IGNORE_RATE = -1;
+            // Wildcard value used by #linphone_core_find_payload_type to ignore rate in search algorithm
+
+        public const int LINPHONE_FIND_PAYLOAD_IGNORE_CHANNELS = -1;
+            // Wildcard value used by #linphone_core_find_payload_type to ignore channel in search algorithm
+
         #endregion
 
         #region Methods
@@ -823,6 +829,18 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_core_get_delayed_timeout(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_stun_server(IntPtr lc, string server);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_stun_server(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_firewall_policy(IntPtr lc, LinphoneFirewallPolicy pol);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_get_firewall_policy(IntPtr lc);
 
         /**
  * Returns the list of available audio codecs.
