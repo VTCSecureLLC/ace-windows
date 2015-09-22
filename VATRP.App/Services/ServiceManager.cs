@@ -7,6 +7,7 @@ using System.Net;
 using System.Text;
 using System.Web.Script.Serialization;
 using System.Windows;
+using log4net;
 using VATRP.Core.Model;
 using VATRP.Core.Services;
 using VATRP.Core.Interfaces;
@@ -16,6 +17,7 @@ namespace VATRP.App.Services
     internal class ServiceManager : ServiceManagerBase
     {
         #region Members
+        private static readonly ILog LOG = LogManager.GetLogger(typeof(ServiceManager));
         private string _applicationDataPath;
         private static ServiceManager _singleton;
         private IConfigurationService _configurationService;
@@ -105,6 +107,7 @@ namespace VATRP.App.Services
 
         internal bool Start()
         {
+            LOG.Info("Starting services...");
             var retVal = true;
             retVal &= ConfigurationService.Start();
             retVal &= AccountService.Start();
@@ -116,7 +119,10 @@ namespace VATRP.App.Services
         public bool UpdateLinphoneConfig()
         {
             if (App.CurrentAccount == null)
+            {
+                LOG.Warn("Can't update linphone config. Account is no configured");
                 return false;
+            }
 
             LinphoneSipService.LinphoneConfig.ProxyHost = string.IsNullOrEmpty(App.CurrentAccount.ProxyHostname) ?
                 Configuration.LINPHONE_SIP_SERVER : App.CurrentAccount.ProxyHostname;
@@ -138,12 +144,13 @@ namespace VATRP.App.Services
             LinphoneSipService.LinphoneConfig.EnableSTUN = App.CurrentAccount.EnubleSTUN;
             LinphoneSipService.LinphoneConfig.STUNAddress = App.CurrentAccount.STUNAddress;
             LinphoneSipService.LinphoneConfig.STUNPort = App.CurrentAccount.STUNPort;
+            LOG.Info("Linphone service configured for acount: " + App.CurrentAccount.RegistrationUser);
             return true;
-
         }
 
         internal void Stop()
         {
+            LOG.Info("Stopping services...");
             HistoryService.Stop();
             ConfigurationService.Stop();
             LinphoneSipService.Unregister();
@@ -239,7 +246,7 @@ namespace VATRP.App.Services
 
         internal static void LogError(string message, Exception ex)
         {
-            Debug.WriteLine("Exception occurred in {0}: {1}", message, ex.Message);
+            LOG.Error(string.Format( "Exception occurred in {0}: {1}", message, ex.Message));
         }
 
         internal void SaveAccountSettings()
