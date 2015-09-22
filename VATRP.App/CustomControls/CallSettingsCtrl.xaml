@@ -1,0 +1,34 @@
+﻿<UserControl x:Class="VATRP.App.CustomControls.CallSettingsCtrl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="300" 
+             MinWidth="300"
+             Loaded="OnLoaded">
+    <Grid>
+        <StackPanel Orientation="Vertical" Margin="10,10,0,0">
+            <CheckBox x:Name="EnableAutoAnswerBox" Margin="3,2,3,2" Content="Auto Answer Incoming Calls" FontSize="13"  
+                          VerticalAlignment="Center"/>
+
+            <Grid Margin="15,10" x:Name="AAParamsTable">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Margin="3,2,3,2" Text="Delay Before Answer (s)" FontSize="13" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"/>
+                <TextBox  x:Name="AnswerTimeoutTextBox" FontSize="14" 
+                          Grid.Column="1" Margin="3" Grid.Row="0" Width="80" Height="24" 
+                          IsEnabled="{Binding IsChecked, ElementName=EnableAutoAnswerBox}"
+                          PreviewTextInput="OnPreviewTextInput"
+                          DataObject.Pasting="TextBoxPasting"
+                          />
+
+            </Grid>
+        </StackPanel>
+    </Grid>
+</UserControl>
