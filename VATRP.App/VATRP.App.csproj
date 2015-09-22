@@ -64,6 +64,9 @@
     <Compile Include="CustomControls\CodecsSettingsCtrl.xaml.cs">
       <DependentUpon>CodecsSettingsCtrl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\CallSettingsCtrl.xaml.cs">
+      <DependentUpon>CallSettingsCtrl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\RecentsCallCtrl.xaml.cs">
       <DependentUpon>RecentsCallCtrl.xaml</DependentUpon>
     </Compile>
@@ -125,6 +128,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="CustomControls\CodecsSettingsCtrl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="CustomControls\CallSettingsCtrl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
