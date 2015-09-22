@@ -37,6 +37,13 @@
                     </customControls:CodecsSettingsCtrl>
                 </Grid>
             </TabItem>
+            <TabItem Header="Call Settings" >
+                <Grid Background="#FFE5E5E5">
+                    <customControls:CallSettingsCtrl x:Name="CallSettingsPage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+                    </customControls:CallSettingsCtrl>
+                </Grid>
+            </TabItem>
         </TabControl>
         <Button Content="Save" HorizontalAlignment="Center" Margin="0" Grid.Row="1" VerticalAlignment="Center" Width="75" Height="20" IsDefault="True" Click="OnSave"/>
     </Grid>
