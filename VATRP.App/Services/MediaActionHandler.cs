@@ -15,14 +15,14 @@ namespace VATRP.App.Services
 
             if (MainWindow.RegistrationState != LinphoneRegistrationState.LinphoneRegistrationOk)
             {
-                MessageBox.Show("Not Registered. Please register first", "VATRP", MessageBoxButton.OK,
+                MessageBox.Show("Not Registered. Please register first", "ACE", MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
             }
 
             if (MainWindow.RegistrationState != LinphoneRegistrationState.LinphoneRegistrationOk)
             {
-                MessageBox.Show("Not Registered. Please register first", "VATRP", MessageBoxButton.OK,
+                MessageBox.Show("Not Registered. Please register first", "ACE", MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
             }
@@ -35,14 +35,14 @@ namespace VATRP.App.Services
 
             if (!_linphoneService.CanMakeVideoCall())
             {
-                MessageBox.Show("Video call not supported yet.", "VATRP", MessageBoxButton.OK,
+                MessageBox.Show("Video call not supported yet.", "ACE", MessageBoxButton.OK,
                    MessageBoxImage.Warning);
                 return;
             }
 
             if (MainWindow.RegistrationState != LinphoneRegistrationState.LinphoneRegistrationOk)
             {
-                MessageBox.Show("Not Registered. Please register first", "VATRP", MessageBoxButton.OK,
+                MessageBox.Show("Not Registered. Please register first", "ACE", MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
             }
