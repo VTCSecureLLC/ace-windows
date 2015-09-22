@@ -28,6 +28,7 @@ namespace VATRP.App
                 return;
             }
 
+            LOG.Info(string.Format("CallStateChanged: State - {0}. Call: {1}", call.CallState, call.NativeCallPtr ));
             var stopPlayback = false;
             var callStatusString = "";
             switch (call.CallState)
@@ -54,16 +55,28 @@ namespace VATRP.App
                 case VATRPCallState.Connected:
                     callStatusString = "We are connected !";
                     stopPlayback = true;
-                    if (ServiceManager.Instance.LinphoneSipService.IsVideoEnabled(call))
+                    try
                     {
-                        _remoteVideoView.Show();
+                        if (ServiceManager.Instance.LinphoneSipService.IsVideoEnabled(call))
+                        {
+                            if (_remoteVideoView != null)
+                                _remoteVideoView.Show();
+                        }
+
+                        if (_remoteVideoView != null)
+                        {
+                            Window window = Window.GetWindow(_remoteVideoView);
+                            if (window != null)
+                            {
+                                var wih = new WindowInteropHelper(window);
+                                IntPtr hWnd = wih.Handle;
+                                ServiceManager.Instance.LinphoneSipService.SetVideoCallWindowHandle(hWnd);
+                            }
+                        }
                     }
-                    Window window = Window.GetWindow(_remoteVideoView);
-                    if (window != null)
+                    catch (Exception ex)
                     {
-                        var wih = new WindowInteropHelper(window);
-                        IntPtr hWnd = wih.Handle;
-                        ServiceManager.Instance.LinphoneSipService.SetVideoCallWindowHandle(hWnd);
+                        ServiceManager.LogError("Main OnCallStateChanged", ex);
                     }
                     break;
                 case VATRPCallState.Closed:
@@ -90,7 +103,6 @@ namespace VATRP.App
                 ServiceManager.Instance.SoundService.StopRingBackTone();
                 ServiceManager.Instance.SoundService.StopRingTone();
             }
-            Console.WriteLine("Call StateChanged " + call.NativeCallPtr + " State: " + callStatusString);
         }
 
         private void OnRegistrationChanged(LinphoneRegistrationState state)
@@ -104,7 +116,7 @@ namespace VATRP.App
             RegistrationState = state;
             var statusString = "Unregistered";
             this.BtnSettings.IsEnabled = true;
-
+            LOG.Info(String.Format("Registration state changed. Current - {0}", state));
             switch (state)
             {
                 case LinphoneRegistrationState.LinphoneRegistrationProgress:
@@ -146,6 +158,10 @@ namespace VATRP.App
             ServiceSelector.Visibility = Visibility.Collapsed;
             WizardPagepanel.Visibility = Visibility.Collapsed;
             RegUserLabel.Text = string.Format( "Account: {0}", App.CurrentAccount.RegistrationUser);
+            LOG.Info(string.Format( "New account registered. Useaname -{0}. Host - {1} Port - {2}",
+                App.CurrentAccount.RegistrationUser,
+                App.CurrentAccount.ProxyHostname,
+                App.CurrentAccount.ProxyPort));
             NavPanel.Visibility = Visibility.Visible;
             StatusPanel.Visibility = Visibility.Visible;
 
