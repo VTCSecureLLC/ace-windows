@@ -336,6 +336,8 @@ namespace VATRP.Core.Services
 				identity = string.Format("\"{0}\" <sip:{1}@{2}>", preferences.DisplayName, preferences.Username,
 					preferences.ProxyHost);
 			}
+            LOG.Info("Registering identity. " + identity);
+
 			server_addr = string.Format("sip:{0}:{1}", preferences.ProxyHost, preferences.ProxyPort);
 
 			auth_info = LinphoneAPI.linphone_auth_info_new(preferences.Username, null, preferences.Password, null, null, null);
@@ -380,14 +382,20 @@ namespace VATRP.Core.Services
 		public void MakeCall(string destination, bool videoOn)
 		{
 		    if (callsList.Count > 0)
+		    {
+                LOG.Warn("Cannot make call. Cause - There is active call");
 		        return;
+		    }
 
-			if (string.IsNullOrEmpty(destination))
-				throw new ArgumentNullException("sipUriOrPhone");
+		    if (string.IsNullOrEmpty(destination))
+		    {
+                LOG.Warn("Cannot make call. Cause - Destination is empty");
+                return;
+		    }
 
 			if (linphoneCore == IntPtr.Zero || !isRunning) {
 				if (ErrorEvent != null)
-					ErrorEvent (null, "Cannot make or receive calls when Linphone Core is not working.");
+					ErrorEvent (null, "Cannot make when Linphone Core is not working.");
 				return;
 			}
 
@@ -396,18 +404,23 @@ namespace VATRP.Core.Services
 
 			if (callPtr == IntPtr.Zero)
 			{
+                LOG.Warn("Cannot make call. Cause - Failed to initialize call in linphone libray");
 				if (ErrorEvent != null)
 					ErrorEvent (null, "Cannot call.");
 				return;
 			}
 
-			VATRPCall call = new VATRPCall(callPtr);
+			var call = new VATRPCall(callPtr);
+            LOG.Warn("Make call. Add new call. Ptr - " + callPtr);
 		}
 
 		public void AcceptCall(VATRPCall call)
 		{
-			if (call == null)
-				throw new ArgumentNullException("call");
+		    if (call == null)
+		    {
+                LOG.Warn("Cannot accept call. Cause - Null call");
+		        return;
+		    }
 
 			if (linphoneCore == IntPtr.Zero || !isRunning)
 			{
@@ -416,19 +429,17 @@ namespace VATRP.Core.Services
 				return;
 			}
 
-			int p1 = 0, p2 = 0;
-			LinphoneAPI.linphone_core_get_video_port_range(linphoneCore, ref p1, ref p2);
-			Debug.WriteLine("Accept: P1 = " + p1 + " P2 = " + p2);
-		   // LinphoneAPI.linphone_call_enable_camera(call.NativeCallPtr, true); // accept video call
-
 			LinphoneAPI.linphone_call_params_set_record_file(callsDefaultParams, null);
 
 			LinphoneAPI.linphone_core_accept_call_with_params(linphoneCore, call.NativeCallPtr, callsDefaultParams);
 		}
 		public void DeclineCall(VATRPCall call)
 		{
-			if (call == null)
-				throw new ArgumentNullException("call");
+		    if (call == null)
+		    {
+                LOG.Warn("Cannot decline call. Cause - Null call");
+		        return;
+		    }
 
 			if (linphoneCore == IntPtr.Zero || !isRunning)
 			{
@@ -441,42 +452,43 @@ namespace VATRP.Core.Services
 			LinphoneAPI.linphone_core_terminate_call(linphoneCore, call.NativeCallPtr);
 		}
 
-		public void TerminateCall(VATRPCall call)
-		{
-			if (linphoneCore == IntPtr.Zero || !isRunning)
-			{
-				if (ErrorEvent != null)
-					ErrorEvent(null, "Cannot make or receive calls when Linphone Core is not working.");
-				return;
-			}
+	    public void TerminateCall(VATRPCall call)
+	    {
+	        if (linphoneCore == IntPtr.Zero || !isRunning)
+	        {
+	            if (ErrorEvent != null)
+	                ErrorEvent(null, "Cannot make or receive calls when Linphone Core is not working.");
+	            return;
+	        }
 
-			if (call != null )
-			{
-				int call_state = LinphoneAPI.linphone_call_get_state(call.NativeCallPtr);
 
-				IntPtr hwndVideo = LinphoneAPI.linphone_core_get_native_video_window_id(linphoneCore);
+	        if (call == null)
+	        {
+	            LOG.Warn("Cannot terminate call. Cause - Null call");
+	            return;
+	        }
+	        int call_state = LinphoneAPI.linphone_call_get_state(call.NativeCallPtr);
 
-				if (Win32NativeAPI.IsWindow(hwndVideo))
-					Win32NativeAPI.DestroyWindow(hwndVideo);
+	        IntPtr hwndVideo = LinphoneAPI.linphone_core_get_native_video_window_id(linphoneCore);
 
-				if (call_state != (int)LinphoneCallState.LinphoneCallEnd)
-					Debug.WriteLine("Call State: " + call_state);
-				/* terminate the call */
-				LinphoneAPI.linphone_core_terminate_call(linphoneCore, call.NativeCallPtr);
+	        if (Win32NativeAPI.IsWindow(hwndVideo))
+	            Win32NativeAPI.DestroyWindow(hwndVideo);
 
-				// notify call state end
-				 if (LinphoneAPI.linphone_call_params_get_record_file(callsDefaultParams) != IntPtr.Zero)
-						LinphoneAPI.linphone_call_stop_recording(call.NativeCallPtr);
+	        /* terminate the call */
+	        LinphoneAPI.linphone_core_terminate_call(linphoneCore, call.NativeCallPtr);
 
-				callsList.Remove(call);
+	        // notify call state end
+	        if (LinphoneAPI.linphone_call_params_get_record_file(callsDefaultParams) != IntPtr.Zero)
+	            LinphoneAPI.linphone_call_stop_recording(call.NativeCallPtr);
 
-				if ((CallStateChangedEvent != null))
-					CallStateChangedEvent(call);
-				LinphoneAPI.linphone_call_unref(call.NativeCallPtr);
-			}
-		}
+	        callsList.Remove(call);
 
-		public bool IsCallMuted()
+	        if ((CallStateChangedEvent != null))
+	            CallStateChangedEvent(call);
+	        LinphoneAPI.linphone_call_unref(call.NativeCallPtr);
+	    }
+
+	    public bool IsCallMuted()
 		{
 			if (linphoneCore == IntPtr.Zero || !isRunning)
 				return false;
@@ -749,13 +761,14 @@ namespace VATRP.Core.Services
 		private void OnCallStateChanged(IntPtr lc, IntPtr callPtr, LinphoneCallState cstate, string message)
 		{
 			if (linphoneCore == IntPtr.Zero || !isRunning) return;
-			Console.WriteLine("Linphoneserviec OnCallStateChanged: {0}", cstate);
+
+			LOG.Info(string.Format( "OnCallStateChanged: State - {0}, CallPtr - {1}, Message: {2}", cstate, callPtr, message));
 
 			var newstate = VATRPCallState.None;
 			var direction = LinphoneCallDir.LinphoneCallIncoming;
 			string remoteParty = "";
 			IntPtr addressStringPtr;
-
+		    bool removeCall = false;
 			// detecting direction, state and source-destination data by state
 			switch (cstate)
 			{
@@ -792,23 +805,24 @@ namespace VATRP.Core.Services
 
 				case LinphoneCallState.LinphoneCallError:
 					newstate = VATRPCallState.Error;
+			        removeCall = true;
 					break;
 
 				case LinphoneCallState.LinphoneCallEnd:
 					newstate = VATRPCallState.Closed;
 					if (LinphoneAPI.linphone_call_params_get_record_file(callsDefaultParams) != IntPtr.Zero)
 						LinphoneAPI.linphone_call_stop_recording(callPtr);
+                    removeCall = true;
 					break;
 				case LinphoneCallState.LinphoneCallReleased:
-					return;
-				default:
-					break;
+			        return;
 			}
 
 			VATRPCall call = FindCall(callPtr);
 
-			if (call == null)
+			if (call == null && !removeCall)
 			{
+                LOG.Info("Call not found. Adding new call into list. ID - " + callPtr);
 				call = new VATRPCall(callPtr) {CallState = newstate, CallDirection = direction};
 				CallParams from = direction == LinphoneCallDir.LinphoneCallIncoming ? call.From : call.To;
 				CallParams to = direction == LinphoneCallDir.LinphoneCallIncoming ? call.To : call.From;
@@ -828,19 +842,20 @@ namespace VATRP.Core.Services
 
 				callsList.Add(call);
 				LinphoneAPI.linphone_call_ref(call.NativeCallPtr);
-
-				if ((CallStateChangedEvent != null))
-					CallStateChangedEvent(call);
-			}
-			else
-			{
-				if (call.CallState != newstate)
-				{
-					call.CallState = newstate;
-					CallStateChangedEvent(call);
-				}
 			}
 
+		    if (call != null)
+		    {
+		        call.CallState = newstate;
+		        if ((CallStateChangedEvent != null))
+		            CallStateChangedEvent(call);
+
+		        if (removeCall )
+		        {
+		            callsList.Remove(call);
+		            LOG.Info(string.Format( "Call removed from list. Call - {0}. Total calls in list: {1}", callPtr, callsList.Count) );
+		        }
+		    }
 		}
 
 		private void OnNotifyEventReceived(IntPtr lc, IntPtr lev, string notified_event, IntPtr body)
