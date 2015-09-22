@@ -37,7 +37,7 @@ namespace VATRP.App
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
             _log.Info("====================================================");
-            _log.Info(String.Format("====== Starting VATRP v{0} ====",
+            _log.Info(String.Format("============== Starting VATRP v{0} =============",
                 System.Reflection.Assembly.GetEntryAssembly().GetName().Version));
             _log.Info("====================================================");
             try
@@ -70,7 +70,7 @@ namespace VATRP.App
 
         private void App_OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            _log.Debug("Not handled exception: " + e.Exception.ToString() + "\n" + e.Exception.StackTrace);
+            _log.Error("Not handled exception: " + e.Exception.ToString() + "\n" + e.Exception.StackTrace);
         }
     }
 }
