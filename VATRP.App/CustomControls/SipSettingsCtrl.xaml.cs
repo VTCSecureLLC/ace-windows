@@ -85,19 +85,19 @@ namespace VATRP.App.CustomControls
             
             if (string.IsNullOrWhiteSpace(LoginBox.Text))
             {
-                MessageBox.Show("Incorrect login", "VATRP", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Incorrect login", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(PasswdBox.Password))
             {
-                MessageBox.Show("Empty password is not allowed", "VATRP", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Empty password is not allowed", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(HostnameBox.Text))
             {
-                MessageBox.Show("Incorrect SIP Server Address", "VATRP", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Incorrect SIP Server Address", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
             
@@ -106,7 +106,7 @@ namespace VATRP.App.CustomControls
             ushort.TryParse(HostPortBox.Text, out port);
             if (port < 1 || port > 65535)
             {
-                MessageBox.Show("Incorrect SIP Server Port", "VATRP", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Incorrect SIP Server Port", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
             App.CurrentAccount.ProxyPort = port;

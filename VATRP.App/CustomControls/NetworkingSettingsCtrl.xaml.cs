@@ -69,7 +69,7 @@ namespace VATRP.App.CustomControls
 
             if (string.IsNullOrWhiteSpace(StunHostnameBox.Text))
             {
-                MessageBox.Show("Incorrect STUN address", "VATRP", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Incorrect STUN address", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
@@ -79,7 +79,7 @@ namespace VATRP.App.CustomControls
             ushort.TryParse(StunHostPortBox.Text, out port);
             if ( port < 1 || port > 65535)
             {
-                MessageBox.Show("Incorrect STUN port", "VATRP", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Incorrect STUN port", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
             App.CurrentAccount.STUNAddress = StunHostnameBox.Text;

@@ -49,32 +49,32 @@ namespace VATRP.App.CustomControls
             string username = LoginBox.Text;
             if (string.IsNullOrWhiteSpace(username))
             {
-                MessageBox.Show("Please fill username field", "VATRP", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Please fill username field", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             string passwd = PasswdBox.Password;
             if (string.IsNullOrEmpty(passwd))
             {
-                MessageBox.Show("Please fill password field", "VATRP", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Please fill password field", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             if (string.IsNullOrEmpty(HostnameBox.Text))
             {
-                MessageBox.Show("Please fill SIP server address field", "VATRP", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Please fill SIP server address field", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             if (string.IsNullOrEmpty(HostPortBox.Text))
             {
-                MessageBox.Show("Please fill SIP server port field", "VATRP", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Please fill SIP server port field", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             ushort port;
             if (!ushort.TryParse(HostPortBox.Text, out port) )
             {
-                MessageBox.Show("Invalid SIP server port", "VATRP", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Invalid SIP server port", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
