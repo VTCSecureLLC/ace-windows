@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Timers;
 using System.Windows;
+using System.Windows.Threading;
+using log4net;
 using VATRP.App.Model;
 using VATRP.App.Services;
 using VATRP.Core.Model;
 using VATRP.Core.Services;
-using VATRP.LinphoneWrapper.Enums;
 using Timer = System.Timers.Timer;
 
 namespace VATRP.App.Views
@@ -17,42 +17,53 @@ namespace VATRP.App.Views
     /// </summary>
     public partial class CallProcessingBox
     {
+        private static readonly ILog LOG = LogManager.GetLogger(typeof(CallProcessingBox));
         private LinphoneService _linphoneService;
         private VATRPCall _currentCall = null;
         private readonly Timer timerCall;
+        private readonly Timer autoAnswerTimer;
         private int secondsInCall;
+        private int secondsToAutoAnswer = 0;
 
         public CallProcessingBox() : base(VATRPWindowType.CALL_VIEW)
         {
             InitializeComponent();
             _linphoneService = ServiceManager.Instance.LinphoneSipService;
             _linphoneService.CallStateChangedEvent += OnCallStateChanged;
-            timerCall = new Timer()
+            timerCall = new Timer
             {
                 Interval = 1000,
                 AutoReset = true
             };
             timerCall.Elapsed += OnUpdatecallTimer;
+
+            autoAnswerTimer = new Timer
+            {
+                Interval = 1000,
+                AutoReset = true
+            };
+            autoAnswerTimer.Elapsed += OnAutoAnswerTimer;
         }
 
-        private void OnCallStateChanged(Core.Model.VATRPCall call)
+
+        private void OnCallStateChanged(VATRPCall call)
         {
-            if (this.Dispatcher.Thread != Thread.CurrentThread)
+            if (Dispatcher.Thread != Thread.CurrentThread)
             {
-                this.Dispatcher.BeginInvoke((Action)(() => this.OnCallStateChanged(call)));
+                Dispatcher.BeginInvoke((Action)(() => OnCallStateChanged(call)));
                 return;
             }
 
             _currentCall = call;
-            var callStatusString = "";
+
             switch (call.CallState)
             {
                 case VATRPCallState.Trying:
                     CallerDisplayNameBox.Text = _currentCall.To.DisplayName;
                     CallerNumberBox.Text = _currentCall.To.Username;
                     secondsInCall = 0;
-                    this.CallDurationBox.Visibility = Visibility.Collapsed;
-                    this.CallStateBox.Text = "Trying";
+                    CallDurationBox.Visibility = Visibility.Collapsed;
+                    CallStateBox.Text = "Trying";
                     if (App.ActiveCallHistoryEvent == null)
                     {
                         App.ActiveCallHistoryEvent = new VATRPCallEvent(App.CurrentAccount.RegistrationUser, call.To.Username)
@@ -79,27 +90,29 @@ namespace VATRP.App.Views
                     break;
                 case VATRPCallState.Ringing:
                     secondsInCall = 0;
-                    callStatusString = "It is now ringing remotely !";
-                    this.CallStateBox.Text = "Ringing";
+                    CallStateBox.Text = "Ringing";
                     break;
                 case VATRPCallState.EarlyMedia:
-                    callStatusString = "Receiving some early media";
-                    this.CallStateBox.Text = "Processing";
+                    CallStateBox.Text = "Processing";
                     break;
                 case VATRPCallState.Connected:
-                    this.CallStateBox.Text = "Connected";
-                    this.CallDurationBox.Visibility = Visibility.Visible;
-                    this.IncomingPanel.Visibility = Visibility.Collapsed;
-                    this.InCallPanel.Visibility = Visibility.Visible;
-                    this.timerCall.Start();
+                    CallStateBox.Text = "Connected";
+                    CallDurationBox.Visibility = Visibility.Visible;
+                    IncomingPanel.Visibility = Visibility.Collapsed;
+                    InCallPanel.Visibility = Visibility.Visible;
+                    timerCall.Start();
                     _currentCall.CallEstablishTime = DateTime.Now;
                     BtnMute.Content = _linphoneService.IsCallMuted() ? "UnMute" : "Mute";
                     break;
                 case VATRPCallState.Closed:
-                    callStatusString = "Call is terminated.";
-                    this.CallStateBox.Text = "Terminated";
-                    this.Hide();
-                    
+                    CallStateBox.Text = "Terminated";
+                    Hide();
+                    if (autoAnswerTimer.Enabled)
+                    {
+                        secondsToAutoAnswer = 100;
+                        autoAnswerTimer.Stop();
+                    }
+
                     if (App.ActiveCallHistoryEvent != null)
                     {
                         if (secondsInCall == 0)
@@ -118,8 +131,7 @@ namespace VATRP.App.Views
                     secondsInCall = 0;
                     break;
                 case VATRPCallState.Error:
-                    callStatusString = "Call failure !";
-                    this.CallStateBox.Text = "Error occurred";
+                    CallStateBox.Text = "Error occurred";
                     if (App.ActiveCallHistoryEvent != null)
                     {
                         if (secondsInCall == 0)
@@ -136,9 +148,7 @@ namespace VATRP.App.Views
                     }
                     ActiveCall = null;
                     secondsInCall = 0;
-                    this.Hide();
-                    break;
-                default:
+                    Hide();
                     break;
             }
         }
@@ -155,29 +165,46 @@ namespace VATRP.App.Views
             _linphoneService.TerminateCall(_currentCall);
         }
 
-        private void OnUpdatecallTimer(object sender, System.Timers.ElapsedEventArgs e)
+        private void OnAutoAnswerTimer(object sender, ElapsedEventArgs e)
         {
-            if (this._currentCall == null)
+            if (Dispatcher.Thread != Thread.CurrentThread)
+            {
+                Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                    new EventHandler<ElapsedEventArgs>(OnAutoAnswerTimer), sender, new object[] {e});
+                return;
+            }
+
+            secondsToAutoAnswer--;
+            CallStateBox.Text = string.Format("AutoAnswer after {0} sec", secondsToAutoAnswer);
+
+            if (secondsToAutoAnswer <= 0)
+            {
+                autoAnswerTimer.Stop();
+                _linphoneService.AcceptCall(_currentCall);
+            }
+        }
+
+        private void OnUpdatecallTimer(object sender, ElapsedEventArgs e)
+        {
+            if (_currentCall == null)
             {
                 if (timerCall != null)
                     timerCall.Stop();
                 return;
             }
 
-            if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
+            if (Dispatcher.Thread != Thread.CurrentThread)
             {
-                this.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-                    new EventHandler<ElapsedEventArgs>(this.OnUpdatecallTimer), sender, new object[] { e });
+                Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                    new EventHandler<ElapsedEventArgs>(OnUpdatecallTimer), sender, new object[] { e });
                 return;
             }
 
             TimeSpan duration = TimeSpan.FromSeconds(++secondsInCall);
 
-            var callTime = string.Empty;
+            string callTime = duration.Hours + ":" + duration.Minutes.ToString("00") + ":" + duration.Seconds.ToString("00");
 
-            callTime = duration.Hours.ToString() + ":" + duration.Minutes.ToString("00") + ":" + duration.Seconds.ToString("00");
-
-            this.CallDurationBox.Text = callTime;
+            CallDurationBox.Text = callTime;
         }
 
 
@@ -194,18 +221,47 @@ namespace VATRP.App.Views
 
         internal void ReceiveCall(VATRPCall call)
         {
-            _currentCall = call;
-            this.CallDurationBox.Visibility = Visibility.Collapsed;
-            this.CallStateBox.Text = "Incoming call";
-            this.CallerDisplayNameBox.Text = call.DisplayName;
-            this.CallerNumberBox.Text = call.From.Username;
-            this.IncomingPanel.Visibility = Visibility.Visible;
-            this.InCallPanel.Visibility = Visibility.Collapsed;
-            this.Show();
+            CallDurationBox.Visibility = Visibility.Collapsed;
+            
+            CallerDisplayNameBox.Text = call.DisplayName;
+            CallerNumberBox.Text = call.From.Username;
+            IncomingPanel.Visibility = Visibility.Visible;
+            InCallPanel.Visibility = Visibility.Collapsed;
+            if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL, 
+                Configuration.ConfEntry.AUTO_ANSWER, false))
+            {
+                if (autoAnswerTimer != null)
+                {
+                    secondsToAutoAnswer = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL, 
+                        Configuration.ConfEntry.AUTO_ANSWER_AFTER, 2);
+                    if (secondsToAutoAnswer > 60)
+                        secondsToAutoAnswer = 60;
+                    else if (secondsToAutoAnswer < 0)
+                        secondsToAutoAnswer = 0;
+
+                    CallStateBox.Text = string.Format("AutoAnswer after {0} sec", secondsToAutoAnswer);
+                    if (secondsToAutoAnswer > 0)
+                    {
+                        LOG.Info(string.Format("Activating AutoAnswer after {0}  sec.", secondsToAutoAnswer));
+                        autoAnswerTimer.Start();
+                    }
+                }
+            }
+            else
+            {
+                CallStateBox.Text = "Incoming call";
+            }
+            Show();
         }
 
         private void AcceptCall(object sender, RoutedEventArgs e)
         {
+            if (autoAnswerTimer.Enabled)
+            {
+                secondsToAutoAnswer = 100;
+                autoAnswerTimer.Stop();
+            }
+
             try
             {
                 _linphoneService.AcceptCall(_currentCall);
@@ -218,6 +274,12 @@ namespace VATRP.App.Views
 
         private void DeclineCall(object sender, RoutedEventArgs e)
         {
+            if (autoAnswerTimer.Enabled)
+            {
+                secondsToAutoAnswer = 100;
+                autoAnswerTimer.Stop();
+            }
+
             try
             {
                 _linphoneService.TerminateCall(_currentCall);
