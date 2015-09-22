@@ -128,7 +128,7 @@ namespace VATRP.App
 
             if (_callView.ActiveCall != null)
             {
-                var r = MessageBox.Show("The active call will be terminated. Continue?", "VATRP",
+                var r = MessageBox.Show("The active call will be terminated. Continue?", "ACE",
                     MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                 if (r == MessageBoxResult.OK)
