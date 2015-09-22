@@ -161,7 +161,7 @@ namespace VATRP.App.CustomControls
         {
             if (string.IsNullOrWhiteSpace(numberTextBox.Text))
             {
-                MessageBox.Show("Destination address is empty", "VATRP", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Destination address is empty", "ACE", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             MediaActionHandler.MakeVideoCall(numberTextBox.Text);
