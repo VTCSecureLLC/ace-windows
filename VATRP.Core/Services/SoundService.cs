@@ -9,41 +9,25 @@ namespace VATRP.Core.Services
     {
         private readonly ServiceManagerBase manager;
 
-        private bool _isStarting;
-        private bool _isStarted;
-        private bool _isStopping;
-        private bool _isStopped;
-
         private SoundPlayer ringTonePlayer;
         private SoundPlayer ringBackTonePlayer;
         private SoundPlayer eventPlayer;
         private SoundPlayer connPlayer;
+        private bool isRingTonePlaying;
+        private bool isRingbackPlaying;
 
         public SoundService(ServiceManagerBase manager)
         {
             this.manager = manager;
-            _isStarting = false;
-            _isStarted = false;
-            _isStopped = true;
-            _isStopping = false;
         }
 
-        public bool IsStarting { get { return _isStarting; } }
+        public bool IsStarted { get; set; }
 
-        public bool IsStarted { get { return _isStarted; } }
+        public bool IsStopped { get; set; }
 
-        public bool IsStopping
-        {
-            get { return _isStopping; }
-        }
-
-        public bool IsStopped
-        {
-            get { return _isStopped; }
-        }
         public bool Start()
         {
-            if (IsStarting || IsStarted)
+            if (IsStarted)
                 return true;
             try
             {
@@ -54,8 +38,6 @@ namespace VATRP.Core.Services
             }
             catch (Exception e)
             {
-                _isStarting = false;
-                _isStarted = false;
                 return false;
             }
 
@@ -64,8 +46,6 @@ namespace VATRP.Core.Services
 
         public bool Stop()
         {
-            if (IsStarting || IsStopping )
-                return false;
             if (IsStopped)
                 return true;
 
@@ -74,21 +54,32 @@ namespace VATRP.Core.Services
 
         public void PlayRingTone()
         {
+            if (isRingTonePlaying)
+                return;
             this.ringTonePlayer.PlayLooping();
         }
 
         public void StopRingTone()
         {
+            if (!isRingTonePlaying)
+                return;
+            isRingTonePlaying = false;
             this.ringTonePlayer.Stop();
         }
 
         public void PlayRingBackTone()
         {
+            if (isRingbackPlaying)
+                return;
+            isRingbackPlaying = true;
             this.ringBackTonePlayer.PlayLooping();
         }
 
         public void StopRingBackTone()
         {
+            if (!isRingbackPlaying)
+                return;
+            isRingbackPlaying = false;
             this.ringBackTonePlayer.Stop();
         }
 
