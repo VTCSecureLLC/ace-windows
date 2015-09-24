@@ -11,6 +11,7 @@ using log4net;
 using VATRP.Core.Model;
 using VATRP.Core.Services;
 using VATRP.Core.Interfaces;
+using VATRP.LinphoneWrapper.Enums;
 
 namespace VATRP.App.Services
 {
@@ -144,7 +145,12 @@ namespace VATRP.App.Services
             LinphoneSipService.LinphoneConfig.EnableSTUN = App.CurrentAccount.EnubleSTUN;
             LinphoneSipService.LinphoneConfig.STUNAddress = App.CurrentAccount.STUNAddress;
             LinphoneSipService.LinphoneConfig.STUNPort = App.CurrentAccount.STUNPort;
-            LOG.Info("Linphone service configured for acount: " + App.CurrentAccount.RegistrationUser);
+#if !DEBUG
+            LinphoneSipService.LinphoneConfig.EnableAVPF = true;
+#else
+            LinphoneSipService.LinphoneConfig.EnableAVPF = App.CurrentAccount.EnableAVPF;
+#endif
+            LOG.Info("Linphone service configured for account: " + App.CurrentAccount.RegistrationUser);
             return true;
         }
 
@@ -275,6 +281,7 @@ namespace VATRP.App.Services
                 LinphoneSipService.FillCodecsList(App.CurrentAccount, CodecType.Video);
 
             LinphoneSipService.UpdateNetworkingParameters(App.CurrentAccount);
+            ApplyAVPFChanges();
             return true;
         }
 
@@ -303,6 +310,19 @@ namespace VATRP.App.Services
         internal void ApplyNetworkingChanges()
         {
             LinphoneSipService.UpdateNetworkingParameters(App.CurrentAccount);
+        }
+
+        internal void ApplyAVPFChanges()
+        {
+            var mode = LinphoneAVPFMode.LinphoneAVPFEnabled;
+#if DEBUG
+            if (!this.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.AVPF_ON, true))
+            {
+                mode = LinphoneAVPFMode.LinphoneAVPFDisabled;
+            }
+#endif
+            LinphoneSipService.SetAVPFMode(mode);
         }
     }
 }
