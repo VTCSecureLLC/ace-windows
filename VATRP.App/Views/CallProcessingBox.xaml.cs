@@ -36,13 +36,14 @@ namespace VATRP.App.Views
                 AutoReset = true
             };
             timerCall.Elapsed += OnUpdatecallTimer;
-
+#if DEBUG
             autoAnswerTimer = new Timer
             {
                 Interval = 1000,
                 AutoReset = true
             };
             autoAnswerTimer.Elapsed += OnAutoAnswerTimer;
+#endif
         }
 
 
@@ -106,12 +107,13 @@ namespace VATRP.App.Views
                 case VATRPCallState.Closed:
                     CallStateBox.Text = "Terminated";
                     Hide();
+#if DEBUG
                     if (autoAnswerTimer.Enabled)
                     {
                         secondsToAutoAnswer = 100;
                         autoAnswerTimer.Stop();
                     }
-
+#endif
                     if (App.ActiveCallHistoryEvent != null)
                     {
                         if (secondsInCall == 0)
@@ -226,6 +228,7 @@ namespace VATRP.App.Views
             CallerNumberBox.Text = call.From.Username;
             IncomingPanel.Visibility = Visibility.Visible;
             InCallPanel.Visibility = Visibility.Collapsed;
+#if DEBUG
             if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL, 
                 Configuration.ConfEntry.AUTO_ANSWER, false))
             {
@@ -250,16 +253,21 @@ namespace VATRP.App.Views
             {
                 CallStateBox.Text = "Incoming call";
             }
+#else
+            CallStateBox.Text = "Incoming call";
+#endif
             Show();
         }
 
         private void AcceptCall(object sender, RoutedEventArgs e)
         {
+#if DEBUG
             if (autoAnswerTimer.Enabled)
             {
                 secondsToAutoAnswer = 100;
                 autoAnswerTimer.Stop();
-            }
+            } 
+#endif
 
             try
             {
@@ -273,12 +281,13 @@ namespace VATRP.App.Views
 
         private void DeclineCall(object sender, RoutedEventArgs e)
         {
+#if DEBUG
             if (autoAnswerTimer.Enabled)
             {
                 secondsToAutoAnswer = 100;
                 autoAnswerTimer.Stop();
             }
-
+#endif
             try
             {
                 _linphoneService.TerminateCall(_currentCall);
