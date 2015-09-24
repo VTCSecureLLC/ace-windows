@@ -76,6 +76,7 @@
     <Compile Include="CustomControls\SipSettingsCtrl.xaml.cs">
       <DependentUpon>SipSettingsCtrl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Interfaces\ILogger.cs" />
     <Compile Include="Interfaces\ISettings.cs" />
     <Compile Include="MainWindow.Events.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
