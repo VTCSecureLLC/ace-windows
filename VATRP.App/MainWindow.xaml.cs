@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using log4net;
 using VATRP.App.CustomControls;
 using VATRP.App.Model;
 using VATRP.App.Services;
@@ -31,6 +32,7 @@ namespace VATRP.App
     public partial class MainWindow 
     {
         #region Members
+        private static readonly ILog LOG = LogManager.GetLogger(typeof(MainWindow));
         private readonly ContactBox _contactBox =  new ContactBox();
         private readonly Dialpad _dialpadBox = new Dialpad();
         private readonly CallProcessingBox _callView = new CallProcessingBox();
@@ -116,7 +118,10 @@ namespace VATRP.App
                 if (_settingsView.CodecSettingsChanged)
                     ServiceManager.Instance.ApplyCodecChanges();
                 if (_settingsView.NetworkSettingsChanged)
+                {
                     ServiceManager.Instance.ApplyNetworkingChanges();
+                    ServiceManager.Instance.ApplyAVPFChanges();
+                }
             }
         }
 
