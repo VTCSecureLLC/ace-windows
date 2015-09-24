@@ -16,28 +16,28 @@
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
         <TabControl x:Name="SettingsTab" HorizontalAlignment="Stretch" Margin="1" Grid.Row="0" VerticalAlignment="Stretch" >
-            <TabItem Header="SIP Settings" >
+            <TabItem Header="Account" >
                 <Grid Background="#FFE5E5E5">
                     <customControls:SipSettingsCtrl x:Name="SipSettingsPage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         
                     </customControls:SipSettingsCtrl>
                 </Grid>
             </TabItem>
-            <TabItem Header="Networking Settings" >
+            <TabItem Header="Networking" >
                 <Grid Background="#FFE5E5E5">
                     <customControls:NetworkSettingsCtrl x:Name="NetworkSettingsPage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         
                     </customControls:NetworkSettingsCtrl>
                 </Grid>
             </TabItem>
-            <TabItem Header="Codec Settings" >
+            <TabItem Header="Codecs" >
                 <Grid Background="#FFE5E5E5">
                     <customControls:CodecsSettingsCtrl x:Name="CodecSettingsPage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
                     </customControls:CodecsSettingsCtrl>
                 </Grid>
             </TabItem>
-            <TabItem Header="Call Settings" >
+            <TabItem Header="Calling" >
                 <Grid Background="#FFE5E5E5">
                     <customControls:CallSettingsCtrl x:Name="CallSettingsPage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
