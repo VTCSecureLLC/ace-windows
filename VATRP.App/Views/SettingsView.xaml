@@ -9,6 +9,7 @@
                    Closing="Window_Closing" 
                    StateChanged="Window_StateChanged" 
                    LocationChanged="Window_LocationChanged" 
+                   Loaded="OnLoaded"
                    >
     <Grid>
         <Grid.RowDefinitions>
@@ -37,7 +38,7 @@
                     </customControls:CodecsSettingsCtrl>
                 </Grid>
             </TabItem>
-            <TabItem Header="Calling" >
+            <TabItem Header="Testing" x:Name="TestingTabItem">
                 <Grid Background="#FFE5E5E5">
                     <customControls:CallSettingsCtrl x:Name="CallSettingsPage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
