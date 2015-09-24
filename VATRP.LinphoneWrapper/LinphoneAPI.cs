@@ -842,6 +842,18 @@ namespace VATRP.LinphoneWrapper
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_core_get_firewall_policy(IntPtr lc);
 
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_avpf_mode(IntPtr lc, LinphoneAVPFMode mode);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_get_avpf_mode(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_avpf_rr_interval(IntPtr lc, int interval);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_get_avpf_rr_interval(IntPtr lc);
+
         /**
  * Returns the list of available audio codecs.
  * @param[in] lc The LinphoneCore object
