@@ -75,7 +75,6 @@ namespace VATRP.App.Views
                     break;
                 case VATRPCallState.InProgress:
                     secondsInCall = 0;
-                    _currentCall.CallState = VATRPCallState.Ringing;
                     CallerDisplayNameBox.Text = _currentCall.From.DisplayName;
                     CallerNumberBox.Text = _currentCall.From.Username;
                     if (App.ActiveCallHistoryEvent == null)
