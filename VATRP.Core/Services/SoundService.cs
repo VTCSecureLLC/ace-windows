@@ -56,6 +56,7 @@ namespace VATRP.Core.Services
         {
             if (isRingTonePlaying)
                 return;
+            isRingTonePlaying = true;
             this.ringTonePlayer.PlayLooping();
         }
 
