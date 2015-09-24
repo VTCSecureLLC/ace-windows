@@ -36,6 +36,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\LinphoneAVPFMode.cs" />
     <Compile Include="Enums\LinphoneCallStatus.cs" />
     <Compile Include="Enums\LinphoneCallDir.cs" />
     <Compile Include="Enums\LinphoneFirewallPolicy.cs" />
