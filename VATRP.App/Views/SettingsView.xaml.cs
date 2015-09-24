@@ -91,5 +91,13 @@ namespace VATRP.App.Views
                 CallSettingsChanged = false;
             }
         }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+#if !DEBUG
+            TestingTabItem.Visibility = Visibility.Collapsed;
+#endif
+
+        }
     }
 }
