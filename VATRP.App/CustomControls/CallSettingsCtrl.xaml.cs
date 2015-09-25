@@ -56,7 +56,7 @@ namespace VATRP.App.CustomControls
             enabled = EnableAVPFMode.IsChecked ?? false;
 
             if (enabled != ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.AVPF_ON, false))
+                Configuration.ConfEntry.AVPF_ON, true))
                 return true;
             return false;
         }
