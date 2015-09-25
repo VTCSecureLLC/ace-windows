@@ -724,7 +724,10 @@ namespace VATRP.Core.Services
                 throw new Exception("Linphone not initialized");
 
             if (account == null)
-                throw new ArgumentNullException("Account is not defined");
+            {
+                LOG.Error("UpdateNetworkingParameters: Account is NULL");
+                return false;
+            }
 
             if (account.EnubleSTUN)
             {
@@ -739,6 +742,19 @@ namespace VATRP.Core.Services
             
             return false;
         }
+
+	    public void SetAVPFMode(LinphoneAVPFMode mode)
+	    {
+	        if (linphoneCore == IntPtr.Zero || !isRunning)
+                throw new Exception("Linphone not initialized");
+
+	        int linphoneAvpfMode = LinphoneAPI.linphone_core_get_avpf_mode(linphoneCore);
+	        if (linphoneAvpfMode != (int) mode)
+	        {
+                LOG.Info("AVPF mode changed to " + mode);
+	            LinphoneAPI.linphone_core_set_avpf_mode(linphoneCore, mode);
+	        }
+	    }
 
         #endregion
 

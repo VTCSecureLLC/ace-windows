@@ -31,9 +31,11 @@ namespace VATRP.App.CustomControls
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             EnableAutoAnswerBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.AUTO_ANSWER, false);;
+                Configuration.ConfEntry.AUTO_ANSWER, false);
             AnswerTimeoutTextBox.Text = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.AUTO_ANSWER_AFTER, "2");
+            EnableAVPFMode.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.AVPF_ON, true);
         }
 
         #region ISettings
@@ -49,6 +51,12 @@ namespace VATRP.App.CustomControls
                 return true;
 
             if (AnswerTimeoutTextBox.Text != cfgTimeout.ToString())
+                return true;
+
+            enabled = EnableAVPFMode.IsChecked ?? false;
+
+            if (enabled != ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.AVPF_ON, true))
                 return true;
             return false;
         }
@@ -85,6 +93,9 @@ namespace VATRP.App.CustomControls
             ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.AUTO_ANSWER, enabled);
 
+            enabled = EnableAVPFMode.IsChecked ?? false;
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.AVPF_ON, enabled);
             ServiceManager.Instance.ConfigurationService.SaveConfig();
             return true;
         }

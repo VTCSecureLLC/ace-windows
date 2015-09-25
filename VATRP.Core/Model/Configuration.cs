@@ -35,7 +35,8 @@ namespace VATRP.Core.Model
             REQUEST_LINK,
             ACCOUNT_IN_USE,
             AUTO_ANSWER,
-            AUTO_ANSWER_AFTER
+            AUTO_ANSWER_AFTER,
+            AVPF_ON,
         }
 
         public static string LINPHONE_SIP_SERVER = "bc1.vatrp.net";

@@ -57,6 +57,9 @@ namespace VATRP.Core.Model
         [Column]
         public ushort STUNPort { get; set; }
 
+        [Column] 
+        public bool EnableAVPF { get; set; }
+
         public List<VATRPCodec> AudioCodecsList = new List<VATRPCodec>();
         public List<VATRPCodec> VideoCodecsList = new List<VATRPCodec>();
         #endregion
@@ -69,6 +72,7 @@ namespace VATRP.Core.Model
             ProxyPort = Configuration.LINPHONE_SIP_PORT;
             ProxyHostname = Configuration.LINPHONE_SIP_SERVER;
             Transport = "TCP";
+            EnableAVPF = true;
         }
 
         #endregion

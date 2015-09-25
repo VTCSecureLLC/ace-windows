@@ -26,6 +26,7 @@ namespace VATRP.Core.Services
             public string STUNAddress { get; set; }
             public int STUNPort { get; set; }
             public bool EnableSTUN { get; set; }
+            public bool EnableAVPF { get; set; }
         }
 
     }
