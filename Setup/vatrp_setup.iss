@@ -34,8 +34,12 @@ Name: desktopicon; Description: Create a &desktop icon; GroupDescription: Additi
 [Files]
 
 Source: ..\VATRP.App\bin\Release\ACE.exe; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\ACE.Core.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\ACE.LinphoneWrapper.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\avcodec-53.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\avutil-51.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\HockeyApp.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\HockeyAppPCL.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\intl.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\libantlr3c.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\libbellesip-0.dll; DestDir: {app}; Flags: ignoreversion
@@ -56,12 +60,16 @@ Source: ..\VATRP.App\bin\Release\libtheora-0.dll; DestDir: {app}; Flags: ignorev
 Source: ..\VATRP.App\bin\Release\libxml2-2.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\log4net.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\log4net.config; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\Microsoft.Threading.Tasks.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\Microsoft.Threading.Tasks.Extensions.Desktop.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\Microsoft.Threading.Tasks.Extensions.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\pthreadGC2.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\SQLite.Interop.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\swscale-2.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\System.Data.SQLite.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\ACE.Core.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\ACE.LinphoneWrapper.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\System.IO.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\System.Runtime.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\System.Threading.Tasks.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\zlib1.dll; DestDir: {app}; Flags: ignoreversion
 
 [Icons]
