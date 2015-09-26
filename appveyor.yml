@@ -1,0 +1,23 @@
+version: 1.0.{build}
+install:
+- choco install -y InnoSetup
+- choco install -y nuget.commandline
+build_script:
+- nuget restore VATRP.sln
+- msbuild VATRP.sln /p:Configuration="Release"  /p:Targets="Build" /verbosity:quiet  /p:BuildInParallel=true /m
+- set PATH="C:\Program Files (x86)\Inno Setup 5";%PATH%
+- iscc Setup\vatrp_setup.iss
+artifacts:
+- path: VATRP.App\bin\*
+  name: binary
+- path: Setup\Out\*.exe
+  name: Setup
+deploy:
+- provider: GitHub
+  tag: ace-windows-v$(appveyor_build_version)
+  auth_token:
+    secure: qg+gnvLVMKLuVPuwQ+CNcG9ywlNZVOSlzMGTulc9CLbzv3oumdD/D6+15j0wqxWa
+  artifact: 
+  prerelease: true
+  on:
+    branch: log4net

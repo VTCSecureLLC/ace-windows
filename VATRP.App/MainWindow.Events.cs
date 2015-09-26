@@ -28,7 +28,7 @@ namespace VATRP.App
                 return;
             }
 
-            LOG.Info(string.Format("CallStateChanged: State - {0}. Call: {1}", call.CallState, call.NativeCallPtr ));
+            logger.LogInfoMessage(string.Format("CallStateChanged: State - {0}. Call: {1}", call.CallState, call.NativeCallPtr ));
             var stopPlayback = false;
             var callStatusString = "";
             switch (call.CallState)
@@ -116,7 +116,7 @@ namespace VATRP.App
             RegistrationState = state;
             var statusString = "Unregistered";
             this.BtnSettings.IsEnabled = true;
-            LOG.Info(String.Format("Registration state changed. Current - {0}", state));
+            logger.LogInfoMessage(String.Format("Registration state changed. Current - {0}", state));
             switch (state)
             {
                 case LinphoneRegistrationState.LinphoneRegistrationProgress:
@@ -158,7 +158,7 @@ namespace VATRP.App
             ServiceSelector.Visibility = Visibility.Collapsed;
             WizardPagepanel.Visibility = Visibility.Collapsed;
             RegUserLabel.Text = string.Format( "Account: {0}", App.CurrentAccount.RegistrationUser);
-            LOG.Info(string.Format( "New account registered. Useaname -{0}. Host - {1} Port - {2}",
+            logger.LogInfoMessage(string.Format( "New account registered. Useaname -{0}. Host - {1} Port - {2}",
                 App.CurrentAccount.RegistrationUser,
                 App.CurrentAccount.ProxyHostname,
                 App.CurrentAccount.ProxyPort));

@@ -23,6 +23,7 @@ using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using VATRP.Core.Services;
 using VATRP.LinphoneWrapper.Enums;
+using VATRP.App.Interfaces;
 
 namespace VATRP.App
 {
@@ -41,6 +42,7 @@ namespace VATRP.App
         private readonly SelfView _selfView = new SelfView();
         private readonly SettingsView _settingsView = new SettingsView();
         private readonly LinphoneService _linphoneService;
+        ILogger logger = new Logger(typeof(MainWindow));
         #endregion
 
         #region Properties
