@@ -37,8 +37,8 @@ namespace VATRP.App
         private readonly Dialpad _dialpadBox = new Dialpad();
         private readonly CallProcessingBox _callView = new CallProcessingBox();
         private readonly HistoryView _historyView = new HistoryView();
-        private readonly CallView _remoteVideoView = new CallView();
-        private readonly SelfView _selfView = new SelfView();
+        private CallView _remoteVideoView;
+        private SelfView _selfView = new SelfView();
         private readonly SettingsView _settingsView = new SettingsView();
         private readonly LinphoneService _linphoneService;
         #endregion

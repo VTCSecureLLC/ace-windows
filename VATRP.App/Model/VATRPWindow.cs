@@ -121,8 +121,15 @@ namespace VATRP.App.Model
         {
             if (!App.AllowDestroyWindows)
             {
-                if (WindowType != VATRPWindowType.CALL_VIEW)
-                    this.Hide();
+                switch (WindowType)
+                {
+                    case VATRPWindowType.CALL_VIEW:
+                    case VATRPWindowType.REMOTE_VIDEO_VIEW:
+                        break;
+                    default:
+                        Hide();
+                        break;
+                }
                 e.Cancel = true;
             }
         }
@@ -185,7 +192,8 @@ namespace VATRP.App.Model
                     return Configuration.ConfSection.SELF_WINDOW;
                 case VATRPWindowType.SETTINGS_VIEW:
                     return Configuration.ConfSection.SETTINGS_WINDOW;
-
+                case VATRPWindowType.REMOTE_VIDEO_VIEW:
+                    return Configuration.ConfSection.REMOTE_VIDEO_VIEW;
                 default:
                     throw new ArgumentOutOfRangeException("wndType");
             }
@@ -211,7 +219,8 @@ namespace VATRP.App.Model
                     return new Point() { X = 100, Y = 400 };
                 case VATRPWindowType.SETTINGS_VIEW:
                     return new Point() { X = 100, Y = 400 };
-
+                case VATRPWindowType.REMOTE_VIDEO_VIEW:
+                    return new Point() { X = 100, Y = 400 };
                 default:
                     throw new ArgumentOutOfRangeException("wndType");
             }

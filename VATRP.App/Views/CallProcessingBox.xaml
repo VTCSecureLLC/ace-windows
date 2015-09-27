@@ -24,7 +24,7 @@
         <StackPanel Orientation="Horizontal" Grid.Row="5" HorizontalAlignment="Center" x:Name="InCallPanel">
         <Button x:Name="BtnMute" Content="Mute" Margin="5, 15" Width="75" Click="OnMute" />
         <Button Content="End Call" Margin="5,15" Width="75" Click="OnEndCall"/>
-            <Button x:Name="BtnSwitchVideo" Content="Switch Video" Margin="5,15" Width="75" Click="OnSwitchVideo"/>
+            <Button x:Name="BtnSwitchVideo" Content="Switch Video" Margin="5,15" Width="75" Click="OnSwitchVideo" Visibility="Collapsed"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Grid.Row="5" HorizontalAlignment="Center" x:Name="IncomingPanel" Visibility="Collapsed">
             <Button Content="Accept" Margin="5, 15" Width="75" Click="AcceptCall" Background="Green" Foreground="White"/>

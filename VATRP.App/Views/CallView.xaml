@@ -9,7 +9,8 @@
                    LocationChanged="Window_LocationChanged" 
                    Unloaded="OnUnloaded"
                    Loaded="OnLoaded"
-                   SizeChanged="OnSizeChanged" IsVisibleChanged="OnVisibilityChanged" Icon="/ACE;component/Resources/cameraview.png" >
+                   SizeChanged="OnSizeChanged" 
+                   IsVisibleChanged="OnVisibilityChanged" Icon="/ACE;component/Resources/cameraview.png" >
     <Grid>
     </Grid>
 </model:VATRPWindow>

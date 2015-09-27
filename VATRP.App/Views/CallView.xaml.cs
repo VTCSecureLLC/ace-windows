@@ -26,7 +26,7 @@ namespace VATRP.App.Views
     public partial class CallView
     {
         public CallView()
-            : base(VATRPWindowType.CALL_VIEW)
+            : base(VATRPWindowType.REMOTE_VIDEO_VIEW)
         {
             InitializeComponent();
         }
