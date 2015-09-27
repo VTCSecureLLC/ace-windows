@@ -9,7 +9,7 @@
                    StateChanged="Window_StateChanged" 
                    LocationChanged="Window_LocationChanged" 
                    SourceInitialized="Window_Initialized"
-                   Unloaded="Window_Unloaded" SizeChanged="Window_SizeChanged">
+                   Unloaded="Window_Unloaded" SizeChanged="Window_SizeChanged" Icon="/ACE;component/Resources/dialpad.png">
     <Grid>
         <customControls:DialPadScreen x:Name="ctrlNavigationBar" Height="Auto" Width="Auto" Margin="0"/>
     </Grid>

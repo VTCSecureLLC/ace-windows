@@ -9,7 +9,7 @@
              >
     <Grid >
         <StackPanel VerticalAlignment="Top" >
-            <Grid >
+            <Grid Cursor="Hand" Background="White" >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>

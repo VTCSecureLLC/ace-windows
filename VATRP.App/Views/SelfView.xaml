@@ -2,12 +2,12 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:model="clr-namespace:VATRP.App.Model"
-        Title="VATRP Preview" Height="300" Width="300"
+        Title="Self Video" Height="300" Width="300"
                    Activated="Window_Activated" 
                    Closing="Window_Closing" 
                    StateChanged="Window_StateChanged" 
                    LocationChanged="Window_LocationChanged" 
-                   IsVisibleChanged="OnVisibilityChanged"
+                   IsVisibleChanged="OnVisibilityChanged" Icon="/ACE;component/Resources/cameraview.png"
                    >
     <Grid>
         

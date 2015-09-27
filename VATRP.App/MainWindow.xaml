@@ -8,7 +8,7 @@
                    Loaded="OnLoaded"
                    StateChanged="Window_StateChanged" 
                    LocationChanged="Window_LocationChanged" 
-                   Unloaded="Window_Unloaded">
+                   Unloaded="Window_Unloaded" Icon="Resources/vatrp.ico">
     <Grid x:Name="LayoutGrid" Background="#FFF0F0F0">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>

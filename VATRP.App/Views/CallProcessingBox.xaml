@@ -6,7 +6,7 @@
                    Closing="Window_Closing"  
                    StateChanged="Window_StateChanged" 
                    LocationChanged="Window_LocationChanged" 
-                   Unloaded="Window_Unloaded">
+                   Unloaded="Window_Unloaded" Icon="/ACE;component/Resources/vatrp.ico">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>

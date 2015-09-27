@@ -9,7 +9,7 @@
                    Closing="Window_Closing" 
                    StateChanged="Window_StateChanged" 
                    LocationChanged="Window_LocationChanged" 
-                   Loaded="OnLoaded"
+                   Loaded="OnLoaded" Icon="/ACE;component/Resources/settings.png"
                    >
     <Grid>
         <Grid.RowDefinitions>
