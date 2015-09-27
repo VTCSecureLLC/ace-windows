@@ -2,27 +2,32 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 [Setup]
-AppName=ACE
-AppVerName=ACE 0.0.0.5
+#define vatrpVersion GetEnv('vatrpVersion') 
+#if vatrpVersion == "" 
+	#define vatrpVersion "0.0.0.0" 
+#endif
+#define vatrpAppName "ACE"
+AppName={#vatrpAppName}
+AppVerName={#vatrpAppName} {#vatrpVersion}
 AppPublisher=
-DefaultDirName={pf}\ACE
-DefaultGroupName=ACE
+DefaultDirName={pf}\{#vatrpAppName}
+DefaultGroupName={#vatrpAppName}
 Compression=zip/9
 DisableStartupPrompt=true
-OutputBaseFilename=ACE_0.0.0.5_x86
+OutputBaseFilename=ACE_{#vatrpVersion}_x86
 ; uncomment the following line if you want your installation to run on NT 3.51 too.
 ; MinVersion=4,3.51
 OutputDir=Out
-AppVersion=0.0.0.5
-UninstallDisplayIcon={app}\ACE.exe,1
-UninstallDisplayName=ACE 
+AppVersion={#vatrpVersion}
+UninstallDisplayIcon={app}\{#vatrpAppName}.exe,1
+UninstallDisplayName={#vatrpAppName} 
 LicenseFile=license.txt
-VersionInfoVersion=0.0.0.5
-VersionInfoDescription=ACE
-VersionInfoTextVersion=0.0.0.5
+VersionInfoVersion={#vatrpVersion}
+VersionInfoDescription={#vatrpAppName}
+VersionInfoTextVersion={#vatrpVersion}
 VersionInfoCopyright=Copyright (C) 2015
-VersionInfoProductName=ACE
-VersionInfoProductVersion=0.0.0.5
+VersionInfoProductName={#vatrpAppName}
+VersionInfoProductVersion={#vatrpVersion}
 AppendDefaultGroupName=false
 UsePreviousAppDir=false
 DirExistsWarning=no
