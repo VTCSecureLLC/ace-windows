@@ -42,10 +42,12 @@ namespace VATRP.App.Views
             }
             else
             {
-                var source = (HwndSource)HwndSource.FromVisual(this);
+                var source = GetWindow(this);
                 if (source != null)
                 {
-                    IntPtr hWnd = source.Handle;
+                    var wih = new WindowInteropHelper(source);
+
+                    IntPtr hWnd = wih.EnsureHandle();
                     if (hWnd != IntPtr.Zero)
                     {
                         _linphone.SetVideoPreviewWindowHandle(hWnd);
