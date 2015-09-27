@@ -29,7 +29,6 @@ namespace VATRP.App.Views
         {
             InitializeComponent();
             _linphoneService = ServiceManager.Instance.LinphoneSipService;
-            _linphoneService.CallStateChangedEvent += OnCallStateChanged;
             timerCall = new Timer
             {
                 Interval = 1000,
@@ -47,19 +46,14 @@ namespace VATRP.App.Views
         }
 
 
-        private void OnCallStateChanged(VATRPCall call)
+        internal void OnCallStateChanged(VATRPCall call)
         {
-            if (Dispatcher.Thread != Thread.CurrentThread)
-            {
-                Dispatcher.BeginInvoke((Action)(() => OnCallStateChanged(call)));
-                return;
-            }
-
             _currentCall = call;
 
             switch (call.CallState)
             {
                 case VATRPCallState.Trying:
+                    Show();
                     CallerDisplayNameBox.Text = _currentCall.To.DisplayName;
                     CallerNumberBox.Text = _currentCall.To.Username;
                     secondsInCall = 0;
@@ -75,6 +69,7 @@ namespace VATRP.App.Views
                     }
                     break;
                 case VATRPCallState.InProgress:
+                    Show();
                     secondsInCall = 0;
                     CallerDisplayNameBox.Text = _currentCall.From.DisplayName;
                     CallerNumberBox.Text = _currentCall.From.Username;
@@ -89,6 +84,7 @@ namespace VATRP.App.Views
                     ReceiveCall(call);
                     break;
                 case VATRPCallState.Ringing:
+                    Show();
                     secondsInCall = 0;
                     CallStateBox.Text = "Ringing";
                     break;
@@ -132,6 +128,7 @@ namespace VATRP.App.Views
                     secondsInCall = 0;
                     break;
                 case VATRPCallState.Error:
+                    Hide();
                     CallStateBox.Text = "Error occurred";
                     if (App.ActiveCallHistoryEvent != null)
                     {
@@ -149,7 +146,6 @@ namespace VATRP.App.Views
                     }
                     ActiveCall = null;
                     secondsInCall = 0;
-                    Hide();
                     break;
             }
         }
