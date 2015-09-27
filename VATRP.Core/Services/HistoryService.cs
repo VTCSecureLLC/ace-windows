@@ -20,6 +20,7 @@ namespace VATRP.Core.Services
         private readonly string connectionString;
         private readonly string dbFilePath;
         private bool isLoadingCalls;
+        private  List<VATRPCallEvent> _allCallsEvents;
 
         public event EventHandler<VATRPCallEventArgs> OnCallHistoryEvent;
 
@@ -83,10 +84,21 @@ namespace VATRP.Core.Services
         }
 
         #region IHistoryService
-        public List<VATRPCallEvent> LoadCallEvents(int limit)
+
+        public List<VATRPCallEvent> AllCallsEvents
+        {
+            get
+            {
+                return _allCallsEvents;
+            }
+        }
+
+        public void LoadCallEvents()
         {
             isLoadingCalls = true;
-            var calls = new List<VATRPCallEvent>();
+            if (_allCallsEvents == null)
+                _allCallsEvents = new List<VATRPCallEvent>();
+
             var connection = new SQLiteConnection(connectionString);
             var cmd = new SQLiteCommand
             {
@@ -125,7 +137,7 @@ namespace VATRP.Core.Services
                             callevent.Contact = manager.ContactService.FindContactId(reader["contact"].ToString());
                         if (!reader.IsDBNull(8))
                             callevent.Codec = reader["codec"].ToString();
-                        calls.Add(callevent);
+                        _allCallsEvents.Add(callevent);
                     }
                 }
             }
@@ -138,7 +150,10 @@ namespace VATRP.Core.Services
                 Debug.WriteLine(ex.Message);
             }
             isLoadingCalls = false;
-            return calls;
+            if (OnCallHistoryEvent != null)
+            {
+                OnCallHistoryEvent(null, new VATRPCallEventArgs());
+            }
         }
 
         public bool IsLoadingCalls
