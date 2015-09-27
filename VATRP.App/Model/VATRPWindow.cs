@@ -121,7 +121,8 @@ namespace VATRP.App.Model
         {
             if (!App.AllowDestroyWindows)
             {
-                this.Hide();
+                if (WindowType != VATRPWindowType.CALL_VIEW)
+                    this.Hide();
                 e.Cancel = true;
             }
         }
