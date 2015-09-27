@@ -538,14 +538,15 @@ namespace VATRP.Core.Services
 		public void SetVideoPreviewWindowHandle(IntPtr hWnd, bool reset = false)
 		{
 			LinphoneAPI.linphone_core_enable_video_preview(linphoneCore, !reset);
-			if (reset)
-			{
-				LinphoneAPI.linphone_core_set_native_preview_window_id(linphoneCore, -1);
-			}
-			else
-			{
-				LinphoneAPI.linphone_core_set_native_preview_window_id(linphoneCore, hWnd.ToInt64());
-			}
+		    if (reset)
+		    {
+		        LinphoneAPI.linphone_core_set_native_preview_window_id(linphoneCore, -1);
+		    }
+		    else
+		    {
+		        LinphoneAPI.linphone_core_use_preview_window(linphoneCore, true); // use preview in separated window
+		        LinphoneAPI.linphone_core_set_native_preview_window_id(linphoneCore, hWnd.ToInt64());
+		    }
 		}
 		
 		public void SetPreviewVideoSize(MSVideoSize w, MSVideoSize h)

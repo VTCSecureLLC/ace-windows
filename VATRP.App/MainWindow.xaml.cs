@@ -91,14 +91,7 @@ namespace VATRP.App
 
         private void btnVideoMail_Click(object sender, RoutedEventArgs e)
         {
-            if (_callView.ActiveCall == null)
-            {
-                ToggleWindow(_selfView);
-            }
-            else
-            {
-                ToggleWindow(_callView);
-            }
+            ToggleWindow(_selfView);
         }
 
         private void btnSettings_Click(object sender, RoutedEventArgs e)

@@ -57,20 +57,31 @@ namespace VATRP.App
                     stopPlayback = true;
                     try
                     {
-                        if (ServiceManager.Instance.LinphoneSipService.IsVideoEnabled(call))
+                        if (_selfView != null)
                         {
-                            if (_remoteVideoView != null)
-                                _remoteVideoView.Show();
-                        }
-
-                        if (_remoteVideoView != null)
-                        {
-                            Window window = Window.GetWindow(_remoteVideoView);
+                            Window window = Window.GetWindow(_selfView);
                             if (window != null)
                             {
                                 var wih = new WindowInteropHelper(window);
                                 IntPtr hWnd = wih.Handle;
-                                ServiceManager.Instance.LinphoneSipService.SetVideoCallWindowHandle(hWnd);
+                                ServiceManager.Instance.LinphoneSipService.SetVideoPreviewWindowHandle(hWnd);
+                            }
+                        }
+
+                        if (ServiceManager.Instance.LinphoneSipService.IsVideoEnabled(call))
+                        {
+                            if (_remoteVideoView != null)
+                            {
+                                _remoteVideoView.Title = call.From.DisplayName;
+                                _remoteVideoView.Show();
+
+                                Window window = Window.GetWindow(_remoteVideoView);
+                                if (window != null)
+                                {
+                                    var wih = new WindowInteropHelper(window);
+                                    IntPtr hWnd = wih.Handle;
+                                        ServiceManager.Instance.LinphoneSipService.SetVideoCallWindowHandle(hWnd);
+                                }
                             }
                         }
                     }
