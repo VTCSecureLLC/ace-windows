@@ -5,13 +5,12 @@ install:
 - choco install -y nuget.commandline
 build_script:
 - nuget restore VATRP.sln
+- echo using System;namespace VATRP.App{ public partial class App {public static string HOCKEYAPP_ID = "%HOCKEYAPP_ID%";}} > VATRP.App/App.Constants.cs
 - set vatrpVersion=%APPVEYOR_BUILD_VERSION%
 - msbuild VATRP.sln /p:Configuration="Release"  /p:Targets="Build" /p:BuildInParallel=true /m
 - set PATH="C:\Program Files (x86)\Inno Setup 5";%PATH%
 - Call iscc Setup\vatrp_setup.iss
 artifacts:
-- path: VATRP.App\bin\*
-  name: binary
 - path: Setup\Out\*.exe
   name: Setup
 deploy:
