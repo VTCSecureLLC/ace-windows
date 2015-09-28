@@ -274,22 +274,6 @@
   <PropertyGroup>
     <PostBuildEvent>copy /b "$(SolutionDir)thirdparties\liblinphone\*.dll" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
-   <PropertyGroup>
-    <PreBuildEvent>set VERSION_FILE=$(ProjectDir)\..\VersionInfo.cs
-     if !%25vatrpVersion%25==! goto no_buildnumber_set
-     goto buildnumber_set
-     :no_buildnumber_set
-     set vatrpVersion=0.0.0.0
-     :buildnumber_set
-     if not exist %25VERSION_FILE%25 goto no_version_file
-     del /q %25VERSION_FILE%25
-     :no_version_file
-     echo using System.Reflection; &gt;&gt; %25VERSION_FILE%25
-     echo using System.Runtime.CompilerServices; &gt;&gt; %25VERSION_FILE%25
-     echo using System.Runtime.InteropServices; &gt;&gt; %25VERSION_FILE%25
-     echo [assembly: AssemblyVersion("%25vatrpVersion%25")] &gt;&gt; %25VERSION_FILE%25
-     echo [assembly: AssemblyFileVersion("%25vatrpVersion%25")] &gt;&gt; %25VERSION_FILE%25</PreBuildEvent>
-  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
