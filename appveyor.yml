@@ -1,0 +1,25 @@
+version: 0.0.{build}
+environment:
+  GITHUB_TOKEN: ff17701ade9a64677188a7a6a930aabf70d9e455
+install:
+- choco install -y InnoSetup
+- choco install -y nuget.commandline
+build_script:
+- nuget restore VATRP.sln
+- msbuild VATRP.sln /p:Configuration="Release"  /p:Targets="Build" /verbosity:quiet  /p:BuildInParallel=true /m
+- set vatrpVersion=%APPVEYOR_BUILD_VERSION%
+- set PATH="C:\Program Files (x86)\Inno Setup 5";%PATH%
+- Call iscc Setup\vatrp_setup.iss
+artifacts:
+- path: VATRP.App\bin\*
+  name: binary
+- path: Setup\Out\*.exe
+  name: Setup
+deploy_script: []
+notifications:
+- provider: Email
+  to:
+  - appveyortest@vtcsecure.flowdock.com
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: true
