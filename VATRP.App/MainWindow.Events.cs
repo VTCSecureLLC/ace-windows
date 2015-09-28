@@ -115,6 +115,7 @@ namespace VATRP.App
                     stopPlayback = true;
                     if (_remoteVideoView != null)
                     {
+                        _remoteVideoView.Visibility = Visibility.Collapsed;
                         _remoteVideoView.Close();
                         _remoteVideoView = null;
                     }
