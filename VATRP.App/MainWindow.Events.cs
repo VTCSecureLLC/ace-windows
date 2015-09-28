@@ -99,7 +99,7 @@ namespace VATRP.App
                                 var wih = new WindowInteropHelper(window);
 
                                 IntPtr hWnd = wih.EnsureHandle();
-                                ServiceManager.Instance.LinphoneSipService.SetVideoCallWindowHandle(hWnd);
+                                ServiceManager.Instance.LinphoneSipService.SetVideoCallWindowHandle(IntPtr.Zero);
                             }
                             _remoteVideoView.Show();
                         }
