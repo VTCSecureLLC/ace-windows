@@ -35,12 +35,18 @@ namespace VATRP.App
             {
                 case VATRPCallState.Trying:
                     // call started, 
-                    videoTitle = call.To.DisplayName;  
+                    videoTitle = call.To.DisplayName;
+                    videoTitle = !string.IsNullOrWhiteSpace(call.To.DisplayName)
+                        ? string.Format("\"{0}\" {1}", call.To.DisplayName, call.To.Username)
+                        : call.To.Username;
                     if (_callView != null)
                        _callView.OnCallStateChanged(call);
                     break;
                 case VATRPCallState.InProgress:
-                    videoTitle = call.From.DisplayName;  
+                    videoTitle = !string.IsNullOrWhiteSpace(call.From.DisplayName)
+                        ? string.Format("\"{0}\" {1}", call.From.DisplayName, call.From.Username)
+                        : call.From.Username;
+                    
                     ServiceManager.Instance.SoundService.PlayRingTone();
                     if (_callView != null)
                         _callView.OnCallStateChanged(call);
@@ -84,10 +90,9 @@ namespace VATRP.App
                         {
                             if (_remoteVideoView == null)
                             {
-                                LOG.Info("new window created");
                                 _remoteVideoView = new CallView();
                             }
-                            _remoteVideoView.Title = videoTitle;
+                            _remoteVideoView.Title = "Remote Video";//videoTitle;
                             Window window = GetWindow(_remoteVideoView);
                             if (window != null)
                             {
