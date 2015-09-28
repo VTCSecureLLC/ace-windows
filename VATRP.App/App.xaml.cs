@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
@@ -9,16 +10,18 @@ using System.Windows.Threading;
 using log4net;
 using VATRP.App.Services;
 using VATRP.Core.Model;
+using HockeyApp;
 
 namespace VATRP.App
 {
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App 
     {
         #region Members
-        private static readonly ILog _log = LogManager.GetLogger(typeof(App));
+
+        private static readonly log4net.ILog _log = LogManager.GetLogger(typeof (App));
         private static bool _allowDestroyWindows = false;
         #endregion
 
@@ -34,7 +37,44 @@ namespace VATRP.App
         internal static VATRPCallEvent ActiveCallHistoryEvent { get; set; }
         #endregion
 
-        private void App_OnStartup(object sender, StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            //main configuration of HockeySDK
+            HockeyClient.Current.Configure(HOCKEYAPP_ID);
+                //.UseCustomResourceManager(HockeyApp.ResourceManager) //register your own resourcemanager to override HockeySDK i18n strings
+                //.RegisterCustomUnhandledExceptionLogic((eArgs) => { /* do something here */ }) // define a callback that is called after unhandled exception
+                //.RegisterCustomUnobserveredTaskExceptionLogic((eArgs) => { /* do something here */ }) // define a callback that is called after unobserved task exception
+                //.RegisterCustomDispatcherUnhandledExceptionLogic((args) => { }) // define a callback that is called after dispatcher unhandled exception
+                //.SetApiDomain("https://your.hockeyapp.server")
+                //.SetContactInfo("John Smith", "email@example.com");
+
+            //optional should only used in debug builds. register an event-handler to get exceptions in HockeySDK code that are "swallowed" (like problems writing crashlogs etc.)
+#if DEBUG
+            ((HockeyClient) HockeyClient.Current).OnHockeySDKInternalException += (sender, args) =>
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+            };
+#endif
+            //send crashes to the HockeyApp server
+            await HockeyClient.Current.SendCrashesAsync();
+
+            //check for updates on the HockeyApp server
+            await HockeyClient.Current.CheckForUpdatesAsync(true, () =>
+            {
+                if (Application.Current.MainWindow != null)
+                {
+                    Application.Current.MainWindow.Close();
+                }
+                return true;
+            });
+        }
+
+        private async void App_OnStartup(object sender, StartupEventArgs e)
         {
             _log.Info("====================================================");
             _log.Info(String.Format("============== Starting VATRP v{0} =============",
@@ -43,7 +83,8 @@ namespace VATRP.App
             try
             {
                 CurrentAccount = null;
-                AppDomain.CurrentDomain.SetData("DataDirectory", Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
+                AppDomain.CurrentDomain.SetData("DataDirectory",
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
                 this.StartupUri = new Uri("MainWindow.xaml", UriKind.RelativeOrAbsolute);
 
                 var culture = new CultureInfo("en-US");
@@ -60,7 +101,6 @@ namespace VATRP.App
             {
                 MessageBox.Show("App Global error:" + error.Message);
             }
-
         }
 
         private void App_OnExit(object sender, ExitEventArgs e)
