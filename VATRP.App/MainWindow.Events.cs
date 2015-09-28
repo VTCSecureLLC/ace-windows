@@ -115,6 +115,8 @@ namespace VATRP.App
                     stopPlayback = true;
                     if (_remoteVideoView != null)
                     {
+			ServiceManager.Instance.LinphoneSipService.SetVideoCallWindowHandle(null);
+			
                         _remoteVideoView.Close();
                         _remoteVideoView = null;
                     }
