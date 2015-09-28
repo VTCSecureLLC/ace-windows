@@ -4,8 +4,8 @@ install:
 - choco install -y nuget.commandline
 build_script:
 - nuget restore VATRP.sln
-- msbuild VATRP.sln /p:Configuration="Release"  /p:Targets="Build" /verbosity:quiet  /p:BuildInParallel=true /m
 - set vatrpVersion=%APPVEYOR_BUILD_VERSION%
+- msbuild VATRP.sln /p:Configuration="Release"  /p:Targets="Build" /p:BuildInParallel=true /m
 - set PATH="C:\Program Files (x86)\Inno Setup 5";%PATH%
 - Call iscc Setup\vatrp_setup.iss
 artifacts:
@@ -16,7 +16,7 @@ artifacts:
 deploy:
 - provider: GitHub
   tag: v$(APPVEYOR_BUILD_VERSION)
-  release: Appveyor Automated v$(APPVEYOR_BUILD_VERSION)-$(GIT_HASH)
+  release: Appveyor Automated v$(APPVEYOR_BUILD_VERSION)
   description: Release of version $(APPVEYOR_BUILD_VERSION) \n $(APPVEYOR_REPO_COMMIT_MESSAGE)
   auth_token:
     secure: 85zYs73xAspqCTY0Y19QCKgVZRrq1NuJ9LCLJx/rZ59vo00jRf2Rs6k81WYAj0yx
