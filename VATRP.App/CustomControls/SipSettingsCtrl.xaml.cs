@@ -77,6 +77,17 @@ namespace VATRP.App.CustomControls
 
             return false;
         }
+        
+        private string GetTransport(String s){
+            if(s == "Unencrypted (TCP)"){
+                return "TCP";
+            }
+            
+            else if(s == "Encrypted (TLS"){
+                return "TLS";
+            }
+            
+        }
 
         public bool Save()
         {
@@ -118,7 +129,7 @@ namespace VATRP.App.CustomControls
             var s = TransportBox.SelectedItem as TextBlock;
             if (s != null )
             {
-                App.CurrentAccount.Transport = s.Text;
+                App.CurrentAccount.Transport = GetTransport(s.Text);
             }
             return true;
         }
