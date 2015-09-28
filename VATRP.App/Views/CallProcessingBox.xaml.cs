@@ -102,7 +102,7 @@ namespace VATRP.App.Views
                     break;
                 case VATRPCallState.Closed:
                     CallStateBox.Text = "Terminated";
-                    Hide();
+                    InCallPanel.Close();
 #if DEBUG
                     if (autoAnswerTimer.Enabled)
                     {
