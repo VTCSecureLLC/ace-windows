@@ -86,7 +86,7 @@ namespace VATRP.App.CustomControls
             else if(s == "Encrypted (TLS"){
                 return "TLS";
             }
-            
+            return "TCP";
         }
 
         public bool Save()
