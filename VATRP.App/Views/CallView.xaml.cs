@@ -26,7 +26,7 @@ namespace VATRP.App.Views
     public partial class CallView
     {
         public CallView()
-            : base(VATRPWindowType.CALL_VIEW)
+            : base(VATRPWindowType.REMOTE_VIDEO_VIEW)
         {
             InitializeComponent();
         }
@@ -65,10 +65,11 @@ namespace VATRP.App.Views
                 }
                 else
                 {
-                    var source = (HwndSource)HwndSource.FromVisual(this);
+                    var source = GetWindow(this);
                     if (source != null)
                     {
-                        IntPtr hWnd = source.Handle;
+                        var wih = new WindowInteropHelper(source);
+                        IntPtr hWnd = wih.EnsureHandle();
                         if (hWnd != IntPtr.Zero)
                         {
                             _linphone.SetVideoCallWindowHandle(hWnd);

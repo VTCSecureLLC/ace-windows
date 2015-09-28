@@ -8,6 +8,7 @@ namespace VATRP.App.Model
     public enum VATRPWindowType
     {
         CALL_VIEW,
+        REMOTE_VIDEO_VIEW,
         CONTACT_VIEW,
         DIALPAD_VIEW,
         MAIN_VIEW,

@@ -18,7 +18,8 @@ namespace VATRP.Core.Model
             SETTINGS_WINDOW,
             MENUBAR,
             LINPHONE,
-            ACCOUNT
+            ACCOUNT,
+            REMOTE_VIDEO_VIEW
         }
 
         public enum ConfEntry

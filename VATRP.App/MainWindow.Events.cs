@@ -9,6 +9,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using VATRP.App.Model;
 using VATRP.App.Services;
+using VATRP.App.Views;
 using VATRP.Core.Model;
 using VATRP.Core.Services;
 using VATRP.LinphoneWrapper.Enums;
@@ -19,7 +20,7 @@ namespace VATRP.App
     {
         private bool registerRequested = false;
         private bool isRegistering = true;
-
+        private string videoTitle = string.Empty;
         private void OnCallStateChanged(VATRPCall call)
         {
             if (this.Dispatcher.Thread != Thread.CurrentThread)
@@ -30,48 +31,77 @@ namespace VATRP.App
 
             LOG.Info(string.Format("CallStateChanged: State - {0}. Call: {1}", call.CallState, call.NativeCallPtr ));
             var stopPlayback = false;
-            var callStatusString = "";
             switch (call.CallState)
             {
                 case VATRPCallState.Trying:
                     // call started, 
-                    if (_callView.Visibility != Visibility.Visible)
-                        _callView.Show();
-                    _remoteVideoView.Title = call.To.DisplayName;
+                    videoTitle = call.To.DisplayName;
+                    videoTitle = !string.IsNullOrWhiteSpace(call.To.DisplayName)
+                        ? string.Format("\"{0}\" {1}", call.To.DisplayName, call.To.Username)
+                        : call.To.Username;
+                    if (_callView != null)
+                       _callView.OnCallStateChanged(call);
                     break;
                 case VATRPCallState.InProgress:
+                    videoTitle = !string.IsNullOrWhiteSpace(call.From.DisplayName)
+                        ? string.Format("\"{0}\" {1}", call.From.DisplayName, call.From.Username)
+                        : call.From.Username;
+                    
                     ServiceManager.Instance.SoundService.PlayRingTone();
-                    _remoteVideoView.Title = call.From.DisplayName;
+                    if (_callView != null)
+                        _callView.OnCallStateChanged(call);
                     break;
                 case VATRPCallState.Ringing:
-                    if (_callView.Visibility != Visibility.Visible)
-                        _callView.Show();
-                    callStatusString = "It is now ringing remotely !";
+                    if (_callView != null)
+                        _callView.OnCallStateChanged(call);
                     ServiceManager.Instance.SoundService.PlayRingBackTone();
                     break;
                 case VATRPCallState.EarlyMedia:
-                    callStatusString = "Receiving some early media";
                     break;
                 case VATRPCallState.Connected:
-                    callStatusString = "We are connected !";
+                    if (_callView != null)
+                        _callView.OnCallStateChanged(call);
                     stopPlayback = true;
+                    try
+                    {
+                        if (_selfView.IsVisible)
+                        {
+                            Window window = Window.GetWindow(_selfView);
+                            if (window != null)
+                            {
+                                var wih = new WindowInteropHelper(window);
+                                IntPtr hWnd = wih.EnsureHandle();
+                                ServiceManager.Instance.LinphoneSipService.SetVideoPreviewWindowHandle(hWnd);
+                            }
+                        }
+                        else
+                        {
+                            _selfView.Show();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ServiceManager.LogError("Show Self preview", ex);
+                        RecreateSelfView();
+                    }
                     try
                     {
                         if (ServiceManager.Instance.LinphoneSipService.IsVideoEnabled(call))
                         {
-                            if (_remoteVideoView != null)
-                                _remoteVideoView.Show();
-                        }
-
-                        if (_remoteVideoView != null)
-                        {
-                            Window window = Window.GetWindow(_remoteVideoView);
+                            if (_remoteVideoView == null)
+                            {
+                                _remoteVideoView = new CallView();
+                            }
+                            _remoteVideoView.Title = "Remote Video";//videoTitle;
+                            Window window = GetWindow(_remoteVideoView);
                             if (window != null)
                             {
                                 var wih = new WindowInteropHelper(window);
-                                IntPtr hWnd = wih.Handle;
+
+                                IntPtr hWnd = wih.EnsureHandle();
                                 ServiceManager.Instance.LinphoneSipService.SetVideoCallWindowHandle(hWnd);
                             }
+                            _remoteVideoView.Show();
                         }
                     }
                     catch (Exception ex)
@@ -80,21 +110,30 @@ namespace VATRP.App
                     }
                     break;
                 case VATRPCallState.Closed:
-                    callStatusString = "Call is terminated.";
+                    if (_callView != null)
+                        _callView.OnCallStateChanged(call);
                     stopPlayback = true;
-                    _remoteVideoView.Hide();
+                    if (_remoteVideoView != null)
+                    {
+                        _remoteVideoView.Close();
+                        _remoteVideoView = null;
+                    }
                     if (registerRequested)
                     {
                         _linphoneService.Unregister();
                     }
                     break;
                 case VATRPCallState.Error:
-                    callStatusString = "Call failure !";
+                    if (_callView != null)
+                        _callView.OnCallStateChanged(call);
                     stopPlayback = true;
-                    _remoteVideoView.Hide();
+                    if (_remoteVideoView != null)
+                    {
+                        _remoteVideoView.Close();
+                        _remoteVideoView = null;
+                    }
                     break;
                 default:
-                    callStatusString = call.CallState.ToString();
                     break;
             }
 
@@ -102,6 +141,20 @@ namespace VATRP.App
             {
                 ServiceManager.Instance.SoundService.StopRingBackTone();
                 ServiceManager.Instance.SoundService.StopRingTone();
+            }
+        }
+
+        private void RecreateSelfView()
+        {
+            LOG.Info("Recreate Self view");
+            try
+            {
+                _selfView = new SelfView();
+                _selfView.Show();
+            }
+            catch (Exception ex)
+            {
+                ServiceManager.LogError("RecreateSelfView", ex);
             }
         }
 

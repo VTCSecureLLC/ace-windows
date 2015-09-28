@@ -63,13 +63,8 @@ namespace VATRP.App.Views
                 return;
             _historyService = ServiceManager.Instance.HistoryService;
             _historyService.OnCallHistoryEvent += OnHistoryCallEvent;
-            _populatingCalls = true;
-            if (!_historyService.IsLoadingCalls)
-            {
-                LoadAllCalls();
-                PopulateCalls(true);
-                _populatingCalls = false;
-            }
+            lstCallsBox.Visibility = Visibility.Collapsed;
+            new System.Threading.Thread((System.Threading.ThreadStart)_historyService.LoadCallEvents).Start();
         }
 
         protected void OnUnloaded(object sender, RoutedEventArgs e)
@@ -87,9 +82,8 @@ namespace VATRP.App.Views
         private void ShowMissedCalls()
         {
             CallsList.Clear();
-            var allCalls = _historyService.LoadCallEvents(50);
 
-            var callsItemDB = from VATRPCallEvent call in allCalls
+            var callsItemDB = from VATRPCallEvent call in _historyService.AllCallsEvents
                 where call.Status == VATRPHistoryEvent.StatusType.Missed
                 orderby call.StartTime descending
                 select call;
@@ -133,26 +127,25 @@ namespace VATRP.App.Views
 
         private void OnHistoryCallEvent(object sender, EventArgs e)
         {
+            if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
+            {
+                this.Dispatcher.BeginInvoke((Action)(() => this.OnHistoryCallEvent(sender, e)));
+                return;
+            }
+
             _populatingCalls = true;
 
             LoadAllCalls();
             PopulateCalls(CallsTab.SelectedIndex == 0);
             _populatingCalls = false;
+            lstCallsBox.Visibility = Visibility.Visible;
         }
 
         private void LoadAllCalls()
         {
-            if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
-            {
-                this.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-                    new Action(this.LoadAllCalls));
-                return;
-            }
-
             CallsList.Clear();
-            var allCalls = _historyService.LoadCallEvents();
 
-            var callsItemDB = from VATRPCallEvent call in allCalls
+            var callsItemDB = from VATRPCallEvent call in _historyService.AllCallsEvents
                 orderby call.StartTime descending
                 select call;
 
@@ -183,13 +176,6 @@ namespace VATRP.App.Views
 
         private void PopulateCalls(bool allCalls)
         {
-            if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
-            {
-                this.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
-                    new Action(() => this.PopulateCalls(allCalls)));
-                return;
-            }
-
             DataContext = CallsList;
             ListBox lstBox = allCalls ? lstCallsBox : lstMissedCallsBox;
             lstBox.ItemsSource = CallsList;
