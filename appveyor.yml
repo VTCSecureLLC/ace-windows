@@ -1,8 +1,5 @@
 version: 0.0.{build}
 skip_tags: true
-environment:
-  HOCKEYAPP_ID:
-    secure: Yu4pI5B3BQtm+yYhEn4olQ==
 install:
 - choco install -y InnoSetup
 - choco install -y nuget.commandline
