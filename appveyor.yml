@@ -1,10 +1,15 @@
 version: 0.0.{build}
 skip_tags: true
+environment:
+  HOCKEYAPP_ID:
+    secure: Yu4pI5B3BQtm+yYhEn4olQ==
 install:
 - choco install -y InnoSetup
 - choco install -y nuget.commandline
 build_script:
 - nuget restore VATRP.sln
+- echo Faked ID %HOCKEYAPP_ID%
+- echo using System;namespace VATRP.App{ public partial class App {public static string HOCKEYAPP_ID = "%HOCKEYAPP_ID%";}} > VATRP.App/App.Constants.cs
 - set vatrpVersion=%APPVEYOR_BUILD_VERSION%
 - msbuild VATRP.sln /p:Configuration="Release"  /p:Targets="Build" /p:BuildInParallel=true /m
 - set PATH="C:\Program Files (x86)\Inno Setup 5";%PATH%
