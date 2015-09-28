@@ -248,6 +248,9 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+	<Compile Include="..\VersionInfo.cs">
+	  <Link>Properties\VersionInfo.cs</Link>
+	</Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
