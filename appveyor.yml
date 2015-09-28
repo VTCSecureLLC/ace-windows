@@ -1,4 +1,5 @@
 version: 0.0.{build}
+skip_tags: true
 install:
 - choco install -y InnoSetup
 - choco install -y nuget.commandline
