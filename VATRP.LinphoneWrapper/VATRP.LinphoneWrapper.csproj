@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
    <PreBuildEvent>set VERSION_FILE=$(ProjectDir)\..\VersionInfo.cs
      if !%25vatrpVersion%25==! goto no_buildnumber_set
      goto buildnumber_set
