@@ -37,9 +37,8 @@
 
                 <TextBlock Margin="3,2,3,2" Text="Transport" FontSize="13" Grid.Column="0" Grid.Row="4" VerticalAlignment="Center"/>
                 <ComboBox  x:Name="TransportBox" FontSize="14" Grid.Column="1" Margin="3" Grid.Row="4" Width="150" Height="24">
-                    <TextBlock >UDP</TextBlock>
-                    <TextBlock >TCP</TextBlock>
-                    <TextBlock >TLS</TextBlock>
+                    <TextBlock >Unencrypted (TCP)</TextBlock>
+                    <TextBlock >Encrypted (TLS)</TextBlock>
                 </ComboBox>
 
             </Grid>
