@@ -1,0 +1,6 @@
+*/bin/
+*/obj/
+/packages/
+/Packages/
+/Setup/Out/
+*.zip
