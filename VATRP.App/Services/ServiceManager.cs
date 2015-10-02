@@ -282,6 +282,7 @@ namespace VATRP.App.Services
 
             LinphoneSipService.UpdateNetworkingParameters(App.CurrentAccount);
             ApplyAVPFChanges();
+            ApplyVideoSizeChanges();
             return true;
         }
 
@@ -323,6 +324,11 @@ namespace VATRP.App.Services
             }
 #endif
             LinphoneSipService.SetAVPFMode(mode);
+        }
+
+        internal void ApplyVideoSizeChanges()
+        {
+            LinphoneSipService.UpdateVideoSize(App.CurrentAccount);
         }
     }
 }
