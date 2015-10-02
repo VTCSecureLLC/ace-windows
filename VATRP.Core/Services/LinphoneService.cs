@@ -583,7 +583,85 @@ namespace VATRP.Core.Services
 			return true;
 		}
 
-		#endregion
+	    public void UpdateVideoSize(VATRPAccount account)
+	    {
+	        MSVideoSize w = MSVideoSize.MS_VIDEO_SIZE_UNKNOWN_W, h = MSVideoSize.MS_VIDEO_SIZE_UNKNOWN_H;
+	        switch (account.PreferredVideoId)
+	        {
+	            case "sqcif":
+	                w = MSVideoSize.MS_VIDEO_SIZE_SQCIF_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_SQCIF_H;
+	                break;
+	            case "wqcif":
+	                w = MSVideoSize.MS_VIDEO_SIZE_WQCIF_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_WQCIF_H;
+	                break;
+	            case "qcif":
+	                w = MSVideoSize.MS_VIDEO_SIZE_QCIF_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_QCIF_H;
+	                break;
+	            case "cif":
+	                w = MSVideoSize.MS_VIDEO_SIZE_CIF_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_CIF_H;
+	                break;
+	            case "cvd":
+	                w = MSVideoSize.MS_VIDEO_SIZE_CVD_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_CVD_H;
+	                break;
+	            case "icif":
+	                w = MSVideoSize.MS_VIDEO_SIZE_ICIF_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_ICIF_H;
+	                break;
+	            case "4cif":
+	                w = MSVideoSize.MS_VIDEO_SIZE_4CIF_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_4CIF_H;
+	                break;
+	            case "w4cif":
+	                w = MSVideoSize.MS_VIDEO_SIZE_W4CIF_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_W4CIF_H;
+	                break;
+	            case "qqvga":
+	                w = MSVideoSize.MS_VIDEO_SIZE_QQVGA_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_QQVGA_H;
+	                break;
+	            case "hqvga":
+	                w = MSVideoSize.MS_VIDEO_SIZE_HQVGA_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_HQVGA_H;
+	                break;
+	            case "qvga":
+	                w = MSVideoSize.MS_VIDEO_SIZE_QVGA_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_QVGA_H;
+	                break;
+	            case "hvga":
+	                w = MSVideoSize.MS_VIDEO_SIZE_HVGA_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_HVGA_H;
+	                break;
+	            case "vga":
+	                w = MSVideoSize.MS_VIDEO_SIZE_VGA_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_VGA_H;
+	                break;
+	            case "svga":
+	                w = MSVideoSize.MS_VIDEO_SIZE_SVGA_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_SVGA_H;
+	                break;
+	            default:
+	                return;
+	        }
+	        var t_videoSize = new MSVideoSizeDef()
+	        {
+	            height = Convert.ToInt32(h),
+	            width = Convert.ToInt32(w)
+	        };
+
+	        var t_videoSizePtr = Marshal.AllocHGlobal(Marshal.SizeOf(t_videoSize));
+	        if (t_videoSizePtr != IntPtr.Zero)
+	        {
+	            LinphoneAPI.linphone_core_set_preferred_video_size(linphoneCore, t_videoSizePtr);
+	            Marshal.FreeHGlobal(t_videoSizePtr);
+	        }
+	    }
+
+	    #endregion
 
 		#region Codecs
 
@@ -596,7 +674,8 @@ namespace VATRP.Core.Services
 	            throw new ArgumentNullException("Account is not defined");
             var retValue = true;
             var cfgCodecs = codecType == CodecType.Video ? account.VideoCodecsList : account.AudioCodecsList;
-
+            var linphoneCodecs = codecType == CodecType.Video ? _videoCodecs : _audioCodecs;
+            var tmpCodecs = new List<VATRPCodec>();
             foreach (var cfgCodec in cfgCodecs)
             {
                 // find cfgCodec in linphone codec list
@@ -615,6 +694,21 @@ namespace VATRP.Core.Services
                         }
                     }
                 }
+                else
+                {
+                    tmpCodecs.Add(cfgCodec);
+                }
+            }
+
+            foreach (var codec in linphoneCodecs)
+            {
+                if (!cfgCodecs.Contains(codec))
+                    cfgCodecs.Add(codec);
+            }
+
+            foreach (var codec in tmpCodecs)
+            {
+                cfgCodecs.Remove(codec);
             }
             return retValue;
 	    }
@@ -884,7 +978,6 @@ namespace VATRP.Core.Services
 				NotifyReceivedEvent(notified_event);
 		}
 		#endregion
-
 
     }
 }

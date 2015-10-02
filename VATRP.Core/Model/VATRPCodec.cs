@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 
 namespace VATRP.Core.Model
 {
-    public class VATRPCodec
+    public class VATRPCodec : IEquatable<VATRPCodec>
     {
         public CodecType Purpose;
         public string CodecName { get; set; }
@@ -31,5 +31,14 @@ namespace VATRP.Core.Model
         {
             
         }
+        
+        #region IEquatable
+        public bool Equals(VATRPCodec other)
+        {
+            return CodecName == other.CodecName && 
+                Channels == other.Channels && 
+                Rate == other.Rate;
+        }
+        #endregion
     }
 }

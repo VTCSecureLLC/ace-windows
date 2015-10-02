@@ -53,11 +53,16 @@ namespace VATRP.App.Views
             switch (call.CallState)
             {
                 case VATRPCallState.Trying:
-                    Show();
                     CallerDisplayNameBox.Text = _currentCall.To.DisplayName;
                     CallerNumberBox.Text = _currentCall.To.Username;
                     secondsInCall = 0;
-                    CallDurationBox.Visibility = Visibility.Collapsed;
+                    CallDurationBox.Visibility = Visibility.Hidden;
+                    CallerDisplayNameBox.Visibility = Visibility.Visible;
+                    CallerNumberBox.Visibility = Visibility.Visible;
+                    IncomingPanel.Visibility = Visibility.Hidden;
+                    InCallPanel.Visibility = Visibility.Visible;
+                    Show();
+
                     CallStateBox.Text = "Trying";
                     if (App.ActiveCallHistoryEvent == null)
                     {
@@ -84,6 +89,11 @@ namespace VATRP.App.Views
                     ReceiveCall(call);
                     break;
                 case VATRPCallState.Ringing:
+                    CallerDisplayNameBox.Visibility = Visibility.Visible;
+                    CallerNumberBox.Visibility = Visibility.Visible;
+                    IncomingPanel.Visibility = Visibility.Hidden;
+                    InCallPanel.Visibility = Visibility.Visible;
+
                     Show();
                     secondsInCall = 0;
                     CallStateBox.Text = "Ringing";

@@ -13,12 +13,14 @@ namespace VATRP.App.Model
     public class VATRPWindow : Window
     {
         private readonly System.Timers.Timer moveDetectionTimer;
+        public bool DestroyOnClosing { get; set; }
         public  VATRPWindowType WindowType { get; private set; }
         
         protected VATRPWindow(VATRPWindowType wndType)
         {
             IsActivated = false;
             WindowType = wndType;
+            DestroyOnClosing = false;
             moveDetectionTimer = new System.Timers.Timer {AutoReset = false, Interval = 1000};
             moveDetectionTimer.Elapsed += OnMoveTimerElapsed;
         }
@@ -119,13 +121,15 @@ namespace VATRP.App.Model
 
         protected void Window_Closing(object sender, CancelEventArgs e)
         {
+            if (DestroyOnClosing)
+                return;
             if (!App.AllowDestroyWindows)
             {
                 switch (WindowType)
                 {
                     case VATRPWindowType.CALL_VIEW:
                     case VATRPWindowType.REMOTE_VIDEO_VIEW:
-                        break;
+                    break;
                     default:
                         Hide();
                         break;

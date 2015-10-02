@@ -50,6 +50,8 @@ namespace VATRP.App
                     ServiceManager.Instance.SoundService.PlayRingTone();
                     if (_callView != null)
                         _callView.OnCallStateChanged(call);
+
+                    _flashWindowHelper.FlashWindow(_callView);
                     break;
                 case VATRPCallState.Ringing:
                     if (_callView != null)
@@ -61,6 +63,7 @@ namespace VATRP.App
                 case VATRPCallState.Connected:
                     if (_callView != null)
                         _callView.OnCallStateChanged(call);
+                    _flashWindowHelper.StopFlashing();
                     stopPlayback = true;
                     try
                     {
@@ -110,12 +113,14 @@ namespace VATRP.App
                     }
                     break;
                 case VATRPCallState.Closed:
+                    _flashWindowHelper.StopFlashing();
                     if (_callView != null)
                         _callView.OnCallStateChanged(call);
                     stopPlayback = true;
                     if (_remoteVideoView != null)
                     {
-                        _remoteVideoView.Visibility = Visibility.Collapsed;
+                        ServiceManager.Instance.LinphoneSipService.SetVideoCallWindowHandle(IntPtr.Zero, true);
+                        _remoteVideoView.DestroyOnClosing = true; // allow window to be closed
                         _remoteVideoView.Close();
                         _remoteVideoView = null;
                     }
@@ -125,11 +130,13 @@ namespace VATRP.App
                     }
                     break;
                 case VATRPCallState.Error:
+                    _flashWindowHelper.StopFlashing();
                     if (_callView != null)
                         _callView.OnCallStateChanged(call);
                     stopPlayback = true;
                     if (_remoteVideoView != null)
                     {
+                        _remoteVideoView.DestroyOnClosing = true; // allow window to be closed
                         _remoteVideoView.Close();
                         _remoteVideoView = null;
                     }

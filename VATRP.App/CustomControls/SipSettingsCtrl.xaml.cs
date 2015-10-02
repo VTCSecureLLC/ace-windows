@@ -41,7 +41,7 @@ namespace VATRP.App.CustomControls
             foreach (var item in TransportBox.Items)
             {
                 var s = item as TextBlock;
-                if (s != null && s.Text == App.CurrentAccount.Transport)
+                if (s != null && s.Text.Contains(App.CurrentAccount.Transport))
                 {
                     TransportBox.SelectedItem = item;
                     break;
@@ -83,7 +83,7 @@ namespace VATRP.App.CustomControls
                 return "TCP";
             }
             
-            else if(s == "Encrypted (TLS"){
+            if(s == "Encrypted (TLS"){
                 return "TLS";
             }
             return "TCP";
