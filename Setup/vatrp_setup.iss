@@ -76,6 +76,7 @@ Source: ..\VATRP.App\bin\Release\System.IO.dll; DestDir: {app}; Flags: ignorever
 Source: ..\VATRP.App\bin\Release\System.Runtime.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\System.Threading.Tasks.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\zlib1.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\openh264-1.4.0-win32msvc.dll; DestDir: {app}; Flags: ignoreversion
 
 [Icons]
 Name: {group}\ACE; Filename: {app}\ACE.exe; IconIndex: 0
