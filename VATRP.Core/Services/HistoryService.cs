@@ -152,7 +152,8 @@ namespace VATRP.Core.Services
             isLoadingCalls = false;
             if (OnCallHistoryEvent != null)
             {
-                OnCallHistoryEvent(null, new VATRPCallEventArgs());
+                var eargs = new VATRPCallEventArgs(HistoryEventTypes.Load);
+                OnCallHistoryEvent(null, eargs);
             }
         }
 
@@ -196,20 +197,21 @@ namespace VATRP.Core.Services
             {
                 if (OnCallHistoryEvent != null)
                 {
-                    OnCallHistoryEvent(callEvent, new VATRPCallEventArgs());
+                    var eargs = new VATRPCallEventArgs(HistoryEventTypes.Add);
+                    OnCallHistoryEvent(callEvent, eargs);
                 }
             }
             return retVal;
         }
 
-        public int DeleteCallEvent(string call_guid)
+        public int DeleteCallEvent(VATRPCallEvent callEvent)
         {
             var retVal = 0;
             using (var sql_con = new SQLiteConnection(connectionString))
             {
                 var deleteSQL = new SQLiteCommand("DELETE FROM log_calls WHERE call_guid = ?",
                     sql_con);
-                deleteSQL.Parameters.Add(call_guid);
+                deleteSQL.Parameters.Add(callEvent.CallGuid);
                 try
                 {
                     sql_con.Open();
@@ -219,6 +221,12 @@ namespace VATRP.Core.Services
                 {
                     Debug.WriteLine("DeleteCallEvent: " + ex.ToString());
                 }
+            }
+
+            if (OnCallHistoryEvent != null)
+            {
+                var eargs = new VATRPCallEventArgs(HistoryEventTypes.Delete);
+                OnCallHistoryEvent(callEvent, eargs);
             }
             return retVal;
         }
@@ -238,6 +246,12 @@ namespace VATRP.Core.Services
                 {
                     Debug.WriteLine("DeleteCallEvent: " + ex.ToString());
                 }
+            }
+
+            if (OnCallHistoryEvent != null)
+            {
+                var eargs = new VATRPCallEventArgs(HistoryEventTypes.Reset);
+                OnCallHistoryEvent(null, eargs);
             }
         }
 

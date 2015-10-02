@@ -38,6 +38,12 @@
                     </customControls:CodecsSettingsCtrl>
                 </Grid>
             </TabItem>
+            <TabItem Header="Multimedia" x:Name="MultimediaTabItem">
+                <Grid Background="#FFE5E5E5">
+                    <customControls:MultimediaSettingsCtrl x:Name="MultimediaSettingsPage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                </Grid>
+            </TabItem>
+
             <TabItem Header="Testing" x:Name="TestingTabItem">
                 <Grid Background="#FFE5E5E5">
                     <customControls:CallSettingsCtrl x:Name="CallSettingsPage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">

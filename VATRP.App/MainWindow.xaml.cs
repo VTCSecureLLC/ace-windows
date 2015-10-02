@@ -41,6 +41,7 @@ namespace VATRP.App
         private SelfView _selfView = new SelfView();
         private readonly SettingsView _settingsView = new SettingsView();
         private readonly LinphoneService _linphoneService;
+        private FlashWindowHelper _flashWindowHelper = new FlashWindowHelper();
         #endregion
 
         #region Properties
@@ -114,6 +115,11 @@ namespace VATRP.App
                 {
                     ServiceManager.Instance.ApplyNetworkingChanges();
                     ServiceManager.Instance.ApplyAVPFChanges();
+                }
+
+                if (_settingsView.MediaSettingsChanged)
+                {
+                    ServiceManager.Instance.ApplyVideoSizeChanges();
                 }
             }
         }
