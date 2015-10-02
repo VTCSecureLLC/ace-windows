@@ -258,5 +258,10 @@ namespace VATRP.App
                     break;
             }
         }
+
+        private void OnMakeCallRequested(string called_address)
+        {
+            MediaActionHandler.MakeVideoCall(called_address);
+        }
     }
 }

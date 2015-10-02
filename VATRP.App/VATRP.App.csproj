@@ -97,6 +97,9 @@
     <Compile Include="App.Constants.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\MultimediaSettingsCtrl.xaml.cs">
+      <DependentUpon>MultimediaSettingsCtrl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\CodecsSettingsCtrl.xaml.cs">
       <DependentUpon>CodecsSettingsCtrl.xaml</DependentUpon>
     </Compile>
@@ -127,6 +130,7 @@
       <DependentUpon>ProviderLoginScreen.xaml</DependentUpon>
     </Compile>
     <Compile Include="Interfaces\IMediaBox.cs" />
+    <Compile Include="Model\FlashWindowHelper.cs" />
     <Compile Include="Model\DialpadKey.cs" />
     <Compile Include="Model\KeyPadEventArgs.cs" />
     <Compile Include="Model\VATRPWindow.cs" />
@@ -159,6 +163,10 @@
     <Compile Include="Views\SettingsView.xaml.cs">
       <DependentUpon>SettingsView.xaml</DependentUpon>
     </Compile>
+    <Page Include="CustomControls\MultimediaSettingsCtrl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="CustomControls\DialpadScreen.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -310,7 +318,12 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /b "$(SolutionDir)thirdparties\liblinphone\*.dll" "$(TargetDir)"</PostBuildEvent>
+    <PostBuildEvent>copy /b "$(SolutionDir)thirdparties\liblinphone\*.dll" "$(TargetDir)"
+mkdir "$(TargetDir)\lib"
+mkdir "$(TargetDir)\lib\mediastreamer"
+mkdir "$(TargetDir)\lib\mediastreamer\plugins"
+move  "$(TargetDir)\openh264.dll" "$(TargetDir)\lib\mediastreamer\plugins"
+move  "$(TargetDir)\libmsopenh264.dll" "$(TargetDir)\lib\mediastreamer\plugins"</PostBuildEvent>
   </PropertyGroup>
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
