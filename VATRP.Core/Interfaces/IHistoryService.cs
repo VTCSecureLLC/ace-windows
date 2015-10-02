@@ -14,7 +14,7 @@ namespace VATRP.Core.Interfaces
 
         event EventHandler<VATRPCallEventArgs> OnCallHistoryEvent;
 
-        int DeleteCallEvent(string id);
+        int DeleteCallEvent(VATRPCallEvent callEvent);
 
         void ClearCallsItems();
 

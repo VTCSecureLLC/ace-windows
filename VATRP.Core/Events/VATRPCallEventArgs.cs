@@ -2,8 +2,10 @@
 {
     public class VATRPCallEventArgs : VATRPEventArgs
     {
-        public VATRPCallEventArgs()
+        public readonly HistoryEventTypes historyEventType;
+        public VATRPCallEventArgs(HistoryEventTypes nType)
         {
+            historyEventType = nType;
         }
     }
 }

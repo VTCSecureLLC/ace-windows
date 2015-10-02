@@ -16,6 +16,7 @@ using log4net;
 using VATRP.App.CustomControls;
 using VATRP.App.Model;
 using VATRP.App.Services;
+using VATRP.Core.Events;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 
@@ -33,6 +34,7 @@ namespace VATRP.App.Views
 
         private bool _populatingCalls = false;
         private ObservableCollection<RecentsCallItem> _calls;
+        private ObservableCollection<RecentsCallItem> _missedCalls;
         private IHistoryService _historyService;
 
         #endregion
@@ -49,6 +51,15 @@ namespace VATRP.App.Views
             get { return _calls ?? (_calls = new ObservableCollection<RecentsCallItem>()); }
         }
 
+        private ObservableCollection<RecentsCallItem> MissedCallsList
+        {
+            get { return _missedCalls ?? (_missedCalls = new ObservableCollection<RecentsCallItem>()); }
+        }
+        #endregion
+
+        #region Events
+        public delegate void MakeCallRequestedDelegate(string called_address);
+        public event MakeCallRequestedDelegate MakeCallRequested;
         #endregion
 
         public HistoryView()
@@ -64,7 +75,7 @@ namespace VATRP.App.Views
             _historyService = ServiceManager.Instance.HistoryService;
             _historyService.OnCallHistoryEvent += OnHistoryCallEvent;
             lstCallsBox.Visibility = Visibility.Collapsed;
-            new System.Threading.Thread((System.Threading.ThreadStart)_historyService.LoadCallEvents).Start();
+            new Thread((ThreadStart)_historyService.LoadCallEvents).Start();
         }
 
         protected void OnUnloaded(object sender, RoutedEventArgs e)
@@ -79,66 +90,80 @@ namespace VATRP.App.Views
             PopulateCalls(true);
         }
 
-        private void ShowMissedCalls()
-        {
-            CallsList.Clear();
-
-            var callsItemDB = from VATRPCallEvent call in _historyService.AllCallsEvents
-                where call.Status == VATRPHistoryEvent.StatusType.Missed
-                orderby call.StartTime descending
-                select call;
-
-            foreach (var avCall in callsItemDB)
-            {
-                try
-                {
-                    var callItem = new RecentsCallItem()
-                    {
-                        CallerName =
-                            ServiceManager.Instance.ContactService.GetContactDisplayName(avCall.Contact,
-                                avCall.RemoteParty),
-                        CallTime = avCall.StartTime,
-                        Duration = 0,
-                        TargetNumber = avCall.RemoteParty,
-                        CallStatus = avCall.Status
-                    };
-                    CallsList.Add(callItem);
-                }
-                catch (Exception ex)
-                {
-                    LOG.Error("Exception on ShowMissedCalls: " + ex.Message);
-                }
-            }
-
-            PopulateCalls(false);
-        }
-
+        
         private void OnCallItemSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var callItem = lstCallsBox.SelectedItem as RecentsCallItem;
 
             if (callItem != null)
             {
-                VATRPContact contact = ServiceManager.Instance.ContactService.FindContactId(callItem.ContactId);
-
-                MediaActionHandler.MakeAudioCall(callItem.TargetNumber);
+                if (MakeCallRequested != null)
+                    MakeCallRequested(callItem.TargetNumber);
             }
         }
 
-        private void OnHistoryCallEvent(object sender, EventArgs e)
+        private void OnHistoryCallEvent(object o, VATRPCallEventArgs e)
         {
             if (this.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
             {
-                this.Dispatcher.BeginInvoke((Action)(() => this.OnHistoryCallEvent(sender, e)));
+                this.Dispatcher.BeginInvoke((Action)(() => this.OnHistoryCallEvent(o, e)));
                 return;
             }
 
+            var callEvent = o as VATRPCallEvent;
             _populatingCalls = true;
 
-            LoadAllCalls();
-            PopulateCalls(CallsTab.SelectedIndex == 0);
-            _populatingCalls = false;
-            lstCallsBox.Visibility = Visibility.Visible;
+            switch (e.historyEventType)
+            {
+                case HistoryEventTypes.Add:
+                    if (callEvent != null)
+                        AddNewCallEvent(callEvent);
+                    break;
+                case HistoryEventTypes.Load:
+                    LoadAllCalls();
+                    PopulateCalls(CallsTab.SelectedIndex == 0);
+                    _populatingCalls = false;
+                    lstCallsBox.Visibility = Visibility.Visible;
+                    break;
+                case HistoryEventTypes.Reset:
+                    lstCallsBox.ItemsSource = null;
+                    lstMissedCallsBox.ItemsSource = null;
+                    break;
+                case HistoryEventTypes.Delete:
+                    if (callEvent != null)
+                        DeleteCallEvent(callEvent);
+                    break;
+            }
+        }
+
+        private void DeleteCallEvent(VATRPCallEvent callEvent)
+        {
+            
+        }
+
+        private void AddNewCallEvent(VATRPCallEvent callEvent)
+        {
+            try
+            {
+                var dn = ServiceManager.Instance.ContactService.GetContactDisplayName(callEvent.Contact,
+                    callEvent.RemoteParty);
+                var callItem = new RecentsCallItem()
+                {
+                    CallerName = dn,
+                    CallTime = callEvent.StartTime,
+                    Duration = callEvent.Status == VATRPHistoryEvent.StatusType.Missed ? -1 : callEvent.Duration,
+                    TargetNumber = callEvent.RemoteParty,
+                    CallStatus = callEvent.Status,
+                    ContactId = callEvent.Contact != null ? callEvent.Contact.DisplayName : String.Empty
+                };
+                if ( callEvent.Status == VATRPHistoryEvent.StatusType.Missed)
+                    MissedCallsList.Add(callItem);
+                CallsList.Add(callItem);
+            }
+            catch (Exception ex)
+            {
+                ServiceManager.LogError("AddNewCallEvent", ex);
+            }
         }
 
         private void LoadAllCalls()
@@ -149,7 +174,7 @@ namespace VATRP.App.Views
                 orderby call.StartTime descending
                 select call;
 
-            foreach (var avCall in callsItemDB)
+            foreach (var avCall in callsItemDB.Take(30))
             {
                 try
                 {
@@ -176,10 +201,9 @@ namespace VATRP.App.Views
 
         private void PopulateCalls(bool allCalls)
         {
-            DataContext = CallsList;
             ListBox lstBox = allCalls ? lstCallsBox : lstMissedCallsBox;
-            lstBox.ItemsSource = CallsList;
-            this.callsView = CollectionViewSource.GetDefaultView(lstBox.ItemsSource);
+            ObservableCollection<RecentsCallItem> callsSource = allCalls ? CallsList : MissedCallsList;
+            lstBox.ItemsSource = callsSource;
         }
 
         private void CallsTab_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -187,10 +211,7 @@ namespace VATRP.App.Views
             if (_historyService == null)
                 return;
 
-            if (CallsTab.SelectedIndex == 0)
-                ShowAllCalls();
-            else
-                ShowMissedCalls();
+            PopulateCalls(CallsTab.SelectedIndex == 0);
         }
     }
 }
