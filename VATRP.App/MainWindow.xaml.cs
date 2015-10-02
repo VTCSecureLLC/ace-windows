@@ -47,6 +47,9 @@ namespace VATRP.App
         #region Properties
         public static LinphoneRegistrationState RegistrationState { get; set; }
         #endregion
+
+        public event HistoryView.MakeCallRequestedDelegate MakeCallRequestedEvent;
+
         public MainWindow() : base(VATRPWindowType.MAIN_VIEW)
         {
             DataContext = this;
@@ -259,6 +262,7 @@ namespace VATRP.App
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             _historyView.IsVisibleChanged += OnChildVisibilityChanged;
+            _historyView.MakeCallRequested += OnMakeCallRequested;
             _contactBox.IsVisibleChanged += OnChildVisibilityChanged;
             _dialpadBox.IsVisibleChanged += OnChildVisibilityChanged;
             _settingsView.IsVisibleChanged += OnChildVisibilityChanged;
