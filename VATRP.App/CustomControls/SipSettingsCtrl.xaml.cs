@@ -70,7 +70,7 @@ namespace VATRP.App.CustomControls
                 return true;
 
             var s = TransportBox.SelectedItem as TextBlock;
-            if (s != null && s.Text != App.CurrentAccount.Transport)
+            if (s != null && !s.Text.Contains(App.CurrentAccount.Transport))
             {
                 return true;
             }

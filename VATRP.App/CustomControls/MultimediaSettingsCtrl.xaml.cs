@@ -50,15 +50,7 @@ namespace VATRP.App.CustomControls
                 return string.Empty;
 
             var index = tb.Text.IndexOf(" (", System.StringComparison.Ordinal);
-            if (index != -1)
-            {
-                var str = tb.Text.Substring(0, index).Trim();
-                if (str == App.CurrentAccount.PreferredVideoId)
-                {
-                    return str;
-                }
-            }
-            return string.Empty;
+            return index != -1 ? tb.Text.Substring(0, index).Trim() : string.Empty;
         }
 
         #region ISettings
@@ -71,11 +63,9 @@ namespace VATRP.App.CustomControls
             var tb = ResolutionBox.SelectedItem as TextBlock;
             var str = GetVideoID(tb);
 
-            if (str == App.CurrentAccount.PreferredVideoId)
-                return false;
-
-            
-            return true;
+            if (!string.IsNullOrWhiteSpace(str) && str != App.CurrentAccount.PreferredVideoId)
+                return true;
+            return false;
         }
 
         public bool Save()
