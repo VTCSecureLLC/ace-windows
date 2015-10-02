@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="Events\ConfigurationEventArgs.cs" />
     <Compile Include="Events\EventHandlerTrigger.cs" />
+    <Compile Include="Events\HistoryEventTypes.cs" />
     <Compile Include="Events\VATRPCallEventArgs.cs" />
     <Compile Include="Events\VATRPEventArgs.cs" />
     <Compile Include="Events\StringEventArgs.cs" />

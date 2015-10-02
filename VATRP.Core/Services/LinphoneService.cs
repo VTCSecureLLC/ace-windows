@@ -196,6 +196,7 @@ namespace VATRP.Core.Services
 			linphoneCore = LinphoneAPI.linphone_core_new(vtablePtr, null, null, IntPtr.Zero);
 			if (linphoneCore != IntPtr.Zero)
 			{
+                LinphoneAPI.libmsopenh264_init();
 				LinphoneAPI.linphone_core_enable_video_capture(linphoneCore, true);
 				LinphoneAPI.linphone_core_enable_video_display(linphoneCore, true);
 				LinphoneAPI.linphone_core_enable_video_preview(linphoneCore, false);

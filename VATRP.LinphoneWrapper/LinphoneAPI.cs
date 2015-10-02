@@ -8,7 +8,7 @@ namespace VATRP.LinphoneWrapper
 {
     public static class LinphoneAPI
     {
-        public const string DllName = "liblinphone-7.dll";
+        public const string DllName = "linphone.dll";
         #region Constants
 
         public const int LC_SIP_TRANSPORT_RANDOM = -1; // Randomly chose a sip port for this transport
@@ -990,6 +990,9 @@ namespace VATRP.LinphoneWrapper
         public static extern bool linphone_core_check_payload_type_usability(IntPtr lc, IntPtr pt);
 
         #endregion
+
+        [DllImport("libmsopenh264.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void libmsopenh264_init();
 
     }
 }
