@@ -76,7 +76,6 @@ namespace VATRP.Core.Model
             Transport = "TCP";
             EnableAVPF = true;
             PreferredVideoId = "vga";
-            STUNAddress = string.Empty;
         }
 
         #endregion

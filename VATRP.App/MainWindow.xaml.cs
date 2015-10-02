@@ -107,8 +107,7 @@ namespace VATRP.App
         {
             if (_settingsView.SipSettingsChanged ||
                 _settingsView.CodecSettingsChanged ||
-                _settingsView.NetworkSettingsChanged ||
-                _settingsView.MediaSettingsChanged)
+                _settingsView.NetworkSettingsChanged)
             {
                 ServiceManager.Instance.SaveAccountSettings();
                 if (_settingsView.SipSettingsChanged)
@@ -147,7 +146,7 @@ namespace VATRP.App
             }
             if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk)
             {
-                _linphoneService.Unregister(false);
+                _linphoneService.Unregister();
             }
             else
             {

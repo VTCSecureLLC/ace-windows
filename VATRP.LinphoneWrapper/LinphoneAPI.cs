@@ -344,9 +344,6 @@ namespace VATRP.LinphoneWrapper
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool linphone_core_video_supported(IntPtr lc);
 
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_core_set_video_preset(IntPtr lc, string preset);
-
 /**
  * Enables video globally.
  *

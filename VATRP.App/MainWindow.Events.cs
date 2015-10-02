@@ -126,7 +126,7 @@ namespace VATRP.App
                     }
                     if (registerRequested)
                     {
-                        _linphoneService.Unregister(false);
+                        _linphoneService.Unregister();
                     }
                     break;
                 case VATRPCallState.Error:

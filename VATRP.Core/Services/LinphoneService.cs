@@ -197,7 +197,6 @@ namespace VATRP.Core.Services
 			if (linphoneCore != IntPtr.Zero)
 			{
                 LinphoneAPI.libmsopenh264_init();
-			    LinphoneAPI.linphone_core_set_video_preset(linphoneCore, "30");
 				LinphoneAPI.linphone_core_enable_video_capture(linphoneCore, true);
 				LinphoneAPI.linphone_core_enable_video_display(linphoneCore, true);
 				LinphoneAPI.linphone_core_enable_video_preview(linphoneCore, false);
@@ -273,7 +272,6 @@ namespace VATRP.Core.Services
             call_state_changed = null;
             notify_received = null;
             linphoneCore = callsDefaultParams = proxy_cfg = auth_info = t_configPtr = IntPtr.Zero;
-            linphoneCoreLog_changed = null;
             coreLoop = null;
             identity = null;
             server_addr = null;
@@ -281,17 +279,15 @@ namespace VATRP.Core.Services
             LOG.Debug("Main loop exited");
         }
 
-        void SetTimeout(int miliseconds)
-        {
-            var timeout = new System.Timers.Timer {Interval = miliseconds, AutoReset = false};
-            timeout.Elapsed += (sender, e) => DoUnregister();
-            timeout.Start();
-        }
-
         void SetTimeout(Action callback, int miliseconds)
         {
-            var timeout = new System.Timers.Timer { Interval = miliseconds, AutoReset = false };
-            timeout.Elapsed += (sender, e) => callback();
+            var timeout = new System.Timers.Timer();
+            timeout.Interval = miliseconds;
+            timeout.AutoReset = false;
+            timeout.Elapsed += (object sender, System.Timers.ElapsedEventArgs e) =>
+            {
+                callback();
+            };
             timeout.Start();
         }
 
@@ -329,6 +325,7 @@ namespace VATRP.Core.Services
 			t_configPtr = Marshal.AllocHGlobal(Marshal.SizeOf(t_config));
 			Marshal.StructureToPtr(t_config, t_configPtr, false);
 			LinphoneAPI.linphone_core_set_sip_transports(linphoneCore, t_configPtr);
+
 			LinphoneAPI.linphone_core_set_user_agent(linphoneCore, preferences.UserAgent, preferences.Version);
 
 			if (string.IsNullOrEmpty(preferences.DisplayName))
@@ -340,10 +337,9 @@ namespace VATRP.Core.Services
 				identity = string.Format("\"{0}\" <sip:{1}@{2}>", preferences.DisplayName, preferences.Username,
 					preferences.ProxyHost);
 			}
-            
-			server_addr = string.Format("sip:{0}:{1}", preferences.ProxyHost, preferences.ProxyPort);
+            LOG.Info("Registering identity. " + identity);
 
-            LOG.Debug(string.Format( "Register SIP account: {0} Server: {1}", identity, server_addr));
+			server_addr = string.Format("sip:{0}:{1}", preferences.ProxyHost, preferences.ProxyPort);
 
 			auth_info = LinphoneAPI.linphone_auth_info_new(preferences.Username, null, preferences.Password, null, null, null);
 			if (auth_info == IntPtr.Zero)
@@ -362,46 +358,25 @@ namespace VATRP.Core.Services
 
 		}
 
-		public bool Unregister(bool deferred)
+		public bool Unregister()
 		{
 			if (RegistrationStateChangedEvent != null)
 				RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationProgress); // disconnecting
 
-            if (deferred)
+			SetTimeout(delegate
 			{
-                SetTimeout(2000);
-            }
-            else
-            {
-                DoUnregister();
-            }
+				if (LinphoneAPI.linphone_proxy_config_is_registered(proxy_cfg))
+				{
+					LinphoneAPI.linphone_proxy_config_edit(proxy_cfg);
+					LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, false);
+					LinphoneAPI.linphone_proxy_config_done(proxy_cfg);
+					if (t_configPtr != IntPtr.Zero)
+						Marshal.FreeHGlobal(t_configPtr);
+				}
+			}, 2000);
 
 			return true;
 		}
-
-	    private void DoUnregister()
-	    {
-            if (proxy_cfg != IntPtr.Zero && LinphoneAPI.linphone_proxy_config_is_registered(proxy_cfg))
-            {
-                try
-                {
-                    LinphoneAPI.linphone_proxy_config_edit(proxy_cfg);
-
-                    LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, false);
-                    LinphoneAPI.linphone_proxy_config_done(proxy_cfg);
-                    proxy_cfg = IntPtr.Zero;
-                }
-                catch (Exception )
-                {
-                    
-                }
-                if (t_configPtr != IntPtr.Zero)
-                {
-                    Marshal.FreeHGlobal(t_configPtr);
-                    t_configPtr = IntPtr.Zero;
-                }
-            }
-	    }
 		#endregion
 
 		#region Call
@@ -611,14 +586,17 @@ namespace VATRP.Core.Services
 
 	    public void UpdateVideoSize(VATRPAccount account)
 	    {
-	        if (account == null)
-	        {
-                LOG.Error("Account is null");
-	            return;
-	        }
-	        MSVideoSize w , h;
+	        MSVideoSize w = MSVideoSize.MS_VIDEO_SIZE_UNKNOWN_W, h = MSVideoSize.MS_VIDEO_SIZE_UNKNOWN_H;
 	        switch (account.PreferredVideoId)
 	        {
+	            case "sqcif":
+	                w = MSVideoSize.MS_VIDEO_SIZE_SQCIF_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_SQCIF_H;
+	                break;
+	            case "wqcif":
+	                w = MSVideoSize.MS_VIDEO_SIZE_WQCIF_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_WQCIF_H;
+	                break;
 	            case "qcif":
 	                w = MSVideoSize.MS_VIDEO_SIZE_QCIF_W;
 	                h = MSVideoSize.MS_VIDEO_SIZE_QCIF_H;
@@ -627,9 +605,37 @@ namespace VATRP.Core.Services
 	                w = MSVideoSize.MS_VIDEO_SIZE_CIF_W;
 	                h = MSVideoSize.MS_VIDEO_SIZE_CIF_H;
 	                break;
+	            case "cvd":
+	                w = MSVideoSize.MS_VIDEO_SIZE_CVD_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_CVD_H;
+	                break;
+	            case "icif":
+	                w = MSVideoSize.MS_VIDEO_SIZE_ICIF_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_ICIF_H;
+	                break;
 	            case "4cif":
 	                w = MSVideoSize.MS_VIDEO_SIZE_4CIF_W;
 	                h = MSVideoSize.MS_VIDEO_SIZE_4CIF_H;
+	                break;
+	            case "w4cif":
+	                w = MSVideoSize.MS_VIDEO_SIZE_W4CIF_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_W4CIF_H;
+	                break;
+	            case "qqvga":
+	                w = MSVideoSize.MS_VIDEO_SIZE_QQVGA_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_QQVGA_H;
+	                break;
+	            case "hqvga":
+	                w = MSVideoSize.MS_VIDEO_SIZE_HQVGA_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_HQVGA_H;
+	                break;
+	            case "qvga":
+	                w = MSVideoSize.MS_VIDEO_SIZE_QVGA_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_QVGA_H;
+	                break;
+	            case "hvga":
+	                w = MSVideoSize.MS_VIDEO_SIZE_HVGA_W;
+	                h = MSVideoSize.MS_VIDEO_SIZE_HVGA_H;
 	                break;
 	            case "vga":
 	                w = MSVideoSize.MS_VIDEO_SIZE_VGA_W;
@@ -640,7 +646,6 @@ namespace VATRP.Core.Services
 	                h = MSVideoSize.MS_VIDEO_SIZE_SVGA_H;
 	                break;
 	            default:
-                    LOG.Warn("Not supported video size: " + account.PreferredVideoId);
 	                return;
 	        }
 	        var t_videoSize = new MSVideoSizeDef()
@@ -649,18 +654,13 @@ namespace VATRP.Core.Services
 	            width = Convert.ToInt32(w)
 	        };
 
-            LOG.Info("Set preferred video size by name: " + account.PreferredVideoId);
-#if true
-            LinphoneAPI.linphone_core_set_preferred_video_size_by_name(linphoneCore, account.PreferredVideoId);
-#else
-            var t_videoSizePtr = Marshal.AllocHGlobal(Marshal.SizeOf(t_videoSize));
-            if (t_videoSizePtr != IntPtr.Zero)
-            {
-                LinphoneAPI.linphone_core_set_preferred_video_size(linphoneCore, t_videoSizePtr);
-                Marshal.FreeHGlobal(t_videoSizePtr);
-            }
-#endif
-        }
+	        var t_videoSizePtr = Marshal.AllocHGlobal(Marshal.SizeOf(t_videoSize));
+	        if (t_videoSizePtr != IntPtr.Zero)
+	        {
+	            LinphoneAPI.linphone_core_set_preferred_video_size(linphoneCore, t_videoSizePtr);
+	            Marshal.FreeHGlobal(t_videoSizePtr);
+	        }
+	    }
 
 	    #endregion
 

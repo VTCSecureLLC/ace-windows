@@ -53,9 +53,9 @@ namespace VATRP.App.CustomControls
             ushort.TryParse(StunHostPortBox.Text, out port);
 
             if (port != App.CurrentAccount.STUNPort && port != 0)
-                return true;
+                return false;
 
-            return false;
+            return true;
         }
 
         public bool Save()
