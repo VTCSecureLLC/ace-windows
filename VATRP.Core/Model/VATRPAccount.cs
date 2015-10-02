@@ -59,6 +59,8 @@ namespace VATRP.Core.Model
 
         [Column] 
         public bool EnableAVPF { get; set; }
+        [Column]
+        public string PreferredVideoId { get; set; }
 
         public List<VATRPCodec> AudioCodecsList = new List<VATRPCodec>();
         public List<VATRPCodec> VideoCodecsList = new List<VATRPCodec>();
@@ -73,6 +75,7 @@ namespace VATRP.Core.Model
             ProxyHostname = Configuration.LINPHONE_SIP_SERVER;
             Transport = "TCP";
             EnableAVPF = true;
+            PreferredVideoId = "vga";
         }
 
         #endregion

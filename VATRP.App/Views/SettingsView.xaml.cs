@@ -24,6 +24,7 @@ namespace VATRP.App.Views
         public bool NetworkSettingsChanged { get; private set; }
         public bool CodecSettingsChanged { get; private set; }
         public bool CallSettingsChanged { get; private set; }
+        public bool MediaSettingsChanged { get; private set; }
 
         #region Event
         public delegate void SettingsSavedDelegate();
@@ -37,6 +38,7 @@ namespace VATRP.App.Views
             NetworkSettingsChanged = false;
             CodecSettingsChanged = false;
             CallSettingsChanged = false;
+            MediaSettingsChanged = false;
             InitializeComponent();
         }
 
@@ -76,10 +78,20 @@ namespace VATRP.App.Views
             {
                 if (!CallSettingsPage.Save())
                 {
-                    SettingsTab.SelectedIndex = 3;
+                    SettingsTab.SelectedIndex = 4;
                     return;
                 }
                 CallSettingsChanged = true;
+            }
+
+            if (MultimediaSettingsPage != null && MultimediaSettingsPage.IsChanged())
+            {
+                if (!MultimediaSettingsPage.Save())
+                {
+                    SettingsTab.SelectedIndex = 3;
+                    return;
+                }
+                MediaSettingsChanged = true;
             }
             Close();
             if (SettingsSavedEvent != null)
@@ -89,6 +101,7 @@ namespace VATRP.App.Views
                 NetworkSettingsChanged = false;
                 SipSettingsChanged = false;
                 CallSettingsChanged = false;
+                MediaSettingsChanged = false;
             }
         }
 
