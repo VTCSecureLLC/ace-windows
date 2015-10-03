@@ -52,14 +52,78 @@ namespace VATRP.App.CustomControls
             if (App.CurrentAccount == null)
                 return false;
 
-            return true;
+            bool changed = false;
+            // check audio codecs
+            foreach (var item in AudioCodecsListView.Items)
+            {
+                var cfgCodec = item as VATRPCodec;
+                if (cfgCodec != null)
+                {
+                    foreach (var accountCodec in App.CurrentAccount.AudioCodecsList)
+                    {
+                        if (accountCodec.CodecName == cfgCodec.CodecName && accountCodec.Channels == cfgCodec.Channels &&
+                            accountCodec.Rate == cfgCodec.Rate && accountCodec.Status != cfgCodec.Status)
+                        {
+                            changed = true;
+                        }
+                    }
+                }
+            }
+
+            foreach (var item in VideoCodecsListView.Items)
+            {
+                var cfgCodec = item as VATRPCodec;
+                if (cfgCodec != null)
+                {
+                    foreach (var accountCodec in App.CurrentAccount.VideoCodecsList)
+                    {
+                        if (accountCodec.CodecName == cfgCodec.CodecName && accountCodec.Channels == cfgCodec.Channels &&
+                            accountCodec.Rate == cfgCodec.Rate)
+                        {
+                            changed = true;
+                        }
+                    }
+                }
+            }
+            return changed;
         }
 
         public bool Save()
         {
             if (App.CurrentAccount == null)
                 return false;
-            
+
+            foreach (var item in AudioCodecsListView.Items)
+            {
+                var cfgCodec = item as VATRPCodec;
+                if (cfgCodec != null)
+                {
+                    foreach (var accountCodec in App.CurrentAccount.AudioCodecsList)
+                    {
+                        if (accountCodec.CodecName == cfgCodec.CodecName && accountCodec.Channels == cfgCodec.Channels &&
+                            accountCodec.Rate == cfgCodec.Rate && accountCodec.Status != cfgCodec.Status)
+                        {
+                            accountCodec.Status = cfgCodec.Status;
+                        }
+                    }
+                }
+            }
+
+            foreach (var item in VideoCodecsListView.Items)
+            {
+                var cfgCodec = item as VATRPCodec;
+                if (cfgCodec != null)
+                {
+                    foreach (var accountCodec in App.CurrentAccount.VideoCodecsList)
+                    {
+                        if (accountCodec.CodecName == cfgCodec.CodecName && accountCodec.Channels == cfgCodec.Channels &&
+                            accountCodec.Rate == cfgCodec.Rate)
+                        {
+                            accountCodec.Status = cfgCodec.Status;
+                        }
+                    }
+                }
+            }
             return true;
         }
 

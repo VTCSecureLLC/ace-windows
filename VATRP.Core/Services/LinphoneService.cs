@@ -197,6 +197,7 @@ namespace VATRP.Core.Services
 			if (linphoneCore != IntPtr.Zero)
 			{
                 LinphoneAPI.libmsopenh264_init();
+			    LinphoneAPI.linphone_core_set_video_preset(linphoneCore, "30");
 				LinphoneAPI.linphone_core_enable_video_capture(linphoneCore, true);
 				LinphoneAPI.linphone_core_enable_video_display(linphoneCore, true);
 				LinphoneAPI.linphone_core_enable_video_preview(linphoneCore, false);
@@ -279,15 +280,17 @@ namespace VATRP.Core.Services
             LOG.Debug("Main loop exited");
         }
 
+        void SetTimeout(int miliseconds)
+        {
+            var timeout = new System.Timers.Timer {Interval = miliseconds, AutoReset = false};
+            timeout.Elapsed += (sender, e) => DoUnregister();
+            timeout.Start();
+        }
+
         void SetTimeout(Action callback, int miliseconds)
         {
-            var timeout = new System.Timers.Timer();
-            timeout.Interval = miliseconds;
-            timeout.AutoReset = false;
-            timeout.Elapsed += (object sender, System.Timers.ElapsedEventArgs e) =>
-            {
-                callback();
-            };
+            var timeout = new System.Timers.Timer { Interval = miliseconds, AutoReset = false };
+            timeout.Elapsed += (sender, e) => callback();
             timeout.Start();
         }
 
@@ -325,7 +328,6 @@ namespace VATRP.Core.Services
 			t_configPtr = Marshal.AllocHGlobal(Marshal.SizeOf(t_config));
 			Marshal.StructureToPtr(t_config, t_configPtr, false);
 			LinphoneAPI.linphone_core_set_sip_transports(linphoneCore, t_configPtr);
-
 			LinphoneAPI.linphone_core_set_user_agent(linphoneCore, preferences.UserAgent, preferences.Version);
 
 			if (string.IsNullOrEmpty(preferences.DisplayName))
@@ -337,9 +339,10 @@ namespace VATRP.Core.Services
 				identity = string.Format("\"{0}\" <sip:{1}@{2}>", preferences.DisplayName, preferences.Username,
 					preferences.ProxyHost);
 			}
-            LOG.Info("Registering identity. " + identity);
-
+            
 			server_addr = string.Format("sip:{0}:{1}", preferences.ProxyHost, preferences.ProxyPort);
+
+            LOG.Debug(string.Format( "Register SIP account: {0} Server: {1}", identity, server_addr));
 
 			auth_info = LinphoneAPI.linphone_auth_info_new(preferences.Username, null, preferences.Password, null, null, null);
 			if (auth_info == IntPtr.Zero)
@@ -358,25 +361,46 @@ namespace VATRP.Core.Services
 
 		}
 
-		public bool Unregister()
+		public bool Unregister(bool deferred)
 		{
 			if (RegistrationStateChangedEvent != null)
 				RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationProgress); // disconnecting
 
-			SetTimeout(delegate
+            if (deferred)
 			{
-				if (LinphoneAPI.linphone_proxy_config_is_registered(proxy_cfg))
-				{
-					LinphoneAPI.linphone_proxy_config_edit(proxy_cfg);
-					LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, false);
-					LinphoneAPI.linphone_proxy_config_done(proxy_cfg);
-					if (t_configPtr != IntPtr.Zero)
-						Marshal.FreeHGlobal(t_configPtr);
-				}
-			}, 2000);
+                SetTimeout(2000);
+            }
+            else
+            {
+                DoUnregister();
+            }
 
 			return true;
 		}
+
+	    private void DoUnregister()
+	    {
+            if (proxy_cfg != IntPtr.Zero && LinphoneAPI.linphone_proxy_config_is_registered(proxy_cfg))
+            {
+                try
+                {
+                    LinphoneAPI.linphone_proxy_config_edit(proxy_cfg);
+
+                    LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, false);
+                    LinphoneAPI.linphone_proxy_config_done(proxy_cfg);
+                    proxy_cfg = IntPtr.Zero;
+                }
+                catch (Exception )
+                {
+                    
+                }
+                if (t_configPtr != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(t_configPtr);
+                    t_configPtr = IntPtr.Zero;
+                }
+            }
+	    }
 		#endregion
 
 		#region Call
@@ -586,17 +610,14 @@ namespace VATRP.Core.Services
 
 	    public void UpdateVideoSize(VATRPAccount account)
 	    {
-	        MSVideoSize w = MSVideoSize.MS_VIDEO_SIZE_UNKNOWN_W, h = MSVideoSize.MS_VIDEO_SIZE_UNKNOWN_H;
+	        if (account == null)
+	        {
+                LOG.Error("Account is null");
+	            return;
+	        }
+	        MSVideoSize w , h;
 	        switch (account.PreferredVideoId)
 	        {
-	            case "sqcif":
-	                w = MSVideoSize.MS_VIDEO_SIZE_SQCIF_W;
-	                h = MSVideoSize.MS_VIDEO_SIZE_SQCIF_H;
-	                break;
-	            case "wqcif":
-	                w = MSVideoSize.MS_VIDEO_SIZE_WQCIF_W;
-	                h = MSVideoSize.MS_VIDEO_SIZE_WQCIF_H;
-	                break;
 	            case "qcif":
 	                w = MSVideoSize.MS_VIDEO_SIZE_QCIF_W;
 	                h = MSVideoSize.MS_VIDEO_SIZE_QCIF_H;
@@ -605,37 +626,9 @@ namespace VATRP.Core.Services
 	                w = MSVideoSize.MS_VIDEO_SIZE_CIF_W;
 	                h = MSVideoSize.MS_VIDEO_SIZE_CIF_H;
 	                break;
-	            case "cvd":
-	                w = MSVideoSize.MS_VIDEO_SIZE_CVD_W;
-	                h = MSVideoSize.MS_VIDEO_SIZE_CVD_H;
-	                break;
-	            case "icif":
-	                w = MSVideoSize.MS_VIDEO_SIZE_ICIF_W;
-	                h = MSVideoSize.MS_VIDEO_SIZE_ICIF_H;
-	                break;
 	            case "4cif":
 	                w = MSVideoSize.MS_VIDEO_SIZE_4CIF_W;
 	                h = MSVideoSize.MS_VIDEO_SIZE_4CIF_H;
-	                break;
-	            case "w4cif":
-	                w = MSVideoSize.MS_VIDEO_SIZE_W4CIF_W;
-	                h = MSVideoSize.MS_VIDEO_SIZE_W4CIF_H;
-	                break;
-	            case "qqvga":
-	                w = MSVideoSize.MS_VIDEO_SIZE_QQVGA_W;
-	                h = MSVideoSize.MS_VIDEO_SIZE_QQVGA_H;
-	                break;
-	            case "hqvga":
-	                w = MSVideoSize.MS_VIDEO_SIZE_HQVGA_W;
-	                h = MSVideoSize.MS_VIDEO_SIZE_HQVGA_H;
-	                break;
-	            case "qvga":
-	                w = MSVideoSize.MS_VIDEO_SIZE_QVGA_W;
-	                h = MSVideoSize.MS_VIDEO_SIZE_QVGA_H;
-	                break;
-	            case "hvga":
-	                w = MSVideoSize.MS_VIDEO_SIZE_HVGA_W;
-	                h = MSVideoSize.MS_VIDEO_SIZE_HVGA_H;
 	                break;
 	            case "vga":
 	                w = MSVideoSize.MS_VIDEO_SIZE_VGA_W;
@@ -646,6 +639,7 @@ namespace VATRP.Core.Services
 	                h = MSVideoSize.MS_VIDEO_SIZE_SVGA_H;
 	                break;
 	            default:
+                    LOG.Warn("Not supported video size: " + account.PreferredVideoId);
 	                return;
 	        }
 	        var t_videoSize = new MSVideoSizeDef()
@@ -654,13 +648,18 @@ namespace VATRP.Core.Services
 	            width = Convert.ToInt32(w)
 	        };
 
-	        var t_videoSizePtr = Marshal.AllocHGlobal(Marshal.SizeOf(t_videoSize));
-	        if (t_videoSizePtr != IntPtr.Zero)
-	        {
-	            LinphoneAPI.linphone_core_set_preferred_video_size(linphoneCore, t_videoSizePtr);
-	            Marshal.FreeHGlobal(t_videoSizePtr);
-	        }
-	    }
+            LOG.Info("Set preferred video size by name: " + account.PreferredVideoId);
+#if true
+            LinphoneAPI.linphone_core_set_preferred_video_size_by_name(linphoneCore, account.PreferredVideoId);
+#else
+            var t_videoSizePtr = Marshal.AllocHGlobal(Marshal.SizeOf(t_videoSize));
+            if (t_videoSizePtr != IntPtr.Zero)
+            {
+                LinphoneAPI.linphone_core_set_preferred_video_size(linphoneCore, t_videoSizePtr);
+                Marshal.FreeHGlobal(t_videoSizePtr);
+            }
+#endif
+        }
 
 	    #endregion
 
@@ -685,18 +684,27 @@ namespace VATRP.Core.Services
                 if (pt != IntPtr.Zero)
                 {
                     var isEnabled = LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, pt);
-                    if (isEnabled != cfgCodec.Status)
+                    LOG.Info("Codec: " + cfgCodec.CodecName + " Enabled: " + cfgCodec.Status + " In Linphone Status: " +
+                             isEnabled);
+
+                    if (LinphoneAPI.linphone_core_enable_payload_type(linphoneCore, pt, cfgCodec.Status) != 0)
                     {
-                        if (LinphoneAPI.linphone_core_enable_payload_type(linphoneCore, pt, cfgCodec.Status) != 0)
-                        {
-                            Debug.WriteLine("Failed to update codec: " + cfgCodec.CodecName + " Isenabled: " + cfgCodec.Status + " Restoring status");
-                            cfgCodec.Status = isEnabled;
-                            retValue = false;
-                        }
+                        LOG.Warn("Failed to update codec: " + cfgCodec.CodecName + " Enabled: " + cfgCodec.Status +
+                                 " Restoring status");
+                        cfgCodec.Status = isEnabled;
+                        retValue = false;
+                    }
+                    else
+                    {
+                        LOG.Info(string.Format("=== Updated Codec {0}, Channels {1} Status: {2}. ", cfgCodec.CodecName,
+                            cfgCodec.Channels,
+                            cfgCodec.Status ? "Enabled" : "Disabled"));
                     }
                 }
                 else
                 {
+                    LOG.Warn(string.Format("Codec not found: {0} , Channels: {1} ", cfgCodec.CodecName,
+                        cfgCodec.Channels));
                     tmpCodecs.Add(cfgCodec);
                 }
             }
@@ -704,27 +712,18 @@ namespace VATRP.Core.Services
             foreach (var codec in linphoneCodecs)
             {
                 if (!cfgCodecs.Contains(codec))
+                {
+                    LOG.Info(string.Format("Adding codec into configuration: {0} , Channels: {1} ", codec.CodecName, codec.Channels));
                     cfgCodecs.Add(codec);
+                }
             }
 
             foreach (var codec in tmpCodecs)
             {
+                LOG.Info(string.Format("Removing Codec from configuration: {0} , Channels: {1} ", codec.CodecName, codec.Channels));
                 cfgCodecs.Remove(codec);
             }
             return retValue;
-	    }
-
-	    public bool EnableCodec(VATRPCodec codec, bool enable, CodecType codecType)
-	    {
-            if (linphoneCore == IntPtr.Zero || !isRunning)
-                throw new Exception("Linphone not initialized");
-
-	        var pt = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, codec.CodecName, codec.Rate,
-	            codec.Channels);
-	        if (pt != IntPtr.Zero)
-                return LinphoneAPI.linphone_core_enable_payload_type(linphoneCore, pt, enable) == 0;
-
-	        return false;
 	    }
 
 	    public void FillCodecsList(VATRPAccount account, CodecType codecType)
