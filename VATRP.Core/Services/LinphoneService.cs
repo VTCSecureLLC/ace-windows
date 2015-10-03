@@ -684,18 +684,27 @@ namespace VATRP.Core.Services
                 if (pt != IntPtr.Zero)
                 {
                     var isEnabled = LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, pt);
-                    if (isEnabled != cfgCodec.Status)
+                    LOG.Info("Codec: " + cfgCodec.CodecName + " Enabled: " + cfgCodec.Status + " In Linphone Status: " +
+                             isEnabled);
+
+                    if (LinphoneAPI.linphone_core_enable_payload_type(linphoneCore, pt, cfgCodec.Status) != 0)
                     {
-                        if (LinphoneAPI.linphone_core_enable_payload_type(linphoneCore, pt, cfgCodec.Status) != 0)
-                        {
-                            Debug.WriteLine("Failed to update codec: " + cfgCodec.CodecName + " Isenabled: " + cfgCodec.Status + " Restoring status");
-                            cfgCodec.Status = isEnabled;
-                            retValue = false;
-                        }
+                        LOG.Warn("Failed to update codec: " + cfgCodec.CodecName + " Enabled: " + cfgCodec.Status +
+                                 " Restoring status");
+                        cfgCodec.Status = isEnabled;
+                        retValue = false;
+                    }
+                    else
+                    {
+                        LOG.Info(string.Format("=== Updated Codec {0}, Channels {1} Status: {2}. ", cfgCodec.CodecName,
+                            cfgCodec.Channels,
+                            cfgCodec.Status ? "Enabled" : "Disabled"));
                     }
                 }
                 else
                 {
+                    LOG.Warn(string.Format("Codec not found: {0} , Channels: {1} ", cfgCodec.CodecName,
+                        cfgCodec.Channels));
                     tmpCodecs.Add(cfgCodec);
                 }
             }
@@ -703,27 +712,18 @@ namespace VATRP.Core.Services
             foreach (var codec in linphoneCodecs)
             {
                 if (!cfgCodecs.Contains(codec))
+                {
+                    LOG.Info(string.Format("Adding codec into configuration: {0} , Channels: {1} ", codec.CodecName, codec.Channels));
                     cfgCodecs.Add(codec);
+                }
             }
 
             foreach (var codec in tmpCodecs)
             {
+                LOG.Info(string.Format("Removing Codec from configuration: {0} , Channels: {1} ", codec.CodecName, codec.Channels));
                 cfgCodecs.Remove(codec);
             }
             return retValue;
-	    }
-
-	    public bool EnableCodec(VATRPCodec codec, bool enable, CodecType codecType)
-	    {
-            if (linphoneCore == IntPtr.Zero || !isRunning)
-                throw new Exception("Linphone not initialized");
-
-	        var pt = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, codec.CodecName, codec.Rate,
-	            codec.Channels);
-	        if (pt != IntPtr.Zero)
-                return LinphoneAPI.linphone_core_enable_payload_type(linphoneCore, pt, enable) == 0;
-
-	        return false;
 	    }
 
 	    public void FillCodecsList(VATRPAccount account, CodecType codecType)
