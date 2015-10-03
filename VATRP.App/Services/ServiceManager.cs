@@ -159,7 +159,7 @@ namespace VATRP.App.Services
             LOG.Info("Stopping services...");
             HistoryService.Stop();
             ConfigurationService.Stop();
-            LinphoneSipService.Unregister();
+            LinphoneSipService.Unregister(true);
             LinphoneSipService.Stop();
             AccountService.Stop();
         }

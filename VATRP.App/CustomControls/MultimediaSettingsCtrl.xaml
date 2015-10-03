@@ -17,18 +17,9 @@
             </Grid.RowDefinitions>
             <TextBlock Grid.Column="0" VerticalAlignment="Center" >Preferred video resolution </TextBlock>
             <ComboBox  x:Name="ResolutionBox" FontSize="14" Margin="3" Width="150" Height="24" VerticalAlignment="Center" Grid.Column="1">
-                <TextBlock >sqcif (128x96 )</TextBlock>
-                <TextBlock >wqcif (256x144 )</TextBlock>
                 <TextBlock >qcif (176x144 )</TextBlock>
                 <TextBlock >cif (352x288 )</TextBlock>
-                <TextBlock >cvd (352x480 )</TextBlock>
-                <TextBlock >icif (352x572 )</TextBlock>
                 <TextBlock >4cif (704x576 )</TextBlock>
-                <TextBlock >w4cif (1024x576 )</TextBlock>
-                <TextBlock >qqvga (160x120 )</TextBlock>
-                <TextBlock >hqvga (160x240 )</TextBlock>
-                <TextBlock >qvga (320x240 )</TextBlock>
-                <TextBlock >hvga (320x480 )</TextBlock>
                 <TextBlock >vga (640x480 )</TextBlock>
                 <TextBlock >svga (800x600 )</TextBlock>
             </ComboBox>
