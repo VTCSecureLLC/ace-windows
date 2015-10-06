@@ -67,7 +67,7 @@
      if !%25vatrpVersion%25==! goto no_buildnumber_set
      goto buildnumber_set
      :no_buildnumber_set
-     set vatrpVersion=0.0.0.0
+     set vatrpVersion=0.0.62.0
      :buildnumber_set
      if not exist %25VERSION_FILE%25 goto no_version_file
      del /q %25VERSION_FILE%25
