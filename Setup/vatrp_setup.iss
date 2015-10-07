@@ -41,41 +41,48 @@ Name: desktopicon; Description: Create a &desktop icon; GroupDescription: Additi
 Source: ..\VATRP.App\bin\Release\ACE.exe; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\ACE.Core.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\ACE.LinphoneWrapper.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\avcodec-53.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\avutil-51.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\HockeyApp.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\HockeyAppPCL.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\intl.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\libantlr3c.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\libbellesip-0.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\libbzrtp-0.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\libgcc_s_dw2-1.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\liblinphone-7.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\libmediastreamer_base-5.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\libmediastreamer_voip-5.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\libogg-0.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\libopus-0.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\libortp-9.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\libpolarssl-0.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\libspeex-1.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\libspeexdsp-1.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\libsqlite3-0.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\libstdc++-6.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\libtheora-0.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\libxml2-2.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\antlr3c.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\avutil-51.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\avcodec-53.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\bellesip.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\bzrtp.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\gsm.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\linphone.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\mediastreamer_base.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\mediastreamer_voip.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\opus.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\ortp.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\polarssl.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\speex.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\speexdsp.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\sqlite3.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\srtp.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\swscale-2.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\xml2.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\log4net.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\log4net.config; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\msvcr120d.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\msvcr120.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\Microsoft.Threading.Tasks.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\Microsoft.Threading.Tasks.Extensions.Desktop.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\Microsoft.Threading.Tasks.Extensions.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\pthreadGC2.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\SQLite.Interop.dll; DestDir: {app}; Flags: ignoreversion
-Source: ..\VATRP.App\bin\Release\swscale-2.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\System.Data.SQLite.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\System.IO.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\System.Runtime.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\System.Threading.Tasks.dll; DestDir: {app}; Flags: ignoreversion
 Source: ..\VATRP.App\bin\Release\zlib1.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\zlibd.dll; DestDir: {app}; Flags: ignoreversion
+Source: ..\VATRP.App\bin\Release\lib\mediastreamer\plugins\libmsopenh264.dll; DestDir: {app}\lib\mediastreamer\plugins
+Source: ..\VATRP.App\bin\Release\lib\mediastreamer\plugins\openh264.dll; DestDir: {app}\lib\mediastreamer\plugins
+
+[Dirs]
+Name: {app}\lib
+Name: {app}\lib\mediastreamer
+Name: {app}\lib\mediastreamer\plugins
 
 [Icons]
 Name: {group}\ACE; Filename: {app}\ACE.exe; IconIndex: 0
