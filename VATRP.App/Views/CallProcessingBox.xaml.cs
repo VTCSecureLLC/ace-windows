@@ -2,10 +2,12 @@
 using System.Threading;
 using System.Timers;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Threading;
 using log4net;
 using VATRP.App.Model;
 using VATRP.App.Services;
+using VATRP.App.ViewModel;
 using VATRP.Core.Model;
 using VATRP.Core.Services;
 using Timer = System.Timers.Timer;
@@ -21,12 +23,14 @@ namespace VATRP.App.Views
         private LinphoneService _linphoneService;
         private VATRPCall _currentCall = null;
         private readonly Timer timerCall;
+        private readonly Timer ringTimer;
         private readonly Timer autoAnswerTimer;
         private int secondsInCall;
         private int secondsToAutoAnswer = 0;
 
         public CallProcessingBox() : base(VATRPWindowType.CALL_VIEW)
         {
+            DataContext = new CallViewModel();
             InitializeComponent();
             _linphoneService = ServiceManager.Instance.LinphoneSipService;
             timerCall = new Timer
@@ -35,6 +39,14 @@ namespace VATRP.App.Views
                 AutoReset = true
             };
             timerCall.Elapsed += OnUpdatecallTimer;
+
+            ringTimer = new Timer
+                        {
+                            Interval = 1800,
+                            AutoReset = true
+                        };
+            ringTimer.Elapsed += OnUpdateRingCounter;
+
 #if DEBUG
             autoAnswerTimer = new Timer
             {
@@ -45,9 +57,21 @@ namespace VATRP.App.Views
 #endif
         }
 
+        private void OnUpdateRingCounter(object sender, ElapsedEventArgs e)
+        {
+            if (Dispatcher.Thread != Thread.CurrentThread)
+            {
+                Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                    new EventHandler<ElapsedEventArgs>(OnUpdateRingCounter), sender, new object[] { e });
+                return;
+            }
+            ((CallViewModel) DataContext).RingCount += 1;
+            ringTimer.Start();
+        }
 
         internal void OnCallStateChanged(VATRPCall call)
         {
+            bool stopAnimation = false;
             _currentCall = call;
 
             switch (call.CallState)
@@ -74,21 +98,43 @@ namespace VATRP.App.Views
                     }
                     break;
                 case VATRPCallState.InProgress:
+                {
                     Show();
                     secondsInCall = 0;
                     CallerDisplayNameBox.Text = _currentCall.From.DisplayName;
                     CallerNumberBox.Text = _currentCall.From.Username;
                     if (App.ActiveCallHistoryEvent == null)
                     {
-                        App.ActiveCallHistoryEvent = new VATRPCallEvent(App.CurrentAccount.RegistrationUser, call.From.Username)
+                        App.ActiveCallHistoryEvent = new VATRPCallEvent(App.CurrentAccount.RegistrationUser,
+                            call.From.Username)
                         {
                             DisplayName = call.From.DisplayName,
                             Status = VATRPHistoryEvent.StatusType.Incoming
                         };
                     }
                     ReceiveCall(call);
+                    var model = DataContext as CallViewModel;
+                    if (model != null)
+                    {
+                        model.VisualizeIncoming = true;
+                        if (!model.VisualizeRinging)
+                        {
+                            RingCounterBox.Foreground = new SolidColorBrush(Colors.White);
+                            model.VisualizeRinging = true;
+                            model.RingCount = 1;
+                            if (ringTimer != null)
+                            {
+                                if (ringTimer.Enabled)
+                                    ringTimer.Stop();
+                                ringTimer.Interval = 1800;
+                                ringTimer.Start();
+                            }
+                        }
+                    }
+                }
                     break;
                 case VATRPCallState.Ringing:
+                {
                     CallerDisplayNameBox.Visibility = Visibility.Visible;
                     CallerNumberBox.Visibility = Visibility.Visible;
                     IncomingPanel.Visibility = Visibility.Hidden;
@@ -97,11 +143,33 @@ namespace VATRP.App.Views
                     Show();
                     secondsInCall = 0;
                     CallStateBox.Text = "Ringing";
+
+                    var model = DataContext as CallViewModel;
+                    if (model != null )
+                    {
+                        model.VisualizeIncoming = false;
+                        if (!model.VisualizeRinging)
+                        {
+                            RingCounterBox.Foreground = new SolidColorBrush(Color.FromArgb(0xFF, 0xD8, 0x1C, 0x1C));
+                            model.VisualizeRinging = true;
+                            model.RingCount = 1;
+                            if (ringTimer != null)
+                            {
+                                if (ringTimer.Enabled)
+                                    ringTimer.Stop();
+                                ringTimer.Interval = 4000;
+                                ringTimer.Start();
+                            }
+                        }
+                    }
+                }
                     break;
                 case VATRPCallState.EarlyMedia:
                     CallStateBox.Text = "Processing";
                     break;
                 case VATRPCallState.Connected:
+                {
+                    stopAnimation = true;
                     CallStateBox.Text = "Connected";
                     CallDurationBox.Visibility = Visibility.Visible;
                     IncomingPanel.Visibility = Visibility.Collapsed;
@@ -109,8 +177,10 @@ namespace VATRP.App.Views
                     timerCall.Start();
                     _currentCall.CallEstablishTime = DateTime.Now;
                     BtnMute.Content = _linphoneService.IsCallMuted() ? "UnMute" : "Mute";
+                }
                     break;
                 case VATRPCallState.Closed:
+                    stopAnimation = true;
                     CallStateBox.Text = "Terminated";
                     InCallPanel.Visibility = System.Windows.Visibility.Collapsed;
                     Hide();
@@ -139,6 +209,7 @@ namespace VATRP.App.Views
                     secondsInCall = 0;
                     break;
                 case VATRPCallState.Error:
+                    stopAnimation = true;
                     Hide();
                     CallStateBox.Text = "Error occurred";
                     if (App.ActiveCallHistoryEvent != null)
@@ -158,6 +229,14 @@ namespace VATRP.App.Views
                     ActiveCall = null;
                     secondsInCall = 0;
                     break;
+            }
+
+            if (stopAnimation)
+            {
+                ((CallViewModel)DataContext).VisualizeRinging = false;
+                ((CallViewModel)DataContext).VisualizeIncoming = false;
+                if (ringTimer.Enabled)
+                    ringTimer.Stop();
             }
         }
 

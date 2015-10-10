@@ -137,6 +137,7 @@
     <Compile Include="Model\VATRPWindowType.cs" />
     <Compile Include="Services\MediaActionHandler.cs" />
     <Compile Include="Services\ServiceManager.cs" />
+    <Compile Include="ViewModel\CallViewModel.cs" />
     <Compile Include="ViewModel\DialpadViewModel.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
     <Compile Include="Views\ContactBox.xaml.cs">
@@ -256,9 +257,9 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-	<Compile Include="..\VersionInfo.cs">
-	  <Link>Properties\VersionInfo.cs</Link>
-	</Compile>
+    <Compile Include="..\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

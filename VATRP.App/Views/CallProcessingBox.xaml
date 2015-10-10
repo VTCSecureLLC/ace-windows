@@ -7,29 +7,73 @@
                    StateChanged="Window_StateChanged" 
                    LocationChanged="Window_LocationChanged" 
                    Unloaded="Window_Unloaded" Icon="/ACE;component/Resources/vatrp.ico">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="50"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <TextBlock x:Name="CallerDisplayNameBox" Grid.Row="1" HorizontalAlignment="Center"  Margin="2" TextWrapping="Wrap" Text="" VerticalAlignment="Center" FontSize="18"/>
-        <TextBlock x:Name="CallerNumberBox" HorizontalAlignment="Center" Grid.Row="2" Margin="2" TextWrapping="Wrap" Text="+12345678954" VerticalAlignment="Center" FontSize="14"/>
-        <TextBlock x:Name="CallStateBox" HorizontalAlignment="Center" Grid.Row="3" Margin="2" Text="test" VerticalAlignment="Center" FontSize="14"/>
-        <TextBlock x:Name="CallDurationBox" HorizontalAlignment="Center" Grid.Row="4" Margin="2" TextWrapping="Wrap" Text="0:00:00" VerticalAlignment="Center" FontSize="14"/>
-        <StackPanel Orientation="Horizontal" Grid.Row="5" HorizontalAlignment="Center" x:Name="InCallPanel">
-        <Button x:Name="BtnMute" Content="Mute" Margin="5, 15" Width="75" Click="OnMute" />
-        <Button Content="End Call" Margin="5,15" Width="75" Click="OnEndCall"/>
-            <Button x:Name="BtnSwitchVideo" Content="Switch Video" Margin="5,15" Width="75" Click="OnSwitchVideo" Visibility="Collapsed"/>
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" Grid.Row="5" HorizontalAlignment="Center" x:Name="IncomingPanel" Visibility="Collapsed">
-            <Button Content="Accept" Margin="5, 15" Width="75" Click="AcceptCall" Background="Green" Foreground="White"/>
-            <Button Content="Decline" Margin="5,15" Width="75" Click="DeclineCall" Background="DarkRed" Foreground="White"/>
-        </StackPanel>
+    <model:VATRPWindow.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </model:VATRPWindow.Resources>
 
+    <Grid>
+        <StackPanel x:Name="ColorAnimationBox" Background="#FFD81C1C" VerticalAlignment="Stretch" Visibility="{Binding Path=VisualizeIncoming, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+            <StackPanel.Style>
+                <Style TargetType="StackPanel">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Path=VisualizeIncoming}" Value="True">
+                            <DataTrigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard RepeatBehavior="Forever" >
+                                        <DoubleAnimation  Storyboard.TargetProperty = "Opacity"
+                        From="1.0" To="0.1" Duration="0:0:0.3" AutoReverse="True" />
+                                        <DoubleAnimation  Storyboard.TargetProperty = "Opacity"
+                            From="0.1" To="1.0" Duration="0:0:0.3" AutoReverse="True">
+                                        <DoubleAnimation.EasingFunction>
+                                            <PowerEase EasingMode="EaseOut" Power="4" />
+                                        </DoubleAnimation.EasingFunction>
+                                  </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </DataTrigger.EnterActions>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </StackPanel.Style>
+        </StackPanel>
+        <StackPanel x:Name="TextAnimationBox" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                    Visibility="{Binding Path=VisualizeRinging, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+            <TextBlock x:Name="RingCounterBox" Text="{Binding Path=RingCount, NotifyOnTargetUpdated=True}" Foreground="White" FontFamily="Arial" >
+                <TextBlock.Triggers>
+                    <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity" Duration="0:0:1.8" From="1.0"  To="0.0" />
+                                <DoubleAnimation Storyboard.TargetProperty="FontSize" Duration="0:0:1.8" From="5" To="250" />
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </TextBlock.Triggers>
+            </TextBlock>
+        </StackPanel>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock x:Name="CallerDisplayNameBox" Grid.Row="1" HorizontalAlignment="Center"  Margin="2" TextWrapping="Wrap" Text="" VerticalAlignment="Center" FontSize="18"/>
+            <TextBlock x:Name="CallerNumberBox" HorizontalAlignment="Center" Grid.Row="2" Margin="2" TextWrapping="Wrap" Text="+12345678954" VerticalAlignment="Center" FontSize="14"/>
+            <TextBlock x:Name="CallStateBox" HorizontalAlignment="Center" Grid.Row="3" Margin="2" Text="test" VerticalAlignment="Center" FontSize="14"/>
+            <TextBlock x:Name="CallDurationBox" HorizontalAlignment="Center" Grid.Row="4" Margin="2" TextWrapping="Wrap" Text="0:00:00" VerticalAlignment="Center" FontSize="14"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="5" HorizontalAlignment="Center" x:Name="InCallPanel">
+                <Button x:Name="BtnMute" Content="Mute" Margin="5, 15" Width="75" Click="OnMute" />
+                <Button Content="End Call" Margin="5,15" Width="75" Click="OnEndCall"/>
+                <Button x:Name="BtnSwitchVideo" Content="Switch Video" Margin="5,15" Width="75" Click="OnSwitchVideo" Visibility="Collapsed"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Grid.Row="5" HorizontalAlignment="Center" x:Name="IncomingPanel" Visibility="Collapsed">
+                <Button Content="Accept" Margin="5, 15" Width="75" Click="AcceptCall" Background="Green" Foreground="White"/>
+                <Button Content="Decline" Margin="5,15" Width="75" Click="DeclineCall" Background="DarkRed" Foreground="White"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </model:VATRPWindow>
