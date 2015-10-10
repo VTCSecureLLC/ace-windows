@@ -340,7 +340,8 @@ namespace VATRP.Core.Services
 					preferences.ProxyHost);
 			}
             
-			server_addr = string.Format("sip:{0}:{1}", preferences.ProxyHost, preferences.ProxyPort);
+			server_addr = string.Format("sip:{0}:{1};transport={2}", preferences.ProxyHost,
+                preferences.ProxyPort, preferences.Transport.ToLower());
 
             LOG.Debug(string.Format( "Register SIP account: {0} Server: {1}", identity, server_addr));
 
@@ -368,7 +369,7 @@ namespace VATRP.Core.Services
 
             if (deferred)
 			{
-                SetTimeout(2000);
+                SetTimeout(3000);
             }
             else
             {
@@ -384,13 +385,16 @@ namespace VATRP.Core.Services
             {
                 try
                 {
-                    LinphoneAPI.linphone_proxy_config_edit(proxy_cfg);
+                    if (proxy_cfg != IntPtr.Zero)
+                        LinphoneAPI.linphone_proxy_config_edit(proxy_cfg);
 
-                    LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, false);
+                    if (proxy_cfg != IntPtr.Zero)
+                        LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, false);
+                    if (proxy_cfg != IntPtr.Zero)
                     LinphoneAPI.linphone_proxy_config_done(proxy_cfg);
                     proxy_cfg = IntPtr.Zero;
                 }
-                catch (Exception )
+                catch (Exception ex)
                 {
                     
                 }
