@@ -100,6 +100,7 @@ namespace VATRP.App.Views
             {
                 if (MakeCallRequested != null)
                     MakeCallRequested(callItem.TargetNumber);
+                lstCallsBox.SelectedItem = null;
             }
         }
 
