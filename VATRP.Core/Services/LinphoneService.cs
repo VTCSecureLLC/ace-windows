@@ -312,6 +312,22 @@ namespace VATRP.Core.Services
             return true;
         }
 
+        public void SendDtmfAsSipInfo(bool use_info)
+        {
+            if (linphoneCore == IntPtr.Zero || !isRunning)
+            {
+                if (ErrorEvent != null)
+                    ErrorEvent(null, "Cannot make when Linphone Core is not working.");
+                return;
+            }
+
+            if (LinphoneAPI.linphone_core_get_use_info_for_dtmf(linphoneCore) != use_info)
+            {
+                LinphoneAPI.linphone_core_set_use_info_for_dtmf(linphoneCore, use_info);
+                LOG.Debug(string.Format("{0} send dtmf as SIP info", use_info ? "Enable" : "Disable"));
+            }
+        }
+
 		#endregion
 
 		#region Registration
@@ -340,7 +356,8 @@ namespace VATRP.Core.Services
 					preferences.ProxyHost);
 			}
             
-			server_addr = string.Format("sip:{0}:{1}", preferences.ProxyHost, preferences.ProxyPort);
+			server_addr = string.Format("sip:{0}:{1};transport={2}", preferences.ProxyHost,
+                preferences.ProxyPort, preferences.Transport.ToLower());
 
             LOG.Debug(string.Format( "Register SIP account: {0} Server: {1}", identity, server_addr));
 
@@ -384,13 +401,16 @@ namespace VATRP.Core.Services
             {
                 try
                 {
-                    LinphoneAPI.linphone_proxy_config_edit(proxy_cfg);
+                    if (proxy_cfg != IntPtr.Zero)
+                        LinphoneAPI.linphone_proxy_config_edit(proxy_cfg);
 
-                    LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, false);
+                    if (proxy_cfg != IntPtr.Zero)
+                        LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, false);
+                    if (proxy_cfg != IntPtr.Zero)
                     LinphoneAPI.linphone_proxy_config_done(proxy_cfg);
                     proxy_cfg = IntPtr.Zero;
                 }
-                catch (Exception )
+                catch (Exception ex)
                 {
                     
                 }
@@ -482,7 +502,7 @@ namespace VATRP.Core.Services
 	        if (linphoneCore == IntPtr.Zero || !isRunning)
 	        {
 	            if (ErrorEvent != null)
-	                ErrorEvent(null, "Cannot make or receive calls when Linphone Core is not working.");
+	                ErrorEvent(null, "Cannot terminate calls when Linphone Core is not working.");
 	            return;
 	        }
 

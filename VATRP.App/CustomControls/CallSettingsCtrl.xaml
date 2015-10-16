@@ -30,7 +30,9 @@
 
             </Grid>
             
-            <CheckBox x:Name="EnableAVPFMode" Margin="3,2,3,2" Content="Enable AVPF Mode" FontSize="13"  
+            <CheckBox x:Name="EnableAVPFMode" Margin="3" Content="Enable AVPF Mode" FontSize="13"  
+                          VerticalAlignment="Center"/>
+            <CheckBox x:Name="SendDtmfInfo" Margin="3" Content="Send DTMFs as SIP info" FontSize="13"  
                           VerticalAlignment="Center"/>
         </StackPanel>
     </Grid>
