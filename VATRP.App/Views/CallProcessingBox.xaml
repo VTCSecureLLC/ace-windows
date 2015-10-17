@@ -2,17 +2,29 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:model="clr-namespace:VATRP.App.Model"
+        xmlns:converters="clr-namespace:VATRP.App.Converters"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignData Source=../SampleData/CallViewSampleData.xaml}"
         Title="Active Call" Height="300" Width="300" Activated="Window_Activated" 
                    Closing="Window_Closing"  
                    StateChanged="Window_StateChanged" 
                    LocationChanged="Window_LocationChanged" 
+                   SourceInitialized="Window_Initialized"
                    Unloaded="Window_Unloaded" Icon="/ACE;component/Resources/vatrp.ico">
     <model:VATRPWindow.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="bvc"/>
+        <converters:IntToVisibilityConverter x:Key="oivc" OppositeBooleanValue="True"/>
+        <converters:IntToVisibilityConverter x:Key="ivc"/>
+        <converters:CallStateToStringConverter x:Key="csts"/>
+        <converters:CallDurationConverter x:Key="cdc"/>
+        <Image x:Key="InfoImage" Source="/ACE;component/Resources/icon_info.png" />
+        <Image x:Key="KeypadImage" Source="/ACE;component/Resources/keypad.png" />
     </model:VATRPWindow.Resources>
 
-    <Grid>
-        <StackPanel x:Name="ColorAnimationBox" Background="#FFD81C1C" VerticalAlignment="Stretch" Visibility="{Binding Path=VisualizeIncoming, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+    <Grid >
+        <StackPanel x:Name="ColorAnimationBox" Background="#FFD81C1C" VerticalAlignment="Stretch" Visibility="{Binding Path=VisualizeIncoming, Converter={StaticResource bvc}, Mode=OneWay}">
             <StackPanel.Style>
                 <Style TargetType="StackPanel">
                     <Style.Triggers>
@@ -37,7 +49,7 @@
             </StackPanel.Style>
         </StackPanel>
         <StackPanel x:Name="TextAnimationBox" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                    Visibility="{Binding Path=VisualizeRinging, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                    Visibility="{Binding Path=VisualizeRinging, Converter={StaticResource bvc}, Mode=OneWay}">
             <TextBlock x:Name="RingCounterBox" Text="{Binding Path=RingCount, NotifyOnTargetUpdated=True}" Foreground="White" FontFamily="Arial" >
                 <TextBlock.Triggers>
                     <EventTrigger RoutedEvent="Binding.TargetUpdated">
@@ -61,13 +73,50 @@
                 <RowDefinition Height="50"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <TextBlock x:Name="CallerDisplayNameBox" Grid.Row="1" HorizontalAlignment="Center"  Margin="2" TextWrapping="Wrap" Text="" VerticalAlignment="Center" FontSize="18"/>
-            <TextBlock x:Name="CallerNumberBox" HorizontalAlignment="Center" Grid.Row="2" Margin="2" TextWrapping="Wrap" Text="+12345678954" VerticalAlignment="Center" FontSize="14"/>
-            <TextBlock x:Name="CallStateBox" HorizontalAlignment="Center" Grid.Row="3" Margin="2" Text="test" VerticalAlignment="Center" FontSize="14"/>
-            <TextBlock x:Name="CallDurationBox" HorizontalAlignment="Center" Grid.Row="4" Margin="2" TextWrapping="Wrap" Text="0:00:00" VerticalAlignment="Center" FontSize="14"/>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="2*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Row="0" Grid.Column="0" Background="Transparent" BorderThickness="0"
+                    Content="{StaticResource KeypadImage}" Width="20" Height="20"
+                    HorizontalAlignment="Left"
+                    Margin="30,0,0,0"
+                    Visibility="{Binding Path=ShowInfo, Converter={StaticResource bvc}, Mode=OneWay}"
+                    Click="OnSwitchKeypad"
+                    />
+
+                <Button Grid.Row="0" Grid.Column="1" Background="Transparent" BorderThickness="0"
+                    Content="{StaticResource InfoImage}" Width="20" Height="20"
+                    HorizontalAlignment="Right"
+                    Margin="0,0,30,0"
+                    Visibility="{Binding Path=ShowInfo, Converter={StaticResource bvc}, Mode=OneWay}"
+                    Click="ToggleInfoWindow"
+                    />
+            </Grid>
+            <TextBlock Grid.Row="1" HorizontalAlignment="Center"  Margin="2" 
+                       TextWrapping="Wrap" Text="{Binding DisplayName}" VerticalAlignment="Center" FontSize="18" 
+                       Visibility="{Binding DisplayName.Length, Converter={StaticResource oivc}}"
+                       />
+            <TextBlock HorizontalAlignment="Center" Grid.Row="2" 
+                       Margin="2" TextWrapping="Wrap" Text="{Binding RemoteNumber}" 
+                       VerticalAlignment="Center" FontSize="14"
+                       Visibility="{Binding RemoteNumber.Length, Converter={StaticResource oivc}}"
+                       />
+            <TextBlock HorizontalAlignment="Center" Grid.Row="3" Margin="2" Text="{Binding CallState, Converter={StaticResource csts} }" 
+                       VerticalAlignment="Center" FontSize="14"/>
+            <TextBlock HorizontalAlignment="Center" Grid.Row="4" 
+                       Margin="2" TextWrapping="Wrap" Text="{Binding Duration, Converter={StaticResource cdc}}" 
+                       VerticalAlignment="Center" FontSize="14" 
+                       Visibility="{Binding Duration, Converter={StaticResource oivc}}"/>
+            <TextBlock HorizontalAlignment="Center" Grid.Row="4" 
+                       Margin="2" TextWrapping="Wrap" Text="{Binding AutoAnswer, StringFormat=AutoAnswer after {0} sec}" 
+                       VerticalAlignment="Center" FontSize="14" 
+                       Visibility="{Binding AutoAnswer, Converter={StaticResource oivc}}"/>
+
             <StackPanel Orientation="Horizontal" Grid.Row="5" HorizontalAlignment="Center" x:Name="InCallPanel">
-                <Button x:Name="BtnMute" Content="Mute" Margin="5, 15" Width="75" Click="OnMute" />
-                <Button Content="End Call" Margin="5,15" Width="75" Click="OnEndCall"/>
+                <Button x:Name="BtnMute" Content="Mute" Margin="5, 15" Width="75" Click="OnMute" Background="DodgerBlue" Foreground="White" FontSize="12" Visibility="{Binding ShowInfo, Converter={StaticResource bvc}}"/>
+                <Button Content="End Call" Margin="5,15" Width="75" Click="OnEndCall" Background="Red" Foreground="White" BorderThickness="0" FontSize="12"/>
                 <Button x:Name="BtnSwitchVideo" Content="Switch Video" Margin="5,15" Width="75" Click="OnSwitchVideo" Visibility="Collapsed"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Grid.Row="5" HorizontalAlignment="Center" x:Name="IncomingPanel" Visibility="Collapsed">
