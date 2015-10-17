@@ -7,6 +7,7 @@
                    Closing="Window_Closing" 
                    StateChanged="Window_StateChanged" 
                    LocationChanged="Window_LocationChanged" 
+                   SourceInitialized="Window_Initialized"
                    IsVisibleChanged="OnVisibilityChanged" Icon="/ACE;component/Resources/cameraview.png"
                    >
     <Grid>
