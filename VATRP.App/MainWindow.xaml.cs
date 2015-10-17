@@ -37,9 +37,11 @@ namespace VATRP.App
         private readonly Dialpad _dialpadBox = new Dialpad();
         private readonly CallProcessingBox _callView = new CallProcessingBox();
         private readonly HistoryView _historyView = new HistoryView();
+        private readonly KeyPadCtrl _keypadCtrl = new KeyPadCtrl();
         private CallView _remoteVideoView;
         private SelfView _selfView = new SelfView();
         private readonly SettingsView _settingsView = new SettingsView();
+        private readonly CallInfoView _callInfoView = new CallInfoView();
         private readonly LinphoneService _linphoneService;
         private FlashWindowHelper _flashWindowHelper = new FlashWindowHelper();
         #endregion
@@ -141,7 +143,7 @@ namespace VATRP.App
 
                 if (r == MessageBoxResult.OK)
                 {
-                    _linphoneService.TerminateCall(_callView.ActiveCall);
+                    _linphoneService.TerminateCall(_callView.ActiveCall.NativeCallPtr);
                 }
                 return;
             }
@@ -170,10 +172,7 @@ namespace VATRP.App
 
         private void CloseAllWindows()
         {
-            if (_contactBox != null && _contactBox.IsActivated)
-            {
-                _contactBox.Close();
-            }
+            
         }
 
         private void OnClosed(object sender, EventArgs e)
@@ -269,6 +268,11 @@ namespace VATRP.App
             _settingsView.IsVisibleChanged += OnChildVisibilityChanged;
             _selfView.IsVisibleChanged += OnChildVisibilityChanged;
             _settingsView.SettingsSavedEvent += OnSettingsSaved;
+            _keypadCtrl.KeypadClicked += OnKeypadClicked;
+            _dialpadBox.KeypadClicked += OnDialpadClicked;
+
+            _callView.KeypadCtrl = _keypadCtrl;
+            _callView.CallInfoCtrl = _callInfoView;
 
             App.CurrentAccount = ServiceManager.Instance.LoadActiveAccount();
             bool hideNavigation = true;
