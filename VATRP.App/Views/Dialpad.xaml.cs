@@ -24,9 +24,23 @@ namespace VATRP.App.Views
     /// </summary>
     public partial class Dialpad
     {
+        public event EventHandler<KeyPadEventArgs> KeypadClicked; 
         public Dialpad() : base(VATRPWindowType.DIALPAD_VIEW)
         {
             InitializeComponent();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            ctrlDialpad.KeypadPressed += OnKeypadPressed;
+        }
+
+        private void OnKeypadPressed(object sender, KeyPadEventArgs e)
+        {
+            if (KeypadClicked != null)
+            {
+                KeypadClicked(this, new KeyPadEventArgs(e.Key));
+            }
         }
     }
 }
