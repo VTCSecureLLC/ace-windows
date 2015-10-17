@@ -97,6 +97,17 @@
     <Compile Include="App.Constants.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\CallDurationConverter.cs" />
+    <Compile Include="Converters\CallQualityConverter.cs" />
+    <Compile Include="Converters\CallStateToStringConverter.cs" />
+    <Compile Include="Converters\VisibilityConverter.cs" />
+    <Compile Include="ViewModel\CallInfoViewModel.cs" />
+    <Compile Include="Views\CallInfoView.xaml.cs">
+      <DependentUpon>CallInfoView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\KeyPadCtrl.xaml.cs">
+      <DependentUpon>KeyPadCtrl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\MultimediaSettingsCtrl.xaml.cs">
       <DependentUpon>MultimediaSettingsCtrl.xaml</DependentUpon>
     </Compile>
@@ -119,7 +130,6 @@
     <Compile Include="MainWindow.Events.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Converters\VisibilityConverter.cs" />
     <Compile Include="CustomControls\DialpadScreen.xaml.cs">
       <DependentUpon>DialpadScreen.xaml</DependentUpon>
     </Compile>
@@ -164,6 +174,17 @@
     <Compile Include="Views\SettingsView.xaml.cs">
       <DependentUpon>SettingsView.xaml</DependentUpon>
     </Compile>
+    <DesignDataWithDesignTimeCreatableTypes Include="SampleData\CallViewSampleData.xaml">
+      <SubType>Designer</SubType>
+    </DesignDataWithDesignTimeCreatableTypes>
+    <Page Include="Views\CallInfoView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\KeyPadCtrl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="CustomControls\MultimediaSettingsCtrl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -317,6 +338,13 @@
   <ItemGroup>
     <Resource Include="Resources\cameraview.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\icon_info.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\keypad.png" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /b "$(SolutionDir)thirdparties\liblinphone\*.dll" "$(TargetDir)"
