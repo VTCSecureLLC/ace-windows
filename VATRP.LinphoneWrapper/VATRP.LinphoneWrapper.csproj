@@ -36,6 +36,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\LinphoneReason.cs" />
+    <Compile Include="Enums\LinphoneMediaEncryption.cs" />
+    <Compile Include="Enums\LinphoneIceState.cs" />
     <Compile Include="Enums\LinphoneAVPFMode.cs" />
     <Compile Include="Enums\LinphoneCallStatus.cs" />
     <Compile Include="Enums\LinphoneCallDir.cs" />
@@ -48,16 +51,19 @@
     <Compile Include="Enums\MSVideoSize.cs" />
     <Compile Include="LinphoneAPI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-	<Compile Include="..\VersionInfo.cs">
-	  <Link>Properties\VersionInfo.cs</Link>
-	</Compile>
+    <Compile Include="..\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="Structs\JitterStats.cs" />
     <Compile Include="Structs\LCSipTransports.cs" />
+    <Compile Include="Structs\LinphoneCallStats.cs" />
     <Compile Include="Structs\LinphoneCoreVTable.cs" />
     <Compile Include="Structs\LinphoneVideoPolicy.cs" />
     <Compile Include="Structs\MSList.cs" />
     <Compile Include="Structs\MSVideoSizeDef.cs" />
     <Compile Include="Structs\PayloadType.cs" />
     <Compile Include="Structs\PayloadTypeAvpfParams.cs" />
+    <Compile Include="Structs\RtpStats.cs" />
     <Compile Include="Win32NativeAPI.cs" />
   </ItemGroup>
   <ItemGroup />
