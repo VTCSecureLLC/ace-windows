@@ -110,17 +110,23 @@ namespace VATRP.App
             if (_settingsView.SipSettingsChanged ||
                 _settingsView.CodecSettingsChanged ||
                 _settingsView.NetworkSettingsChanged ||
+                _settingsView.CallSettingsChanged ||
                 _settingsView.MediaSettingsChanged)
             {
                 ServiceManager.Instance.SaveAccountSettings();
                 if (_settingsView.SipSettingsChanged)
-                    ApplyRegsitrationChanges();
+                    ApplyRegistrationChanges();
                 if (_settingsView.CodecSettingsChanged)
                     ServiceManager.Instance.ApplyCodecChanges();
                 if (_settingsView.NetworkSettingsChanged)
                 {
                     ServiceManager.Instance.ApplyNetworkingChanges();
+                }
+
+                if (_settingsView.CallSettingsChanged)
+                {
                     ServiceManager.Instance.ApplyAVPFChanges();
+                    ServiceManager.Instance.ApplyDtmfOnSIPInfoChanges();
                 }
 
                 if (_settingsView.MediaSettingsChanged)
@@ -130,7 +136,7 @@ namespace VATRP.App
             }
         }
 
-        private void ApplyRegsitrationChanges()
+        private void ApplyRegistrationChanges()
         {
             this.registerRequested = true;
             RegUserLabel.Text = string.Format("Account: {0}", App.CurrentAccount.RegistrationUser);

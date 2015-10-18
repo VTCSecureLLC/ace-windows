@@ -36,6 +36,8 @@ namespace VATRP.App.CustomControls
                 Configuration.ConfEntry.AUTO_ANSWER_AFTER, "2");
             EnableAVPFMode.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.AVPF_ON, true);
+            SendDtmfInfo.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                 Configuration.ConfEntry.DTMF_SIP_INFO, false);
         }
 
         #region ISettings
@@ -58,6 +60,13 @@ namespace VATRP.App.CustomControls
             if (enabled != ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.AVPF_ON, true))
                 return true;
+
+            enabled = SendDtmfInfo.IsChecked ?? false;
+
+            if (enabled != ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.DTMF_SIP_INFO, false))
+                return true;
+
             return false;
         }
 
@@ -96,6 +105,11 @@ namespace VATRP.App.CustomControls
             enabled = EnableAVPFMode.IsChecked ?? false;
             ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.AVPF_ON, enabled);
+
+            enabled = SendDtmfInfo.IsChecked ?? false;
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.DTMF_SIP_INFO, enabled);
+
             ServiceManager.Instance.ConfigurationService.SaveConfig();
             return true;
         }

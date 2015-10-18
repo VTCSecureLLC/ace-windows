@@ -343,6 +343,22 @@ namespace VATRP.Core.Services
             if (linphoneCore == IntPtr.Zero || !isRunning)
                 return;
             LinphoneAPI.linphone_core_play_dtmf(linphoneCore, dtmf, duration);
+		}
+		
+        public void SendDtmfAsSipInfo(bool use_info)
+        {
+            if (linphoneCore == IntPtr.Zero || !isRunning)
+            {
+                if (ErrorEvent != null)
+                    ErrorEvent(null, "Cannot make when Linphone Core is not working.");
+                return;
+            }
+
+            if (LinphoneAPI.linphone_core_get_use_info_for_dtmf(linphoneCore) != use_info)
+            {
+                LinphoneAPI.linphone_core_set_use_info_for_dtmf(linphoneCore, use_info);
+                LOG.Debug(string.Format("{0} send dtmf as SIP info", use_info ? "Enable" : "Disable"));
+            }
         }
 
 		#endregion
@@ -504,7 +520,7 @@ namespace VATRP.Core.Services
 	        if (linphoneCore == IntPtr.Zero || !isRunning)
 	        {
 	            if (ErrorEvent != null)
-	                ErrorEvent(null, "Cannot receive call when Linphone Core is not working.");
+	                ErrorEvent(null, "Cannot terminate calls when Linphone Core is not working.");
 	            return;
 	        }
 
