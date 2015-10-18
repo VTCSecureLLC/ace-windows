@@ -28,7 +28,6 @@ namespace VATRP.App.Services
         private IAccountService _accountService;
         private LinphoneService _linphoneSipService;
         private WebClient _webClient;
-        private bool _initialized;
         #endregion
 
         #region Event
@@ -99,7 +98,6 @@ namespace VATRP.App.Services
 
         public bool Initialize()
         {
-            _initialized = true;
             _webClient = new WebClient();
             _webClient.DownloadStringCompleted += CredentialsReceived;
 
@@ -282,6 +280,7 @@ namespace VATRP.App.Services
 
             LinphoneSipService.UpdateNetworkingParameters(App.CurrentAccount);
             ApplyAVPFChanges();
+            ApplyDtmfOnSIPInfoChanges();
             ApplyVideoSizeChanges();
             return true;
         }
@@ -324,6 +323,13 @@ namespace VATRP.App.Services
             }
 #endif
             LinphoneSipService.SetAVPFMode(mode);
+        }
+
+        internal void ApplyDtmfOnSIPInfoChanges()
+        {
+            bool val = this.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.DTMF_SIP_INFO, false);
+            LinphoneSipService.SendDtmfAsSipInfo(val);
         }
 
         internal void ApplyVideoSizeChanges()
