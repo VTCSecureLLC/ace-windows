@@ -8,6 +8,9 @@
         Ringing,
         EarlyMedia,
         Connected,
+        StreamsRunning,
+        RemoteUpdated,
+        RemotePaused,
         Closed,
         Error
     }

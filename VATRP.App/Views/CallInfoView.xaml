@@ -1,0 +1,75 @@
+﻿<model:VATRPWindow x:Class="VATRP.App.Views.CallInfoView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:model="clr-namespace:VATRP.App.Model"
+        xmlns:converters="clr-namespace:VATRP.App.Converters"
+        Title="Call Technical Info" Height="400" Width="400" 
+                   Activated="Window_Activated" 
+                   Closing="Window_Closing" 
+                   StateChanged="Window_StateChanged" 
+                   LocationChanged="Window_LocationChanged" 
+                   SourceInitialized="Window_Initialized"
+                   Unloaded="Window_Unloaded">
+    <Window.Resources>
+        <converters:CallQualityConverter x:Key="cqc"/>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Grid.Column="0" Margin="3" TextAlignment="Right" Text="Audio Codec:"/>
+        <TextBlock Grid.Row="0" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=AudioCodec}"/>
+        <!-- -->
+        <TextBlock Grid.Row="1" Grid.Column="0" Margin="3" TextAlignment="Right" Text="Video Codec:"/>
+        <TextBlock Grid.Row="1" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=VideoCodec}"/>
+        <!-- -->
+        <TextBlock Grid.Row="2" Grid.Column="0" Margin="3" TextAlignment="Right" Text="SIP Port:"/>
+        <TextBlock Grid.Row="2" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=SipPort}"/>
+        <!-- -->
+        <TextBlock Grid.Row="3" Grid.Column="0" Margin="3" TextAlignment="Right" Text="RTP Port:"/>
+        <TextBlock Grid.Row="3" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=RtpPort}"/>
+        <!-- -->
+        <TextBlock Grid.Row="4" Grid.Column="0" Margin="3" TextAlignment="Right" Text="Sending Video Resolution:"/>
+        <TextBlock Grid.Row="4" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=SendingVideoResolution}"/>
+        <!-- -->
+        <TextBlock Grid.Row="5" Grid.Column="0" Margin="3" TextAlignment="Right" Text="Receiving Video Resolution:"/>
+        <TextBlock Grid.Row="5" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=ReceivingVideoResolution}"/>
+        <!-- -->
+        <TextBlock Grid.Row="6" Grid.Column="0" Margin="3" TextAlignment="Right" Text="Sending FPS:"/>
+        <TextBlock Grid.Row="6" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=SendingFPS, StringFormat={}{0:0.##}}"/>
+        <!-- -->
+        <TextBlock Grid.Row="7" Grid.Column="0" Margin="3" TextAlignment="Right" Text="Receiving FPS:"/>
+        <TextBlock Grid.Row="7" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=ReceivingFPS, StringFormat={}{0:0.##}}"/>
+        <!-- -->
+        <TextBlock Grid.Row="8" Grid.Column="0" Margin="3" TextAlignment="Right" Text="Upload Bandwidth:"/>
+        <TextBlock Grid.Row="8" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=UploadBandwidth}"/>
+        <!-- -->
+        <TextBlock Grid.Row="9" Grid.Column="0" Margin="3" TextAlignment="Right" Text="Download Bandwidth:"/>
+        <TextBlock Grid.Row="9" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=DownloadBandwidth}"/>
+        <!-- -->
+        <TextBlock Grid.Row="10" Grid.Column="0" Margin="3" TextAlignment="Right" Text="ICE Setup:"/>
+        <TextBlock Grid.Row="10" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=IceSetup}"/>
+        <!-- -->
+        <TextBlock Grid.Row="11" Grid.Column="0" Margin="3" TextAlignment="Right" Text="Media Encryption:"/>
+        <TextBlock Grid.Row="11" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=MediaEncryption}"/>
+        <!-- -->
+        <TextBlock Grid.Row="12" Grid.Column="0" Margin="3" TextAlignment="Right" Text="Call Quality:"/>
+        <TextBlock Grid.Row="12" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=CallQuality, Converter={StaticResource cqc}}"/>
+    </Grid>
+</model:VATRPWindow>

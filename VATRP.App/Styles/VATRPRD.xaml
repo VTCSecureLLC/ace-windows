@@ -57,6 +57,12 @@
     <SolidColorBrush x:Key="RecentsPageHeaderBg" Color ="#FFDBDBDB"/>
     <SolidColorBrush x:Key="RecentsPageSearchHintFont" Color ="#FFDBDBDB"/>
     <SolidColorBrush x:Key="RecentsPageSearchTextboxFont" Color ="#FF000000"/>
+
+    <SolidColorBrush x:Key="KeyPageButtonNormalFont" Color ="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="KeyPageButtonPressedFont" Color ="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="KeyPageButtonNormalBg" Color ="#FF9d9d9d"/>
+    <SolidColorBrush x:Key="KeyPageButtonPressedBg" Color ="#FF7b7b7b"/>
+    <SolidColorBrush x:Key="KeyPageBg" Color ="#FF9d9d9d"/>
     
     <Style x:Key="VATRPTextStyle" TargetType="TextBlock">
         <Setter Property="Foreground" Value="#ff000000" />
@@ -165,30 +171,9 @@
     </Style>
     
     <!--Region button sound-->
-    <Style x:Key="ButtonSound0" TargetType="{x:Type Button}" BasedOn="{StaticResource DialpadHover}">
+    <Style x:Key="KeypadButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource DialpadHover}">
     </Style>
-    <Style x:Key="ButtonSound1" TargetType="{x:Type Button}" BasedOn="{StaticResource DialpadHover}">
-    </Style>
-    <Style x:Key="ButtonSound2" TargetType="{x:Type Button}" BasedOn="{StaticResource DialpadHover}">
-    </Style>
-    <Style x:Key="ButtonSound3" TargetType="{x:Type Button}" BasedOn="{StaticResource DialpadHover}">
-    </Style>
-    <Style x:Key="ButtonSound4" TargetType="{x:Type Button}" BasedOn="{StaticResource DialpadHover}">
-    </Style>
-    <Style x:Key="ButtonSound5" TargetType="{x:Type Button}" BasedOn="{StaticResource DialpadHover}">
-    </Style>
-    <Style x:Key="ButtonSound6" TargetType="{x:Type Button}" BasedOn="{StaticResource DialpadHover}">
-    </Style>
-    <Style x:Key="ButtonSound7" TargetType="{x:Type Button}" BasedOn="{StaticResource DialpadHover}">
-    </Style>
-    <Style x:Key="ButtonSound8" TargetType="{x:Type Button}" BasedOn="{StaticResource DialpadHover}">
-    </Style>
-    <Style x:Key="ButtonSound9" TargetType="{x:Type Button}" BasedOn="{StaticResource DialpadHover}">
-    </Style>
-    <Style x:Key="ButtonSoundAstx" TargetType="{x:Type Button}" BasedOn="{StaticResource DialpadHover}">
-    </Style>
-    <Style x:Key="ButtonSoundVandak" TargetType="{x:Type Button}" BasedOn="{StaticResource DialpadHover}">
-    </Style>
+   
 
     <!---->
         

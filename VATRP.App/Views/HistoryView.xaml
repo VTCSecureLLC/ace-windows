@@ -9,6 +9,7 @@
                    Closing="Window_Closing" 
                    StateChanged="Window_StateChanged" 
                    LocationChanged="Window_LocationChanged" 
+                   SourceInitialized="Window_Initialized"
                    Unloaded="Window_Unloaded" Icon="/ACE;component/Resources/recents.png">
         <TabControl x:Name="CallsTab" HorizontalAlignment="Stretch" Margin="1" Grid.Row="0" VerticalAlignment="Stretch" SelectionChanged="CallsTab_SelectionChanged" >
             <TabItem Header="All Calls" >

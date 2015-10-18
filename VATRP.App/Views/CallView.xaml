@@ -10,6 +10,7 @@
                    Unloaded="OnUnloaded"
                    Loaded="OnLoaded"
                    SizeChanged="OnSizeChanged" 
+                   SourceInitialized="Window_Initialized"
                    IsVisibleChanged="OnVisibilityChanged" Icon="/ACE;component/Resources/cameraview.png" >
     <Grid>
     </Grid>

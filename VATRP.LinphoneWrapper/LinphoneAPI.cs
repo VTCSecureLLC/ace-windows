@@ -15,10 +15,14 @@ namespace VATRP.LinphoneWrapper
         public const int LC_SIP_TRANSPORT_DISABLED = 0; // Disable a sip transport
 
         public const int LINPHONE_FIND_PAYLOAD_IGNORE_RATE = -1;
-            // Wildcard value used by #linphone_core_find_payload_type to ignore rate in search algorithm
+        // Wildcard value used by #linphone_core_find_payload_type to ignore rate in search algorithm
 
         public const int LINPHONE_FIND_PAYLOAD_IGNORE_CHANNELS = -1;
-            // Wildcard value used by #linphone_core_find_payload_type to ignore channel in search algorithm
+        // Wildcard value used by #linphone_core_find_payload_type to ignore channel in search algorithm
+
+        public static int LINPHONE_CALL_STATS_AUDIO = 0;
+        public static int LINPHONE_CALL_STATS_VIDEO = 1;
+        public static int LINPHONE_CALL_STATS_TEXT = 2;
 
         #endregion
 
@@ -75,6 +79,9 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_call_params_enable_video(IntPtr cp, bool enabled);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_call_params_video_enabled(IntPtr cp);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_call_params_enable_early_media_sending(IntPtr cp, bool enabled);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -108,10 +115,28 @@ namespace VATRP.LinphoneWrapper
         public static extern int linphone_proxy_config_done(IntPtr config);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern float linphone_call_get_current_quality(IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern float linphone_call_get_average_quality(IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_call_get_remote_address_as_string(IntPtr call);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern	int linphone_core_set_media_encryption(IntPtr lc, LinphoneMediaEncryption menc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern LinphoneMediaEncryption linphone_core_get_media_encryption(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_core_is_media_encryption_mandatory(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_core_accept_call_with_params(IntPtr lc, IntPtr call, IntPtr callparams);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_decline_call(IntPtr lc, IntPtr call, LinphoneReason reason);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_call_start_recording(IntPtr call);
@@ -136,6 +161,12 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_set_record_file(IntPtr lc, string file);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_play_dtmf(IntPtr lc, char dtmf, int duration_ms);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_stop_dtmf(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_use_files(IntPtr lc, bool yesno);
@@ -991,6 +1022,86 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool linphone_core_check_payload_type_usability(IntPtr lc, IntPtr pt);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_call_send_dtmf(IntPtr lc, char dtmf);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_call_send_dtmfs(IntPtr call, string dtmfs);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_call_cancel_dtmfs(IntPtr call);
+
+        #region Call Info
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_call_params_get_media_encryption(IntPtr cp);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_call_params_get_privacy(IntPtr cp);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern float linphone_call_params_get_received_framerate(IntPtr cp);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern MSVideoSizeDef linphone_call_params_get_received_video_size(IntPtr cp);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_params_get_rtp_profile(IntPtr cp);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern float linphone_call_params_get_sent_framerate(IntPtr cp);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern MSVideoSizeDef linphone_call_params_get_sent_video_size(IntPtr cp);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_params_get_used_audio_codec(IntPtr cp);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_params_get_used_video_codec(IntPtr cp);
+
+        #endregion
+
+        #region Call Statistics
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_get_audio_stats(IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_get_video_stats(IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern float linphone_call_stats_get_sender_loss_rate(IntPtr stats);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern float linphone_call_stats_get_receiver_loss_rate(IntPtr stats);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern float linphone_call_stats_get_sender_interarrival_jitter(IntPtr stats, IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern float linphone_call_stats_get_receiver_interarrival_jitter(IntPtr stats, IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_stats_get_rtp_stats(IntPtr stats);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern UInt64 linphone_call_stats_get_late_packets_cumulative_number(IntPtr stats, IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern float linphone_call_stats_get_download_bandwidth(IntPtr stats);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern float linphone_call_stats_get_upload_bandwidth(IntPtr stats);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_call_stats_get_ice_state(IntPtr stats);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_call_stats_get_upnp_state(IntPtr stats);
+
+        #endregion
 
         #endregion
 

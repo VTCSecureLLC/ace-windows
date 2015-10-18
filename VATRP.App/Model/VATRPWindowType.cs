@@ -15,6 +15,8 @@ namespace VATRP.App.Model
         MESSAGE_VIEW,
         RECENTS_VIEW,
         SELF_VIEW,
-        SETTINGS_VIEW
+        SETTINGS_VIEW,
+        KEYPAD_VIEW,
+        CALL_INFO_VIEW
     }
 }

@@ -7,8 +7,6 @@
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="300" Loaded="OnLoaded">
     <UserControl.Resources>
-        <converters:LengthToVisibilityConverter x:Key="lvc" />
-
         <Style x:Key="EntryFieldStyle" TargetType="Grid" >
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="VerticalAlignment" Value="Center" />
