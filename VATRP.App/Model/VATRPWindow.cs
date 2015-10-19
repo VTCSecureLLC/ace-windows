@@ -198,6 +198,11 @@ namespace VATRP.App.Model
                     return Configuration.ConfSection.SETTINGS_WINDOW;
                 case VATRPWindowType.REMOTE_VIDEO_VIEW:
                     return Configuration.ConfSection.REMOTE_VIDEO_VIEW;
+                case VATRPWindowType.KEYPAD_VIEW:
+                    return Configuration.ConfSection.KEYPAD_WINDOW;
+                case VATRPWindowType.CALL_INFO_VIEW:
+                    return Configuration.ConfSection.CALLINFO_WINDOW;
+
                 default:
                     throw new ArgumentOutOfRangeException("wndType");
             }
@@ -225,6 +230,10 @@ namespace VATRP.App.Model
                     return new Point() { X = 100, Y = 400 };
                 case VATRPWindowType.REMOTE_VIDEO_VIEW:
                     return new Point() { X = 100, Y = 400 };
+                case VATRPWindowType.KEYPAD_VIEW:
+                    return new Point() { X = 100, Y = 400 };
+                case VATRPWindowType.CALL_INFO_VIEW:
+                    return new Point() { X = 200, Y = 500 };
                 default:
                     throw new ArgumentOutOfRangeException("wndType");
             }
