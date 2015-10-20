@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Text;
 using VATRP.LinphoneWrapper.Enums;
 using VATRP.LinphoneWrapper.Structs;
 
@@ -9,6 +8,7 @@ namespace VATRP.LinphoneWrapper
     public static class LinphoneAPI
     {
         public const string DllName = "linphone.dll";
+
         #region Constants
 
         public const int LC_SIP_TRANSPORT_RANDOM = -1; // Randomly chose a sip port for this transport
@@ -95,6 +95,13 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_call_params_destroy(IntPtr cp);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_update_call(IntPtr lc, IntPtr call, IntPtr cp);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_accept_call_update(IntPtr lc, IntPtr call, IntPtr cp);
+
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_core_terminate_call(IntPtr lc, IntPtr call);
@@ -327,21 +334,6 @@ namespace VATRP.LinphoneWrapper
         public static extern bool linphone_core_echo_limiter_enabled(IntPtr lc);
 
 /**
- * @deprecated Use #linphone_core_enable_mic instead.
-**/
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_core_mute_mic(IntPtr lc, bool muted);
-
-/**
- * Get mic state.
- * @deprecated Use #linphone_core_mic_enabled instead
-**/
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_is_mic_muted(IntPtr lc);
-
-/**
  * Enable or disable the microphone.
  * @param[in] lc #LinphoneCore object
  * @param[in] enable TRUE to enable the microphone, FALSE to disable it.
@@ -377,32 +369,6 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_set_video_preset(IntPtr lc, string preset);
-
-/**
- * Enables video globally.
- *
- * This function does not have any effect during calls. It just indicates LinphoneCore to
- * initiate future calls with video or not. The two boolean parameters indicate in which
- * direction video is enabled. Setting both to false disables video entirely.
- *
- * @param lc The LinphoneCore object
- * @param vcap_enabled indicates whether video capture is enabled
- * @param display_enabled indicates whether video display should be shown
- * @ingroup media_parameters
- * @deprecated Use #linphone_core_enable_video_capture and #linphone_core_enable_video_display instead.
-**/
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_core_enable_video(IntPtr lc, bool vcap_enabled, bool display_enabled);
-
-/**
- * Returns TRUE if video is enabled, FALSE otherwise.
- * @ingroup media_parameters
- * @deprecated Use #linphone_core_video_capture_enabled and #linphone_core_video_display_enabled instead.
-**/
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_video_enabled(IntPtr lc);
 
 /**
  * Enable or disable video capture.
@@ -769,6 +735,9 @@ namespace VATRP.LinphoneWrapper
         public static extern IntPtr linphone_call_get_current_params(IntPtr call);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_params_copy(IntPtr cp);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_call_get_remote_params(IntPtr call);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -1100,6 +1069,639 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_call_stats_get_upnp_state(IntPtr stats);
+
+        #endregion
+
+        #region RTT
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_call_params_enable_realtime_text(IntPtr cp, bool yesno);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_call_params_realtime_text_enabled(IntPtr cp);
+
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_chat_database_path(IntPtr lc, string path);
+
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_chat_room(IntPtr lc, IntPtr addr);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_chat_room_from_uri(IntPtr lc, string to);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_delete_chat_room(IntPtr lc, IntPtr cr);
+
+/**
+ * Unconditionally disable incoming chat messages.
+ * @param lc the core
+ * @param deny_reason the deny reason (#LinphoneReasonNone has no effect).
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_disable_chat(IntPtr lc, LinphoneReason deny_reason);
+
+/**
+ * Enable reception of incoming chat messages.
+ * By default it is enabled but it can be disabled with linphone_core_disable_chat().
+ * @param lc the core
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_enable_chat(IntPtr lc);
+
+/**
+ * Returns whether chat is enabled.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_core_chat_enabled(IntPtr lc);
+
+/**
+ * Create a message attached to a dedicated chat room;
+ * @param cr the chat room.
+ * @param message text message, NULL if absent.
+ * @return a new #LinphoneChatMessage
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_room_create_message(IntPtr cr, string message);
+
+/**
+ * Create a message attached to a dedicated chat room;
+ * @param cr the chat room.
+ * @param message text message, NULL if absent.
+ * @param external_body_url the URL given in external body or NULL.
+ * @param state the LinphoneChatMessage.State of the message.
+ * @param time the time_t at which the message has been received/sent.
+ * @param is_read TRUE if the message should be flagged as read, FALSE otherwise.
+ * @param is_incoming TRUE if the message has been received, FALSE otherwise.
+ * @return a new #LinphoneChatMessage
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_room_create_message_2(IntPtr cr, string message,
+            string external_body_url, LinphoneChatMessageState state, uint time, bool is_read, bool is_incoming);
+
+/**
+ * Acquire a reference to the chat room.
+ * @param[in] cr The chat room.
+ * @return The same chat room.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_room_ref(IntPtr cr);
+
+/**
+ * Release reference to the chat room.
+ * @param[in] cr The chat room.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_room_unref(IntPtr cr);
+
+/**
+ * Retrieve the user pointer associated with the chat room.
+ * @param[in] cr The chat room.
+ * @return The user pointer associated with the chat room.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_room_get_user_data(IntPtr cr);
+
+/**
+ * Assign a user pointer to the chat room.
+ * @param[in] cr The chat room.
+ * @param[in] ud The user pointer to associate with the chat room.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_room_set_user_data(IntPtr cr, IntPtr ud);
+
+        /**
+ * Create a message attached to a dedicated chat room with a particular content.
+ * Use #linphone_chat_room_send_message to initiate the transfer
+ * @param cr the chat room.
+ * @param initial_content #LinphoneContent initial content. #LinphoneCoreVTable.file_transfer_send is invoked later to notify file transfer progress and collect next chunk of the message if #LinphoneContent.data is NULL.
+ * @return a new #LinphoneChatMessage
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_room_create_file_transfer_message(IntPtr cr, IntPtr initial_content);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_room_get_peer_address(IntPtr cr);
+
+
+/**
+ * Send a message to peer member of this chat room.
+ * @param[in] cr LinphoneChatRoom object
+ * @param[in] msg LinphoneChatMessage object
+ * The state of the message sending will be notified via the callbacks defined in the LinphoneChatMessageCbs object that can be obtained
+ * by calling linphone_chat_message_get_callbacks().
+ * The LinphoneChatMessage reference is transfered to the function and thus doesn't need to be unref'd by the application.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_room_send_chat_message(IntPtr cr, IntPtr msg);
+
+/**
+ * Mark all messages of the conversation as read
+ * @param[in] cr The #LinphoneChatRoom object corresponding to the conversation.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_room_mark_as_read(IntPtr cr);
+
+/**
+ * Delete a message from the chat room history.
+ * @param[in] cr The #LinphoneChatRoom object corresponding to the conversation.
+ * @param[in] msg The #LinphoneChatMessage object to remove.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_room_delete_message(IntPtr cr, IntPtr msg);
+
+/**
+ * Delete all messages from the history
+ * @param[in] cr The #LinphoneChatRoom object corresponding to the conversation.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_room_delete_history(IntPtr cr);
+
+/**
+ * Gets the number of messages in a chat room.
+ * @param[in] cr The #LinphoneChatRoom object corresponding to the conversation for which size has to be computed
+ * @return the number of messages.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_chat_room_get_history_size(IntPtr cr);
+
+/**
+ * Gets nb_message most recent messages from cr chat room, sorted from oldest to most recent.
+ * @param[in] cr The #LinphoneChatRoom object corresponding to the conversation for which messages should be retrieved
+ * @param[in] nb_message Number of message to retrieve. 0 means everything.
+ * @return \mslist{LinphoneChatMessage}
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr  linphone_chat_room_get_history(IntPtr cr, int nb_message);
+
+/**
+ * Gets the partial list of messages in the given range, sorted from oldest to most recent.
+ * @param[in] cr The #LinphoneChatRoom object corresponding to the conversation for which messages should be retrieved
+ * @param[in] begin The first message of the range to be retrieved. History most recent message has index 0.
+ * @param[in] end The last message of the range to be retrieved. History oldest message has index of history size - 1 (use #linphone_chat_room_get_history_size to retrieve history size)
+ * @return \mslist{LinphoneChatMessage}
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_room_get_history_range(IntPtr cr, int begin, int end);
+
+/**
+ * Notifies the destination of the chat message being composed that the user is typing a new message.
+ * @param[in] cr The #LinphoneChatRoom object corresponding to the conversation for which a new message is being typed.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_room_compose(IntPtr cr);
+
+/**
+ * Tells whether the remote is currently composing a message.
+ * @param[in] cr The "LinphoneChatRoom object corresponding to the conversation.
+ * @return TRUE if the remote is currently composing a message, FALSE otherwise.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_chat_room_is_remote_composing(IntPtr cr);
+
+/**
+ * Gets the number of unread messages in the chatroom.
+ * @param[in] cr The "LinphoneChatRoom object corresponding to the conversation.
+ * @return the number of unread messages.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_chat_room_get_unread_messages_count(IntPtr cr);
+
+/**
+ * Returns back pointer to LinphoneCore object.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_room_get_core(IntPtr cr);
+
+/**
+ * When realtime text is enabled #linphone_call_params_realtime_text_enabled, #LinphoneCoreIsComposingReceivedCb is call everytime a char is received from peer.
+ * At the end of remote typing a regular #LinphoneChatMessage is received with committed data from #LinphoneCoreMessageReceivedCb.
+ * @param[in] msg LinphoneChatMessage
+ * @returns  RFC 4103/T.140 char
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern uint linphone_chat_room_get_char(IntPtr cr);
+
+/**
+ * Returns an list of chat rooms
+ * @param[in] lc #LinphoneCore object
+ * @return \mslist{LinphoneChatRoom}
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] 
+        public static extern IntPtr linphone_core_get_chat_rooms(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern uint linphone_chat_message_store(IntPtr msg);
+
+/**
+ * Returns a #LinphoneChatMessageState as a string.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_message_state_to_string(LinphoneChatMessageState state);
+/**
+ * Get the state of the message
+ *@param message #LinphoneChatMessage obj
+ *@return #LinphoneChatMessageState
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern LinphoneChatMessageState linphone_chat_message_get_state(IntPtr message);
+
+/**
+ * Duplicate a LinphoneChatMessage
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_message_clone(IntPtr message);
+
+/**
+ * Acquire a reference to the chat message.
+ * @param msg the chat message
+ * @return the same chat message
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_message_ref(IntPtr msg);
+
+/**
+ * Release reference to the chat message.
+ * @param msg the chat message.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_message_unref(IntPtr msg);
+
+/**
+ * Destroys a LinphoneChatMessage.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_message_destroy(IntPtr msg);
+
+/**
+ * Set origin of the message
+ * @param[in] message #LinphoneChatMessage obj
+ * @param[in] from #LinphoneAddress origin of this message (copied)
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_message_set_from_address(IntPtr message, IntPtr addr);
+
+/**
+ * Get origin of the message
+ * @param[in] message #LinphoneChatMessage obj
+ * @return #LinphoneAddress
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_message_get_from_address(IntPtr message);
+
+/**
+ * Set destination of the message
+ * @param[in] message #LinphoneChatMessage obj
+ * @param[in] to #LinphoneAddress destination of this message (copied)
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_message_set_to_address(IntPtr message, IntPtr addr);
+
+/**
+ * Get destination of the message
+ * @param[in] message #LinphoneChatMessage obj
+ * @return #LinphoneAddress
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_message_get_to_address(IntPtr message);
+
+/**
+ * Linphone message can carry external body as defined by rfc2017
+ * @param message #LinphoneChatMessage
+ * @return external body url or NULL if not present.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern string linphone_chat_message_get_external_body_url(IntPtr message);
+
+/**
+ * Linphone message can carry external body as defined by rfc2017
+ *
+ * @param message a LinphoneChatMessage
+ * @param url ex: access-type=URL; URL="http://www.foo.com/file"
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_message_set_external_body_url(IntPtr message, string url);
+
+/**
+ * Get the file_transfer_information (used by call backs to recover informations during a rcs file transfer)
+ *
+ * @param message #LinphoneChatMessage
+ * @return a pointer to the LinphoneContent structure or NULL if not present.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_message_get_file_transfer_information(IntPtr message);
+
+/**
+ * Start the download of the file referenced in a LinphoneChatMessage from remote server.
+ * @param[in] message LinphoneChatMessage object.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_message_download_file(IntPtr message);
+
+/**
+ * Cancel an ongoing file transfer attached to this message.(upload or download)
+ * @param msg	#LinphoneChatMessage
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_message_cancel_file_transfer(IntPtr msg);
+
+/**
+ * Linphone message has an app-specific field that can store a text. The application might want
+ * to use it for keeping data over restarts, like thumbnail image path.
+ * @param message #LinphoneChatMessage
+ * @return the application-specific data or NULL if none has been stored.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern string linphone_chat_message_get_appdata(IntPtr message);
+
+/**
+ * Linphone message has an app-specific field that can store a text. The application might want
+ * to use it for keeping data over restarts, like thumbnail image path.
+ *
+ * Invoking this function will attempt to update the message storage to reflect the change if it is
+ * enabled.
+ *
+ * @param message #LinphoneChatMessage
+ * @param data the data to store into the message
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_message_set_appdata(IntPtr message, string data);
+
+/**
+ * Get text part of this message
+ * @return text or NULL if no text.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern string linphone_chat_message_get_text(IntPtr message);
+
+/**
+ * Get the time the message was sent.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern uint linphone_chat_message_get_time(IntPtr message);
+
+/**
+ * Returns the chatroom this message belongs to.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_message_get_chat_room(IntPtr msg);
+
+/**
+ * get peer address \link linphone_core_get_chat_room() associated to \endlink this #LinphoneChatRoom
+ * @param cr #LinphoneChatRoom object
+ * @return #LinphoneAddress peer address
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_message_get_peer_address(IntPtr msg);
+
+/**
+ * Returns the origin address of a message if it was a outgoing message, or the destination address if it was an incoming message.
+ *@param message #LinphoneChatMessage obj
+ *@return #LinphoneAddress
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_message_get_local_address(IntPtr message);
+
+/**
+ * Add custom headers to the message.
+ * @param message the message
+ * @param header_name name of the header_name
+ * @param header_value header value
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_message_add_custom_header(IntPtr message, string header_name,
+            string header_value);
+
+/**
+ * Retrieve a custom header value given its name.
+ * @param message the message
+ * @param header_name header name searched
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern string linphone_chat_message_get_custom_header(IntPtr message, string header_name);
+
+/**
+ * Returns TRUE if the message has been read, otherwise returns FALSE.
+ * @param message the message
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_chat_message_is_read(IntPtr message);
+
+/**
+ * Returns TRUE if the message has been sent, returns FALSE if the message has been received.
+ * @param message the message
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_chat_message_is_outgoing(IntPtr message);
+
+/**
+ * Returns the id used to identify this message in the storage database
+ * @param message the message
+ * @return the id
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern uint linphone_chat_message_get_storage_id(IntPtr message);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern LinphoneReason linphone_chat_message_get_reason(IntPtr msg);
+
+/**
+ * Get full details about delivery error of a chat message.
+ * @param msg a LinphoneChatMessage
+ * @return a LinphoneErrorInfo describing the details.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_message_get_error_info(IntPtr msg);
+
+/**
+ * Set the path to the file to read from or write to during the file transfer.
+ * @param[in] msg LinphoneChatMessage object
+ * @param[in] filepath The path to the file to use for the file transfer.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_message_set_file_transfer_filepath(IntPtr msg, string filepath);
+
+/**
+ * Get the path to the file to read from or write to during the file transfer.
+ * @param[in] msg LinphoneChatMessage object
+ * @return The path to the file to use for the file transfer.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern string linphone_chat_message_get_file_transfer_filepath(IntPtr msg);
+        
+/**
+ * Fulfill a chat message char by char. Message linked to a Real Time Text Call send char in realtime following RFC 4103/T.140
+ * To commit a message, use #linphone_chat_room_send_message
+ * @param[in] msg LinphoneChatMessage
+ * @param[in] character T.140 char
+ * @returns 0 if succeed.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_chat_message_put_char(IntPtr msg, uint charater);
+
+/**
+ * get Curent Call associated to this chatroom if any
+ * To commit a message, use #linphone_chat_room_send_message
+ * @param[in] room LinphoneChatRomm
+ * @returns LinphoneCall or NULL.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_room_get_call(IntPtr room);
+
+
+/**
+ * Get the LinphoneChatMessageCbs object associated with the LinphoneChatMessage.
+ * @param[in] msg LinphoneChatMessage object
+ * @return The LinphoneChatMessageCbs object associated with the LinphoneChatMessage.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_message_get_callbacks(IntPtr msg);
+
+/**
+ * Acquire a reference to the LinphoneChatMessageCbs object.
+ * @param[in] cbs LinphoneChatMessageCbs object.
+ * @return The same LinphoneChatMessageCbs object.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_message_cbs_ref(IntPtr cbs);
+
+/**
+ * Release reference to the LinphoneChatMessageCbs object.
+ * @param[in] cbs LinphoneChatMessageCbs object.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_message_cbs_unref(IntPtr cbs);
+
+/**
+ * Assign a user pointer to the LinphoneChatMessageCbs object.
+ * @param[in] cbs LinphoneChatMessageCbs object.
+ * @param[in] ud The user pointer to associate with the LinphoneChatMessageCbs object.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_message_cbs_set_user_data(IntPtr cbs, IntPtr ud);
+
+/**
+ * Get the message state changed callback.
+ * @param[in] cbs LinphoneChatMessageCbs object.
+ * @return The current message state changed callback.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_message_cbs_get_msg_state_changed(IntPtr  cbs);
+/**
+ * Set the message state changed callback.
+ * @param[in] cbs LinphoneChatMessageCbs object.
+ * @param[in] cb The message state changed callback to be used.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_message_cbs_set_msg_state_changed(IntPtr cbs, IntPtr cb);
+
+/**
+ * Get the file transfer receive callback.
+ * @param[in] cbs LinphoneChatMessageCbs object.
+ * @return The current file transfer receive callback.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_message_cbs_get_file_transfer_recv(IntPtr  cbs);
+/**
+ * Set the file transfer receive callback.
+ * @param[in] cbs LinphoneChatMessageCbs object.
+ * @param[in] cb The file transfer receive callback to be used.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_message_cbs_set_file_transfer_recv(IntPtr cbs, IntPtr cb);
+
+/**
+ * Get the file transfer send callback.
+ * @param[in] cbs LinphoneChatMessageCbs object.
+ * @return The current file transfer send callback.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_message_cbs_get_file_transfer_send(IntPtr  cbs);
+/**
+ * Set the file transfer send callback.
+ * @param[in] cbs LinphoneChatMessageCbs object.
+ * @param[in] cb The file transfer send callback to be used.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_message_cbs_set_file_transfer_send(IntPtr cbs, IntPtr cb);
+
+/**
+ * Get the file transfer progress indication callback.
+ * @param[in] cbs LinphoneChatMessageCbs object.
+ * @return The current file transfer progress indication callback.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_chat_message_cbs_get_file_transfer_progress_indication(IntPtr  cbs);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_message_cbs_set_file_transfer_progress_indication(IntPtr cbs, IntPtr cb);
 
         #endregion
 
