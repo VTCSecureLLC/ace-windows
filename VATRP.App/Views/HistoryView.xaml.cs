@@ -147,8 +147,7 @@ namespace VATRP.App.Views
         {
             try
             {
-                var dn = ServiceManager.Instance.ContactService.GetContactDisplayName(callEvent.Contact,
-                    callEvent.RemoteParty);
+                var dn = callEvent.RemoteParty;
                 var callItem = new RecentsCallItem()
                 {
                     CallerName = dn,
@@ -180,8 +179,7 @@ namespace VATRP.App.Views
             {
                 try
                 {
-                    var dn = ServiceManager.Instance.ContactService.GetContactDisplayName(avCall.Contact,
-                        avCall.RemoteParty);
+                    var dn = avCall.RemoteParty;
                     var callItem = new RecentsCallItem()
                     {
                         CallerName = dn,
