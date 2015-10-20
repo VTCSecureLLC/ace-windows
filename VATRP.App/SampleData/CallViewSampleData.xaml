@@ -1,7 +1,6 @@
 ﻿<viewModel:CallViewModel
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:vm="clr-namespace:DialNeoApp.ViewModels"
     xmlns:viewModel="clr-namespace:VATRP.App.ViewModel"
     RemoteNumber="+1 899 678 985"
     RingCount="0"
