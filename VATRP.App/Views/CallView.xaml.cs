@@ -56,7 +56,7 @@ namespace VATRP.App.Views
 
         private void SwitchVideoPanel(bool bOn)
         {
-            var _linphone = ServiceManager.Instance.LinphoneSipService;
+            var _linphone = ServiceManager.Instance.LinphoneService;
             if (_linphone != null)
             {
                 if (!bOn)
