@@ -309,21 +309,21 @@
                 </ToggleButton.Style>
 
             </ToggleButton>
-            <ToggleButton x:Name="BtnCallView" Grid.Column="3" Click="btnVideoMail_Click" Width="60" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <ToggleButton x:Name="BtnMessageView" Grid.Column="3" Click="btnShowMessages" Width="60" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center">
                  <ToggleButton.Resources>
                     <Grid x:Key="SelfViewHover" >
                         <Rectangle Width="52" Height="52" Fill="{StaticResource NavigationBarPressedButtonBg}" Opacity="0.7"/>
-                        <Rectangle Width="26" Height="26" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{StaticResource NavigationBarPressedButtonFont}" Opacity="0.7">
+                        <Rectangle Width="32" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{StaticResource NavigationBarPressedButtonFont}" Opacity="0.7">
                             <Rectangle.OpacityMask>
-                                <ImageBrush ImageSource="Resources\cameraview.png" />
+                                <ImageBrush ImageSource="Resources\messages.png" />
                             </Rectangle.OpacityMask>
                         </Rectangle>
                     </Grid>
                     <Grid x:Key="SelfViewPressed">
                         <Rectangle Width="52" Height="52" Fill="{StaticResource NavigationBarPressedButtonBg}"/>
-                        <Rectangle Width="26" Height="26" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{StaticResource NavigationBarPressedButtonFont}">
+                        <Rectangle Width="32" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{StaticResource NavigationBarPressedButtonFont}">
                             <Rectangle.OpacityMask>
-                                <ImageBrush ImageSource="Resources\cameraview.png" />
+                                <ImageBrush ImageSource="Resources\messages.png" />
                             </Rectangle.OpacityMask>
                         </Rectangle>
                     </Grid>
@@ -331,9 +331,9 @@
                         <Rectangle Width="52" Height="52" Fill="{StaticResource NavigationBarNormalButtonBg}">
 
                         </Rectangle>
-                        <Rectangle Width="26" Height="26" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Center">
+                        <Rectangle Width="32" Height="24" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Center">
                             <Rectangle.OpacityMask>
-                                <ImageBrush ImageSource="Resources\cameraview.png" />
+                                <ImageBrush ImageSource="Resources\messages.png" />
                             </Rectangle.OpacityMask>
                         </Rectangle>
                     </Grid>
