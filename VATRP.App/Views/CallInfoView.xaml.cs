@@ -46,14 +46,11 @@ namespace VATRP.App.Views
                 return;
             }
 
-            ServiceManager.Instance.LinphoneSipService.LockCalls();
-            LinphoneCallStats audioStats = ServiceManager.Instance.LinphoneSipService.GetCallAudioStats(call.NativeCallPtr);
-            LinphoneCallStats videoStats = ServiceManager.Instance.LinphoneSipService.GetCallVideoStats(call.NativeCallPtr);
+            ServiceManager.Instance.LinphoneService.LockCalls();
+            LinphoneCallStats audioStats = ServiceManager.Instance.LinphoneService.GetCallAudioStats(call.NativeCallPtr);
+            LinphoneCallStats videoStats = ServiceManager.Instance.LinphoneService.GetCallVideoStats(call.NativeCallPtr);
 	
-            string audio_media_connectivity = "Direct or through server";
-            string video_media_connectivity = "Direct or through server";
-
-            IntPtr curparams = ServiceManager.Instance.LinphoneSipService.GetCallParams(call.NativeCallPtr);
+            IntPtr curparams = ServiceManager.Instance.LinphoneService.GetCallParams(call.NativeCallPtr);
             if (curparams != IntPtr.Zero)
             {
 
@@ -61,7 +58,7 @@ namespace VATRP.App.Views
                 if (model != null)
                 {
                     int sipPort, rtpPort;
-                    ServiceManager.Instance.LinphoneSipService.GetUsedPorts(out sipPort, out rtpPort);
+                    ServiceManager.Instance.LinphoneService.GetUsedPorts(out sipPort, out rtpPort);
 
                     model.SipPort = sipPort;
                     model.RtpPort = rtpPort;
@@ -75,8 +72,8 @@ namespace VATRP.App.Views
                     {
                         model.RtpProfile = Marshal.PtrToStringAnsi(rtp_profile);
                     }
-                    model.AudioCodec = ServiceManager.Instance.LinphoneSipService.GetUsedAudioCodec(curparams);
-                    var videoCodecName = ServiceManager.Instance.LinphoneSipService.GetUsedVideoCodec(curparams);
+                    model.AudioCodec = ServiceManager.Instance.LinphoneService.GetUsedAudioCodec(curparams);
+                    var videoCodecName = ServiceManager.Instance.LinphoneService.GetUsedVideoCodec(curparams);
 
                     if (has_video && !string.IsNullOrWhiteSpace(videoCodecName))
                     {
@@ -88,12 +85,12 @@ namespace VATRP.App.Views
                         model.DownloadBandwidth = string.Format("{0:0.##} kbit/s a {1:0.##} kbit/s v {2:0.##} kbit/s",
                             audioStats.download_bandwidth + videoStats.download_bandwidth, audioStats.download_bandwidth,
                             videoStats.download_bandwidth);
-                        model.ReceivingFPS = ServiceManager.Instance.LinphoneSipService.GetFrameRate(curparams, false);
-                        model.SendingFPS = ServiceManager.Instance.LinphoneSipService.GetFrameRate(curparams, true);
-                        var vs = ServiceManager.Instance.LinphoneSipService.GetVideoSize(curparams, false);
+                        model.ReceivingFPS = ServiceManager.Instance.LinphoneService.GetFrameRate(curparams, false);
+                        model.SendingFPS = ServiceManager.Instance.LinphoneService.GetFrameRate(curparams, true);
+                        var vs = ServiceManager.Instance.LinphoneService.GetVideoSize(curparams, false);
                         model.ReceivingVideoResolution = string.Format("{0}({1}x{2})", "", vs.width, vs.height);
 
-                        vs = ServiceManager.Instance.LinphoneSipService.GetVideoSize(curparams, true);
+                        vs = ServiceManager.Instance.LinphoneService.GetVideoSize(curparams, true);
                         model.SendingVideoResolution = string.Format("{0}({1}x{2})", "", vs.width, vs.height);
 
                     }
@@ -129,7 +126,7 @@ namespace VATRP.App.Views
                             break;
                     }
 
-                    switch (ServiceManager.Instance.LinphoneSipService.GetMediaEncryption(curparams))
+                    switch (ServiceManager.Instance.LinphoneService.GetMediaEncryption(curparams))
                     {
                         case LinphoneMediaEncryption.LinphoneMediaEncryptionNone:
                             model.MediaEncryption = "None";
@@ -147,7 +144,7 @@ namespace VATRP.App.Views
                     model.CallQuality = LinphoneAPI.linphone_call_get_current_quality(call.NativeCallPtr);
                 }
             }
-            ServiceManager.Instance.LinphoneSipService.UnlockCalls();
+            ServiceManager.Instance.LinphoneService.UnlockCalls();
         }
 
         private void ResetCallInfoView()
