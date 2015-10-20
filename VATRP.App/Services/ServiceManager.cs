@@ -22,17 +22,19 @@ namespace VATRP.App.Services
         private string _applicationDataPath;
         private static ServiceManager _singleton;
         private IConfigurationService _configurationService;
-        private IContactService _contactService;
+        private IContactsService _contactService;
+        private IChatService _chatService;
         private IHistoryService _historyService;
         private ISoundService _soundService;
         private IAccountService _accountService;
-        private LinphoneService _linphoneSipService;
+        private LinphoneService _LinphoneService;
         private WebClient _webClient;
         #endregion
 
         #region Event
         public delegate void NewAccountRegisteredDelegate(string accountId);
         public event NewAccountRegisteredDelegate NewAccountRegisteredEvent;
+        private Core.Services.LinphoneService _linphoneService;
         #endregion
 
         public static ServiceManager Instance
@@ -65,9 +67,14 @@ namespace VATRP.App.Services
             get { return _configurationService ?? (_configurationService = new XmlConfigurationService(this, true)); }
         }
 
-        public override IContactService ContactService
+        public override IContactsService ContactService
         {
             get { return _contactService ?? (_contactService = new ContactService(this)); }
+        }
+        
+        public override IChatService ChatService
+        {
+            get { return _chatService ?? (_chatService = new ChatsService(this)); }
         }
 
         public override IHistoryService HistoryService
@@ -85,17 +92,22 @@ namespace VATRP.App.Services
             get { return _accountService ?? (_accountService = new AccountService(this)); }
         }
 
+        public override ILinphoneService LinphoneService
+        {
+            get { return _linphoneService ?? (_linphoneService = new LinphoneService(this)); }
+        }
+
         public override System.Windows.Threading.Dispatcher Dispatcher
         {
             get { return Application.Current.Dispatcher; }
         }
  #endregion
 
-        public LinphoneService LinphoneSipService
-        {
-            get { return _linphoneSipService ?? (_linphoneSipService = new LinphoneService(this)); }
-        }
+        #region Properties
 
+        public IntPtr ActiveCallPtr { get; set; }
+
+        #endregion
         public bool Initialize()
         {
             _webClient = new WebClient();
@@ -123,14 +135,14 @@ namespace VATRP.App.Services
                 return false;
             }
 
-            LinphoneSipService.LinphoneConfig.ProxyHost = string.IsNullOrEmpty(App.CurrentAccount.ProxyHostname) ?
+            this.LinphoneService.LinphoneConfig.ProxyHost = string.IsNullOrEmpty(App.CurrentAccount.ProxyHostname) ?
                 Configuration.LINPHONE_SIP_SERVER : App.CurrentAccount.ProxyHostname;
-            LinphoneSipService.LinphoneConfig.ProxyPort = App.CurrentAccount.ProxyPort;
-            LinphoneSipService.LinphoneConfig.UserAgent = ConfigurationService.Get(Configuration.ConfSection.LINPHONE, Configuration.ConfEntry.LINPHONE_USERAGENT,
+            LinphoneService.LinphoneConfig.ProxyPort = App.CurrentAccount.ProxyPort;
+            LinphoneService.LinphoneConfig.UserAgent = ConfigurationService.Get(Configuration.ConfSection.LINPHONE, Configuration.ConfEntry.LINPHONE_USERAGENT,
                     Configuration.LINPHONE_USERAGENT);
-            LinphoneSipService.LinphoneConfig.Username = App.CurrentAccount.RegistrationUser;
-            LinphoneSipService.LinphoneConfig.DisplayName = App.CurrentAccount.DisplayName;
-            LinphoneSipService.LinphoneConfig.Password = App.CurrentAccount.RegistrationPassword;
+            LinphoneService.LinphoneConfig.Username = App.CurrentAccount.RegistrationUser;
+            LinphoneService.LinphoneConfig.DisplayName = App.CurrentAccount.DisplayName;
+            LinphoneService.LinphoneConfig.Password = App.CurrentAccount.RegistrationPassword;
             string[] transportList = {"UDP", "TCP", "DTLS", "TLS"};
 
             if (transportList.All(s => App.CurrentAccount.Transport != s))
@@ -139,14 +151,14 @@ namespace VATRP.App.Services
                 AccountService.Save();
             }
 
-            LinphoneSipService.LinphoneConfig.Transport = App.CurrentAccount.Transport;
-            LinphoneSipService.LinphoneConfig.EnableSTUN = App.CurrentAccount.EnubleSTUN;
-            LinphoneSipService.LinphoneConfig.STUNAddress = App.CurrentAccount.STUNAddress;
-            LinphoneSipService.LinphoneConfig.STUNPort = App.CurrentAccount.STUNPort;
+            LinphoneService.LinphoneConfig.Transport = App.CurrentAccount.Transport;
+            LinphoneService.LinphoneConfig.EnableSTUN = App.CurrentAccount.EnubleSTUN;
+            LinphoneService.LinphoneConfig.STUNAddress = App.CurrentAccount.STUNAddress;
+            LinphoneService.LinphoneConfig.STUNPort = App.CurrentAccount.STUNPort;
 #if !DEBUG
-            LinphoneSipService.LinphoneConfig.EnableAVPF = true;
+            LinphoneService.LinphoneConfig.EnableAVPF = true;
 #else
-            LinphoneSipService.LinphoneConfig.EnableAVPF = App.CurrentAccount.EnableAVPF;
+            LinphoneService.LinphoneConfig.EnableAVPF = App.CurrentAccount.EnableAVPF;
 #endif
             LOG.Info("Linphone service configured for account: " + App.CurrentAccount.RegistrationUser);
             return true;
@@ -157,8 +169,8 @@ namespace VATRP.App.Services
             LOG.Info("Stopping services...");
             HistoryService.Stop();
             ConfigurationService.Stop();
-            LinphoneSipService.Unregister(true);
-            LinphoneSipService.Stop();
+            LinphoneService.Unregister(true);
+            LinphoneService.Stop();
             AccountService.Stop();
         }
 
@@ -228,8 +240,8 @@ namespace VATRP.App.Services
 
             if (UpdateLinphoneConfig())
             {
-                if (LinphoneSipService.Start(true))
-                    LinphoneSipService.Register();
+                if (LinphoneService.Start(true))
+                    LinphoneService.Register();
             }
         }
 
@@ -265,20 +277,20 @@ namespace VATRP.App.Services
         {
             if (App.CurrentAccount == null)
                 return false;
-            if (!LinphoneSipService.Start(true))
+            if (!LinphoneService.Start(true))
                 return false;
             
             if (App.CurrentAccount.AudioCodecsList.Count > 0)
-                LinphoneSipService.UpdateNativeCodecs(App.CurrentAccount, CodecType.Audio);
+                LinphoneService.UpdateNativeCodecs(App.CurrentAccount, CodecType.Audio);
             else
-                LinphoneSipService.FillCodecsList(App.CurrentAccount, CodecType.Audio);
+                LinphoneService.FillCodecsList(App.CurrentAccount, CodecType.Audio);
 
             if (App.CurrentAccount.VideoCodecsList.Count > 0)
-                LinphoneSipService.UpdateNativeCodecs(App.CurrentAccount, CodecType.Video);
+                LinphoneService.UpdateNativeCodecs(App.CurrentAccount, CodecType.Video);
             else
-                LinphoneSipService.FillCodecsList(App.CurrentAccount, CodecType.Video);
+                LinphoneService.FillCodecsList(App.CurrentAccount, CodecType.Video);
 
-            LinphoneSipService.UpdateNetworkingParameters(App.CurrentAccount);
+            LinphoneService.UpdateNetworkingParameters(App.CurrentAccount);
             ApplyAVPFChanges();
             ApplyDtmfOnSIPInfoChanges();
             ApplyVideoSizeChanges();
@@ -287,7 +299,7 @@ namespace VATRP.App.Services
 
         internal void Register()
         {
-            LinphoneSipService.Register();
+            LinphoneService.Register();
         }
 
         internal void RegisterNewAccount(string id)
@@ -298,10 +310,10 @@ namespace VATRP.App.Services
 
         internal void ApplyCodecChanges()
         {
-            var retValue = LinphoneSipService.UpdateNativeCodecs(App.CurrentAccount,
+            var retValue = LinphoneService.UpdateNativeCodecs(App.CurrentAccount,
                 CodecType.Audio);
 
-            retValue &= LinphoneSipService.UpdateNativeCodecs(App.CurrentAccount, CodecType.Video);
+            retValue &= LinphoneService.UpdateNativeCodecs(App.CurrentAccount, CodecType.Video);
 
             if (!retValue)
                 SaveAccountSettings();
@@ -309,7 +321,7 @@ namespace VATRP.App.Services
 
         internal void ApplyNetworkingChanges()
         {
-            LinphoneSipService.UpdateNetworkingParameters(App.CurrentAccount);
+            LinphoneService.UpdateNetworkingParameters(App.CurrentAccount);
         }
 
         internal void ApplyAVPFChanges()
@@ -322,19 +334,37 @@ namespace VATRP.App.Services
                 mode = LinphoneAVPFMode.LinphoneAVPFDisabled;
             }
 #endif
-            LinphoneSipService.SetAVPFMode(mode);
+            LinphoneService.SetAVPFMode(mode);
         }
 
         internal void ApplyDtmfOnSIPInfoChanges()
         {
             bool val = this.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.DTMF_SIP_INFO, false);
-            LinphoneSipService.SendDtmfAsSipInfo(val);
+            LinphoneService.SendDtmfAsSipInfo(val);
         }
 
         internal void ApplyVideoSizeChanges()
         {
-            LinphoneSipService.UpdateVideoSize(App.CurrentAccount);
+            LinphoneService.UpdateVideoSize(App.CurrentAccount);
+        }
+
+        internal void UpdateLoggedinContact()
+        {
+            VATRPContact contact = this.ContactService.FindLoggedInContact();
+            if (contact == null)
+            {
+                contact = new VATRPContact(new ContactID(App.CurrentAccount.Username, IntPtr.Zero));
+                contact.IsLoggedIn = true;
+                contact.Fullname = App.CurrentAccount.Username;
+                contact.DisplayName = App.CurrentAccount.DisplayName;
+                contact.Initials = contact.Fullname.Substring(0, 1).ToUpper();
+                this.ContactService.AddContact(contact, string.Empty);
+            }
+            else
+            {
+                contact.IsLoggedIn = false;
+            }
         }
     }
 }
