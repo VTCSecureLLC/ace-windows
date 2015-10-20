@@ -6,11 +6,10 @@ using VATRP.LinphoneWrapper.Enums;
 
 namespace VATRP.Core.Model
 {
-    public class VATRPCall
+    public class VATRPCall 
     {
         private LinphoneCallDir callDirection = LinphoneCallDir.LinphoneCallIncoming;
         private VATRPCallState callState = VATRPCallState.None;
-        private readonly IntPtr nativeCallPtr = IntPtr.Zero;
         private CallParams _from;
         private CallParams _to ;
         private string _displayName;
@@ -32,12 +31,17 @@ namespace VATRP.Core.Model
 
         public System.IntPtr NativeCallPtr
         {
-            get { return nativeCallPtr; }
+            get; set;
+        }
+
+        public VATRPCall()
+        {
+            this.NativeCallPtr = IntPtr.Zero;
         }
 
         public VATRPCall(IntPtr callPtr)
         {
-            nativeCallPtr = callPtr;
+            this.NativeCallPtr = callPtr;
         }
 
         public VATRPCallState CallState
@@ -74,6 +78,8 @@ namespace VATRP.Core.Model
             set { _to = value; }
         }
 
+        public CallParams RemoteParty { get; set; }
+		
         public string DisplayName
         {
             get
