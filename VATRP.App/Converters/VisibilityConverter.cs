@@ -44,4 +44,90 @@ namespace VATRP.App.Converters
             throw new NotImplementedException();
         }
     }
+
+    public class BoolToVisibilityConverter : IValueConverter
+    {
+        /// <summary>
+        /// FalseEquivalent (default : Visibility.Collapsed => see Constructor)
+        /// </summary>
+        public Visibility FalseEquivalent { get; set; }
+        /// <summary>
+        /// Define whether the opposite boolean value is crucial (default : false)
+        /// </summary>
+        public bool OppositeBooleanValue { get; set; }
+
+        public BoolToVisibilityConverter()
+        {
+            this.FalseEquivalent = Visibility.Collapsed;
+            this.OppositeBooleanValue = false;
+        }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo language)
+        {
+            if (value is bool && targetType == typeof(Visibility))
+            {
+                bool booleanValue = (bool)value ;
+
+                if (OppositeBooleanValue)
+                {
+                    booleanValue = !booleanValue;
+                }
+
+                return booleanValue ? Visibility.Visible : FalseEquivalent;
+            }
+
+            return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo language)
+        {
+            throw new NotImplementedException();
+        }
+
+    }
+
+    public class StringLengthToVisibilityConverter : System.Windows.Markup.MarkupExtension, IValueConverter
+    {
+        /// <summary>
+        /// FalseEquivalent (default : Visibility.Collapsed => see Constructor)
+        /// </summary>
+        public Visibility FalseEquivalent { get; set; }
+        /// <summary>
+        /// Define whether the opposite boolean value is crucial (default : false)
+        /// </summary>
+        public bool OppositeBooleanValue { get; set; }
+
+        public StringLengthToVisibilityConverter()
+        {
+            this.FalseEquivalent = Visibility.Collapsed;
+            this.OppositeBooleanValue = false;
+        }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo language)
+        {
+            if (value is string && targetType == typeof(Visibility))
+            {
+                bool booleanValue = string.IsNullOrEmpty((string)value);
+
+                if (OppositeBooleanValue)
+                {
+                    booleanValue = !booleanValue;
+                }
+
+                return booleanValue ? Visibility.Visible : FalseEquivalent;
+            }
+
+            return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo language)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return this;
+        }
+    }
 }
