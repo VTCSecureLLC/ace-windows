@@ -1,17 +1,18 @@
 version: 0.0.{build}
 skip_tags: true
 install:
-- choco install -y InnoSetup
 - choco install -y nuget.commandline
 build_script:
 - nuget restore VATRP.sln
 - echo using System;namespace VATRP.App{ public partial class App {public static string HOCKEYAPP_ID = "%HOCKEYAPP_ID%";}} > VATRP.App/App.Constants.cs
 - set vatrpVersion=%APPVEYOR_BUILD_VERSION%
-- msbuild VATRP.sln /p:Configuration="Release"  /p:Targets="Build" /p:BuildInParallel=true /m
-- set PATH="C:\Program Files (x86)\Inno Setup 5";%PATH%
-- Call iscc Setup\vatrp_setup.iss
+- set vatrpConfiguration="Release"
+- msbuild VATRP.sln /p:Configuration=%vatrpConfiguration%  /p:Targets="Build" /p:BuildInParallel=true /m
+- Setup\WiX_Toolset_v3.10\Candle.exe -dVATRP.Version=%vatrpVersion% -dConfiguration=%vatrpConfiguration% -dOutDir=Setup\Out -dPlatform=x86 -dTargetDir=Setup\Out -dTargetExt=.msi -out Setup\obj\ -arch x86 -ext WixNetFxExtension.dll -ext WixUtilExtension.dll -ext WixUIExtension.dll ACE-Setup.wxs
+- Setup\WiX_Toolset_v3.10\Light.exe -out Setup\Out\ACE_Setup_%vatrpVersion%.msi -pdbout obj\ACE_Setup.wixpdb -cultures:null -ext WixNetFxExtension.dll -ext WixUtilExtension.dll -ext WixUIExtension.dll -contentsfile Setup\obj\ACE-Setup.wixproj.BindContentsFileListnull.txt -outputsfile Setup\obj\ACE-Setup.wixproj.BindOutputsFileListnull.txt -builtoutputsfile Setup\obj\ACE-Setup.wixproj.BindBuiltOutputsFileListnull.txt  Setup\obj\ACE-Setup.wixobj
+
 artifacts:
-- path: Setup\Out\*.exe
+- path: Setup\Out\*.msi
   name: Setup
 deploy:
 - provider: GitHub
