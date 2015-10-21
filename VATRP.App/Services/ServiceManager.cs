@@ -351,6 +351,8 @@ namespace VATRP.App.Services
 
         internal void UpdateLoggedinContact()
         {
+            if (App.CurrentAccount == null)
+                return;
             VATRPContact contact = this.ContactService.FindLoggedInContact();
             if (contact == null)
             {
