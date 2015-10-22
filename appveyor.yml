@@ -9,7 +9,7 @@ build_script:
 - set vatrpVersion=%APPVEYOR_BUILD_VERSION%
 - set vatrpConfiguration="Release"
 - msbuild VATRP.sln /p:Configuration=%vatrpConfiguration%  /p:Targets="Build" /p:BuildInParallel=true /m
-- set PATH="C:\Program Files (x86)\WiX Toolset v3.10";%PATH%
+- set PATH="C:\Program Files (x86)\WiX Toolset v3.10\bin";%PATH%
 - Candle -dVATRP.Version=%vatrpVersion% -dConfiguration=%vatrpConfiguration% -dOutDir=.\Setup\Out -dPlatform=x86 -dTargetDir=.\Setup\Out -dTargetExt=.msi -out .\Setup\obj\ -arch x86 -ext WixNetFxExtension.dll -ext WixUtilExtension.dll -ext WixUIExtension.dll .\Setup\ACE-Setup.wxs
 - Light -out .\Setup\Out\ACE_Setup_%vatrpVersion%.msi -pdbout .\Setup\obj\ACE_Setup.wixpdb -cultures:null -ext WixNetFxExtension.dll -ext WixUtilExtension.dll -ext WixUIExtension.dll -contentsfile .\Setup\obj\ACE-Setup.wixproj.BindContentsFileListnull.txt -outputsfile .\Setup\obj\ACE-Setup.wixproj.BindOutputsFileListnull.txt -builtoutputsfile .\Setup\obj\ACE-Setup.wixproj.BindBuiltOutputsFileListnull.txt  .\Setup\obj\ACE-Setup.wixobj
 - rd /S /Q .\Setup\obj
