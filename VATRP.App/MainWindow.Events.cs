@@ -10,6 +10,7 @@ using System.Windows.Media;
 using VATRP.App.Model;
 using VATRP.App.Services;
 using VATRP.App.Views;
+using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using VATRP.Core.Services;
 using VATRP.LinphoneWrapper;
@@ -34,7 +35,7 @@ namespace VATRP.App
             {
                 if (_remoteVideoView != null)
                 {
-                    ServiceManager.Instance.LinphoneSipService.SetVideoCallWindowHandle(IntPtr.Zero, true);
+                    ServiceManager.Instance.LinphoneService.SetVideoCallWindowHandle(IntPtr.Zero, true);
                     _remoteVideoView.DestroyOnClosing = true; // allow window to be closed
                     _remoteVideoView.Close();
                     _remoteVideoView = null;
@@ -52,14 +53,17 @@ namespace VATRP.App
                     videoTitle = !string.IsNullOrWhiteSpace(call.To.DisplayName)
                         ? string.Format("\"{0}\" {1}", call.To.DisplayName, call.To.Username)
                         : call.To.Username;
+                    call.RemoteParty = call.To;
                     if (_callView != null)
                        _callView.OnCallStateChanged(call);
+                    _messagingWindow.CreateConversation(call.To.Username);
                     break;
                 case VATRPCallState.InProgress:
                     videoTitle = !string.IsNullOrWhiteSpace(call.From.DisplayName)
                         ? string.Format("\"{0}\" {1}", call.From.DisplayName, call.From.Username)
                         : call.From.Username;
                     
+                    call.RemoteParty = call.From;
                     ServiceManager.Instance.SoundService.PlayRingTone();
                     if (_callView != null)
                         _callView.OnCallStateChanged(call);
@@ -69,11 +73,13 @@ namespace VATRP.App
                 case VATRPCallState.Ringing:
                     if (_callView != null)
                         _callView.OnCallStateChanged(call);
+                    call.RemoteParty = call.To;
                     ServiceManager.Instance.SoundService.PlayRingBackTone();
                     break;
                 case VATRPCallState.EarlyMedia:
                     break;
                 case VATRPCallState.Connected:
+                    _messagingWindow.CreateConversation(call.RemoteParty.Username);
                     if (_callView != null)
                         _callView.OnCallStateChanged(call);
                     _flashWindowHelper.StopFlashing();
@@ -87,7 +93,7 @@ namespace VATRP.App
                             {
                                 var wih = new WindowInteropHelper(window);
                                 IntPtr hWnd = wih.EnsureHandle();
-                                ServiceManager.Instance.LinphoneSipService.SetVideoPreviewWindowHandle(hWnd);
+                                ServiceManager.Instance.LinphoneService.SetVideoPreviewWindowHandle(hWnd);
                             }
                         }
                         else
@@ -113,7 +119,7 @@ namespace VATRP.App
                             var wih = new WindowInteropHelper(window);
 
                             IntPtr hWnd = wih.EnsureHandle();
-                            ServiceManager.Instance.LinphoneSipService.SetVideoCallWindowHandle(hWnd);
+                            ServiceManager.Instance.LinphoneService.SetVideoCallWindowHandle(hWnd);
                         }
                         _remoteVideoView.Show();
                     }
@@ -240,12 +246,15 @@ namespace VATRP.App
             NavPanel.Visibility = Visibility.Visible;
             StatusPanel.Visibility = Visibility.Visible;
 
+            ServiceManager.Instance.UpdateLoggedinContact();
+            
             if (ServiceManager.Instance.UpdateLinphoneConfig())
             {
                 if (ServiceManager.Instance.StartLinphoneService())
                     ServiceManager.Instance.Register();
             }
         }
+
         private void OnChildVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (App.AllowDestroyWindows)
@@ -258,8 +267,8 @@ namespace VATRP.App
                 case VATRPWindowType.CONTACT_VIEW:
                     BtnContacts.IsChecked = (bool) e.NewValue;
                     break;
-                case VATRPWindowType.SELF_VIEW:
-                    BtnCallView.IsChecked = (bool)e.NewValue;
+                case VATRPWindowType.MESSAGE_VIEW:
+                    BtnMessageView.IsChecked = (bool)e.NewValue;
                     break;
                 case VATRPWindowType.RECENTS_VIEW:
                     BtnRecents.IsChecked = (bool)e.NewValue;

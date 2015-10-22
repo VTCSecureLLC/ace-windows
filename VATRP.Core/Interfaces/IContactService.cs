@@ -1,11 +1,32 @@
-﻿namespace VATRP.Core.Interfaces
+﻿using System;
+using System.Collections.ObjectModel;
+using VATRP.Core.Events;
+using VATRP.Core.Model;
+
+namespace VATRP.Core.Interfaces
 {
-    public interface IContactService : IVATRPservice
+    public interface IContactsService : IVATRPservice
     {
+        void AddContact(VATRPContact contact, string group);
 
-        string GetContactDisplayName(Model.VATRPContact contact, string useraname);
+        void RemoveContact(string id, bool isUserAction);
+        VATRPContact FindContact(ContactID contactID);
 
-        Model.VATRPContact FindContactByUsername(string useraname);
-        Model.VATRPContact FindContactId(string id);
+        VATRPContact FindLoggedInContact();
+
+        
+
+        event EventHandler<ContactEventArgs> ContactAdded;
+
+        event EventHandler<EventArgs> ContactsChanged;
+
+        event EventHandler<ContactRemovedEventArgs> ContactRemoved;
+
+        event EventHandler<ContactStatusChangedEventArgs> ContactStatusChanged;
+
+        event EventHandler<EventArgs> GroupsChanged;
+
+        ObservableCollection<VATRPContact> Contacts { get; }
+
     }
 }

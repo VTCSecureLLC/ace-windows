@@ -33,7 +33,7 @@ namespace VATRP.App.Views
 
         private void SwitchPreviewPanel(bool bOn)
         {
-            var _linphone = ServiceManager.Instance.LinphoneSipService;
+            var _linphone = ServiceManager.Instance.LinphoneService;
             if (_linphone == null) 
                 return;
             if (!bOn)

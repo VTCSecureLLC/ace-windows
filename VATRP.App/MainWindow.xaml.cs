@@ -38,11 +38,12 @@ namespace VATRP.App
         private readonly CallProcessingBox _callView = new CallProcessingBox();
         private readonly HistoryView _historyView = new HistoryView();
         private readonly KeyPadCtrl _keypadCtrl = new KeyPadCtrl();
+        private readonly MediaTextWindow _messagingWindow = new MediaTextWindow();
         private CallView _remoteVideoView;
         private SelfView _selfView = new SelfView();
         private readonly SettingsView _settingsView = new SettingsView();
         private readonly CallInfoView _callInfoView = new CallInfoView();
-        private readonly LinphoneService _linphoneService;
+        private readonly ILinphoneService _linphoneService;
         private FlashWindowHelper _flashWindowHelper = new FlashWindowHelper();
         #endregion
 
@@ -50,13 +51,12 @@ namespace VATRP.App
         public static LinphoneRegistrationState RegistrationState { get; set; }
         #endregion
 
-        public event HistoryView.MakeCallRequestedDelegate MakeCallRequestedEvent;
 
         public MainWindow() : base(VATRPWindowType.MAIN_VIEW)
         {
             DataContext = this;
             ServiceManager.Instance.Start();
-            _linphoneService = ServiceManager.Instance.LinphoneSipService;
+            _linphoneService = ServiceManager.Instance.LinphoneService;
             _linphoneService.RegistrationStateChangedEvent += OnRegistrationChanged;
             _linphoneService.CallStateChangedEvent += OnCallStateChanged;
             _linphoneService.GlobalStateChangedEvent += OnGlobalStateChanged;
@@ -95,9 +95,9 @@ namespace VATRP.App
             ToggleWindow(_dialpadBox);
         }
 
-        private void btnVideoMail_Click(object sender, RoutedEventArgs e)
+        private void btnShowMessages(object sender, RoutedEventArgs e)
         {
-            ToggleWindow(_selfView);
+            ToggleWindow(_messagingWindow);
         }
 
         private void btnSettings_Click(object sender, RoutedEventArgs e)
@@ -272,7 +272,7 @@ namespace VATRP.App
             _contactBox.IsVisibleChanged += OnChildVisibilityChanged;
             _dialpadBox.IsVisibleChanged += OnChildVisibilityChanged;
             _settingsView.IsVisibleChanged += OnChildVisibilityChanged;
-            _selfView.IsVisibleChanged += OnChildVisibilityChanged;
+            _messagingWindow.IsVisibleChanged += OnChildVisibilityChanged;
             _settingsView.SettingsSavedEvent += OnSettingsSaved;
             _keypadCtrl.KeypadClicked += OnKeypadClicked;
             _dialpadBox.KeypadClicked += OnDialpadClicked;
@@ -295,6 +295,8 @@ namespace VATRP.App
                 }
             }
             
+            ServiceManager.Instance.UpdateLoggedinContact();
+
             if (hideNavigation)
             {
                 NavPanel.Visibility = Visibility.Collapsed;
@@ -306,8 +308,8 @@ namespace VATRP.App
         {
             switch (wndType)
             {
-                case VATRPWindowType.CALL_VIEW:
-                    this.BtnCallView.IsChecked = false;
+                case VATRPWindowType.MESSAGE_VIEW:
+                    this.BtnMessageView.IsChecked = false;
                     break;
                 case VATRPWindowType.CONTACT_VIEW:
                     this.BtnContacts.IsChecked = false;
