@@ -11,7 +11,12 @@ namespace VATRP.Core.Services
             get;
         }
 
-        public abstract IContactService ContactService
+        public abstract IContactsService ContactService
+        {
+            get;
+        }
+
+        public abstract IChatService ChatService
         {
             get;
         }
@@ -27,6 +32,11 @@ namespace VATRP.Core.Services
         }
 
         public abstract IAccountService AccountService
+        {
+            get;
+        }
+        
+        public abstract ILinphoneService LinphoneService
         {
             get;
         }

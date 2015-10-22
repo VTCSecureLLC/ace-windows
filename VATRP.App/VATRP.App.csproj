@@ -97,11 +97,18 @@
     <Compile Include="App.Constants.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\BoolToBubbleAlignmentConverter.cs" />
+    <Compile Include="Converters\BoolToBubbleColorConverter.cs" />
+    <Compile Include="Converters\BoolToBubbleCornerConverter.cs" />
+    <Compile Include="Converters\BoolToBubbleMarginConverter.cs" />
     <Compile Include="Converters\CallDurationConverter.cs" />
+    <Compile Include="Converters\ContactSelectionToBrushConverter.cs" />
     <Compile Include="Converters\CallQualityConverter.cs" />
     <Compile Include="Converters\CallStateToStringConverter.cs" />
     <Compile Include="Converters\VisibilityConverter.cs" />
     <Compile Include="ViewModel\CallInfoViewModel.cs" />
+    <Compile Include="ViewModel\ContactViewModel.cs" />
+    <Compile Include="ViewModel\MessagingViewModel.cs" />
     <Compile Include="Views\CallInfoView.xaml.cs">
       <DependentUpon>CallInfoView.xaml</DependentUpon>
     </Compile>
@@ -174,9 +181,12 @@
     <Compile Include="Views\SettingsView.xaml.cs">
       <DependentUpon>SettingsView.xaml</DependentUpon>
     </Compile>
-    <DesignDataWithDesignTimeCreatableTypes Include="SampleData\CallViewSampleData.xaml">
+    <DesignDataWithDesignTimeCreatableTypes Include="SampleData\MessageViewSampleData.xaml">
       <SubType>Designer</SubType>
     </DesignDataWithDesignTimeCreatableTypes>
+    <Page Include="SampleData\CallViewSampleData.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\CallInfoView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -344,7 +354,9 @@
   <ItemGroup>
     <Resource Include="Resources\keypad.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\messages.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /b "$(SolutionDir)thirdparties\liblinphone\*.dll" "$(TargetDir)"

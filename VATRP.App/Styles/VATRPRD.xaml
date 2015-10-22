@@ -63,7 +63,44 @@
     <SolidColorBrush x:Key="KeyPageButtonNormalBg" Color ="#FF9d9d9d"/>
     <SolidColorBrush x:Key="KeyPageButtonPressedBg" Color ="#FF7b7b7b"/>
     <SolidColorBrush x:Key="KeyPageBg" Color ="#FF9d9d9d"/>
-    
+
+    <SolidColorBrush x:Key="ChatPageTitleFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="ChatPageMainBg" Color ="#FFE2E2E2"/>
+    <SolidColorBrush x:Key="ChatPageControlBg" Color ="#FFe3e3e3"/>
+    <SolidColorBrush x:Key="ChatPageContactNameFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="ChatPageSentBubbleBg" Color ="#FFEDEDED"/>
+    <SolidColorBrush x:Key="ChatPageSentBubbleBorder" Color ="#FFEDEDED"/>
+    <SolidColorBrush x:Key="ChatPageBubbleTextFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="ChatPageBubbleCostFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="ChatPageBubbleDateFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="ChatPageBubbleSuccessFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="ChatPageBubbleFailureFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="ChatPageReceivedBubbleBg" Color ="#FFF9D1C8"/>
+    <SolidColorBrush x:Key="ChatPagereceivedBubbleBorder" Color ="#FFD5C0BB"/>
+    <SolidColorBrush x:Key="ChatPageComposeBubbleBg" Color ="#FFE3E3E3"/>
+    <SolidColorBrush x:Key="ChatPageComposeBubbleBorder" Color ="#FFE3E3E3"/>
+    <SolidColorBrush x:Key="ChatPageComposeTextboxBg" Color ="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="ChatPageComposeTextboxFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="ChatPageComposeHintFont" Color ="#FFCCCCCC"/>
+    <SolidColorBrush x:Key="ChatPageComposeHintBg" Color ="#FFCACACA"/>
+    <SolidColorBrush x:Key="ChatPageNormalSelContactFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="ChatPagePressedSelContactFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="ChatPageSelContactNameFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="ChatPageSelContactNumberFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="ChatPageCounterFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="ChatPageNormalSelContactBg" Color ="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="ChatPagePressedSelContactBg" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="ChatPagePressedToLabelFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="ChatPageBackButtonNormalBg" Color ="#FF545454"/>
+    <SolidColorBrush x:Key="ChatPageBackButtonPressedBg" Color ="#FFFF5F00"/>
+    <SolidColorBrush x:Key="ChatPageSendButtonNormalBg" Color ="#FFffffff"/>
+    <SolidColorBrush x:Key="ChatPageSendButtonNormalFont" Color ="#FF828282"/>
+    <SolidColorBrush x:Key="ChatPageSendButtonPressedFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="ChatPageSendButtonPressedBg" Color ="#FFffffff"/>
+    <SolidColorBrush x:Key="ChatPageSelectContactTextFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="ChatPageSelectContactTextBorder" Color ="#FFc6c6c6"/>
+    <SolidColorBrush x:Key="ChatPageSendButtonBorder" Color ="#FFc6c6c6"/>
+
     <Style x:Key="VATRPTextStyle" TargetType="TextBlock">
         <Setter Property="Foreground" Value="#ff000000" />
     </Style>
@@ -269,6 +306,11 @@
         </Setter>
        </Style>
     
+    <Style x:Key="HintEntryFieldStyle" TargetType="Grid" >
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="3" />
+        </Style>
   
     <Style x:Key="VATRPBox" TargetType="CheckBox">
                <Setter Property="SnapsToDevicePixels" Value="False" />

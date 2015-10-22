@@ -133,8 +133,6 @@ namespace VATRP.Core.Services
                         {
                             continue;
                         }
-                        if (!reader.IsDBNull(7))
-                            callevent.Contact = manager.ContactService.FindContactId(reader["contact"].ToString());
                         if (!reader.IsDBNull(8))
                             callevent.Codec = reader["codec"].ToString();
                         _allCallsEvents.Add(callevent);
@@ -180,7 +178,7 @@ namespace VATRP.Core.Services
                     insertSQL.Parameters.AddWithValue("@log_uts", callEvent.StartTime.Ticks);
                     insertSQL.Parameters.AddWithValue("@duration", callEvent.Duration);
                     insertSQL.Parameters.AddWithValue("@call_state", callEvent.Status.ToString());
-                    insertSQL.Parameters.AddWithValue("@contact", callEvent.Contact != null ? callEvent.Contact.ContactID : null);
+                    insertSQL.Parameters.AddWithValue("@contact", callEvent.Contact != null ? callEvent.Contact.ID : null);
                     insertSQL.Parameters.AddWithValue("@codec", callEvent.Codec);
 
 

@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using VATRP.Core.Services;
 using VATRP.LinphoneWrapper.Enums;
@@ -10,7 +11,7 @@ namespace VATRP.App.Services
     {
         internal static void MakeAudioCall(string remoteUri)
         {
-            LinphoneService _linphoneService = ServiceManager.Instance.LinphoneSipService;
+            ILinphoneService _linphoneService = ServiceManager.Instance.LinphoneService;
             
 
             if (MainWindow.RegistrationState != LinphoneRegistrationState.LinphoneRegistrationOk)
@@ -31,7 +32,7 @@ namespace VATRP.App.Services
 
         internal static void MakeVideoCall(string remoteUri)
         {
-            LinphoneService _linphoneService = ServiceManager.Instance.LinphoneSipService;
+            ILinphoneService _linphoneService = ServiceManager.Instance.LinphoneService;
 
             if (!_linphoneService.CanMakeVideoCall())
             {

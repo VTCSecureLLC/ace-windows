@@ -3,156 +3,452 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Xml.Serialization;
+using VATRP.Core.Enums;
 
 namespace VATRP.Core.Model
 {
-    public class VATRPContact : IComparable<VATRPContact>, INotifyPropertyChanged, ICloneable
+    public sealed class VATRPContact : ContactID, IEquatable<VATRPContact>, IComparable, IComparable<VATRPContact>
     {
-        #region Members
         private string _displayName;
-        private string _firstName;
-        private string _lastName;
-        private string _imageurl;
-        private string _contactId;
-        #endregion
+        private string _email;
+        private string _firstname;
+        private string _fullname;
+        private string _initials;
+        private bool _isEnableOnlineNotifications;
+        private bool _isFavorite;
+        private string _homePhone;
+        private bool _isConnected;
+        private bool _isLoggedIn;
+        private string _lastname;
+        private DateTime? _lastSeen;
+        private string _middlename;
+        private string _mobilePhone;
+        private string _gender;
+        private bool _onlineNotification;
+        private UserStatus _status;
+        private ushort _unreadMsgCount;
 
-        #region Methods
+        private List<int> _groupIdList;
+
         public VATRPContact()
         {
-            FavoriteNumbers = new List<PhoneNumber>();
+            this.Init();
         }
 
-        public static string GetFirstNameKey(VATRPContact contact)
+        public VATRPContact(ContactID contactID)
         {
-            char key = char.ToLower(contact.DisplayName[0]);
-
-            if (key < 'a' || key > 'z')
+            this.Init();
+            if (contactID != null)
             {
-                key = '#';
+                base.ID = contactID.ID;
+                ID = contactID.ID;
             }
-
-            return key.ToString();
         }
-        #endregion
 
-        #region Properties
-        public List<PhoneNumber> FavoriteNumbers { get; set; }
-
-        // Think about Clone() when you add new fields
-
-        public string FullName
+        public void AddGroup(string _groupName)
         {
-            get
+            if (!string.IsNullOrEmpty(_groupName) && !this.IsGroupExistInGroupList(_groupName))
             {
-                if (string.IsNullOrEmpty(_lastName))
-                    return _firstName;
-
-                return string.Format("{0} {1}", _firstName, _lastName);
+                lock (this.GroupList)
+                {
+                    this.GroupList.Add(_groupName);
+                }
             }
+        }
+
+        public void AddGroupsToList(List<string> _groupList)
+        {
+            if ((_groupList != null) && (_groupList.Count > 0))
+            {
+                foreach (string str in _groupList)
+                {
+                    if (!string.IsNullOrEmpty(str))
+                    {
+                        this.AddGroup(str);
+                    }
+                }
+            }
+        }
+
+        public int CompareTo(VATRPContact other)
+        {
+            return base.ID.CompareTo(other.ID);
+        }
+
+        public bool Equals(VATRPContact other)
+        {
+            if (object.ReferenceEquals(other, null))
+            {
+                return false;
+            }
+            return (object.ReferenceEquals(this, other) || (base.ID == other.ID));
+        }
+
+        public override bool Equals(object obj)
+        {
+            return ((obj is VATRPContact) && this.Equals(obj as VATRPContact));
+        }
+
+        public override int GetHashCode()
+        {
+            return base.ID.GetHashCode();
+        }
+
+        private void Init()
+        {
+            this.Status = UserStatus.Offline;
+            base.ID = string.Empty;
+            this.DisplayName = string.Empty;
+            this.Group = string.Empty;
+            this.OnlineNotification = false;
+            this.GroupList = new List<string>();
+            this.UnreadMsgCount = 0;
+            this.IsUpdated = true;
+            this.IsStatusUpdated = true;
+        }
+
+        public bool IsGroupExistInGroupList(string _groupName)
+        {
+            lock (this.GroupList)
+            {
+                using (List<string>.Enumerator enumerator = this.GroupList.GetEnumerator())
+                {
+                    while (enumerator.MoveNext())
+                    {
+                        if (enumerator.Current != null && enumerator.Current.CompareTo(_groupName) == 0)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        public void RemoveGroupFromGroupList(string _groupName)
+        {
+            lock (this.GroupList)
+            {
+                this.GroupList.Remove(_groupName);
+            }
+        }
+        public static bool operator ==(VATRPContact one, VATRPContact two)
+        {
+            return (object.ReferenceEquals(one, two) || one.Equals(two));
+        }
+
+        public static bool operator !=(VATRPContact one, VATRPContact two)
+        {
+            return !(one == two);
+        }
+
+        int IComparable.CompareTo(object obj)
+        {
+            if (!(obj is VATRPContact))
+            {
+                throw new ArgumentException("Argument is not a ContactElement", "obj");
+            }
+            return this.CompareTo((VATRPContact)obj);
         }
 
         public string DisplayName
         {
             get
             {
-                return _displayName;
+                return this._displayName;
             }
-
             set
             {
-                this._displayName = value;
-                this.OnPropertyChanged("DisplayName");
+                if (this._displayName != value)
+                {
+                    this._displayName = value;
+                    OnPropertyChanged("ContactName_ForUI");
+                }
             }
         }
 
-        public string FirstName
+        public string Email
         {
             get
             {
-                return _firstName;
+                return this._email;
             }
-
             set
             {
-                this._firstName = value;
-                this.OnPropertyChanged("FirstName");
+                this._email = value;
+                OnPropertyChanged("Email");
             }
         }
 
-        public string LastName
+
+        public string Firstname
         {
             get
             {
-                return _lastName;
+                return this._firstname;
             }
-
             set
             {
-                this._lastName = value;
-                this.OnPropertyChanged("LastName");
+                this._firstname = value;
+                OnPropertyChanged("Firstname");
             }
         }
-        public string ContactID
+
+        public string Fullname
         {
             get
             {
-                return _contactId;
+                return this._fullname;
             }
-        } 
-        public string ImageUrl
-        {
-            get { return _imageurl; }
             set
             {
-                _imageurl = value;
-                this.OnPropertyChanged("ImageURL");
+                char[] delimiters = {' '};
+                string[] splitStrings = value.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+                this._fullname = value;
+                var initialString = string.Empty;
+                for (int i = 0; i < splitStrings.Length; i++)
+                {
+                    initialString += splitStrings[i].Substring(0, 1).ToUpper();
+                }
+
+                Initials = initialString;
+                OnPropertyChanged("Fullname");
             }
         }
-        #endregion
 
-        #region ICloneable
-
-        public object Clone()
+        public string Gender
         {
-            var clone = new VATRPContact
+            get
             {
-                _contactId = _contactId,
-                _displayName = _displayName,
-                _imageurl = _imageurl,
-                _firstName = _firstName,
-                _lastName = _lastName
-            };
-            clone.FavoriteNumbers.AddRange(this.FavoriteNumbers);
-            return clone;
-        }
-
-        #endregion
-
-        #region IComparable
-
-        public int CompareTo(VATRPContact other)
-        {
-            if (other == null)
-            {
-                throw new ArgumentNullException("other");
+                return this._gender;
             }
-            return string.Compare(this.DisplayName, other.DisplayName);
+            set
+            {
+                this._gender = value;
+                OnPropertyChanged("Gender");
+            }
         }
 
-        #endregion
 
-        #region INotifyPropertyChanged
+        public string Group { get; set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+
+        public List<int> GroupIdList
+        {
+            get
+            {
+                if (_groupIdList == null)
+                    _groupIdList = new List<int>();
+                return _groupIdList;
+            }
+            set
+            {
+                _groupIdList = value;
+                OnPropertyChanged("GroupIdList");
+            }
+        }
+
+
+        public List<string> GroupList { get; set; }
+
+        public bool HasUnreadMsg
+        {
+            get
+            {
+                return (this.UnreadMsgCount > 0);
+            }
+        }
+
+        public string HomePhone
+        {
+            get
+            {
+                return this._homePhone;
+            }
+            set
+            {
+                this._homePhone = value;
+                OnPropertyChanged("HomePhone");
+            }
+        }
+        public string Initials
+        {
+            get
+            {
+                return this._initials;
+            }
+            set
+            {
+                this._initials = value;
+                OnPropertyChanged("Initials");
+            }
+        }
+
+        public bool IsConnected
+        {
+            get
+            {
+                return this._isConnected;
+            }
+            set
+            {
+                this._isConnected = value;
+                OnPropertyChanged("LastActivity");
+            }
+        }
+        public bool IsLoggedIn
+        {
+            get
+            {
+                return this._isLoggedIn;
+            }
+            set
+            {
+                this._isLoggedIn = value;
+                OnPropertyChanged("IsLoggedIn");
+            }
+        }
+        public bool IsEnableOnlineNotifications
+        {
+            get
+            {
+                return this._isEnableOnlineNotifications;
+            }
+            set
+            {
+                if (this._isEnableOnlineNotifications != value)
+                {
+                    this._isEnableOnlineNotifications = value;
+                    OnPropertyChanged("IsEnableOnlineNotifications");
+                }
+            }
+        }
+
+        public bool IsFavorite
+        {
+            get
+            {
+                return this._isFavorite;
+            }
+            set
+            {
+                if (this._isFavorite != value)
+                {
+                    this._isFavorite = value;
+                    OnPropertyChanged("IsFavorite");
+                }
+            }
+        }
+
+        public bool IsStatusUpdated { get; set; }
+
+
+        public bool IsUpdated { get; set; }
+
+        public string Lastname
+        {
+            get
+            {
+                return this._lastname;
+            }
+            set
+            {
+                this._lastname = value;
+                OnPropertyChanged("Lastname");
+            }
+        }
+
+
+        public DateTime? LastSeen
+        {
+            get
+            {
+                return this._lastSeen;
+            }
+            set
+            {
+                DateTime? lastSeen = this._lastSeen;
+                DateTime? curValue = value;
+                if ((lastSeen.HasValue != curValue.HasValue) || (lastSeen.HasValue && (lastSeen.GetValueOrDefault() != curValue.GetValueOrDefault())))
+                {
+                    this._lastSeen = value;
+                    OnPropertyChanged("LastSeen");
+                    OnPropertyChanged("LastActivity");
+                }
+            }
+        }
+
+        public string Middlename
+        {
+            get
+            {
+                return this._middlename;
+            }
+            set
+            {
+                this._middlename = value;
+                OnPropertyChanged("Middlename");
+            }
+        }
+
+        public string MobilePhone
+        {
+            get
+            {
+                return this._mobilePhone;
+            }
+            set
+            {
+                this._mobilePhone = value;
+                OnPropertyChanged("MobilePhone");
+            }
+        }
+
+        public bool OnlineNotification
+        {
+            get
+            {
+                return this._onlineNotification;
+            }
+            set
+            {
+                if (this._onlineNotification != value)
+                {
+                    this._onlineNotification = value;
+                    OnPropertyChanged("OnlineNotification");
+                }
+            }
+        }
         
-        protected void OnPropertyChanged(String propertyName)
+
+        public UserStatus Status
         {
-            if (this.PropertyChanged != null)
+            get
             {
-                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                return this._status;
+            }
+            set
+            {
+                if (this._status != value)
+                {
+                    this._status = value;
+                    OnPropertyChanged("Status");
+                }
             }
         }
-
-        #endregion
+        
+        public ushort UnreadMsgCount
+        {
+            get
+            {
+                return this._unreadMsgCount;
+            }
+            set
+            {
+                this._unreadMsgCount = value;
+                OnPropertyChanged("UnreadMsgCount");
+                OnPropertyChanged("HasUnreadMsg");
+            }
+        }
     }
 }

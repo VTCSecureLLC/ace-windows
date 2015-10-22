@@ -36,6 +36,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\LinphoneChatMessageState.cs" />
     <Compile Include="Enums\LinphoneReason.cs" />
     <Compile Include="Enums\LinphoneMediaEncryption.cs" />
     <Compile Include="Enums\LinphoneIceState.cs" />

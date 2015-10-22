@@ -53,4 +53,107 @@
                              Color="Transparent"/>
         </Style.Resources>
     </Style>
+
+
+    <Style x:Key = "MessagesListBox" TargetType="{x:Type ListBox}">
+        <Setter Property="Background" >
+            <Setter.Value>
+                <StaticResource ResourceKey="ChatPageControlBg"/>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="BorderBrush" Value="{StaticResource ListBorder}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ListBox}">
+                    <ControlTemplate.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="#FFf8f7f7"/>
+                    </ControlTemplate.Resources>
+                    <Border SnapsToDevicePixels="true" x:Name="Bd" 
+                            Background="{TemplateBinding Background}" 
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <ScrollViewer Focusable="false" Padding="{TemplateBinding Padding}" >
+                            <ItemsPresenter
+                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                        </ScrollViewer>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Background" 
+                                    TargetName="Bd" 
+                                    Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                        </Trigger>
+                        <Trigger Property="IsGrouping" Value="true">
+                            <Setter Property="ScrollViewer.CanContentScroll" Value="false"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MessageListItemStyle" TargetType="{x:Type ListBoxItem}">
+        <Style.Resources>
+            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"
+                             Color="Transparent"/>
+        </Style.Resources>
+    </Style>
+
+    <Style x:Key="SelectedMessageItemStyle" TargetType="{x:Type ListBoxItem}">
+        <Style.Resources>
+            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"
+                             Color="Transparent"/>
+            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightColorKey}"
+                             Color="Black"/>
+
+        </Style.Resources>
+    </Style>
+
+    <!-- Resource dictionary entries should be defined here. -->
+    <Style x:Key ="MessageItem" TargetType="{x:Type ListBoxItem}">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
+        <Setter Property="Foreground" Value="White"></Setter>
+        <Setter Property="Opacity" Value="1"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                    <ControlTemplate.Triggers>
+
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="ContentTemplate" Value="{StaticResource SelectedMessageItemStyle}" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Opacity" Value="0.7"></Setter>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <ColorAnimation Storyboard.TargetName="BorderBg" 
+                                                Storyboard.TargetProperty="Color"
+                                                To="#999999" Duration="0:0:0.1"></ColorAnimation>
+
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <ColorAnimation Storyboard.TargetName="BorderBg" Storyboard.TargetProperty="Color"
+        Duration="0:0:0.3">
+                                        </ColorAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

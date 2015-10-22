@@ -8,6 +8,7 @@ using log4net;
 using VATRP.App.Model;
 using VATRP.App.Services;
 using VATRP.App.ViewModel;
+using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using VATRP.Core.Services;
 using VATRP.LinphoneWrapper.Structs;
@@ -22,7 +23,7 @@ namespace VATRP.App.Views
     {
         #region Members
         private static readonly ILog LOG = LogManager.GetLogger(typeof(CallProcessingBox));
-        private LinphoneService _linphoneService;
+        private ILinphoneService _linphoneService;
         private VATRPCall _currentCall = null;
         private readonly Timer ringTimer;
         private readonly Timer autoAnswerTimer;
@@ -40,7 +41,7 @@ namespace VATRP.App.Views
         {
             DataContext = new CallViewModel();
             InitializeComponent();
-            _linphoneService = ServiceManager.Instance.LinphoneSipService;
+            _linphoneService = ServiceManager.Instance.LinphoneService;
             timerCall = new Timer
             {
                 Interval = 1000,
@@ -93,6 +94,7 @@ namespace VATRP.App.Views
         {
             bool stopAnimation = false;
             _currentCall = call;
+            ServiceManager.Instance.ActiveCallPtr = call.NativeCallPtr;
 
             var model = DataContext as CallViewModel;
             if (model == null)
@@ -247,6 +249,7 @@ namespace VATRP.App.Views
                 App.ActiveCallHistoryEvent = null;
             }
             ActiveCall = null;
+            ServiceManager.Instance.ActiveCallPtr = IntPtr.Zero;
         }
 
         private void StopAnimation()
@@ -427,7 +430,7 @@ namespace VATRP.App.Views
             if (subscribedForStats)
                 return;
             subscribedForStats = true;
-            ServiceManager.Instance.LinphoneSipService.CallStatisticsChangedEvent += OnCallStatisticsChanged;
+            ServiceManager.Instance.LinphoneService.CallStatisticsChangedEvent += OnCallStatisticsChanged;
         }
 
         public void UnsubscribeCallStaistics()
@@ -435,7 +438,7 @@ namespace VATRP.App.Views
             if (!subscribedForStats)
                 return;
             subscribedForStats = false;
-            ServiceManager.Instance.LinphoneSipService.CallStatisticsChangedEvent -= OnCallStatisticsChanged;
+            ServiceManager.Instance.LinphoneService.CallStatisticsChangedEvent -= OnCallStatisticsChanged;
         }
 
         private void OnCallStatisticsChanged(VATRPCall call, LinphoneCallStats stats)

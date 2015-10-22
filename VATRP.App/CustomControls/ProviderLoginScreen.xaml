@@ -6,14 +6,6 @@
              xmlns:converters="clr-namespace:VATRP.App.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="300" Loaded="OnLoaded">
-    <UserControl.Resources>
-        <Style x:Key="EntryFieldStyle" TargetType="Grid" >
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="Margin" Value="3" />
-        </Style>
-
-    </UserControl.Resources>
     <Grid>
         <StackPanel Orientation="Vertical" >
             <Label  Content="ACE" FontSize="28" FontWeight="Bold"  HorizontalAlignment="Center" Margin="0, 30,0, 0"/>
