@@ -27,14 +27,14 @@ namespace VATRP.App.Services
         private IHistoryService _historyService;
         private ISoundService _soundService;
         private IAccountService _accountService;
-        private LinphoneService _LinphoneService;
+        private ILinphoneService _linphoneService;
+
         private WebClient _webClient;
         #endregion
 
         #region Event
         public delegate void NewAccountRegisteredDelegate(string accountId);
         public event NewAccountRegisteredDelegate NewAccountRegisteredEvent;
-        private Core.Services.LinphoneService _linphoneService;
         #endregion
 
         public static ServiceManager Instance
