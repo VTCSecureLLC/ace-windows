@@ -49,7 +49,6 @@ namespace VATRP.Core.Services
 		private LinphoneCoreNotifyReceivedCb notify_received;
 	    private LinphoneCoreCallStatsUpdatedCb call_stats_updated;
         private LinphoneCoreIsComposingReceivedCb is_composing_received;
-	    private LinphoneCoreMessageReceivedCb rtt_message_received;
         #endregion
 
 		#region Delegates
