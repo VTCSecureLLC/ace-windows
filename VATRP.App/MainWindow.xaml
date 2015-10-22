@@ -63,7 +63,7 @@
                 <MenuItem Header="_Close Window"/>
                 <MenuItem Header="_Change"/>
                 <MenuItem Header="_My Account"/>
-                <MenuItem Header="_Sign Out"/>
+                <MenuItem Header="_Sign Out" Click="OnSignOutRequested"/>
                 
                 </MenuItem>
             <MenuItem x:Name="HelpItem" Header="_Help" >

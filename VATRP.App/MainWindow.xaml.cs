@@ -324,5 +324,29 @@ namespace VATRP.App
                     break;
             }
         }
+
+        private void OnSignOutRequested(object sender, RoutedEventArgs e)
+        {
+            if (App.CurrentAccount == null || signOutRequest)
+                return;
+            this.signOutRequest = true;
+            if (_callView.ActiveCall != null)
+            {
+                var r = MessageBox.Show("The active call will be terminated. Continue?", "ACE",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (r == MessageBoxResult.OK)
+                {
+                    _linphoneService.TerminateCall(_callView.ActiveCall.NativeCallPtr);
+                }
+                return;
+            }
+
+            if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk)
+            {
+                _linphoneService.Unregister(false);
+            }
+            
+        }
     }
 }
