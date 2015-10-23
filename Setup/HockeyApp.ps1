@@ -7,8 +7,8 @@ Get-ChildItem .\Setup\Out\*.msi | ForEach-Object {
   $msi=$_.FullName
 
   $id=$(& C:\ProgramData\Chocolatey\bin\curl -sLk `
-    -F "bundle_version=$env:APPVEYOR_BUILD_NUMBER"
-    -F "bundle_short_version=$env:APPVEYOR_BUILD_VERSION"
+    -F "bundle_version=$env:APPVEYOR_BUILD_NUMBER" `
+    -F "bundle_short_version=$env:APPVEYOR_BUILD_VERSION" `
     -F "notes=$APPVEYOR_REPO_COMMIT_MESSAGE" `
     -F "notes_type=1" `
     -F "status=2" `
