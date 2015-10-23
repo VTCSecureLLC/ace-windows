@@ -19,7 +19,7 @@
         </Grid.RowDefinitions>
         <Menu IsMainMenu="True" Height="27" HorizontalAlignment="Left" x:Name="WndMenu" VerticalAlignment="Top" Width="Auto" >
             <MenuItem x:Name="VATRPItem" Header="_ACE">
-                <MenuItem Header="_About US ACE"/>
+                
                 <MenuItem Header="_Preferences"/>
                 <MenuItem Header="_Provide ACE Feedback"/>
                 <MenuItem Header="_Check for Updates"/>
@@ -67,6 +67,7 @@
                 
                 </MenuItem>
             <MenuItem x:Name="HelpItem" Header="_Help" >
+                <MenuItem Header="_About ACE" Click="MenuItem_Click_1"/>
                 <MenuItem Header="_Search"/>
                 <MenuItem Header="_Learn about"/>
                 <MenuItem Header="_Go to Support"/>
