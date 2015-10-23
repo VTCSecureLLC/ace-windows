@@ -1,9 +1,9 @@
 if ($env:APPVEYOR_REPO_BRANCH -ne "master")
 {
- Write-Host 'Skip "HockeyApp" deployment as no branches matched (build branch is "'$env:APPVEYOR_REPO_BRANCH'", deploy on branches "master")'
+ Write-Host 'Skip "HockeyApp" deployment as no branches matched (build branch is "'"$env:APPVEYOR_REPO_BRANCH"'", deploy on branches "master")'
 }
 
-Get-ChildItem C:\Setup\Out\*.msi | ForEach-Object {
+Get-ChildItem .\Out\*.msi | ForEach-Object {
   $msi=$_.Name
 
   echo C:\ProgramData\Chocolatey\bin\curl -k `
@@ -17,7 +17,7 @@ Get-ChildItem C:\Setup\Out\*.msi | ForEach-Object {
     -F "notes_type=1" `
     -F "mandatory=0" `
     -F "teams=$env:HOCKEYAPP_TEAM_IDS" `
-    -F "ipa=C:\Setup\Out\$msi" `
+    -F "ipa=.\Out\$msi" `
     -H "X-HockeyAppToken: REDACTED" `
     https://rink.hockeyapp.net/api/2/apps/REDACTED/app_versions/upload
 
@@ -32,7 +32,7 @@ Get-ChildItem C:\Setup\Out\*.msi | ForEach-Object {
     -F "notes_type=1" `
     -F "mandatory=0" `
     -F "teams=$env:HOCKEYAPP_TEAM_IDS" `
-    -F "ipa=C:\Setup\Out\$msi" `
+    -F "ipa=.\Out\$msi" `
     -H "X-HockeyAppToken: $env:HOCKEYAPP_TOKEN" `
     https://rink.hockeyapp.net/api/2/apps/$env:HOCKEYAPP_ID/app_versions/upload
 }
