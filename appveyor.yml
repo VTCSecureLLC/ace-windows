@@ -1,8 +1,10 @@
 version: 0.0.{build}
 skip_tags: true
+
 install:
-- choco install -y nuget.commandline
+- choco install -y nuget.commandline curl
 - choco install wixtoolset -y -version 3.10.0.2103
+
 build_script:
 - nuget restore VATRP.sln
 - echo using System;namespace VATRP.App{ public partial class App {public static string HOCKEYAPP_ID = "%HOCKEYAPP_ID%";}} > VATRP.App/App.Constants.cs
@@ -14,9 +16,13 @@ build_script:
 - Light -out .\Setup\Out\ACE_Setup_%vatrpVersion%.msi -pdbout .\Setup\obj\ACE_Setup.wixpdb -cultures:null -ext WixNetFxExtension.dll -ext WixUtilExtension.dll -ext WixUIExtension.dll -contentsfile .\Setup\obj\ACE-Setup.wixproj.BindContentsFileListnull.txt -outputsfile .\Setup\obj\ACE-Setup.wixproj.BindOutputsFileListnull.txt -builtoutputsfile .\Setup\obj\ACE-Setup.wixproj.BindBuiltOutputsFileListnull.txt  .\Setup\obj\ACE-Setup.wixobj
 - rd /S /Q .\Setup\obj
 
+on_success:
+- powershell -NoProfile -ExecutionPolicy Bypass .\Setup\HockeyApp.ps1
+
 artifacts:
 - path: Setup\Out\*.msi
   name: Setup
+
 deploy:
 - provider: GitHub
   tag: v$(APPVEYOR_BUILD_VERSION)
