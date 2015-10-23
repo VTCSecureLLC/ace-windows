@@ -16,9 +16,10 @@ Get-ChildItem .\Setup\Out\*.msi | ForEach-Object {
     -H "X-HockeyAppToken: $env:HOCKEYAPP_TOKEN" `
     https://rink.hockeyapp.net/api/2/apps/$env:HOCKEYAPP_ID/app_versions/new | jq -r .id)
 
-  Write-Host "Created app version $id for $APPVEYOR_BUILD_VERSION - $APPVEYOR_BUILD_NUMBER"
+  Write-Host "Created app version $id for $env:APPVEYOR_BUILD_VERSION - $env:APPVEYOR_BUILD_NUMBER"
 
   & C:\ProgramData\Chocolatey\bin\curl -sLk `
+    -X PUT `
     -F "ipa=@$msi" `
     -F "notes=$APPVEYOR_REPO_COMMIT_MESSAGE" `
     -F "notes_type=1" `
