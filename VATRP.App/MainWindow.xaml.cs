@@ -347,6 +347,12 @@ namespace VATRP.App
                 _linphoneService.Unregister(false);
             }
             
+		}
+		
+        private void OnAboutClicked(object sender, RoutedEventArgs e)
+        {
+            AboutView aboutView = new AboutView();
+            aboutView.Show();
         }
     }
 }
