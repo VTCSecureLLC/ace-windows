@@ -4,7 +4,7 @@ if ($env:APPVEYOR_REPO_BRANCH -ne "master")
 }
 
 Get-ChildItem .\Setup\Out\*.msi | ForEach-Object {
-  $msi=$_.Name
+  $msi=$_.FullName
 
   echo C:\ProgramData\Chocolatey\bin\curl -k `
     -F "status=2" `
@@ -17,7 +17,7 @@ Get-ChildItem .\Setup\Out\*.msi | ForEach-Object {
     -F "notes_type=1" `
     -F "mandatory=0" `
     -F "teams=$env:HOCKEYAPP_TEAM_IDS" `
-    -F "ipa=.\Setup\Out\$msi" `
+    -F "ipa=$msi" `
     -H "X-HockeyAppToken: REDACTED" `
     https://rink.hockeyapp.net/api/2/apps/REDACTED/app_versions/upload
 
@@ -32,7 +32,7 @@ Get-ChildItem .\Setup\Out\*.msi | ForEach-Object {
     -F "notes_type=1" `
     -F "mandatory=0" `
     -F "teams=$env:HOCKEYAPP_TEAM_IDS" `
-    -F "ipa=.\Setup\Out\$msi" `
+    -F "ipa=@$msi" `
     -H "X-HockeyAppToken: $env:HOCKEYAPP_TOKEN" `
     https://rink.hockeyapp.net/api/2/apps/$env:HOCKEYAPP_ID/app_versions/upload
 }
