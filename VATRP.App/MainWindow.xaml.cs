@@ -324,5 +324,11 @@ namespace VATRP.App
                     break;
             }
         }
+
+        private void MenuItem_Click_1(object sender, RoutedEventArgs e)
+        {
+            AboutView aboutView = new AboutView();
+            aboutView.Show();
+        }
     }
 }

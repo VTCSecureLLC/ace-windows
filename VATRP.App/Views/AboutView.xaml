@@ -1,0 +1,26 @@
+﻿<Window x:Class="VATRP.App.Views.AboutView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="About ACE" Height="200" Width="400" Icon="/ACE;component/Resources/vatrp.ico" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <StackPanel x:Name="ImagePanel" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,0,0,0">
+        <Image Source="/ACE;component/Resources/vatrp.ico"></Image>    
+        </StackPanel>
+        <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="0" Margin="15,0,0,0">
+            <TextBlock Margin="5,10,0,5" FontSize="20" Text="{Binding AppName}"/>
+            <TextBlock Margin="5,3,0,5" FontSize="14" Text="{Binding AppVersion}"/>
+            <TextBlock Margin="5,3,0,5" FontSize="12" Text="{Binding Copyright}"/>
+        </StackPanel>
+        <Button Grid.Column="1" Grid.Row="1" Width="80" Height="24" Margin="0,0,30,0" HorizontalAlignment="Right" Content="OK" Click="Button_Click">
+            
+        </Button>
+    </Grid>
+</Window>
