@@ -89,8 +89,8 @@ namespace VATRP.App
             _log.Info(String.Format("============== Starting VATRP v{0} =============",
                 System.Reflection.Assembly.GetEntryAssembly().GetName().Version));
             _log.Info("====================================================");
-            try
-            {
+            //try
+            //{
                 CurrentAccount = null;
                 AppDomain.CurrentDomain.SetData("DataDirectory",
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
@@ -105,11 +105,11 @@ namespace VATRP.App
                     MessageBox.Show("Failed to initialize service manager");
                     this.Shutdown();
                 }
-            }
-            catch (Exception error)
-            {
-                MessageBox.Show("App Global error:" + error.Message);
-            }
+            //}
+            //catch (Exception error)
+            //{
+            //    MessageBox.Show("App Global error:" + error.Message);
+            //}
         }
 
         private void App_OnExit(object sender, ExitEventArgs e)
