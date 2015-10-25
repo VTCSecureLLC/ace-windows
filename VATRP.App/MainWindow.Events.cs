@@ -23,6 +23,7 @@ namespace VATRP.App
     {
         private bool registerRequested = false;
         private bool isRegistering = true;
+        private bool signOutRequest = false;
         private string videoTitle = string.Empty;
         private void OnCallStateChanged(VATRPCall call)
         {
@@ -146,7 +147,7 @@ namespace VATRP.App
                     {
                         _remoteVideoView.Hide();
                     }
-                    if (registerRequested)
+                    if (registerRequested || signOutRequest)
                     {
                         _linphoneService.Unregister(false);
                     }
@@ -224,6 +225,19 @@ namespace VATRP.App
                     {
                         registerRequested = false;
                         _linphoneService.Register();
+                    }
+                    else if (signOutRequest)
+                    {
+                        isRegistering = false;
+                        WizardPagepanel.Children.Clear();
+                        ServiceSelector.Visibility = Visibility.Visible;
+                        WizardPagepanel.Visibility = Visibility.Visible;
+                        NavPanel.Visibility = Visibility.Collapsed;
+                        StatusPanel.Visibility = Visibility.Collapsed;
+                        signOutRequest = false;
+                        App.CurrentAccount = null;
+                        ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.ACCOUNT_IN_USE, string.Empty);
                     }
                     break;
                 default:
