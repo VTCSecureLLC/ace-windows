@@ -59,6 +59,7 @@ namespace VATRP.App.Model
             }
             catch (Exception ex)
             {
+                Debug.WriteLine("WindowInitialized: Parse State. {0} {1} ", WindowType, ex.Message);
                 ws = WindowState.Normal;
             }
 
@@ -75,7 +76,7 @@ namespace VATRP.App.Model
             }
             catch (Exception ex)
             {
-                
+                Debug.WriteLine("WindowInitialized: Parse Left. {0} {1} ", WindowType, ex.Message);
             }
 
             try
@@ -83,33 +84,35 @@ namespace VATRP.App.Model
                 this.Top = Convert.ToInt32(ServiceManager.Instance.ConfigurationService.Get(section,
                     Configuration.ConfEntry.WINDOW_TOP, GetWindowDefaultCoordinates(WindowType).Y.ToString()));
             }
-            catch (FormatException)
+            catch (FormatException fe)
             {
                 this.Top = GetWindowDefaultCoordinates(WindowType).Y;
+                Debug.WriteLine("WindowInitialized: Parse Top. " + fe.Message);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine("WindowInitialized: Parse Top. {0} {1} ", WindowType, ex.Message);
             }
-            
+
+            Size defaultSize = GetWindowDefaultDimensions(WindowType);
             try
             {
-                this.Width = Convert.ToInt32(ServiceManager.Instance.ConfigurationService.Get(section,
-                    Configuration.ConfEntry.WINDOW_WIDTH, "300"));
+                this.Width = Convert.ToDouble(ServiceManager.Instance.ConfigurationService.Get(section,
+                    Configuration.ConfEntry.WINDOW_WIDTH, defaultSize.Width.ToString()));
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine("WindowInitialized: Parse Width. {0} {1} ", WindowType, ex.Message);
             }
 
             try
             {
-                this.Height = Convert.ToInt32(ServiceManager.Instance.ConfigurationService.Get(section,
-                    Configuration.ConfEntry.WINDOW_HEIGHT, "400"));
+                this.Height = Convert.ToDouble(ServiceManager.Instance.ConfigurationService.Get(section,
+                    Configuration.ConfEntry.WINDOW_HEIGHT, defaultSize.Height.ToString()));
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine("WindowInitialized: Parse Height. {0} {1} ", WindowType, ex.Message);
             }
         }
 
@@ -238,5 +241,37 @@ namespace VATRP.App.Model
                     throw new ArgumentOutOfRangeException("wndType");
             }
         }
+
+        private static Size GetWindowDefaultDimensions(VATRPWindowType wndType)
+        {
+            switch (wndType)
+            {
+                case VATRPWindowType.CALL_VIEW:
+                    return new Size() {Width = 300, Height = 300};
+                case VATRPWindowType.CONTACT_VIEW:
+                    return new Size() {Width = 300, Height = 350};
+                case VATRPWindowType.DIALPAD_VIEW:
+                    return new Size() {Width = 400, Height = 450};
+                case VATRPWindowType.MAIN_VIEW:
+                    return new Size() {Width = 300, Height = 400};
+                case VATRPWindowType.MESSAGE_VIEW:
+                    return new Size() {Width = 700, Height = 400};
+                case VATRPWindowType.RECENTS_VIEW:
+                    return new Size() {Width = 500, Height = 100};
+                case VATRPWindowType.SELF_VIEW:
+                    return new Size() {Width = 300, Height = 300};
+                case VATRPWindowType.SETTINGS_VIEW:
+                    return new Size() {Width = 400, Height = 500};
+                case VATRPWindowType.REMOTE_VIDEO_VIEW:
+                    return new Size() {Width = 300, Height = 300};
+                case VATRPWindowType.KEYPAD_VIEW:
+                    return new Size() {Width = 100, Height = 400};
+                case VATRPWindowType.CALL_INFO_VIEW:
+                    return new Size() {Width = 350, Height = 500};
+                default:
+                    return new Size() {Width = 300, Height = 400};
+            }
+        }
+
     }
 }
