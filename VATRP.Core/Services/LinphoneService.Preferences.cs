@@ -27,6 +27,8 @@ namespace VATRP.Core.Services
             public int STUNPort { get; set; }
             public bool EnableSTUN { get; set; }
             public bool EnableAVPF { get; set; }
+
+            public LinphoneWrapper.Enums.LinphoneMediaEncryption MediaEncryption { get; set; }
         }
 
     }
