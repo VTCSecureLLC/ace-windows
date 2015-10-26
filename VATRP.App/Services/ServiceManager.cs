@@ -8,6 +8,7 @@ using System.Text;
 using System.Web.Script.Serialization;
 using System.Windows;
 using log4net;
+using VATRP.Core.Extensions;
 using VATRP.Core.Model;
 using VATRP.Core.Services;
 using VATRP.Core.Interfaces;
@@ -351,7 +352,7 @@ namespace VATRP.App.Services
 
         internal void UpdateLoggedinContact()
         {
-            if (App.CurrentAccount == null)
+            if (App.CurrentAccount == null || !App.CurrentAccount.Username.NotBlank())
                 return;
             VATRPContact contact = this.ContactService.FindLoggedInContact();
             if (contact == null)
