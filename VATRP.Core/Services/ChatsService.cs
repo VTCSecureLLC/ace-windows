@@ -569,7 +569,7 @@ namespace VATRP.Core.Services
             }
 
             var rttCode = (uint) key;
-
+            var createBubble = false;
             if (key != '\r')
             {
                 var sb = new StringBuilder(message.Content);
@@ -583,11 +583,13 @@ namespace VATRP.Core.Services
                 message.Content = sb.ToString();
                 chat.UpdateLastMessage();
             }
-
+            else
+            {
+                createBubble = true;
+            }
+ 
             message.IsIncompleteMessage = inCompleteMessage;
-
-            this.OnConversationUpdated(chatID, true);
-
+            
             // send message to linphone
             var chatPtr = chat.NativePtr;
             var msgPtr = message.NativePtr;
@@ -596,6 +598,13 @@ namespace VATRP.Core.Services
 
             chat.NativePtr = chatPtr;
             message.NativePtr = msgPtr;
+
+            if (createBubble && !message.Content.NotBlank())
+            {
+                // delete empty message 
+                chatID.DeleteMessage(message);
+            }
+            this.OnConversationUpdated(chatID, true);
             return true;
 
         }
