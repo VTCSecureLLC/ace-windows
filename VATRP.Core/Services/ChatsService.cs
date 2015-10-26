@@ -141,8 +141,6 @@ namespace VATRP.Core.Services
                     message.MessageTime = DateTime.Now;
                 }
 
-                chat.UpdateLastMessage();
-
                 char rcvdRtt = '\0';
                 try
                 {
@@ -168,7 +166,8 @@ namespace VATRP.Core.Services
                 {
                     message.IsIncompleteMessage = false;
                 }
-                
+
+                chat.UpdateLastMessage();
 
                 OnUnreadMsgUpdated();
                 this.OnConversationUpdated(chat, true);
@@ -574,8 +573,13 @@ namespace VATRP.Core.Services
             if (key != '\r')
             {
                 var sb = new StringBuilder(message.Content);
-
-                sb.Append(Convert.ToChar(rttCode));
+                if (key == '\b')
+                {
+                    if (sb.Length > 0)
+                        sb.Remove(sb.Length - 1, 1);
+                }
+                else
+                    sb.Append(Convert.ToChar(rttCode));
                 message.Content = sb.ToString();
                 chat.UpdateLastMessage();
             }
