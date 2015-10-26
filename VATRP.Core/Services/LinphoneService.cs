@@ -642,33 +642,36 @@ namespace VATRP.Core.Services
         {
             bool retVal = false;
 
-            IntPtr remoteAddrParam = LinphoneAPI.linphone_core_get_current_call_remote_address(linphoneCore);
-                    if (remoteAddrParam != IntPtr.Zero)
-                    {
-                        chatRoomPtr = LinphoneAPI.linphone_core_get_chat_room(linphoneCore, remoteAddrParam);
-                    }
+            lock (callLock)
+            {
+                if (chatRoomPtr == IntPtr.Zero)
+                    chatRoomPtr = LinphoneAPI.linphone_call_get_chat_room(callPtr);
 
+                /*create a chat room associated to this call*/
                 if (chatRoomPtr != IntPtr.Zero)
                 {
                     if (chatMsgPtr == IntPtr.Zero)
                     {
-                        chatMsgPtr = LinphoneAPI.linphone_chat_room_create_message(chatRoomPtr, "kuku");
+                        chatMsgPtr = LinphoneAPI.linphone_chat_room_create_message(chatRoomPtr, "");
                     }
                 }
+
                 if (chatMsgPtr != IntPtr.Zero)
                 {
-                    int retCode = LinphoneAPI.linphone_chat_message_put_char(chatMsgPtr, charCode);
-                    if (retCode == 0)
+                    int retCode = 0;
+                    if (charCode != '\r')
                     {
-                        LinphoneAPI.linphone_chat_room_send_chat_message(chatRoomPtr, chatMsgPtr);
-                        retVal = true;
-                        LOG.Info("!!!!!!!!!!!!!!!!! Message sent: " + charCode);
+                        retCode = LinphoneAPI.linphone_chat_message_put_char(chatMsgPtr, charCode);
+                        /*send char in realtime*/
                     }
                     else
                     {
-                        LOG.Error("################# Failed to send message. Return Code - " + retCode);
+                        LinphoneAPI.linphone_chat_room_send_chat_message(chatRoomPtr, chatMsgPtr);
+                        chatMsgPtr = IntPtr.Zero;
                     }
+                    retVal = (retCode == 0);
                 }
+            }
             return retVal;
         }
 

@@ -187,6 +187,10 @@ namespace VATRP.LinphoneWrapper
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_call_unref(IntPtr call);
 
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+
+        public static extern IntPtr linphone_call_get_chat_room(IntPtr call);
+
         /* sound functions */
 /* returns a null terminated static array of string describing the sound devices */
 
