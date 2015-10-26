@@ -658,13 +658,8 @@ namespace VATRP.Core.Services
 
                 if (chatMsgPtr != IntPtr.Zero)
                 {
-                    int retCode = 0;
-                    if (charCode != '\r')
-                    {
-                        retCode = LinphoneAPI.linphone_chat_message_put_char(chatMsgPtr, charCode);
-                        /*send char in realtime*/
-                    }
-                    else
+                    int retCode = LinphoneAPI.linphone_chat_message_put_char(chatMsgPtr, charCode);
+                    if (charCode == '\r')
                     {
                         LinphoneAPI.linphone_chat_room_send_chat_message(chatRoomPtr, chatMsgPtr);
                         chatMsgPtr = IntPtr.Zero;
