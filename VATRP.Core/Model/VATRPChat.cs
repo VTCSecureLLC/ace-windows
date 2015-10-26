@@ -73,9 +73,25 @@ namespace VATRP.Core.Model
                 }
                 this.Messages.Add(msg);
             }
-            else if (this.TempMessages == null)
+            else if (this.TempMessages != null)
             {
                 this.TempMessages.Add(msg);
+            }
+        }
+
+        internal void DeleteMessage(VATRPChatMessage msg)
+        {
+            if (this.IsMessagesLoaded)
+            {
+                if (this.Messages == null)
+                {
+                    return;
+                }
+                this.Messages.Remove(msg);
+            }
+            else if (this.TempMessages != null)
+            {
+                this.TempMessages.Remove(msg);
             }
         }
 
