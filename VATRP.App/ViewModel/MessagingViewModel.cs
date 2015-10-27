@@ -240,7 +240,8 @@ namespace VATRP.App.ViewModel
 
         internal void SendMessage(char key, bool isIncomplete)
         {
-            if (!ReadyToSend())
+            var message = string.Format("{0}", key);
+            if (!ReadyToSend(message))
                 return;
 
             _chatsManager.ComposeAndSendMessage(ServiceManager.Instance.ActiveCallPtr, Chat, key, isIncomplete);
@@ -253,7 +254,7 @@ namespace VATRP.App.ViewModel
 
         internal void SendMessage(string message, bool isIncomplete)
         {
-            if (!ReadyToSend())
+            if (!ReadyToSend(message))
                 return;
  
             if (_lastSentTextIndex > MessageText.Length)
@@ -270,9 +271,9 @@ namespace VATRP.App.ViewModel
             }
         }
 
-        private bool ReadyToSend()
+        private bool ReadyToSend(string message)
         {
-            if (!ReceiverAddress.NotBlank() || !MessageText.NotBlank())
+            if (!ReceiverAddress.NotBlank() || !message.NotBlank())
                 return false;
 
             VATRPContact contact = _chatsManager.FindContact(new ContactID(this.ReceiverAddress, IntPtr.Zero));

@@ -94,6 +94,10 @@ namespace VATRP.App.Views
                 case Key.Space:
                     model.LastInput = " ";
                     break;
+                case Key.Back:
+                    if (!model.LastInput.NotBlank())
+                        model.LastInput += '\b';
+                    break;
                 default:
                     break;
             }

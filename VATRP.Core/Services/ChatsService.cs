@@ -141,8 +141,6 @@ namespace VATRP.Core.Services
                     message.MessageTime = DateTime.Now;
                 }
 
-                chat.UpdateLastMessage();
-
                 char rcvdRtt = '\0';
                 try
                 {
@@ -168,7 +166,8 @@ namespace VATRP.Core.Services
                 {
                     message.IsIncompleteMessage = false;
                 }
-                
+
+                chat.UpdateLastMessage();
 
                 OnUnreadMsgUpdated();
                 this.OnConversationUpdated(chat, true);
@@ -570,20 +569,27 @@ namespace VATRP.Core.Services
             }
 
             var rttCode = (uint) key;
-
+            var createBubble = false;
             if (key != '\r')
             {
                 var sb = new StringBuilder(message.Content);
-
-                sb.Append(Convert.ToChar(rttCode));
+                if (key == '\b')
+                {
+                    if (sb.Length > 0)
+                        sb.Remove(sb.Length - 1, 1);
+                }
+                else
+                    sb.Append(Convert.ToChar(rttCode));
                 message.Content = sb.ToString();
                 chat.UpdateLastMessage();
             }
-
+            else
+            {
+                createBubble = true;
+            }
+ 
             message.IsIncompleteMessage = inCompleteMessage;
-
-            this.OnConversationUpdated(chatID, true);
-
+            
             // send message to linphone
             var chatPtr = chat.NativePtr;
             var msgPtr = message.NativePtr;
@@ -592,6 +598,13 @@ namespace VATRP.Core.Services
 
             chat.NativePtr = chatPtr;
             message.NativePtr = msgPtr;
+
+            if (createBubble && !message.Content.NotBlank())
+            {
+                // delete empty message 
+                chatID.DeleteMessage(message);
+            }
+            this.OnConversationUpdated(chatID, true);
             return true;
 
         }

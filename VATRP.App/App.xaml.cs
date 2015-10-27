@@ -60,8 +60,17 @@ namespace VATRP.App
                 }
             };
 #endif
-            //send crashes to the HockeyApp server
-            await HockeyClient.Current.SendCrashesAsync();
+            try
+            {
+
+                //send crashes to the HockeyApp server
+               await HockeyClient.Current.SendCrashesAsync();
+            }
+            catch (Exception eArgs)
+            {
+                if (_log != null)
+                    _log.Error("HockeyApp SendCrashesAsync exception: " + eArgs.ToString());
+            }
 
             //check for updates on the HockeyApp server
             await HockeyClient.Current.CheckForUpdatesAsync(true, () =>
@@ -110,7 +119,8 @@ namespace VATRP.App
 
         private void App_OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            _log.Error("Not handled exception: " + e.Exception.ToString() + "\n" + e.Exception.StackTrace);
+            if (_log != null)
+                _log.Error("Not handled exception: " + e.Exception.ToString() + "\n" + e.Exception.StackTrace);
         }
     }
 }

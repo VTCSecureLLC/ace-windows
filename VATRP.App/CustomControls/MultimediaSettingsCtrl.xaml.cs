@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using VATRP.App.Interfaces;
 using VATRP.App.Services;
 using VATRP.Core.Model;
+using VATRP.LinphoneWrapper.Enums;
 
 namespace VATRP.App.CustomControls
 {
@@ -42,6 +43,17 @@ namespace VATRP.App.CustomControls
                     break;
                 }
             }
+
+            foreach (var item in MediaEncryptionBox.Items)
+            {
+                var s = item as TextBlock;
+                if (s != null && s.Text.Contains(App.CurrentAccount.MediaEncryption))
+                {
+                    MediaEncryptionBox.SelectedItem = item;
+                    break;
+                }
+            }
+
         }
 
         private string GetVideoID(TextBlock tb)
@@ -65,6 +77,13 @@ namespace VATRP.App.CustomControls
 
             if (!string.IsNullOrWhiteSpace(str) && str != App.CurrentAccount.PreferredVideoId)
                 return true;
+
+            var s = MediaEncryptionBox.SelectedItem as TextBlock;
+            if (s != null && !s.Text.Contains(App.CurrentAccount.MediaEncryption))
+            {
+                return true;
+            }
+
             return false;
         }
 
@@ -74,11 +93,21 @@ namespace VATRP.App.CustomControls
                 return false;
 
             var tb = ResolutionBox.SelectedItem as TextBlock;
-            var str = GetVideoID(tb);
-            if (string.IsNullOrWhiteSpace(str))
-                return false;
+            if (tb != null)
+            {
+                var str = GetVideoID(tb);
+                if (string.IsNullOrWhiteSpace(str))
+                    return false;
 
-            App.CurrentAccount.PreferredVideoId = str;
+                App.CurrentAccount.PreferredVideoId = str;
+            }
+
+            tb = MediaEncryptionBox.SelectedItem as TextBlock;
+            if (tb != null)
+            {
+                App.CurrentAccount.MediaEncryption = tb.Text;
+            }
+
             ServiceManager.Instance.ConfigurationService.SaveConfig();
             return true;
         }

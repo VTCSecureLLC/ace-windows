@@ -235,9 +235,10 @@ namespace VATRP.App
                         NavPanel.Visibility = Visibility.Collapsed;
                         StatusPanel.Visibility = Visibility.Collapsed;
                         signOutRequest = false;
-                        App.CurrentAccount = null;
                         ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.ACCOUNT_IN_USE, string.Empty);
+                        ServiceManager.Instance.AccountService.DeleteAccount(App.CurrentAccount);
+                        App.CurrentAccount = null;
                     }
                     break;
                 default:
