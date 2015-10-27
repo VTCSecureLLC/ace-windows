@@ -156,6 +156,7 @@ namespace VATRP.App.Services
             LinphoneService.LinphoneConfig.EnableSTUN = App.CurrentAccount.EnubleSTUN;
             LinphoneService.LinphoneConfig.STUNAddress = App.CurrentAccount.STUNAddress;
             LinphoneService.LinphoneConfig.STUNPort = App.CurrentAccount.STUNPort;
+            LinphoneService.LinphoneConfig.MediaEncryption = GetMediaEncryptionText(App.CurrentAccount.MediaEncryption);
 #if !DEBUG
             LinphoneService.LinphoneConfig.EnableAVPF = true;
 #else
@@ -294,7 +295,7 @@ namespace VATRP.App.Services
             LinphoneService.UpdateNetworkingParameters(App.CurrentAccount);
             ApplyAVPFChanges();
             ApplyDtmfOnSIPInfoChanges();
-            ApplyVideoSizeChanges();
+            ApplyMediaSettingsChanges();
             return true;
         }
 
@@ -345,9 +346,26 @@ namespace VATRP.App.Services
             LinphoneService.SendDtmfAsSipInfo(val);
         }
 
-        internal void ApplyVideoSizeChanges()
+        private LinphoneMediaEncryption GetMediaEncryptionText(string s)
         {
-            LinphoneService.UpdateVideoSize(App.CurrentAccount);
+
+            switch (s)
+            {
+                case "Encrypted (DTLS)":
+                    return LinphoneMediaEncryption.LinphoneMediaEncryptionDTLS;
+                case "Encrypted (SRTP)":
+                    return LinphoneMediaEncryption.LinphoneMediaEncryptionSRTP;
+                case "Encrypted (ZRTP)":
+                    return LinphoneMediaEncryption.LinphoneMediaEncryptionZRTP;
+                default:
+                    return LinphoneMediaEncryption.LinphoneMediaEncryptionNone;
+            }
+        }
+
+        internal void ApplyMediaSettingsChanges()
+        {
+            LinphoneService.LinphoneConfig.MediaEncryption = GetMediaEncryptionText(App.CurrentAccount.MediaEncryption);
+            LinphoneService.UpdateMediaSettings(App.CurrentAccount);
         }
 
         internal void UpdateLoggedinContact()

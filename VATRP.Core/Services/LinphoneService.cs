@@ -406,6 +406,8 @@ namespace VATRP.Core.Services
 			LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, true);
 			LinphoneAPI.linphone_core_add_proxy_config(linphoneCore, proxy_cfg);
 			LinphoneAPI.linphone_core_set_default_proxy_config(linphoneCore, proxy_cfg);
+
+            UpdateMediaEncryption();
 			return true;
 
 		}
@@ -848,60 +850,49 @@ namespace VATRP.Core.Services
 			return !string.IsNullOrEmpty(videoCodecName);
 		}
 
-	    public void UpdateVideoSize(VATRPAccount account)
+        public void UpdateMediaSettings(VATRPAccount account)
 	    {
+            if (linphoneCore == IntPtr.Zero || !isRunning) return;
+
 	        if (account == null)
 	        {
                 LOG.Error("Account is null");
 	            return;
 	        }
-	        MSVideoSize w , h;
-	        switch (account.PreferredVideoId)
-	        {
-	            case "qcif":
-	                w = MSVideoSize.MS_VIDEO_SIZE_QCIF_W;
-	                h = MSVideoSize.MS_VIDEO_SIZE_QCIF_H;
-	                break;
-	            case "cif":
-	                w = MSVideoSize.MS_VIDEO_SIZE_CIF_W;
-	                h = MSVideoSize.MS_VIDEO_SIZE_CIF_H;
-	                break;
-	            case "4cif":
-	                w = MSVideoSize.MS_VIDEO_SIZE_4CIF_W;
-	                h = MSVideoSize.MS_VIDEO_SIZE_4CIF_H;
-	                break;
-	            case "vga":
-	                w = MSVideoSize.MS_VIDEO_SIZE_VGA_W;
-	                h = MSVideoSize.MS_VIDEO_SIZE_VGA_H;
-	                break;
-	            case "svga":
-	                w = MSVideoSize.MS_VIDEO_SIZE_SVGA_W;
-	                h = MSVideoSize.MS_VIDEO_SIZE_SVGA_H;
-	                break;
-	            default:
-                    LOG.Warn("Not supported video size: " + account.PreferredVideoId);
-	                return;
-	        }
-	        var t_videoSize = new MSVideoSizeDef()
-	        {
-	            height = Convert.ToInt32(h),
-	            width = Convert.ToInt32(w)
-	        };
 
-            LOG.Info("Set preferred video size by name: " + account.PreferredVideoId);
-#if true
-            LinphoneAPI.linphone_core_set_preferred_video_size_by_name(linphoneCore, account.PreferredVideoId);
-#else
-            var t_videoSizePtr = Marshal.AllocHGlobal(Marshal.SizeOf(t_videoSize));
-            if (t_videoSizePtr != IntPtr.Zero)
+            IntPtr namePtr = LinphoneAPI.linphone_core_get_preferred_video_size_name(linphoneCore);
+            if (namePtr != IntPtr.Zero)
             {
-                LinphoneAPI.linphone_core_set_preferred_video_size(linphoneCore, t_videoSizePtr);
-                Marshal.FreeHGlobal(t_videoSizePtr);
+                string name = Marshal.PtrToStringAnsi(namePtr);
+                if (!string.IsNullOrWhiteSpace(account.PreferredVideoId) && account.PreferredVideoId != name)
+                {
+                    LOG.Info("Set preferred video size by name: " + account.PreferredVideoId);
+                    LinphoneAPI.linphone_core_set_preferred_video_size_by_name(linphoneCore, account.PreferredVideoId);
+                }
             }
-#endif
+
+            UpdateMediaEncryption();
+	    }
+
+        private void UpdateMediaEncryption()
+        {
+            LinphoneMediaEncryption lme = LinphoneAPI.linphone_core_get_media_encryption(linphoneCore);
+
+            if (lme == LinphoneConfig.MediaEncryption) 
+                return;
+
+            int retVal = LinphoneAPI.linphone_core_set_media_encryption(linphoneCore, LinphoneConfig.MediaEncryption);
+            if (retVal == 0)
+            {
+                LOG.Info("Media encryption set to " + LinphoneConfig.MediaEncryption.ToString());
+            }
+            else
+            {
+                LOG.Error("Failed to update Linphone media encryption");
+            }
         }
 
-	    #endregion
+        #endregion
 
 		#region Codecs
 

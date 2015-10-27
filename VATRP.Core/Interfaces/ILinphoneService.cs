@@ -47,7 +47,7 @@ namespace VATRP.Core.Interfaces
         void SetPreviewVideoSize(MSVideoSize w, MSVideoSize h);
         void SetVideoCallWindowHandle(IntPtr hWnd, bool reset = false);
         bool IsVideoEnabled(VATRPCall call);
-        void UpdateVideoSize(VATRPAccount account);
+        void UpdateMediaSettings(VATRPAccount account);
         bool UpdateNativeCodecs(VATRPAccount account, CodecType codecType);
         void FillCodecsList(VATRPAccount account, CodecType codecType);
         bool UpdateNetworkingParameters(VATRPAccount account);

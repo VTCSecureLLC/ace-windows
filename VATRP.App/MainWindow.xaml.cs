@@ -131,7 +131,7 @@ namespace VATRP.App
 
                 if (_settingsView.MediaSettingsChanged)
                 {
-                    ServiceManager.Instance.ApplyVideoSizeChanges();
+                    ServiceManager.Instance.ApplyMediaSettingsChanges();
                 }
             }
         }
