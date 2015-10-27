@@ -77,6 +77,13 @@ namespace VATRP.Core.Model
             EnableAVPF = true;
             PreferredVideoId = "vga";
             STUNAddress = string.Empty;
+            Username = string.Empty;
+            Password = string.Empty;
+            Provider = string.Empty;
+            RegistrationUser = string.Empty;
+            RegistrationPassword = string.Empty;
+            DisplayName = string.Empty;
+            PreferredVideoId = string.Empty;
         }
 
         #endregion

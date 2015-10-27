@@ -35,9 +35,8 @@ namespace VATRP.Core.Model
             this.Init();
         }
 
-        public VATRPContact(ContactID contactID)
+        public VATRPContact(ContactID contactID):this()
         {
-            this.Init();
             if (contactID != null)
             {
                 base.ID = contactID.ID;
@@ -105,6 +104,15 @@ namespace VATRP.Core.Model
             this.UnreadMsgCount = 0;
             this.IsUpdated = true;
             this.IsStatusUpdated = true;
+            this.Email = string.Empty;
+            this.Firstname = string.Empty;
+            this.Fullname = string.Empty;
+            this.Initials = string.Empty;
+            this.HomePhone = string.Empty;
+            this.Lastname = string.Empty;
+            this.Middlename = string.Empty;
+            this.MobilePhone = string.Empty;
+            this.Gender = string.Empty;
         }
 
         public bool IsGroupExistInGroupList(string _groupName)
