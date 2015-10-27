@@ -15,6 +15,8 @@ namespace VATRP.Core.Interfaces
         event LinphoneService.NotifyReceivedDelegate NotifyReceivedEvent;
         event LinphoneService.CallStatisticsChangedDelegate CallStatisticsChangedEvent;
         event LinphoneService.IsComposingReceivedDelegate IsComposingReceivedEvent;
+        event LinphoneService.OnMessageReceivedDelegate OnChatMessageReceivedEvent;
+        event LinphoneService.OnMessageStatusChangedDelegate OnChatMessageStatusChangedEvent;
         LinphoneService.Preferences LinphoneConfig { get; }
         bool IsStarting { get; }
         bool IsStarted { get; }
@@ -59,5 +61,8 @@ namespace VATRP.Core.Interfaces
         LinphoneCallStats GetCallAudioStats(IntPtr callPtr);
         LinphoneCallStats GetCallVideoStats(IntPtr callPtr);
         void GetUsedPorts(out int sipPort, out int rtpPort);
+        LinphoneChatMessageState GetMessageStatus(IntPtr intPtr);
+        bool SendChatMessage(VATRPChat chat, string message, ref IntPtr msgPtr);
+        void MarkChatAsRead(IntPtr chatRoomPtr);
     }
 }
