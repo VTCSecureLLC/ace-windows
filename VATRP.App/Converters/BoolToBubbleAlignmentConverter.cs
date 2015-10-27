@@ -8,14 +8,25 @@ namespace VATRP.App.Converters
 {
     public class BoolToBubbleAlignmentConverter : IValueConverter
     {
+        public HorizontalAlignment FalseEquivalent { get; set; }
+
+        public bool OppositeBooleanValue { get; set; }
+
+        public BoolToBubbleAlignmentConverter()
+        {
+            this.FalseEquivalent = HorizontalAlignment.Right;
+            this.OppositeBooleanValue = false;
+        }
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is MessageDirection && (MessageDirection)value == MessageDirection.Outgoing)
+            bool booleanValue = false;
+            if (value is MessageDirection && (MessageDirection) value == MessageDirection.Outgoing)
             {
-                return HorizontalAlignment.Right;
+                booleanValue = !OppositeBooleanValue;
             }
-            return HorizontalAlignment.Left;
-            
+
+            return booleanValue ? HorizontalAlignment.Left : FalseEquivalent;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

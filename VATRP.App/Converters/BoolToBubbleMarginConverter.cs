@@ -10,11 +10,11 @@ namespace VATRP.App.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is MessageDirection && (MessageDirection)value == MessageDirection.Incoming)
+            if (value is MessageDirection && (MessageDirection)value == MessageDirection.Outgoing)
             {
-                return new Thickness(40.0, 5.0, 10.0, 5.0);
+                return new Thickness(60.0, 5.0, 10.0, 5.0);
             }
-            return new Thickness(10.0, 5.0, 40.0, 5.0);
+            return new Thickness(10.0, 5.0, 60.0, 5.0);
             
         }
 

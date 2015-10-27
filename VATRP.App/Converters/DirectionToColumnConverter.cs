@@ -6,16 +6,15 @@ using VATRP.Core.Enums;
 
 namespace VATRP.App.Converters
 {
-    public class BoolToBubbleCornerConverter : IValueConverter
+    public class DirectionToColumnConverter : IValueConverter
     {
-        private double radius = 6.0;
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is MessageDirection && (MessageDirection)value == MessageDirection.Outgoing)
             {
-                return new CornerRadius(radius, radius, radius, radius);
+                return 1;
             }
-            return new CornerRadius(radius, radius, radius, radius);
+            return 0;
             
         }
 
