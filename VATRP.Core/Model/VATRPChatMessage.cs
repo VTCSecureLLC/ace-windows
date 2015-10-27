@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using VATRP.Core.Enums;
 using VATRP.Core.Model.Utils;
+using VATRP.LinphoneWrapper.Enums;
 
 namespace VATRP.Core.Model
 {
@@ -19,8 +20,12 @@ namespace VATRP.Core.Model
         protected bool _isIncompleteMessage;
         protected string _receiver;
         protected string _sender;
-        protected MessageStatus _status;
+        protected LinphoneChatMessageState _status;
         protected DateTime _time;
+        private MessageDirection _direction;
+        private bool _isRead;
+
+
         public VATRPChatMessage()
         {
             this.ID = Tools.GenerateMessageId();
@@ -115,8 +120,27 @@ namespace VATRP.Core.Model
         public IntPtr NativePtr { get; set; }
 
         public MessageContentType ContentType { get; set; }
-        
-        public MessageDirection Direction { get; set; }
+
+        public MessageDirection Direction
+        {
+            get { return _direction; }
+            set
+            {
+                _direction = value;
+                OnPropertyChanged("Direction");
+                OnPropertyChanged("HasDeliveryStatus");
+            }
+        }
+
+        public bool IsRead
+        {
+            get { return _isRead; }
+            set
+            {
+                _isRead = value; 
+                OnPropertyChanged("IsRead");
+            }
+        }
 
         public string ID { get; set; }
         public string EncryptedContent
@@ -173,7 +197,7 @@ namespace VATRP.Core.Model
             }
         }
 
-        public MessageStatus Status
+        public LinphoneChatMessageState Status
         {
             get
             {
@@ -185,7 +209,15 @@ namespace VATRP.Core.Model
                 this.OnPropertyChanged("Status");
             }
         }
-        
+		
+        public bool HasDeliveryStatus
+        {
+            get
+            {
+                return this.Direction == MessageDirection.Outgoing;
+            }
+        }
+
         public DateTime MessageTime
         {
             get
