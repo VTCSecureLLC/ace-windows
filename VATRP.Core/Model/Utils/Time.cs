@@ -71,6 +71,23 @@ namespace VATRP.Core.Model.Utils
             return zeroTime;
         }
 
+        public static DateTime ConvertSecondsToDateTime(long timeLong)
+        {
+            DateTime zeroTime = ZeroTime;
+            try
+            {
+                zeroTime = zeroTime.AddSeconds((double)timeLong);
+            }
+            catch (Exception)
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+            }
+            return zeroTime;
+        }
+
         public static DateTime ConvertStringToDateTime(string timeString)
         {
             try
@@ -87,14 +104,9 @@ namespace VATRP.Core.Model.Utils
             return ZeroTime;
         }
 
-        public static DateTime ConvertUtcTimeToLocalTime(string utcTime)
+        public static DateTime ConvertUtcTimeToLocalTime(long utcTime)
         {
-            if (!string.IsNullOrEmpty( utcTime))
-            {
-                return DateTime.Now;
-            }
-            long timeLong = long.Parse(utcTime);
-            return TimeZoneInfo.ConvertTime(ConvertLongToDateTime(timeLong), TimeZoneInfo.Local);
+            return TimeZoneInfo.ConvertTime(ConvertSecondsToDateTime(utcTime), TimeZoneInfo.Local);
         }
 
         public static string GetTimeTicksUTCString()
