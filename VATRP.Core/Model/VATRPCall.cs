@@ -16,6 +16,7 @@ namespace VATRP.Core.Model
         private DateTime callStartTime;
         private DateTime callEstablishTime;
         private bool _videoEnabled;
+        private VATRPChat _chatRoom;
 
         public System.DateTime CallEstablishTime
         {
@@ -48,6 +49,12 @@ namespace VATRP.Core.Model
         {
             get { return callState; }
             set { callState = value; }
+        }
+
+        public VATRPChat ChatRoom
+        {
+            get { return _chatRoom; }
+            set { _chatRoom = value; }
         }
 
         public LinphoneCallDir CallDirection
