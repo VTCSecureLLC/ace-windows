@@ -25,7 +25,11 @@
         <converters:BoolToBubbleColorConverter x:Key="bcolorc"/>
         <converters:BoolToBubbleCornerConverter x:Key="bcornerc"/>
         <converters:BoolToBubbleMarginConverter x:Key="bmarginc"/>
-        <converters:BoolToBubbleAlignmentConverter x:Key="ta"/>
+        <converters:MessageDeliveryStatusToBrushConverter x:Key="mdsb"/>
+        <converters:MessageDateConverter x:Key="mdc"/>
+        <converters:BoolToBubbleAlignmentConverter x:Key="btba_text" />
+        <converters:BoolToBubbleAlignmentConverter x:Key="btba_time" OppositeBooleanValue="True"/>
+        <converters:DirectionToColumnConverter x:Key="dtc"/>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -121,10 +125,11 @@
                         </Border>
                     </Grid>
                 </Border>
+                
                 <Border Grid.Row ="1" Background="{StaticResource ChatPageMainBg}" BorderBrush="{StaticResource ChatPageMainBg}" 
 		   BorderThickness="0,0,0,2">
-                    <ListBox x:Name ="MessageListView" Style="{StaticResource MessagesListBox}"
-				ItemsSource= "{Binding Messages}" Margin="0" BorderBrush="{StaticResource ChatPageSelectContactTextBorder}" BorderThickness="1" DataContext="{Binding Chat, Mode=OneWay}"
+                    <ListBox x:Name ="MessageListView" Style="{StaticResource MessagesListBox}" DataContext="{Binding Chat, Mode=OneWay}"
+				ItemsSource= "{Binding Messages}" Margin="0" BorderBrush="{StaticResource ChatPageSelectContactTextBorder}" BorderThickness="1" 
                             
                              Background="White" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" IsSynchronizedWithCurrentItem="True"
                              >
@@ -140,7 +145,8 @@
 
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Grid Margin="{Binding Direction, Converter={StaticResource bmarginc}}" Visibility="{Binding ShowInList, Converter={StaticResource bvc}}">
+                                <Grid Margin="{Binding Direction, Converter={StaticResource bmarginc}}" 
+                                      Visibility="{Binding ShowInList, Converter={StaticResource bvc}}">
                                     <Border BorderBrush="#ffdbe1e3" BorderThickness="1" 
                                             Background="{Binding Direction, Converter={StaticResource bcolorc}}" 
                                             CornerRadius="{Binding Direction, Converter={StaticResource bcornerc}}" >
@@ -150,10 +156,23 @@
                                                 <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
                                             <Grid.ColumnDefinitions >
-                                                <ColumnDefinition Width="*" MaxWidth="300"/>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Row="0" Grid.Column ="0"  Text="{Binding Content}" FontSize="14" Margin="15,0,0,0" TextWrapping="Wrap" Foreground="#FF555555" />
-                                            <TextBlock Grid.Column ="0" Grid.Row="1" Text="{Binding MessageTime}" FontSize="12" Margin="15,0,0,0" TextWrapping="Wrap" Foreground="#FF555555" />
+                                            <StackPanel HorizontalAlignment="{Binding Direction, Converter={StaticResource btba_text}}" Grid.Column="{Binding Direction, Converter={StaticResource dtc}}">
+                                            <TextBlock  Text="{Binding Content}"
+    							Margin="5,0,5,0" TextWrapping="Wrap"
+    							Foreground="{StaticResource ChatPageBubbleTextFont}"
+    							FontSize="14" 
+    							  VerticalAlignment="Top"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" Margin="0,5,2,5" HorizontalAlignment="{Binding Direction, Converter={StaticResource btba_time}}">
+                                                <TextBlock Text="{Binding MessageTime, Converter={StaticResource mdc}}"
+    							Foreground="{StaticResource ChatPageBubbleTextFont}" 
+    							 FontSize="12"/>
+                                                <Ellipse Width="10" Height="10" 
+                                                         Fill="{Binding Status, Converter={StaticResource mdsb}}" Margin="8,2,8,0" Visibility="{Binding HasDeliveryStatus, Converter={StaticResource bvc}}"/>
+                                            </StackPanel>
                                         </Grid>
                                     </Border>
                                 </Grid>

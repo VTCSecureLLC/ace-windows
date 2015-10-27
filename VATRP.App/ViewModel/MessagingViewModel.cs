@@ -72,7 +72,7 @@ namespace VATRP.App.ViewModel
                 return;
             }
 
-            VATRPContact contact = _contactsManager.FindContact(e.Conversation.Contact);
+            VATRPContact contact = _chatsManager.FindContact(e.Conversation.Contact);
             if (contact != null)
             {
                 this.Contacts.Add(new ContactViewModel(contact));
@@ -107,20 +107,9 @@ namespace VATRP.App.ViewModel
                 return;
             }
 
-            if (_contactViewModel != null && _contactViewModel.Contact == e.Conversation.Contact)
+            if (_contactViewModel != null && _contactViewModel.Contact == e.Conversation.Contact )
             {
-                this._contactViewModel.Contact.UnreadMsgCount = 0;
-                this.Chat.UnreadMsgCount = 0;
-                this._chatsManager.OnUnreadMsgUpdated();
                 OnPropertyChanged("Messages");
-            }
-            else
-            {
-                VATRPContact contact = _chatsManager.FindContact(e.Conversation.Contact);
-                if (contact != null)
-                {
-                    contact.UnreadMsgCount += 1;
-                }
             }
         }
 
@@ -210,14 +199,7 @@ namespace VATRP.App.ViewModel
 
             if (Chat != null)
             {
-                Chat.UnreadMsgCount = 0;
-                this._chatsManager.OnUnreadMsgUpdated();
-            }
-
-            VATRPContact c = _chatsManager.FindContact(_contactViewModel.Contact);
-            if (c != null)
-            {
-                c.UnreadMsgCount = 0;
+                this._chatsManager.MarkChatAsRead(Chat);
             }
 
             ReceiverAddress = contact.Fullname;
@@ -240,6 +222,9 @@ namespace VATRP.App.ViewModel
 
         internal void SendMessage(char key, bool isIncomplete)
         {
+            if (ServiceManager.Instance.ActiveCallPtr == IntPtr.Zero)
+                return;
+
             var message = string.Format("{0}", key);
             if (!ReadyToSend(message))
                 return;
@@ -252,23 +237,13 @@ namespace VATRP.App.ViewModel
             }
         }
 
-        internal void SendMessage(string message, bool isIncomplete)
+        internal void SendMessage(string message)
         {
             if (!ReadyToSend(message))
                 return;
- 
-            if (_lastSentTextIndex > MessageText.Length)
-                _lastSentTextIndex = MessageText.Length;
 
-            var msg = MessageText.Substring(_lastSentTextIndex);
-            _lastSentTextIndex = MessageText.Length;
-
-            _chatsManager.ComposeAndSendMessage(ServiceManager.Instance.ActiveCallPtr, Chat, MessageText, isIncomplete);
-            if (isIncomplete)
-            {
-                _lastSentTextIndex = 0;
-                MessageText = string.Empty;
-            }
+            _chatsManager.ComposeAndSendMessage(Chat, MessageText);
+            MessageText = string.Empty;
         }
 
         private bool ReadyToSend(string message)
@@ -307,7 +282,7 @@ namespace VATRP.App.ViewModel
         {
             get
             {
-                if(this.Chat != null)
+                if (this.Chat != null)
                     return this.Chat.Messages;
                 return null;
             }

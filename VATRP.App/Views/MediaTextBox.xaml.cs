@@ -79,17 +79,22 @@ namespace VATRP.App.Views
 
         private void OnSendButtonClicked(object sender, RoutedEventArgs e)
         {
-            //model.SendMessage(true);
+            if (ServiceManager.Instance.ActiveCallPtr == IntPtr.Zero)
+                model.SendMessage(model.MessageText);
         }
 
         private void OnKeyUp(object sender, KeyEventArgs e)
         {
-            Console.WriteLine("Key " + e.Key);
             bool isIncomplete = true;
             switch (e.Key)
             {
                 case Key.Enter:
                     isIncomplete = false;
+                    if (ServiceManager.Instance.ActiveCallPtr == IntPtr.Zero)
+                    {
+                        model.SendMessage(model.MessageText);
+                        return;
+                    }
                     break;
                 case Key.Space:
                     model.LastInput = " ";
