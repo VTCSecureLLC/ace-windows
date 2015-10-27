@@ -26,7 +26,7 @@ namespace VATRP.Core.Model
         private string _gender;
         private bool _onlineNotification;
         private UserStatus _status;
-        private ushort _unreadMsgCount;
+        private uint _unreadMsgCount;
 
         private List<int> _groupIdList;
 
@@ -445,7 +445,7 @@ namespace VATRP.Core.Model
             }
         }
         
-        public ushort UnreadMsgCount
+        public uint UnreadMsgCount
         {
             get
             {
