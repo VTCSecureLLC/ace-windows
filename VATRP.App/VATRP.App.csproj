@@ -96,6 +96,9 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BoolToBubbleAlignmentConverter.cs" />
+    <Compile Include="Converters\DirectionToColumnConverter.cs" />
+    <Compile Include="Converters\MessageDateConverter.cs" />
+    <Compile Include="Converters\MessageDeliveryStatusToBrushConverter.cs" />
     <Compile Include="Converters\BoolToBubbleColorConverter.cs" />
     <Compile Include="Converters\BoolToBubbleCornerConverter.cs" />
     <Compile Include="Converters\BoolToBubbleMarginConverter.cs" />
