@@ -25,7 +25,9 @@ namespace VATRP.Core.Interfaces
 
         event EventHandler<ConversationUpdatedEventArgs> ConversationUpdated;
 
-        event EventHandler<EventArgs> UnreadMsgUpdated;
+        event EventHandler<ContactEventArgs> ContactAdded;
+
+        event EventHandler<ContactRemovedEventArgs> ContactRemoved;
 
         event EventHandler<EventArgs> ContactsChanged;
 
