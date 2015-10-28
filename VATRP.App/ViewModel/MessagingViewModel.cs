@@ -46,8 +46,33 @@ namespace VATRP.App.ViewModel
             this._chatsManager.NewConversationCreated += OnNewConversationCreated;
             this._chatsManager.ConversationClosed += OnConversationClosed;
             this._chatsManager.ContactsChanged += OnContactsChanged;
+            this._chatsManager.ContactAdded += OnChatContactAdded;
+            this._chatsManager.ContactRemoved += OnChatContactRemoved;
             LastInput = string.Empty;
-            LoadContacts();
+        }
+
+        private void OnChatContactRemoved(object sender, ContactRemovedEventArgs e)
+        {
+            var contactVM = FindContactViewModel(e.contactId);
+            if (contactVM != null)
+            {
+                this.Contacts.Remove(contactVM);
+                OnPropertyChanged("Contacts");
+            }
+        }
+
+        private void OnChatContactAdded(object sender, ContactEventArgs e)
+        {
+            var contactVM = FindContactViewModel(e.Contact);
+            if (contactVM == null)
+            {
+                var contact = this._contactsManager.FindContact(e.Contact);
+                if (contact != null)
+                {
+                    this.Contacts.Add(new ContactViewModel(contact));
+                    OnPropertyChanged("Contacts");
+                }
+            }
         }
 
         private void OnConversationClosed(object sender, Core.Events.ConversationEventArgs e)
@@ -70,13 +95,6 @@ namespace VATRP.App.ViewModel
                 ServiceManager.Instance.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
                     new EventHandler<ConversationEventArgs>(OnNewConversationCreated), sender, new object[] { e });
                 return;
-            }
-
-            VATRPContact contact = _chatsManager.FindContact(e.Conversation.Contact);
-            if (contact != null)
-            {
-                this.Contacts.Add(new ContactViewModel(contact));
-                OnPropertyChanged("Contacts");
             }
         }
 
@@ -207,7 +225,7 @@ namespace VATRP.App.ViewModel
             OnPropertyChanged("Messages");
         }
 
-        private ContactViewModel FindContactViewModel(VATRPContact contact)
+        private ContactViewModel FindContactViewModel(ContactID contact)
         {
             if (contact != null)
             {
@@ -369,6 +387,15 @@ namespace VATRP.App.ViewModel
                 }
             }
         }
+
+        public ContactViewModel Contact
+        {
+            get
+            {
+                return _contactViewModel;
+            }
+        }
+
         #endregion
 
 
