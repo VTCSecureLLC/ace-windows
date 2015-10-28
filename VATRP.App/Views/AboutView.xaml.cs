@@ -10,9 +10,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using VATRP.App.ViewModel;
+using com.vtcsecure.ace.windows.ViewModel;
 
-namespace VATRP.App.Views
+namespace com.vtcsecure.ace.windows.Views
 {
     /// <summary>
     /// Interaction logic for AboutView.xaml

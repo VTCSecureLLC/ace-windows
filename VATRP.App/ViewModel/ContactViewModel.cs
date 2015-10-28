@@ -4,7 +4,7 @@ using System.Windows.Media;
 using VATRP.Core.Enums;
 using VATRP.Core.Model;
 
-namespace VATRP.App.ViewModel
+namespace com.vtcsecure.ace.windows.ViewModel
 {
     public class ContactViewModel : IComparable<ContactViewModel>, INotifyPropertyChanged
     {

@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Data;
 using VATRP.Core.Enums;
 
-namespace VATRP.App.Converters
+namespace com.vtcsecure.ace.windows.Converters
 {
     public class BoolToBubbleAlignmentConverter : IValueConverter
     {

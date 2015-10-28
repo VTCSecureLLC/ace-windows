@@ -14,7 +14,7 @@ using VATRP.Core.Services;
 using VATRP.Core.Interfaces;
 using VATRP.LinphoneWrapper.Enums;
 
-namespace VATRP.App.Services
+namespace com.vtcsecure.ace.windows.Services
 {
     internal class ServiceManager : ServiceManagerBase
     {

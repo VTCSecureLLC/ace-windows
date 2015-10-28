@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VATRP.App.Model
+namespace com.vtcsecure.ace.windows.Model
 {
     public class KeyPadEventArgs : EventArgs
     {

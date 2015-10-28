@@ -3,12 +3,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using log4net;
-using VATRP.App.Model;
-using VATRP.App.Services;
-using VATRP.App.ViewModel;
+using com.vtcsecure.ace.windows.Model;
+using com.vtcsecure.ace.windows.Services;
+using com.vtcsecure.ace.windows.ViewModel;
 using VATRP.Core.Interfaces;
 
-namespace VATRP.App.CustomControls
+namespace com.vtcsecure.ace.windows.CustomControls
 {
     /// <summary>
     /// Interaction logic for DialPad.xaml

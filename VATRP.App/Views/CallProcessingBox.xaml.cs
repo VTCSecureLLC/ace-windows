@@ -5,16 +5,16 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using log4net;
-using VATRP.App.Model;
-using VATRP.App.Services;
-using VATRP.App.ViewModel;
+using com.vtcsecure.ace.windows.Model;
+using com.vtcsecure.ace.windows.Services;
+using com.vtcsecure.ace.windows.ViewModel;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using VATRP.Core.Services;
 using VATRP.LinphoneWrapper.Structs;
 using Timer = System.Timers.Timer;
 
-namespace VATRP.App.Views
+namespace com.vtcsecure.ace.windows.Views
 {
     /// <summary>
     /// Interaction logic for CallProcessingBox.xaml

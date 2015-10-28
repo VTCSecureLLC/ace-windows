@@ -5,10 +5,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows;
-using VATRP.App.Services;
+using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Model;
 
-namespace VATRP.App.Model
+namespace com.vtcsecure.ace.windows.Model
 {
     public class VATRPWindow : Window
     {

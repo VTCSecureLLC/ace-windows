@@ -7,14 +7,14 @@ using System.Threading;
 using System.Timers;
 using System.Windows;
 using System.Windows.Threading;
-using VATRP.App.Services;
+using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Events;
 using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 
 
-namespace VATRP.App.ViewModel
+namespace com.vtcsecure.ace.windows.ViewModel
 {
     public class MessagingViewModel : ViewModelBase
     {
@@ -50,7 +50,7 @@ namespace VATRP.App.ViewModel
             LoadContacts();
         }
 
-        private void OnConversationClosed(object sender, Core.Events.ConversationEventArgs e)
+        private void OnConversationClosed(object sender, ConversationEventArgs e)
         {
             if (ServiceManager.Instance.Dispatcher.Thread != Thread.CurrentThread)
             {
@@ -80,7 +80,7 @@ namespace VATRP.App.ViewModel
             }
         }
 
-        private void OnContactRemoved(object sender, Core.Events.ContactRemovedEventArgs e)
+        private void OnContactRemoved(object sender, ContactRemovedEventArgs e)
         {
             RemoveContact(e.contactId);
         }
@@ -98,7 +98,7 @@ namespace VATRP.App.ViewModel
             }
         }
 
-        private void OnConversationUpdated(object sender, Core.Events.ConversationUpdatedEventArgs e)
+        private void OnConversationUpdated(object sender, ConversationUpdatedEventArgs e)
         {
             if (ServiceManager.Instance.Dispatcher.Thread != Thread.CurrentThread)
             {

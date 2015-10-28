@@ -2,7 +2,7 @@ using System;
 using System.Windows;
 using VATRP.Core.Model;
 
-namespace VATRP.App.ViewModel
+namespace com.vtcsecure.ace.windows.ViewModel
 {
     public class CallViewModel : ViewModelBase
     {

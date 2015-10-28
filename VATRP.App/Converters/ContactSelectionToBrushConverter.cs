@@ -4,7 +4,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using VATRP.Core.Model;
 
-namespace VATRP.App.Converters
+namespace com.vtcsecure.ace.windows.Converters
 {
     public class ContactSelectionToBrushConverter : IValueConverter
     {

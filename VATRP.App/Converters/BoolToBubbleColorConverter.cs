@@ -6,7 +6,7 @@ using System.Windows.Media;
 using VATRP.Core.Enums;
 using Color = System.Windows.Media.Color;
 
-namespace VATRP.App.Converters
+namespace com.vtcsecure.ace.windows.Converters
 {
     public class BoolToBubbleColorConverter : IValueConverter
     {

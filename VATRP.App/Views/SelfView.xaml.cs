@@ -11,10 +11,10 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using VATRP.App.Model;
-using VATRP.App.Services;
+using com.vtcsecure.ace.windows.Model;
+using com.vtcsecure.ace.windows.Services;
 
-namespace VATRP.App.Views
+namespace com.vtcsecure.ace.windows.Views
 {
     /// <summary>
     /// Interaction logic for SelfView.xaml
