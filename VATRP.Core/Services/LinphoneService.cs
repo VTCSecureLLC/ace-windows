@@ -227,7 +227,7 @@ namespace VATRP.Core.Services
 				display_warning = IntPtr.Zero,
 				display_url = IntPtr.Zero,
 				show = IntPtr.Zero,
-				text_received = IntPtr.Zero,
+                text_received = IntPtr.Zero,
 			};
 			vtablePtr = Marshal.AllocHGlobal(Marshal.SizeOf(vtable));
 			Marshal.StructureToPtr(vtable, vtablePtr, false);
@@ -700,8 +700,7 @@ namespace VATRP.Core.Services
                 VATRPCall call = FindCall(callPtr);
                 if (call == null)
                     return false;
-                if (chatRoomPtr == IntPtr.Zero)
-                    chatRoomPtr = LinphoneAPI.linphone_call_get_chat_room(callPtr);
+                chatRoomPtr = LinphoneAPI.linphone_call_get_chat_room(callPtr);
 
                 /*create a chat room associated to this call*/
                 if (chatRoomPtr != IntPtr.Zero)
@@ -717,7 +716,7 @@ namespace VATRP.Core.Services
                     int retCode = LinphoneAPI.linphone_chat_message_put_char(chatMsgPtr, charCode);
                     if (charCode == '\r')
                     {
-                        LinphoneAPI.linphone_chat_room_send_chat_message(chatRoomPtr, chatMsgPtr);
+                        OnMessageStatusChanged(chatMsgPtr, LinphoneChatMessageState.LinphoneChatMessageStateDelivered);
                         chatMsgPtr = IntPtr.Zero;
                     }
                     retVal = (retCode == 0);
@@ -733,14 +732,9 @@ namespace VATRP.Core.Services
 
             lock (messagingLock)
             {
-                if (chat.NativePtr == IntPtr.Zero)
-                {
-                    IntPtr chatPtr = LinphoneAPI.linphone_core_get_chat_room_from_uri(linphoneCore, chat.Contact.ID);
-                    if (chatPtr == IntPtr.Zero)
-                        return false;
-                    chat.NativePtr = chatPtr;
-                }
-
+                IntPtr chatPtr = LinphoneAPI.linphone_core_get_chat_room_from_uri(linphoneCore, chat.Contact.ID);
+                chat.NativePtr = chatPtr;
+                
                 msgPtr = LinphoneAPI.linphone_chat_room_create_message(chat.NativePtr, message);
                 if (msgPtr != IntPtr.Zero)
                 {
@@ -1325,6 +1319,7 @@ namespace VATRP.Core.Services
                     IsIncompleteMessage = false,
                     MessageTime = localTime,
                     Content = messageString,
+                    IsRTTMessage = false,
                     IsRead = LinphoneAPI.linphone_chat_message_is_read(message)
                 };
 
@@ -1456,6 +1451,74 @@ namespace VATRP.Core.Services
         }
 
 	    #endregion
+
+        #region History
+
+        public int GetHistorySize(string username)
+        {
+            var address = string.Format("sip:{1}@{2}", username, preferences.ProxyHost);
+            IntPtr friendAddressPtr = LinphoneAPI.linphone_core_create_address(linphoneCore, address);
+            if (friendAddressPtr == IntPtr.Zero)
+                return 0;
+
+            IntPtr chatRoomPtr = LinphoneAPI.linphone_core_get_chat_room(linphoneCore, friendAddressPtr);
+            if (chatRoomPtr == IntPtr.Zero)
+                return 0 ;
+
+            return LinphoneAPI.linphone_chat_room_get_history_size(chatRoomPtr);
+        }
+
+        public void LoadChatRoom(VATRPChat chat)
+        {
+            var address = string.Format("sip:{1}@{2}",  chat.Contact.ID, preferences.ProxyHost);
+            IntPtr friendAddressPtr = LinphoneAPI.linphone_core_create_address(linphoneCore, address);
+            if (friendAddressPtr == IntPtr.Zero)
+                return;
+
+            IntPtr chatRoomPtr = LinphoneAPI.linphone_core_get_chat_room(linphoneCore, friendAddressPtr);
+            if (chatRoomPtr == IntPtr.Zero)
+                return;
+            IntPtr historyListPtr = LinphoneAPI.linphone_chat_room_get_history(chatRoomPtr, 0); // load all messages
+
+            MSList curStruct;
+            do
+            {
+                curStruct.next = IntPtr.Zero;
+                curStruct.prev = IntPtr.Zero;
+                curStruct.data = IntPtr.Zero;
+                curStruct = (MSList)Marshal.PtrToStructure(historyListPtr, typeof(MSList));
+                if (curStruct.data != IntPtr.Zero)
+                {
+                    IntPtr msgPtr = LinphoneAPI.linphone_chat_message_get_text(curStruct.data);
+                    var messageString = string.Empty;
+                    if (msgPtr != IntPtr.Zero)
+                        messageString = Marshal.PtrToStringAnsi(msgPtr);
+
+                    if (!string.IsNullOrEmpty(messageString) && messageString.Length > 1)
+                    {
+                        var localTime =
+                            Time.ConvertUtcTimeToLocalTime(LinphoneAPI.linphone_chat_message_get_time(curStruct.data));
+
+                        var chatMessage = new VATRPChatMessage(MessageContentType.Text)
+                        {
+                            Direction =
+                                LinphoneAPI.linphone_chat_message_is_outgoing(curStruct.data)
+                                    ? MessageDirection.Outgoing
+                                    : MessageDirection.Incoming,
+                            IsIncompleteMessage = false,
+                            MessageTime = localTime,
+                            Content = messageString,
+                            IsRead = LinphoneAPI.linphone_chat_message_is_read(curStruct.data),
+                            Chat = chat
+                        };
+                        chat.Messages.Add(chatMessage);
+                    }
+                }
+                historyListPtr = curStruct.next;
+            } while (curStruct.next != IntPtr.Zero);
+        }
+
+        #endregion
 
         #region IVATRPInterface
 
