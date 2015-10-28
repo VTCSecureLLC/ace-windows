@@ -12,7 +12,7 @@ namespace VATRP.Core.Model
 {
     public class VATRPChatMessage : INotifyPropertyChanged, IComparable<VATRPChatMessage>
     {
-        protected ChatID _chatID;
+        protected VATRPChat _chatID;
         protected string _content;
         protected string _encryptedContent;
         protected string _fileName;
@@ -24,7 +24,7 @@ namespace VATRP.Core.Model
         protected DateTime _time;
         private MessageDirection _direction;
         private bool _isRead;
-
+        private bool _isRTTMessage;
 
         public VATRPChatMessage()
         {
@@ -63,13 +63,13 @@ namespace VATRP.Core.Model
         }
 
 
-        public ChatID Chat
+        public VATRPChat Chat
         {
             get
             {
                 return this._chatID;
             }
-            private set
+            set
             {
                 this._chatID = value;
                 this.OnPropertyChanged("Chat");
@@ -197,6 +197,18 @@ namespace VATRP.Core.Model
             }
         }
 
+        public bool IsRTTMessage
+        {
+            get
+            {
+                return this._isRTTMessage;
+            }
+            set
+            {
+                this._isRTTMessage = value;
+                OnPropertyChanged("IsRTTMessage");
+            }
+        }
         public LinphoneChatMessageState Status
         {
             get
@@ -214,7 +226,7 @@ namespace VATRP.Core.Model
         {
             get
             {
-                return this.Direction == MessageDirection.Outgoing;
+                return (this.Direction == MessageDirection.Outgoing) && !IsRTTMessage;
             }
         }
 
