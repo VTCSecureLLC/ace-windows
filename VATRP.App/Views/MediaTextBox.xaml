@@ -27,9 +27,9 @@
         <converters:BoolToBubbleMarginConverter x:Key="bmarginc"/>
         <converters:MessageDeliveryStatusToBrushConverter x:Key="mdsb"/>
         <converters:MessageDateConverter x:Key="mdc"/>
-        <converters:BoolToBubbleAlignmentConverter x:Key="btba_text" />
-        <converters:BoolToBubbleAlignmentConverter x:Key="btba_time" OppositeBooleanValue="True"/>
-        <converters:DirectionToColumnConverter x:Key="dtc"/>
+        <converters:BoolToBubbleAlignmentConverter x:Key="BtbaText" OppositeBooleanValue="True" />
+        <converters:BoolToBubbleAlignmentConverter x:Key="BtbaTime" TrueEquivalent="Right" FalseEquivalent="Left" OppositeBooleanValue="True"/>
+        <converters:DirectionToVisibilityConverter x:Key="dvc"/>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -83,10 +83,10 @@
 
                                     </StackPanel>
                                     <Border Grid.Column="2" Grid.Row="0" Width="10" Height="10" CornerRadius="15" Background="Gray" Visibility="{Binding Contact.HasUnreadMsg, Converter={StaticResource bvcno}, Mode=OneWay}">
-                                    <!--Text="{Binding Contact.UnreadMsgCount}"-->
-                                    <TextBlock  FontSize="12"  Margin="0" FontWeight="SemiBold" 
+                                        <!--Text="{Binding Contact.UnreadMsgCount}"-->
+                                        <TextBlock  FontSize="12"  Margin="0" FontWeight="SemiBold" 
                                               HorizontalAlignment="Center"     VerticalAlignment="Center"  />
-                                       </Border>
+                                    </Border>
                                 </Grid>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
@@ -125,13 +125,15 @@
                         </Border>
                     </Grid>
                 </Border>
-                
+
                 <Border Grid.Row ="1" Background="{StaticResource ChatPageMainBg}" BorderBrush="{StaticResource ChatPageMainBg}" 
 		   BorderThickness="0,0,0,2">
-                    <ListBox x:Name ="MessageListView" Style="{StaticResource MessagesListBox}" DataContext="{Binding Chat, Mode=OneWay}"
+                    <!---->
+                    <ListBox x:Name ="MessageListView" Style="{StaticResource MessagesListBox}" 
 				ItemsSource= "{Binding Messages}" Margin="0" BorderBrush="{StaticResource ChatPageSelectContactTextBorder}" BorderThickness="1" 
-                            
-                             Background="White" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" IsSynchronizedWithCurrentItem="True"
+                             DataContext="{Binding Chat, Mode=OneWay}"
+                                 Background="White" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" IsSynchronizedWithCurrentItem="True"
+                             HorizontalContentAlignment="Stretch"
                              >
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
@@ -145,9 +147,20 @@
 
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Grid Margin="{Binding Direction, Converter={StaticResource bmarginc}}" 
-                                      Visibility="{Binding ShowInList, Converter={StaticResource bvc}}">
-                                    <Border BorderBrush="#ffdbe1e3" BorderThickness="1" 
+                                <StackPanel Margin="5" HorizontalAlignment="{Binding Direction, Converter={StaticResourceExtension BtbaText}}"
+                                      Visibility="{Binding ShowInList, Converter={StaticResource bvc}}" Orientation="Horizontal">
+
+                                    <Border Width="26" Height="26"
+										Margin="5" VerticalAlignment="Bottom" CornerRadius="13" Background="#FFCCCCCC" BorderThickness="0" Visibility="{Binding Direction, Converter={StaticResource dvc}}">
+                                        <TextBlock Text="{Binding Contact.Initials}" Foreground="#ff4c4c4c" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                                   DataContext="{Binding Chat}"
+                                                    >
+                                    </TextBlock>
+                                </Border>
+                                
+                                <Grid Margin="5,5,10,5" HorizontalAlignment="{Binding Direction, Converter={StaticResourceExtension BtbaText}}"
+                                      Visibility="{Binding ShowInList, Converter={StaticResource bvc}}" >
+                                    <Border BorderBrush="{Binding Direction, Converter={StaticResource bcolorc}}" BorderThickness="1" 
                                             Background="{Binding Direction, Converter={StaticResource bcolorc}}" 
                                             CornerRadius="{Binding Direction, Converter={StaticResource bcornerc}}" >
                                         <Grid >
@@ -155,45 +168,47 @@
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
-                                            <Grid.ColumnDefinitions >
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-                                            <StackPanel HorizontalAlignment="{Binding Direction, Converter={StaticResource btba_text}}" Grid.Column="{Binding Direction, Converter={StaticResource dtc}}">
-                                            <TextBlock  Text="{Binding Content}"
+                                           
+                                            
+                                            <!--Text part-->
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <TextBlock  Text="{Binding Content}" HorizontalAlignment="Right"
     							Margin="5,0,5,0" TextWrapping="Wrap"
     							Foreground="{StaticResource ChatPageBubbleTextFont}"
-    							FontSize="14" 
+    							FontSize="18" 
     							  VerticalAlignment="Top"/>
-                                            </StackPanel>
-                                            <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" Margin="0,5,2,5" HorizontalAlignment="{Binding Direction, Converter={StaticResource btba_time}}">
-                                                <TextBlock Text="{Binding MessageTime, Converter={StaticResource mdc}}"
+                    </StackPanel>
+
+                    <!--Date/Time-->
+                    <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="5,5,5,5" HorizontalAlignment="{Binding Direction, Converter={StaticResourceExtension BtbaTime}}">
+                        <TextBlock Text="{Binding MessageTime, Converter={StaticResource mdc}}" 
     							Foreground="{StaticResource ChatPageBubbleTextFont}" 
     							 FontSize="12"/>
-                                                <Ellipse Width="10" Height="10" 
+                        <Ellipse Width="10" Height="10" 
                                                          Fill="{Binding Status, Converter={StaticResource mdsb}}" Margin="8,2,8,0" Visibility="{Binding HasDeliveryStatus, Converter={StaticResource bvc}}"/>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                </Grid>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </Border>
-                <Border Grid.Row ="2" Background="{StaticResource ChatPageMainBg}" BorderBrush="{StaticResource ChatPageMainBg}" 
+                    </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+    </StackPanel>
+    </DataTemplate>
+    </ListBox.ItemTemplate>
+    </ListBox>
+    </Border>
+    <Border Grid.Row ="2" Background="{StaticResource ChatPageMainBg}" BorderBrush="{StaticResource ChatPageMainBg}" 
 		   BorderThickness="0,2,0,0">
-                    <Grid >
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+        <Grid >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-                        <Grid Style="{StaticResource HintEntryFieldStyle}" Margin="0" Background="White" Grid.Column="0">
-                            <TextBlock Text="Message" Foreground="{StaticResource ChatPageComposeHintFont}" FontSize="9" VerticalAlignment="Center" 
+            <Grid Style="{StaticResource HintEntryFieldStyle}" Margin="0" Background="White" Grid.Column="0">
+                <TextBlock Text="Message" Foreground="{StaticResource ChatPageComposeHintFont}" FontSize="9" VerticalAlignment="Center" 
 								   HorizontalAlignment="Left" Margin="10,0,0,0"
 					   Visibility="{Binding ShowMessageHint, Converter={StaticResource bvc}}" />
 
-                            <TextBox BorderThickness="1" Height="32" TextAlignment="Left" FontSize="14"
+                <TextBox BorderThickness="1" Height="32" TextAlignment="Left" FontSize="14"
 									 Foreground="{StaticResource ChatPageComposeTextboxFont}" 
 								 HorizontalAlignment="Stretch" Text="{Binding MessageText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
 									 GotFocus="OnSearchTextFocused" LostFocus="OnSearchTextReleased" 
@@ -202,18 +217,18 @@
 									 BorderBrush="{StaticResource ChatPageSelectContactTextBorder}"
                                      PreviewKeyUp="OnKeyUp" PreviewTextInput="OnTextInpput"
                                      />
-                        </Grid>
-                        <Border Grid.Column ="1" Background="{StaticResource ChatPageMainBg}" BorderBrush="{StaticResource ChatPageMainBg}" 
+            </Grid>
+            <Border Grid.Column ="1" Background="{StaticResource ChatPageMainBg}" BorderBrush="{StaticResource ChatPageMainBg}" 
 		   BorderThickness="2,0,0,0">
-                            <Button Width="50" Height="32" Background="{StaticResource ChatPageSendButtonNormalBg}" Content="Send" 
+                <Button Width="50" Height="32" Background="{StaticResource ChatPageSendButtonNormalBg}" Content="Send" 
 									BorderThickness="1" BorderBrush="{StaticResource ChatPageSelectContactTextBorder}" 
 									Foreground="{StaticResource ChatPageSendButtonNormalFont}"
 									Click="OnSendButtonClicked"
 									/>
-                        </Border>
-                    </Grid>
-                </Border>
-            </Grid>
-        </Border>
+            </Border>
+        </Grid>
+    </Border>
+    </Grid>
+    </Border>
     </Grid>
 </model:VATRPWindow>
