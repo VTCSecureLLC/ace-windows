@@ -64,5 +64,7 @@ namespace VATRP.Core.Interfaces
         LinphoneChatMessageState GetMessageStatus(IntPtr intPtr);
         bool SendChatMessage(VATRPChat chat, string message, ref IntPtr msgPtr);
         void MarkChatAsRead(IntPtr chatRoomPtr);
+        int GetHistorySize(string username);
+        void LoadChatRoom(VATRPChat chat);
     }
 }
