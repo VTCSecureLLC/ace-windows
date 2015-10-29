@@ -12,13 +12,14 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using VATRP.App.CustomControls;
-using VATRP.App.Model;
-using VATRP.App.Services;
+using com.vtcsecure.ace.windows.CustomControls;
+using com.vtcsecure.ace.windows.Model;
+using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Services;
 using VATRP.LinphoneWrapper.Enums;
 
-namespace VATRP.App.Views
+
+namespace com.vtcsecure.ace.windows.Views
 {
     /// <summary>
     /// Interaction logic for CallView.xaml
@@ -42,7 +43,7 @@ namespace VATRP.App.Views
                                 MSVideoSize.MS_VIDEO_SIZE_CIF_H);
         }
 
-        internal void Resize(LinphoneWrapper.Enums.MSVideoSize width, LinphoneWrapper.Enums.MSVideoSize height)
+        internal void Resize(VATRP.LinphoneWrapper.Enums.MSVideoSize width, VATRP.LinphoneWrapper.Enums.MSVideoSize height)
         {
             this.Width = Convert.ToInt32(width);
             this.Height = Convert.ToInt32(height);

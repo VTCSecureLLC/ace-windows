@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using VATRP.App.Model;
+using com.vtcsecure.ace.windows.Model;
 
-namespace VATRP.App.Views
+namespace com.vtcsecure.ace.windows.Views
 {
     public partial class KeyPadCtrl
     {

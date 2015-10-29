@@ -5,7 +5,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using VATRP.Core.Model;
 
-namespace VATRP.App.CustomControls
+namespace com.vtcsecure.ace.windows.CustomControls
 {
     /// <summary>
     /// Interaction logic for RecentsCallItem.xaml

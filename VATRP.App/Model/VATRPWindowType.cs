@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace VATRP.App.Model
+namespace com.vtcsecure.ace.windows.Model
 {
     public enum VATRPWindowType
     {

@@ -1,7 +1,7 @@
 using System;
 using System.Windows;
 
-namespace VATRP.App.ViewModel
+namespace com.vtcsecure.ace.windows.ViewModel
 {
     public class CallInfoViewModel : ViewModelBase
     {

@@ -8,11 +8,11 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
 using log4net;
-using VATRP.App.Services;
+using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Model;
 using HockeyApp;
 
-namespace VATRP.App
+namespace com.vtcsecure.ace.windows
 {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -31,7 +31,7 @@ namespace VATRP.App
             get { return _allowDestroyWindows; }
             set { _allowDestroyWindows = value; }
         }
-        public static Core.Model.VATRPAccount CurrentAccount { get; set; }
+        public static VATRPAccount CurrentAccount { get; set; }
         public static bool CanMakeVideoCall { get; set; }
 
         internal static VATRPCallEvent ActiveCallHistoryEvent { get; set; }

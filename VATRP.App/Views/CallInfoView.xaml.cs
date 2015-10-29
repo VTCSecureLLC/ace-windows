@@ -15,16 +15,16 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using VATRP.App.Interfaces;
-using VATRP.App.Model;
-using VATRP.App.Services;
-using VATRP.App.ViewModel;
+using com.vtcsecure.ace.windows.Interfaces;
+using com.vtcsecure.ace.windows.Model;
+using com.vtcsecure.ace.windows.Services;
+using com.vtcsecure.ace.windows.ViewModel;
 using VATRP.Core.Model;
 using VATRP.LinphoneWrapper;
 using VATRP.LinphoneWrapper.Enums;
 using VATRP.LinphoneWrapper.Structs;
 
-namespace VATRP.App.Views
+namespace com.vtcsecure.ace.windows.Views
 {
     /// <summary>
     /// Interaction logic for CallInfoView.xaml

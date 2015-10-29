@@ -15,16 +15,15 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using log4net;
-using VATRP.App.CustomControls;
-using VATRP.App.Model;
-using VATRP.App.Services;
-using VATRP.App.Views;
+using com.vtcsecure.ace.windows.CustomControls;
+using com.vtcsecure.ace.windows.Model;
+using com.vtcsecure.ace.windows.Services;
+using com.vtcsecure.ace.windows.Views;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
-using VATRP.Core.Services;
 using VATRP.LinphoneWrapper.Enums;
 
-namespace VATRP.App
+namespace com.vtcsecure.ace.windows
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

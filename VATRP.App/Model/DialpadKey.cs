@@ -1,4 +1,4 @@
-﻿namespace VATRP.App.Model
+﻿namespace com.vtcsecure.ace.windows.Model
 {
     public enum DialpadKey
     {

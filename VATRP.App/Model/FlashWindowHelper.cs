@@ -5,9 +5,9 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Interop;
-using VATRP.App.Services;
+using com.vtcsecure.ace.windows.Services;
 
-namespace VATRP.App.Model
+namespace com.vtcsecure.ace.windows.Model
 {
     public class FlashWindowHelper
     {
