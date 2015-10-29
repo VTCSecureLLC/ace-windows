@@ -91,7 +91,7 @@ namespace VATRP.Core.Model
             get { return _preferredVideoId; }
             set
             {
-                _preferredVideoId = string.IsNullOrWhiteSpace(value) ? value : "cif";
+                _preferredVideoId = !string.IsNullOrWhiteSpace(value) ? value : "cif";
             }
         }
 
