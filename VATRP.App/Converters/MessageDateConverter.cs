@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace VATRP.App.Converters
+namespace com.vtcsecure.ace.windows.Converters
 {
 
     public class MessageDateConverter : IValueConverter
