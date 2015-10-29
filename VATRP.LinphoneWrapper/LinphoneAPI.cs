@@ -1218,7 +1218,9 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_chat_room_get_peer_address(IntPtr cr);
-
+        
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_chat_room_send_message(IntPtr cr, string msg);
 
 /**
  * Send a message to peer member of this chat room.
@@ -1499,7 +1501,7 @@ namespace VATRP.LinphoneWrapper
  */
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern string linphone_chat_message_get_text(IntPtr message);
+        public static extern IntPtr linphone_chat_message_get_text(IntPtr message);
 
 /**
  * Get the time the message was sent.
@@ -1734,6 +1736,9 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport("libmsopenh264.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void libmsopenh264_init();
+
+        [DllImport("ortp.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void ortp_free(IntPtr p);
 
     }
 }

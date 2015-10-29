@@ -14,7 +14,7 @@ namespace com.vtcsecure.ace.windows.Converters
         {
             if (value is MessageDirection && (MessageDirection)value == MessageDirection.Outgoing)
             {
-                return new SolidColorBrush(Color.FromArgb(0xff, 239, 226, 255));
+                return new SolidColorBrush(Color.FromArgb(255, 171, 248, 221));
             }            
             return new SolidColorBrush(Color.FromArgb(0xff, 237, 237, 237));
             

@@ -75,7 +75,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enums\MessageDirection.cs" />
-    <Compile Include="Enums\MessageStatus.cs" />
     <Compile Include="Enums\TypingAction.cs" />
     <Compile Include="Enums\UserStatus.cs" />
     <Compile Include="Events\ConfigurationEventArgs.cs" />

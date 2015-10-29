@@ -6,15 +6,15 @@ using VATRP.Core.Enums;
 
 namespace com.vtcsecure.ace.windows.Converters
 {
-    public class BoolToBubbleMarginConverter : IValueConverter
+    public class DirectionToColumnConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is MessageDirection && (MessageDirection)value == MessageDirection.Outgoing)
             {
-                return new Thickness(60.0, 5.0, 10.0, 5.0);
+                return 1;
             }
-            return new Thickness(10.0, 5.0, 60.0, 5.0);
+            return 0;
             
         }
 
