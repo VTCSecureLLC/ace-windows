@@ -7,7 +7,7 @@ using VATRP.Core.Enums;
 using VATRP.LinphoneWrapper.Enums;
 using Color = System.Windows.Media.Color;
 
-namespace VATRP.App.Converters
+namespace com.vtcsecure.ace.windows.Converters
 {
     public class MessageDeliveryStatusToBrushConverter : IValueConverter
     {
