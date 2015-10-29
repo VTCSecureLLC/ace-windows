@@ -7,14 +7,14 @@ using System.Threading;
 using System.Timers;
 using System.Windows;
 using System.Windows.Threading;
-using VATRP.App.Services;
+using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Events;
 using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 
 
-namespace VATRP.App.ViewModel
+namespace com.vtcsecure.ace.windows.ViewModel
 {
     public class MessagingViewModel : ViewModelBase
     {
@@ -46,11 +46,36 @@ namespace VATRP.App.ViewModel
             this._chatsManager.NewConversationCreated += OnNewConversationCreated;
             this._chatsManager.ConversationClosed += OnConversationClosed;
             this._chatsManager.ContactsChanged += OnContactsChanged;
+            this._chatsManager.ContactAdded += OnChatContactAdded;
+            this._chatsManager.ContactRemoved += OnChatContactRemoved;
             LastInput = string.Empty;
-            LoadContacts();
         }
 
-        private void OnConversationClosed(object sender, Core.Events.ConversationEventArgs e)
+        private void OnChatContactRemoved(object sender, ContactRemovedEventArgs e)
+        {
+            var contactVM = FindContactViewModel(e.contactId);
+            if (contactVM != null)
+            {
+                this.Contacts.Remove(contactVM);
+                OnPropertyChanged("Contacts");
+            }
+        }
+
+        private void OnChatContactAdded(object sender, ContactEventArgs e)
+        {
+            var contactVM = FindContactViewModel(e.Contact);
+            if (contactVM == null)
+            {
+                var contact = this._contactsManager.FindContact(e.Contact);
+                if (contact != null)
+                {
+                    this.Contacts.Add(new ContactViewModel(contact));
+                    OnPropertyChanged("Contacts");
+                }
+            }
+        }
+
+        private void OnConversationClosed(object sender, ConversationEventArgs e)
         {
             if (ServiceManager.Instance.Dispatcher.Thread != Thread.CurrentThread)
             {
@@ -71,16 +96,9 @@ namespace VATRP.App.ViewModel
                     new EventHandler<ConversationEventArgs>(OnNewConversationCreated), sender, new object[] { e });
                 return;
             }
-
-            VATRPContact contact = _contactsManager.FindContact(e.Conversation.Contact);
-            if (contact != null)
-            {
-                this.Contacts.Add(new ContactViewModel(contact));
-                OnPropertyChanged("Contacts");
-            }
         }
 
-        private void OnContactRemoved(object sender, Core.Events.ContactRemovedEventArgs e)
+        private void OnContactRemoved(object sender, ContactRemovedEventArgs e)
         {
             RemoveContact(e.contactId);
         }
@@ -98,7 +116,7 @@ namespace VATRP.App.ViewModel
             }
         }
 
-        private void OnConversationUpdated(object sender, Core.Events.ConversationUpdatedEventArgs e)
+        private void OnConversationUpdated(object sender, ConversationUpdatedEventArgs e)
         {
             if (ServiceManager.Instance.Dispatcher.Thread != Thread.CurrentThread)
             {
@@ -107,20 +125,9 @@ namespace VATRP.App.ViewModel
                 return;
             }
 
-            if (_contactViewModel != null && _contactViewModel.Contact == e.Conversation.Contact)
+            if (_contactViewModel != null && _contactViewModel.Contact == e.Conversation.Contact )
             {
-                this._contactViewModel.Contact.UnreadMsgCount = 0;
-                this.Chat.UnreadMsgCount = 0;
-                this._chatsManager.OnUnreadMsgUpdated();
                 OnPropertyChanged("Messages");
-            }
-            else
-            {
-                VATRPContact contact = _chatsManager.FindContact(e.Conversation.Contact);
-                if (contact != null)
-                {
-                    contact.UnreadMsgCount += 1;
-                }
             }
         }
 
@@ -210,14 +217,7 @@ namespace VATRP.App.ViewModel
 
             if (Chat != null)
             {
-                Chat.UnreadMsgCount = 0;
-                this._chatsManager.OnUnreadMsgUpdated();
-            }
-
-            VATRPContact c = _chatsManager.FindContact(_contactViewModel.Contact);
-            if (c != null)
-            {
-                c.UnreadMsgCount = 0;
+                this._chatsManager.MarkChatAsRead(Chat);
             }
 
             ReceiverAddress = contact.Fullname;
@@ -225,7 +225,7 @@ namespace VATRP.App.ViewModel
             OnPropertyChanged("Messages");
         }
 
-        private ContactViewModel FindContactViewModel(VATRPContact contact)
+        private ContactViewModel FindContactViewModel(ContactID contact)
         {
             if (contact != null)
             {
@@ -240,6 +240,9 @@ namespace VATRP.App.ViewModel
 
         internal void SendMessage(char key, bool isIncomplete)
         {
+            if (ServiceManager.Instance.ActiveCallPtr == IntPtr.Zero)
+                return;
+
             var message = string.Format("{0}", key);
             if (!ReadyToSend(message))
                 return;
@@ -252,23 +255,13 @@ namespace VATRP.App.ViewModel
             }
         }
 
-        internal void SendMessage(string message, bool isIncomplete)
+        internal void SendMessage(string message)
         {
             if (!ReadyToSend(message))
                 return;
- 
-            if (_lastSentTextIndex > MessageText.Length)
-                _lastSentTextIndex = MessageText.Length;
 
-            var msg = MessageText.Substring(_lastSentTextIndex);
-            _lastSentTextIndex = MessageText.Length;
-
-            _chatsManager.ComposeAndSendMessage(ServiceManager.Instance.ActiveCallPtr, Chat, MessageText, isIncomplete);
-            if (isIncomplete)
-            {
-                _lastSentTextIndex = 0;
-                MessageText = string.Empty;
-            }
+            _chatsManager.ComposeAndSendMessage(Chat, MessageText);
+            MessageText = string.Empty;
         }
 
         private bool ReadyToSend(string message)
@@ -307,7 +300,7 @@ namespace VATRP.App.ViewModel
         {
             get
             {
-                if(this.Chat != null)
+                if (this.Chat != null)
                     return this.Chat.Messages;
                 return null;
             }
@@ -394,6 +387,15 @@ namespace VATRP.App.ViewModel
                 }
             }
         }
+
+        public ContactViewModel Contact
+        {
+            get
+            {
+                return _contactViewModel;
+            }
+        }
+
         #endregion
 
 

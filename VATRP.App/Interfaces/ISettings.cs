@@ -1,4 +1,4 @@
-﻿namespace VATRP.App.Interfaces
+﻿namespace com.vtcsecure.ace.windows.Interfaces
 {
     public interface ISettings
     {

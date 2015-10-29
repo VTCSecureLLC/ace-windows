@@ -14,14 +14,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using log4net;
-using VATRP.App.CustomControls;
-using VATRP.App.Model;
-using VATRP.App.Services;
+using com.vtcsecure.ace.windows.CustomControls;
+using com.vtcsecure.ace.windows.Model;
+using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Events;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 
-namespace VATRP.App.Views
+namespace com.vtcsecure.ace.windows.Views
 {
     /// <summary>
     /// Interaction logic for HistoryView.xaml

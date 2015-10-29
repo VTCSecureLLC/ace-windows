@@ -12,11 +12,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using VATRP.App.Interfaces;
-using VATRP.App.Services;
+using com.vtcsecure.ace.windows.Interfaces;
+using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Model;
 
-namespace VATRP.App.CustomControls
+namespace com.vtcsecure.ace.windows.CustomControls
 {
     /// <summary>
     /// Interaction logic for CallSettingsCtrl.xaml

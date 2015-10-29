@@ -180,25 +180,6 @@ namespace VATRP.Core.Services
             return flag;
         }
 
-        internal void SetMail_inViewList(VATRPContact contact, bool mailVisible)
-        {
-            if (contact != null)
-            {
-                VATRPContact contact2 = this.FindContact(contact);
-                if (contact2 != null)
-                {
-                    if (mailVisible)
-                    {
-                        contact2.UnreadMsgCount++;
-                    }
-                    else
-                    {
-                        contact2.UnreadMsgCount = 0;
-                    }
-                }
-            }
-        }
-
         public ObservableCollection<VATRPContact> Contacts
         {
             get

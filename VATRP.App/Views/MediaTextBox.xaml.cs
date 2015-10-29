@@ -13,13 +13,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using VATRP.App.Model;
-using VATRP.App.Services;
-using VATRP.App.ViewModel;
+using com.vtcsecure.ace.windows.Model;
+using com.vtcsecure.ace.windows.Services;
+using com.vtcsecure.ace.windows.ViewModel;
 using VATRP.Core.Extensions;
 using VATRP.Core.Model;
 
-namespace VATRP.App.Views
+namespace com.vtcsecure.ace.windows.Views
 {
     /// <summary>
     /// Interaction logic for MediaTextWindow.xaml
@@ -36,7 +36,7 @@ namespace VATRP.App.Views
             DataContext = model;
         }
 
-        private void ChatManagerOnConversationUpdated(object sender, Core.Events.ConversationUpdatedEventArgs e)
+        private void ChatManagerOnConversationUpdated(object sender, VATRP.Core.Events.ConversationUpdatedEventArgs e)
         {
             ScrollToEnd();
         }
@@ -79,17 +79,22 @@ namespace VATRP.App.Views
 
         private void OnSendButtonClicked(object sender, RoutedEventArgs e)
         {
-            //model.SendMessage(true);
+            if (ServiceManager.Instance.ActiveCallPtr == IntPtr.Zero)
+                model.SendMessage(model.MessageText);
         }
 
         private void OnKeyUp(object sender, KeyEventArgs e)
         {
-            Console.WriteLine("Key " + e.Key);
             bool isIncomplete = true;
             switch (e.Key)
             {
                 case Key.Enter:
                     isIncomplete = false;
+                    if (ServiceManager.Instance.ActiveCallPtr == IntPtr.Zero)
+                    {
+                        model.SendMessage(model.MessageText);
+                        return;
+                    }
                     break;
                 case Key.Space:
                     model.LastInput = " ";

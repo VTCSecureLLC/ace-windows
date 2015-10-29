@@ -11,11 +11,11 @@ namespace VATRP.Core.Interfaces
         VATRPContact FindContact(ContactID contactID);
         ObservableCollection<VATRPContact> Contacts { get; }
 
-        void OnUnreadMsgUpdated();
-
         bool ComposeAndSendMessage(IntPtr callPtr, VATRPChat chat, char key, bool inCompleteMessage);
 		
-        bool ComposeAndSendMessage(IntPtr callPtr, VATRPChat chat, string text, bool inCompleteMessage);
+        bool ComposeAndSendMessage(VATRPChat chat, string text);
+
+        void MarkChatAsRead(ChatID chat);
 
         event EventHandler<ConversationEventArgs> ConversationClosed;
 
@@ -25,7 +25,9 @@ namespace VATRP.Core.Interfaces
 
         event EventHandler<ConversationUpdatedEventArgs> ConversationUpdated;
 
-        event EventHandler<EventArgs> UnreadMsgUpdated;
+        event EventHandler<ContactEventArgs> ContactAdded;
+
+        event EventHandler<ContactRemovedEventArgs> ContactRemoved;
 
         event EventHandler<EventArgs> ContactsChanged;
 

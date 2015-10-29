@@ -6,7 +6,7 @@ using System.Windows.Media;
 using VATRP.Core.Enums;
 using Color = System.Windows.Media.Color;
 
-namespace VATRP.App.Converters
+namespace com.vtcsecure.ace.windows.Converters
 {
     public class BoolToBubbleColorConverter : IValueConverter
     {
@@ -14,7 +14,7 @@ namespace VATRP.App.Converters
         {
             if (value is MessageDirection && (MessageDirection)value == MessageDirection.Outgoing)
             {
-                return new SolidColorBrush(Color.FromArgb(0xff, 239, 226, 255));
+                return new SolidColorBrush(Color.FromArgb(255, 171, 248, 221));
             }            
             return new SolidColorBrush(Color.FromArgb(0xff, 237, 237, 237));
             

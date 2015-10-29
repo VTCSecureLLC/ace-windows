@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows.Data;
 using VATRP.Core.Model;
 
-namespace VATRP.App.Converters
+namespace com.vtcsecure.ace.windows.Converters
 {
     public class CallQualityConverter : IValueConverter
     {

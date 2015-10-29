@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq.Expressions;
 
-namespace VATRP.App.ViewModel
+namespace com.vtcsecure.ace.windows.ViewModel
 {
 	/// <summary>
 	/// This should be the base class for all view models.

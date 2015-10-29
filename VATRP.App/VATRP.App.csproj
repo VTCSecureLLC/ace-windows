@@ -7,7 +7,7 @@
     <ProjectGuid>{CF503001-3771-48E8-A425-73A11F38EDBC}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VATRP.App</RootNamespace>
+    <RootNamespace>com.vtcsecure.ace.windows</RootNamespace>
     <AssemblyName>ACE</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -105,6 +105,9 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BoolToBubbleAlignmentConverter.cs" />
+    <Compile Include="Converters\DirectionToColumnConverter.cs" />
+    <Compile Include="Converters\MessageDateConverter.cs" />
+    <Compile Include="Converters\MessageDeliveryStatusToBrushConverter.cs" />
     <Compile Include="Converters\BoolToBubbleColorConverter.cs" />
     <Compile Include="Converters\BoolToBubbleCornerConverter.cs" />
     <Compile Include="Converters\BoolToBubbleMarginConverter.cs" />

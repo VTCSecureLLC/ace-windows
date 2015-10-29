@@ -7,9 +7,9 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Interop;
 using System.Windows.Media;
-using VATRP.App.Model;
-using VATRP.App.Services;
-using VATRP.App.Views;
+using com.vtcsecure.ace.windows.Model;
+using com.vtcsecure.ace.windows.Services;
+using com.vtcsecure.ace.windows.Views;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using VATRP.Core.Services;
@@ -17,7 +17,7 @@ using VATRP.LinphoneWrapper;
 using VATRP.LinphoneWrapper.Enums;
 using VATRP.LinphoneWrapper.Structs;
 
-namespace VATRP.App
+namespace com.vtcsecure.ace.windows
 {
     public partial class MainWindow
     {

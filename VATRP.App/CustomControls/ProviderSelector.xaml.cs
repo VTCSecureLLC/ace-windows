@@ -12,7 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace VATRP.App.CustomControls
+namespace com.vtcsecure.ace.windows.CustomControls
 {
     /// <summary>
     /// Interaction logic for ProviderSelectorScreen.xaml

@@ -11,7 +11,6 @@ namespace VATRP.Core.Model
 {
     public class VATRPChat : ChatID, IComparable<VATRPChat>
     {
-        private string _injectedText;
         private bool _is_messagesLoaded;
         private string _lastMessage;
         private ObservableCollection<VATRPChatMessage> _messages;
@@ -20,12 +19,12 @@ namespace VATRP.Core.Model
         private string _typing_text;
         private List<string> _typingIdList;
         private uint _unreadMsgCount;
+
         public int ChatUniqueID;
 
         public VATRPChat(VATRPContact contact, string dialogId ) : base(contact, dialogId)
         {
             this._typing_text = string.Empty;
-            this._injectedText = string.Empty;
             this._is_messagesLoaded = true;
             this._lastMessage = string.Empty;
             if (contact != null)
@@ -170,56 +169,16 @@ namespace VATRP.Core.Model
             return contact;
         }
 
-        internal VATRPChatMessage FindMessage(string msgID)
+        internal VATRPChatMessage FindMessage(IntPtr msgID)
         {
-            if (!string.IsNullOrEmpty( msgID))
+            for (int i = this._messages.Count - 1; i >= 0; i--)
             {
-                for (int i = this._messages.Count - 1; i >= 0; i--)
+                if (this._messages[i].NativePtr == msgID)
                 {
-                    if (this._messages[i].ID == msgID)
-                    {
-                        return this._messages[i];
-                    }
+                    return this._messages[i];
                 }
             }
             return null;
-        }
-
-        internal string GetContactsSequenceString(bool useGap = false)
-        {
-            if ((this.Contacts == null) || (this.Contacts.Count == 0))
-            {
-                return string.Empty;
-            }
-            int length = 20;
-            int num2 = 100;
-            StringBuilder builder = new StringBuilder();
-            using (IEnumerator<VATRPContact> enumerator = this.Contacts.GetEnumerator())
-            {
-                while (enumerator.MoveNext())
-                {
-                    string str = enumerator.Current.Fullname;
-                    if (str.Length > length)
-                    {
-                        builder.Append(str.Substring(0, length) + "...");
-                    }
-                    else
-                    {
-                        builder.Append(str);
-                    }
-                    builder.Append(";");
-                    if (builder.Length > num2)
-                    {
-                        builder.Append("...");
-                        return builder.ToString();
-                    }
-                    if (useGap)
-                    {
-                        builder.Append(" ");
-                    }
-                }
-            }
-            return builder.ToString();
         }
 
         internal void InsertMessageByTimestamp(VATRPChatMessage msg)
