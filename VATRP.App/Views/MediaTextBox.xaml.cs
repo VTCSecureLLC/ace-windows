@@ -80,7 +80,13 @@ namespace com.vtcsecure.ace.windows.Views
         private void OnSendButtonClicked(object sender, RoutedEventArgs e)
         {
             if (ServiceManager.Instance.ActiveCallPtr == IntPtr.Zero)
+            {
                 model.SendMessage(model.MessageText);
+            }
+            else
+            {
+                model.SendMessage('\r', false);
+            }
         }
 
         private void OnKeyUp(object sender, KeyEventArgs e)
