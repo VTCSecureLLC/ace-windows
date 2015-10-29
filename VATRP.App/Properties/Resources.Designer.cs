@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace VATRP.App.Properties {
+namespace com.vtcsecure.ace.windows.Properties {
     using System;
     
     

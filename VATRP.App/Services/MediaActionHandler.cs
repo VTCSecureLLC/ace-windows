@@ -5,7 +5,7 @@ using VATRP.Core.Model;
 using VATRP.Core.Services;
 using VATRP.LinphoneWrapper.Enums;
 
-namespace VATRP.App.Services
+namespace com.vtcsecure.ace.windows.Services
 {
     internal static class MediaActionHandler
     {
