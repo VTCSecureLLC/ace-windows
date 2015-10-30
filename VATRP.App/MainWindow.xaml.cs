@@ -86,6 +86,7 @@ namespace com.vtcsecure.ace.windows
             else
             {
                 window.Show();
+                window.Activate();
             }
         }
 
