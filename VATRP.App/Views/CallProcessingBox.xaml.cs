@@ -292,7 +292,8 @@ namespace com.vtcsecure.ace.windows.Views
                 if (model.AutoAnswer == 0)
                 {
                     autoAnswerTimer.Stop();
-                    _linphoneService.AcceptCall(_currentCall.NativeCallPtr);
+                    _linphoneService.AcceptCall(_currentCall.NativeCallPtr, ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.USE_RTT, true));
                 }
             }
         }
@@ -366,7 +367,8 @@ namespace com.vtcsecure.ace.windows.Views
                 {
                     try
                     {
-                        _linphoneService.AcceptCall(_currentCall.NativeCallPtr);
+                        _linphoneService.AcceptCall(_currentCall.NativeCallPtr, ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.USE_RTT, true));
                     }
                     catch (Exception ex)
                     {

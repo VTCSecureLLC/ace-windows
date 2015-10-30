@@ -27,7 +27,8 @@ namespace com.vtcsecure.ace.windows.Services
                     MessageBoxImage.Error);
                 return;
             }
-            _linphoneService.MakeCall(remoteUri, false);
+            _linphoneService.MakeCall(remoteUri, false, ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.USE_RTT, true));
         }
 
         internal static void MakeVideoCall(string remoteUri)
@@ -48,7 +49,8 @@ namespace com.vtcsecure.ace.windows.Services
                 return;
             }
 
-            _linphoneService.MakeCall(remoteUri, true);
+            _linphoneService.MakeCall(remoteUri, true, ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.USE_RTT, true));
         }
 
         
