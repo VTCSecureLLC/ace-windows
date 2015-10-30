@@ -409,12 +409,12 @@ namespace VATRP.Core.Model
             }
         }
 
-        internal VATRPChatMessage SearchIncompleteMessage()
+        internal VATRPChatMessage SearchIncompleteMessage(MessageDirection msgDirection)
         {
             for (int i = 0; i < this.Messages.Count; i++)
             {
                 var msg = this.Messages[i];
-                if ((msg != null) && msg.IsIncompleteMessage)
+                if ((msg != null) && msg.IsIncompleteMessage && msg.Direction == msgDirection)
                 {
                     return msg;
                 }
