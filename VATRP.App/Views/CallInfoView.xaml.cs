@@ -73,7 +73,21 @@ namespace com.vtcsecure.ace.windows.Views
                         model.RtpProfile = Marshal.PtrToStringAnsi(rtp_profile);
                     }
                     model.AudioCodec = ServiceManager.Instance.LinphoneService.GetUsedAudioCodec(curparams);
+
+                    int avpf_mode= ServiceManager.Instance.LinphoneService.GetAVPFMode();
+
+                    if (avpf_mode== 0)
+                    {
+                        model.AVPFEnabled = false;
+                    }
+                    else if (avpf_mode == 1)
+                    {
+                         model.AVPFEnabled = true;
+                    }
+                    
+                    
                     var videoCodecName = ServiceManager.Instance.LinphoneService.GetUsedVideoCodec(curparams);
+                    
 
                     if (has_video && !string.IsNullOrWhiteSpace(videoCodecName))
                     {
@@ -165,6 +179,7 @@ namespace com.vtcsecure.ace.windows.Views
                 model.SipPort = 5060;
                 model.RtpPort = 0;
                 model.CallQuality = 0f;
+                model.AVPFEnabled = false;
             }
         }
 

@@ -1076,6 +1076,27 @@ namespace VATRP.Core.Services
 	        }
 	    }
 
+          public int GetAVPFMode()
+        {
+            if (linphoneCore == IntPtr.Zero || !isRunning)
+                throw new Exception("Linphone not initialized");
+
+            int linphoneAvpfMode = LinphoneAPI.linphone_core_get_avpf_mode(linphoneCore);
+            if (linphoneAvpfMode==-1)
+            {
+                LOG.Info("AVPF mode is default " + linphoneAvpfMode);
+            }
+            else if (linphoneAvpfMode ==0 )
+            {
+                LOG.Info("AVPF mode is disabled " + linphoneAvpfMode);
+            }
+            else if (linphoneAvpfMode == 1)
+            {
+                LOG.Info("AVPF mode is enabled " + linphoneAvpfMode);
+            }
+            return linphoneAvpfMode;
+        }
+
         #endregion
 
 		#region Events
