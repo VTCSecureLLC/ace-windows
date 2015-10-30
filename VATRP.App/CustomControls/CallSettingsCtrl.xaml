@@ -34,6 +34,8 @@
                           VerticalAlignment="Center"/>
             <CheckBox x:Name="SendDtmfInfo" Margin="3" Content="Send DTMFs as SIP info" FontSize="13"  
                           VerticalAlignment="Center"/>
+            <CheckBox x:Name="UseRTT" Margin="3" Content="Enable Real Time Text " FontSize="13"  
+                          VerticalAlignment="Center"/>
         </StackPanel>
     </Grid>
 </UserControl>

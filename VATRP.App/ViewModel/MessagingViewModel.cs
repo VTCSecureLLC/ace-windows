@@ -215,11 +215,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _contactViewModel.IsSelected = true;
             IsMessagesLoaded = false;
 
-            if (Chat != null)
-            {
-                this._chatsManager.MarkChatAsRead(Chat);
-            }
-
             ReceiverAddress = contact.Fullname;
             OnPropertyChanged("Chat");
             OnPropertyChanged("Messages");
@@ -240,7 +235,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         internal void SendMessage(char key, bool isIncomplete)
         {
-            if (ServiceManager.Instance.ActiveCallPtr == IntPtr.Zero)
+            if (!ServiceManager.Instance.IsRttAvailable)
                 return;
 
             var message = string.Format("{0}", key);
@@ -303,6 +298,21 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 if (this.Chat != null)
                     return this.Chat.Messages;
                 return null;
+            }
+        }
+
+        public ObservableCollection<VATRPChatMessage> TestMessages
+        {
+            get
+            {
+                if (_testMessages == null)
+                    _testMessages = new ObservableCollection<VATRPChatMessage>();
+                return _testMessages;
+            }
+            set
+            {
+                _testMessages = value; 
+                OnPropertyChanged("TestMessages");
             }
         }
 

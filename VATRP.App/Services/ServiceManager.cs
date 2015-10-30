@@ -387,5 +387,15 @@ namespace com.vtcsecure.ace.windows.Services
                 contact.IsLoggedIn = false;
             }
         }
+
+        public bool IsRttAvailable
+        {
+            get
+            {
+                return (ConfigurationService != null &&
+                        (ActiveCallPtr != IntPtr.Zero && ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                            Configuration.ConfEntry.USE_RTT, true)));
+            } 
+        }
     }
 }

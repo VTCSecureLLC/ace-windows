@@ -79,7 +79,7 @@ namespace com.vtcsecure.ace.windows.Views
 
         private void OnSendButtonClicked(object sender, RoutedEventArgs e)
         {
-            if (ServiceManager.Instance.ActiveCallPtr == IntPtr.Zero)
+            if (!ServiceManager.Instance.IsRttAvailable)
             {
                 model.SendMessage(model.MessageText);
             }
@@ -96,7 +96,7 @@ namespace com.vtcsecure.ace.windows.Views
             {
                 case Key.Enter:
                     isIncomplete = false;
-                    if (ServiceManager.Instance.ActiveCallPtr == IntPtr.Zero)
+                    if (!ServiceManager.Instance.IsRttAvailable)
                     {
                         model.SendMessage(model.MessageText);
                         return;

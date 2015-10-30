@@ -38,6 +38,9 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 Configuration.ConfEntry.AVPF_ON, true);
             SendDtmfInfo.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                  Configuration.ConfEntry.DTMF_SIP_INFO, false);
+            UseRTT.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+     Configuration.ConfEntry.USE_RTT, true);
+
         }
 
         #region ISettings
@@ -67,6 +70,11 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 Configuration.ConfEntry.DTMF_SIP_INFO, false))
                 return true;
 
+            enabled = UseRTT.IsChecked ?? false;
+
+            if (enabled != ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.USE_RTT, true))
+                return true;
             return false;
         }
 
@@ -109,6 +117,10 @@ namespace com.vtcsecure.ace.windows.CustomControls
             enabled = SendDtmfInfo.IsChecked ?? false;
             ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.DTMF_SIP_INFO, enabled);
+
+            enabled = UseRTT.IsChecked ?? true;
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.USE_RTT, enabled);
 
             ServiceManager.Instance.ConfigurationService.SaveConfig();
             return true;
