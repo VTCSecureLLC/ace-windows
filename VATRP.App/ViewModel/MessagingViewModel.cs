@@ -301,20 +301,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
-        public ObservableCollection<VATRPChatMessage> TestMessages
-        {
-            get
-            {
-                if (_testMessages == null)
-                    _testMessages = new ObservableCollection<VATRPChatMessage>();
-                return _testMessages;
-            }
-            set
-            {
-                _testMessages = value; 
-                OnPropertyChanged("TestMessages");
-            }
-        }
 
         public ObservableCollection<ContactViewModel> Contacts
         {
