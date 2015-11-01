@@ -406,6 +406,17 @@ namespace VATRP.Core.Model
             {
                 this.LastMessage = this._messages[this._messages.Count - 1].Content;
                 this.LastMessageDirection = this._messages[this._messages.Count - 1].Direction;
+                if (this.LastMessageTime.Date != this._messages[this._messages.Count - 1].MessageTime.Date)
+                {
+                    this.LastMessageTime = this._messages[this._messages.Count - 1].MessageTime;
+                    // Add date separator here
+                    var chatMsg = new VATRPChatMessage(MessageContentType.Info)
+                    {
+                        MessageTime = new DateTime(this.LastMessageTime.Year, this.LastMessageTime.Month, this.LastMessageTime.Day),
+                        IsSeparator = true
+                    };
+                    Tools.InsertByIndex(chatMsg, this.Messages, this._messages.Count - 1);
+                }
             }
         }
 
@@ -506,6 +517,8 @@ namespace VATRP.Core.Model
         }
 
         public MessageDirection LastMessageDirection { get; private set; }
+
+        public DateTime LastMessageTime { get; private set; }
 
         public ObservableCollection<VATRPChatMessage> Messages
         {
