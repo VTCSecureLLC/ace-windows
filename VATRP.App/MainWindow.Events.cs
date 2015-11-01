@@ -57,7 +57,9 @@ namespace com.vtcsecure.ace.windows
                     call.RemoteParty = call.To;
                     if (_callView != null)
                        _callView.OnCallStateChanged(call);
-                    _messagingWindow.CreateConversation(call.To.Username);
+                    if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+    Configuration.ConfEntry.USE_RTT, true))
+                        _messagingWindow.CreateConversation(call.To.Username);
                     break;
                 case VATRPCallState.InProgress:
                     videoTitle = !string.IsNullOrWhiteSpace(call.From.DisplayName)
@@ -80,7 +82,9 @@ namespace com.vtcsecure.ace.windows
                 case VATRPCallState.EarlyMedia:
                     break;
                 case VATRPCallState.Connected:
-                    _messagingWindow.CreateConversation(call.RemoteParty.Username);
+                    if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+    Configuration.ConfEntry.USE_RTT, true))
+                        _messagingWindow.CreateConversation(call.RemoteParty.Username);
                     if (_callView != null)
                         _callView.OnCallStateChanged(call);
                     _flashWindowHelper.StopFlashing();

@@ -30,8 +30,8 @@ namespace VATRP.Core.Interfaces
         void PlayDtmf(char dtmf, int duration);
         bool Register();
         bool Unregister(bool deferred);
-        void MakeCall(string destination, bool videoOn);
-        void AcceptCall(IntPtr callPtr);
+        void MakeCall(string destination, bool videoOn, bool rttEnabled);
+        void AcceptCall(IntPtr callPtr, bool rttEnabled);
         void DeclineCall(IntPtr callPtr);
         bool TerminateCall(IntPtr callPtr);
         void AcceptRTTProposition(IntPtr callPtr);

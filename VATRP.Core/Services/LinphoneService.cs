@@ -249,7 +249,7 @@ namespace VATRP.Core.Services
                 // load installed codecs
 			    LoadAudioCodecs();
                 LoadVideoCodecs();
-
+			    
 				coreLoop = new Thread(LinphoneMainLoop) {IsBackground = false};
 				coreLoop.Start();
 
@@ -263,7 +263,14 @@ namespace VATRP.Core.Services
             LOG.Debug("Main loop started");
             while (isRunning)
             {
-                LinphoneAPI.linphone_core_iterate(linphoneCore); // roll
+                try
+                {
+                    LinphoneAPI.linphone_core_iterate(linphoneCore); // roll
+                }
+                catch (AccessViolationException)
+                {
+                    
+                }
 
                 Thread.Sleep(30);
             }
@@ -458,7 +465,7 @@ namespace VATRP.Core.Services
 		#endregion
 
 		#region Call
-		public void MakeCall(string destination, bool videoOn)
+		public void MakeCall(string destination, bool videoOn, bool rttEnabled)
 		{
 		    if (callsList.Count > 0)
 		    {
@@ -479,7 +486,8 @@ namespace VATRP.Core.Services
 			}
 
             // enable rtt
-		    LinphoneAPI.linphone_call_params_enable_realtime_text(callsDefaultParams, true);
+            if (rttEnabled)
+                LinphoneAPI.linphone_call_params_enable_realtime_text(callsDefaultParams, true);
 
 			IntPtr callPtr = LinphoneAPI.linphone_core_invite_with_params (linphoneCore, destination, callsDefaultParams);
 
@@ -495,7 +503,7 @@ namespace VATRP.Core.Services
             LOG.Warn("Make call. Add new call. Ptr - " + callPtr);
 		}
 
-		public void AcceptCall(IntPtr callPtr)
+		public void AcceptCall(IntPtr callPtr, bool rttEnabled)
 		{
             if (linphoneCore == IntPtr.Zero || !isRunning)
             {
@@ -514,12 +522,15 @@ namespace VATRP.Core.Services
 		            return;
 		        }
 
-                IntPtr callerParams = LinphoneAPI.linphone_call_get_remote_params(call.NativeCallPtr);
+		        IntPtr callerParams = LinphoneAPI.linphone_call_get_remote_params(call.NativeCallPtr);
 		        if (callerParams != IntPtr.Zero)
-		            LinphoneAPI.linphone_call_params_enable_realtime_text(callsDefaultParams,
-		                LinphoneAPI.linphone_call_params_realtime_text_enabled(callerParams));
-
-		        //	LinphoneAPI.linphone_call_params_set_record_file(callsDefaultParams, null);
+		        {
+		            bool remoteRttEnabled = LinphoneAPI.linphone_call_params_realtime_text_enabled(callerParams) & rttEnabled;
+                    
+		            LinphoneAPI.linphone_call_params_enable_realtime_text(callsDefaultParams, remoteRttEnabled);
+		        }
+		    
+		    //	LinphoneAPI.linphone_call_params_set_record_file(callsDefaultParams, null);
 		        LinphoneAPI.linphone_core_accept_call_with_params(linphoneCore, call.NativeCallPtr, callsDefaultParams);
 		    }
 		}

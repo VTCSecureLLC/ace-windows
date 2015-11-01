@@ -83,7 +83,7 @@ namespace com.vtcsecure.ace.windows
             });
         }
 
-        private async void App_OnStartup(object sender, StartupEventArgs e)
+        private void App_OnStartup(object sender, StartupEventArgs e)
         {
             _log.Info("====================================================");
             _log.Info(String.Format("============== Starting VATRP v{0} =============",
