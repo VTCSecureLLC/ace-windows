@@ -8,15 +8,33 @@ namespace com.vtcsecure.ace.windows.Converters
 {
     public class BoolToBubbleCornerConverter : IValueConverter
     {
-        private double radius = 6.0;
+        public int Row { get; set; }
+        public double Radius { get; set; }
+
+        public BoolToBubbleCornerConverter()
+        {
+            Radius = 6.0;
+            Row = 0;
+        }
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is MessageDirection && (MessageDirection)value == MessageDirection.Outgoing)
+            if (value is MessageDirection)
             {
-                return new CornerRadius(radius, radius, radius, radius);
+                if (Row == 0)
+                {
+                    return new CornerRadius(Radius, Radius, 0, 0);
+                }
+                else if (Row == 1)
+                {
+                    if ((MessageDirection)value == MessageDirection.Outgoing)
+                    {
+                        return new CornerRadius(0, 0, Radius * 2.5, Radius);
+                    }
+                    return new CornerRadius(0, 0, Radius, Radius * 2.5);
+                }
             }
-            return new CornerRadius(radius, radius, radius, radius);
-            
+            return new CornerRadius(0, 0, 0, 0);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
