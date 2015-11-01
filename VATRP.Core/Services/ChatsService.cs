@@ -143,7 +143,7 @@ namespace VATRP.Core.Services
 
                     chat.UnreadMsgCount++;
 
-                    VATRPChatMessage message = chat.SearchIncompleteMessage();
+                    VATRPChatMessage message = chat.SearchIncompleteMessage(MessageDirection.Incoming);
                     if (message == null)
                     {
                         message = new VATRPChatMessage(MessageContentType.Text)
@@ -650,7 +650,7 @@ namespace VATRP.Core.Services
             VATRPContact loggedContact = _contactSvc.FindLoggedInContact();
 
             
-            var message = chat.SearchIncompleteMessage();
+            var message = chat.SearchIncompleteMessage(MessageDirection.Outgoing);
             if (message == null)
             {
                 message = new VATRPChatMessage(MessageContentType.Text)
