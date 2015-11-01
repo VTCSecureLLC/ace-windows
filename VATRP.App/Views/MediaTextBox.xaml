@@ -46,13 +46,13 @@
 		   BorderThickness="2">
 
                 <Grid Style="{StaticResource HintEntryFieldStyle}" Margin="0" Background="White">
-                    <TextBlock  Text="Search contacts" Foreground="{StaticResource ChatPageComposeHintFont}" FontSize="9" VerticalAlignment="Center" 
+                    <TextBlock  Text="Enter searching text" Foreground="{StaticResource ChatPageComposeHintFont}" FontSize="9" VerticalAlignment="Center" 
 								   HorizontalAlignment="Left" Margin="10,0,0,0"
 					   Visibility="{Binding ShowSearchHint, Converter={StaticResource bvc}}" />
 
                     <TextBox  BorderThickness="1" Height="32" TextAlignment="Left"  Foreground="{StaticResource ChatPageComposeTextboxFont}" FontSize="14"
 								 HorizontalAlignment="Stretch" Text="{Binding ContactSearchCriteria , Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"
-								 GotFocus="OnSearchTextFocused" LostFocus="OnSearchTextReleased" Background="Transparent" BorderBrush="{StaticResource ChatPageSelectContactTextBorder}"/>
+								 Background="Transparent" BorderBrush="{StaticResource ChatPageSelectContactTextBorder}"/>
                 </Grid>
             </Border>
 
@@ -60,34 +60,39 @@
 		   BorderThickness="2">
                 <Grid >
 
-                    <ListBox x:Name ="ContactsList" Grid.Column="0" BorderThickness="0" ItemsSource= "{Binding Contacts}" Margin="0" SelectionChanged="OnChatSelected" Background="White" 
-                             HorizontalContentAlignment="Stretch">
+                    <ListBox x:Name ="ContactsList" Grid.Column="0" BorderThickness="0" 
+                             ItemsSource= "{Binding ContactsListView}" Margin="0" 
+                             SelectionChanged="OnChatSelected" Background="White" 
+                             HorizontalContentAlignment="Stretch" IsSynchronizedWithCurrentItem="True" >
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Grid Background="{Binding IsSelected, Converter={StaticResource csbc}}" >
-                                    <Grid.ColumnDefinitions >
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="30"/>
-                                    </Grid.ColumnDefinitions>
+                                <StackPanel Background="{Binding IsSelected, Converter={StaticResource csbc}}" Margin="-2">
+                                    <Grid >
+                                        <Grid.ColumnDefinitions >
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="30"/>
+                                        </Grid.ColumnDefinitions>
 
-                                    <Border Grid.Column="0" Grid.Row="0" Width="30" Height="30"
+                                        <Border Grid.Column="0" Grid.Row="0" Width="30" Height="30"
 										Margin="5" VerticalAlignment="Top" CornerRadius="15" Background="#FFCCCCCC" BorderThickness="0">
-                                        <TextBlock x:Name="UserInitial" Text="{Binding Contact.Initials}" Foreground="#ff4c4c4c" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                        </TextBlock>
-                                    </Border>
+                                            <TextBlock x:Name="UserInitial" Text="{Binding Contact.Initials}" Foreground="#ff4c4c4c" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            </TextBlock>
+                                        </Border>
 
-                                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10, 0,0,0">
-                                        <TextBlock   Text="{Binding Contact.Fullname}"
+                                        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10, 0,0,0">
+                                            <TextBlock   Text="{Binding Contact.Fullname}"
 								FontSize="14"  Foreground="#ff5e6366" FontWeight="SemiBold" HorizontalAlignment="Left" />
-
-                                    </StackPanel>
-                                    <Border Grid.Column="2" Grid.Row="0" Width="10" Height="10" CornerRadius="15" Background="Gray" Visibility="{Binding Contact.HasUnreadMsg, Converter={StaticResource bvcno}, Mode=OneWay}">
-                                        <!--Text="{Binding Contact.UnreadMsgCount}"-->
-                                        <TextBlock  FontSize="12"  Margin="0" FontWeight="SemiBold" 
+                                        </StackPanel>
+                                        <Border Grid.Column="2" Grid.Row="0" Width="10" Height="10" CornerRadius="15" 
+                                            Background="#FFF9AD81" Visibility="{Binding Contact.HasUnreadMsg, Converter={StaticResource bvcno}, Mode=OneWay}">
+                                            <!--Text="{Binding Contact.UnreadMsgCount}"-->
+                                            <TextBlock  FontSize="12"  Margin="0" FontWeight="SemiBold" 
                                               HorizontalAlignment="Center"     VerticalAlignment="Center"  />
-                                    </Border>
-                                </Grid>
+                                        </Border>
+                                    </Grid>
+                                    <Separator VerticalAlignment="Bottom" Margin="0"/>
+                                </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
@@ -117,7 +122,7 @@
 
                             <TextBox x:Name="TextMsgBox"  BorderThickness="1" Height="32" TextAlignment="Left" Foreground="{StaticResource ChatPageComposeTextboxFont}" 
 								 HorizontalAlignment="Stretch" Text="{Binding ReceiverAddress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged }" VerticalContentAlignment="Center" FontSize="14"
-								 GotFocus="OnSearchTextFocused" LostFocus="OnSearchTextReleased" Background="Transparent" BorderBrush="{StaticResource ChatPageSelectContactTextBorder}"/>
+								 Background="Transparent" BorderBrush="{StaticResource ChatPageSelectContactTextBorder}"/>
                         </Grid>
                         <Border Grid.Column ="1" Background="{StaticResource ChatPageMainBg}" BorderBrush="{StaticResource ChatPageMainBg}" 
 		   BorderThickness="2,0,0,0">
@@ -211,7 +216,6 @@
                 <TextBox BorderThickness="1" Height="32" TextAlignment="Left" FontSize="14"
 									 Foreground="{StaticResource ChatPageComposeTextboxFont}" 
 								 HorizontalAlignment="Stretch" Text="{Binding MessageText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-									 GotFocus="OnSearchTextFocused" LostFocus="OnSearchTextReleased" 
                                      VerticalContentAlignment="Center"
 									 Background="Transparent" 
 									 BorderBrush="{StaticResource ChatPageSelectContactTextBorder}"
