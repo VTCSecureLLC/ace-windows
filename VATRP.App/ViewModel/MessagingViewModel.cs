@@ -6,6 +6,7 @@ using System.Security.Principal;
 using System.Threading;
 using System.Timers;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Threading;
 using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Events;
@@ -32,13 +33,14 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private ContactViewModel _contactViewModel;
         private int _lastSentTextIndex;
         private string _contactSearchCriteria;
+        private ICollectionView messagesListView;
 
         public MessagingViewModel()
         {
             
         }
 
-        public MessagingViewModel(IChatService chatMng, IContactsService contactsMng)
+        public MessagingViewModel(IChatService chatMng, IContactsService contactsMng):this()
         {
             this._chatsManager = chatMng;
             this._contactsManager = contactsMng;
@@ -215,6 +217,13 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _contactViewModel.IsSelected = true;
             IsMessagesLoaded = false;
 
+            if ( Messages != null)
+            {
+                this.MessagesListView = CollectionViewSource.GetDefaultView(this.Messages);
+                this.MessagesListView.SortDescriptions.Add(new SortDescription("MessageTime",
+                    ListSortDirection.Ascending));
+            }
+			
             ReceiverAddress = contact.Fullname;
             OnPropertyChanged("Chat");
             OnPropertyChanged("Messages");
@@ -394,6 +403,20 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         #endregion
 
+        public ICollectionView MessagesListView
+        {
+            get { return this.messagesListView; }
+            private set
+            {
+                if (value == this.messagesListView)
+                {
+                    return;
+                }
+
+                this.messagesListView = value;
+                OnPropertyChanged("MessagesListView");
+            }
+        }
 
         public string LastInput { get; set; }
     }
