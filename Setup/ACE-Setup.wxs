@@ -11,6 +11,7 @@
     <Property Id='ARPCONTACT' Value='ACE' />
     <Property Id='ARVERSION' Value='$(var.VATRP.Version)'/>
     <Property Id="ARPPRODUCTICON" Value="APP_ICON" />
+    <Property Id="MSIFASTINSTALL" Value="1"/>
     <!-- The '.NET Framework' launch condition. -->
     <PropertyRef Id='NETFRAMEWORK40FULL' />
     <Condition Message='This setup requires the .NET Framework version v4.0.  Please install the .NET Framework and run this setup again.'><![CDATA[Installed OR NETFRAMEWORK40FULL]]></Condition>
