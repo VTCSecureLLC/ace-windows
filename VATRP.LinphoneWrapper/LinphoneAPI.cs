@@ -102,6 +102,8 @@ namespace VATRP.LinphoneWrapper
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_core_accept_call_update(IntPtr lc, IntPtr call, IntPtr cp);
 
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_create_call_params(IntPtr lc, IntPtr call);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_core_terminate_call(IntPtr lc, IntPtr call);
