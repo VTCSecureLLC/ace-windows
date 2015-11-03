@@ -366,6 +366,9 @@ namespace com.vtcsecure.ace.windows.Services
         {
             LinphoneService.LinphoneConfig.MediaEncryption = GetMediaEncryptionText(App.CurrentAccount.MediaEncryption);
             LinphoneService.UpdateMediaSettings(App.CurrentAccount);
+            bool bEnable = this.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.ENABLE_ADAPTIVE_RATE_CTRL, true);
+            LinphoneService.EnableAdaptiveRateControl(bEnable);
         }
 
         internal void UpdateLoggedinContact()
