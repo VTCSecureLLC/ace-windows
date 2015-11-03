@@ -522,16 +522,24 @@ namespace VATRP.Core.Services
 		            return;
 		        }
 
+		        IntPtr callParamsPtr = LinphoneAPI.linphone_core_create_call_params(linphoneCore, callPtr);
+		        if (callParamsPtr == IntPtr.Zero)
+		        {
+		            callParamsPtr = callsDefaultParams;
+		        }
+
 		        IntPtr callerParams = LinphoneAPI.linphone_call_get_remote_params(call.NativeCallPtr);
+
 		        if (callerParams != IntPtr.Zero)
 		        {
-		            bool remoteRttEnabled = LinphoneAPI.linphone_call_params_realtime_text_enabled(callerParams) & rttEnabled;
-                    
-		            LinphoneAPI.linphone_call_params_enable_realtime_text(callsDefaultParams, remoteRttEnabled);
+		            bool remoteRttEnabled = LinphoneAPI.linphone_call_params_realtime_text_enabled(callerParams) &
+		                                    rttEnabled;
+
+		            LinphoneAPI.linphone_call_params_enable_realtime_text(callParamsPtr, remoteRttEnabled);
 		        }
-		    
-		    //	LinphoneAPI.linphone_call_params_set_record_file(callsDefaultParams, null);
-		        LinphoneAPI.linphone_core_accept_call_with_params(linphoneCore, call.NativeCallPtr, callsDefaultParams);
+
+		        //	LinphoneAPI.linphone_call_params_set_record_file(callsDefaultParams, null);
+		        LinphoneAPI.linphone_core_accept_call_with_params(linphoneCore, call.NativeCallPtr, callParamsPtr);
 		    }
 		}
 
