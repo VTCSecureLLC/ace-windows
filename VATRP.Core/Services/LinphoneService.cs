@@ -592,11 +592,6 @@ namespace VATRP.Core.Services
 	                return false;
 	            }
 
-	            IntPtr hwndVideo = LinphoneAPI.linphone_core_get_native_video_window_id(linphoneCore);
-
-	            if (Win32NativeAPI.IsWindow(hwndVideo))
-	                Win32NativeAPI.DestroyWindow(hwndVideo);
-
 	            // notify call state end
 	            if (LinphoneAPI.linphone_call_params_get_record_file(callsDefaultParams) != IntPtr.Zero)
 	                LinphoneAPI.linphone_call_stop_recording(call.NativeCallPtr);
@@ -621,7 +616,10 @@ namespace VATRP.Core.Services
                     LOG.Error("Exception on terminate calls. " + ex.Message);
                 }
 
-//                LinphoneAPI.linphone_call_unref(call.NativeCallPtr);
+                IntPtr hwndVideo = LinphoneAPI.linphone_core_get_native_video_window_id(linphoneCore);
+
+                if (Win32NativeAPI.IsWindow(hwndVideo))
+                    Win32NativeAPI.DestroyWindow(hwndVideo);
 	        }
 	        return true;
 	    }
