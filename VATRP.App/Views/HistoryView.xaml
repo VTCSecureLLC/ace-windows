@@ -11,17 +11,20 @@
                    LocationChanged="Window_LocationChanged" 
                    SourceInitialized="Window_Initialized"
                    Unloaded="Window_Unloaded" Icon="/ACE;component/Resources/recents.png">
-        <TabControl x:Name="CallsTab" HorizontalAlignment="Stretch" Margin="1" Grid.Row="0" VerticalAlignment="Stretch" SelectionChanged="CallsTab_SelectionChanged" >
+        <TabControl x:Name="CallsTab" HorizontalAlignment="Stretch" 
+                    Margin="1" Grid.Row="0" VerticalAlignment="Stretch" 
+                    SelectionChanged="CallsTab_SelectionChanged" >
             <TabItem Header="All Calls" >
-                <Grid Background="#FFE5E5E5">
-                    <Label x:Name="InfoLabel" Content="Loading..." HorizontalAlignment="Center" Margin="0,20,0,0"/>
+            <Grid Background="{StaticResource RecentsPageMainBg}">
+                <Label x:Name="AllCallsInfoLabel" Content="Loading..." HorizontalAlignment="Center" Margin="0,20,0,0"/>
                 <ListBox  x:Name="lstCallsBox" Margin="5" Background="{StaticResource RecentsPageMainBg}" 
                  Style="{DynamicResource RecentsListBox}" ItemsSource="{Binding}" 
                  SelectionChanged="OnCallItemSelectionChanged"/>
             </Grid>
             </TabItem>
             <TabItem Header="Missed Calls" >
-                <Grid Background="#FFE5E5E5">
+            <Grid Background="{StaticResource RecentsPageMainBg}">
+                <Label x:Name="MissedCallsInfoLabel" Content="Loading..." HorizontalAlignment="Center" Margin="0,20,0,0"/>
                 <ListBox  Margin="5" x:Name="lstMissedCallsBox" Background="{StaticResource RecentsPageMainBg}" 
                  Style="{DynamicResource RecentsListBox}" ItemsSource="{Binding}" 
                  SelectionChanged="OnCallItemSelectionChanged"/>
