@@ -77,7 +77,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 MessageBox.Show("Invalid SIP server port", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-
+            App.CurrentAccount.AuthID = AuthIDBox.Text;
             App.CurrentAccount.Username = LoginBox.Text;
             App.CurrentAccount.Password = PasswdBox.Password;
             App.CurrentAccount.ProxyHostname = HostnameBox.Text;
@@ -99,6 +99,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             var config = ServiceManager.Instance.ConfigurationService;
             if (config == null)
                 return;
+            AuthIDBox.Text = App.CurrentAccount.AuthID;
             LoginBox.Text = App.CurrentAccount.Username;
             PasswdBox.Password = App.CurrentAccount.Password;
             HostnameBox.Text = App.CurrentAccount.ProxyHostname;
