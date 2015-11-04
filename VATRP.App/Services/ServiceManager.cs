@@ -141,7 +141,6 @@ namespace com.vtcsecure.ace.windows.Services
             LinphoneService.LinphoneConfig.ProxyPort = App.CurrentAccount.ProxyPort;
             LinphoneService.LinphoneConfig.UserAgent = ConfigurationService.Get(Configuration.ConfSection.LINPHONE, Configuration.ConfEntry.LINPHONE_USERAGENT,
                     Configuration.LINPHONE_USERAGENT);
-            LinphoneService.LinphoneConfig.AuthID = App.CurrentAccount.AuthID;
             LinphoneService.LinphoneConfig.Username = App.CurrentAccount.RegistrationUser;
             LinphoneService.LinphoneConfig.DisplayName = App.CurrentAccount.DisplayName;
             LinphoneService.LinphoneConfig.Password = App.CurrentAccount.RegistrationPassword;
