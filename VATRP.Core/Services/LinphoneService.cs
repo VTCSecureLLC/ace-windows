@@ -400,7 +400,7 @@ namespace VATRP.Core.Services
 
             LOG.Debug(string.Format( "Register SIP account: {0} Server: {1}", identity, server_addr));
 
-			auth_info = LinphoneAPI.linphone_auth_info_new(preferences.Username, null, preferences.Password, null, null, null);
+			auth_info = LinphoneAPI.linphone_auth_info_new(preferences.Username, string.IsNullOrEmpty(preferences.AuthID) ? null : preferences.AuthID, preferences.Password, null, null, null);
 			if (auth_info == IntPtr.Zero)
 				LOG.Debug("failed to get auth info");
 			LinphoneAPI.linphone_core_add_auth_info(linphoneCore, auth_info);

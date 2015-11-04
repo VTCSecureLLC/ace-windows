@@ -23,13 +23,18 @@ namespace VATRP.Core.Services
             public string Version { get; set; }
 
             public string Transport { get; set; }
+			
             public string STUNAddress { get; set; }
+			
             public int STUNPort { get; set; }
+			
             public bool EnableSTUN { get; set; }
+			
             public bool EnableAVPF { get; set; }
-
+			
             public LinphoneWrapper.Enums.LinphoneMediaEncryption MediaEncryption { get; set; }
+			
+            public string AuthID { get; set; }
         }
-
     }
 }
