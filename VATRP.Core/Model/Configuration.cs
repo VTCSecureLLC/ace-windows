@@ -41,7 +41,8 @@ namespace VATRP.Core.Model
             AUTO_ANSWER_AFTER,
             AVPF_ON,
             DTMF_SIP_INFO,
-            USE_RTT
+            USE_RTT,
+            ENABLE_ADAPTIVE_RATE_CTRL
         }
 
         public static string LINPHONE_SIP_SERVER = "bc1.vatrp.net";
