@@ -36,6 +36,9 @@
                           VerticalAlignment="Center"/>
             <CheckBox x:Name="UseRTT" Margin="3" Content="Enable Real Time Text " FontSize="13"  
                           VerticalAlignment="Center"/>
+            
+            <Button Content="Clear User Data" Width="100" Padding="3" Margin="0, 30, 10, 10" Background="Red" 
+                    Foreground="White" BorderBrush="Red" HorizontalAlignment="Right" Click="OnClearData"></Button>
         </StackPanel>
     </Grid>
 </UserControl>
