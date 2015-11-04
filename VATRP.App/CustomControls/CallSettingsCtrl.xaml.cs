@@ -23,6 +23,11 @@ namespace com.vtcsecure.ace.windows.CustomControls
     /// </summary>
     public partial class CallSettingsCtrl : ISettings
     {
+        #region Event
+        public delegate void ResetToDefaultDelegate();
+        public event ResetToDefaultDelegate ResetToDefaultEvent;
+        #endregion
+
         public CallSettingsCtrl()
         {
             InitializeComponent();
@@ -161,6 +166,17 @@ namespace com.vtcsecure.ace.windows.CustomControls
             else
             {
                 e.CancelCommand();
+            }
+        }
+
+        private void OnClearData(object sender, RoutedEventArgs e)
+        {
+            if (
+                MessageBox.Show("All user data will be cleared.\nDo you want to continue?", "ACE",
+                    MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                if (ResetToDefaultEvent != null)
+                    ResetToDefaultEvent();
             }
         }
     }
