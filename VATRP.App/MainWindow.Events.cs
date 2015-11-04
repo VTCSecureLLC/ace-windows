@@ -24,6 +24,7 @@ namespace com.vtcsecure.ace.windows
         private bool registerRequested = false;
         private bool isRegistering = true;
         private bool signOutRequest = false;
+        private bool defaultConfigRequest;
         private string videoTitle = string.Empty;
         private void OnCallStateChanged(VATRPCall call)
         {
@@ -151,7 +152,7 @@ namespace com.vtcsecure.ace.windows
                     {
                         _remoteVideoView.Hide();
                     }
-                    if (registerRequested || signOutRequest)
+                    if (registerRequested || signOutRequest || defaultConfigRequest)
                     {
                         _linphoneService.Unregister(false);
                     }
@@ -230,7 +231,7 @@ namespace com.vtcsecure.ace.windows
                         registerRequested = false;
                         _linphoneService.Register();
                     }
-                    else if (signOutRequest)
+                    else if (signOutRequest || defaultConfigRequest)
                     {
                         isRegistering = false;
                         WizardPagepanel.Children.Clear();
@@ -239,9 +240,13 @@ namespace com.vtcsecure.ace.windows
                         NavPanel.Visibility = Visibility.Collapsed;
                         StatusPanel.Visibility = Visibility.Collapsed;
                         signOutRequest = false;
+                        ServiceManager.Instance.AccountService.DeleteAccount(App.CurrentAccount);
                         ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.ACCOUNT_IN_USE, string.Empty);
-                        ServiceManager.Instance.AccountService.DeleteAccount(App.CurrentAccount);
+                        if (defaultConfigRequest)
+                        {
+                            ResetConfiguration();
+                        }
                         App.CurrentAccount = null;
                     }
                     break;
@@ -251,6 +256,15 @@ namespace com.vtcsecure.ace.windows
             }
             var regString = string.Format("{0}", statusString);
             RegStatusLabel.Content = regString;
+        }
+
+        private void ResetConfiguration()
+        {
+            ServiceManager.Instance.AccountService.ClearAccounts();
+            ServiceManager.Instance.ConfigurationService.Reset();   
+            ServiceManager.Instance.HistoryService.ClearCallsItems();
+            ServiceManager.Instance.ContactService.RemoveContacts();
+            defaultConfigRequest = false;
         }
 
         private void OnNewAccountRegistered(string accountId)
@@ -316,5 +330,28 @@ namespace com.vtcsecure.ace.windows
         {
             _linphoneService.PlayDtmf((char)e.Key, 250);
         }
+
+        private void OnResetToDefaultConfiguration()
+        {
+            if (ServiceManager.Instance.ActiveCallPtr != IntPtr.Zero)
+            {
+                MessageBox.Show("There is an active call. Please try later");
+                return;
+            }
+
+            if (defaultConfigRequest)
+                return;
+            defaultConfigRequest = true;
+
+            if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk)
+            {
+                _linphoneService.Unregister(false);
+            }
+            else
+            {
+                ResetConfiguration();
+            }
+        }
+
     }
 }

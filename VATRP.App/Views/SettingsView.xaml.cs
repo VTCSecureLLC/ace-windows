@@ -29,6 +29,10 @@ namespace com.vtcsecure.ace.windows.Views
         #region Event
         public delegate void SettingsSavedDelegate();
         public event SettingsSavedDelegate SettingsSavedEvent;
+
+        public delegate void ResetToDefaultDelegate();
+        public event ResetToDefaultDelegate ResetToDefaultEvent;
+
         #endregion
 
         public SettingsView()
@@ -107,10 +111,23 @@ namespace com.vtcsecure.ace.windows.Views
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
+            this.CallSettingsPage.ResetToDefaultEvent += OnResetToDefaultConfiguration;
 #if !DEBUG
             TestingTabItem.Visibility = Visibility.Collapsed;
 #endif
+        }
 
+        private void OnResetToDefaultConfiguration()
+        {
+            Close();
+            if (ResetToDefaultEvent != null)
+                ResetToDefaultEvent();
+
+            CodecSettingsChanged = false;
+            NetworkSettingsChanged = false;
+            SipSettingsChanged = false;
+            CallSettingsChanged = false;
+            MediaSettingsChanged = false;
         }
     }
 }
