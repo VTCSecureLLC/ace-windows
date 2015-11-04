@@ -367,6 +367,19 @@ namespace VATRP.Core.Services
             LinphoneAPI.linphone_core_play_dtmf(linphoneCore, dtmf, duration);
         }
 
+        public void EnableAdaptiveRateControl(bool bEnable)
+        {
+            if (linphoneCore == IntPtr.Zero || !isRunning)
+                return;
+
+            var isCtrlEnabled = LinphoneAPI.linphone_core_adaptive_rate_control_enabled(linphoneCore);
+            if (isCtrlEnabled != bEnable)
+            {
+                LinphoneAPI.linphone_core_enable_adaptive_rate_control(linphoneCore, bEnable);
+                LOG.Debug(string.Format("{0} adaptive rate control", bEnable ? "Enable" : "Disable"));
+            }
+        }
+
 		#endregion
 
 		#region Registration
@@ -400,7 +413,7 @@ namespace VATRP.Core.Services
 
             LOG.Debug(string.Format( "Register SIP account: {0} Server: {1}", identity, server_addr));
 
-			auth_info = LinphoneAPI.linphone_auth_info_new(preferences.Username, null, preferences.Password, null, null, null);
+			auth_info = LinphoneAPI.linphone_auth_info_new(preferences.Username, string.IsNullOrEmpty(preferences.AuthID) ? null : preferences.AuthID, preferences.Password, null, null, null);
 			if (auth_info == IntPtr.Zero)
 				LOG.Debug("failed to get auth info");
 			LinphoneAPI.linphone_core_add_auth_info(linphoneCore, auth_info);

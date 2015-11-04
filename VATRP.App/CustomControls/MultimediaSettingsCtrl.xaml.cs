@@ -54,6 +54,9 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 }
             }
 
+            EnableAdaptiveRateBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+Configuration.ConfEntry.ENABLE_ADAPTIVE_RATE_CTRL, true);
+
         }
 
         private string GetVideoID(TextBlock tb)
@@ -84,6 +87,12 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 return true;
             }
 
+            var enabled = EnableAdaptiveRateBox.IsChecked ?? false;
+
+            if (enabled != ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.ENABLE_ADAPTIVE_RATE_CTRL, true))
+                return true;
+
             return false;
         }
 
@@ -107,6 +116,10 @@ namespace com.vtcsecure.ace.windows.CustomControls
             {
                 App.CurrentAccount.MediaEncryption = tb.Text;
             }
+
+            var enabled = EnableAdaptiveRateBox.IsChecked ?? true;
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.ENABLE_ADAPTIVE_RATE_CTRL, enabled);
 
             ServiceManager.Instance.ConfigurationService.SaveConfig();
             return true;
