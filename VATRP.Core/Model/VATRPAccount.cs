@@ -21,9 +21,6 @@ namespace VATRP.Core.Model
         public string AccountID { get; set; }
 
         [Column]
-        public string AuthID { get; set; }
-
-        [Column]
         public string Username { get; set; }
 
         [Column]
@@ -115,7 +112,6 @@ namespace VATRP.Core.Model
             EnableAVPF = true;
             PreferredVideoId = "cif";
             STUNAddress = string.Empty;
-            AuthID = string.Empty;
             Username = string.Empty;
             Password = string.Empty;
             Provider = string.Empty;

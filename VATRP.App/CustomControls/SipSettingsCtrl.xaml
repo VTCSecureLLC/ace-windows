@@ -22,25 +22,21 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <TextBlock Margin="3,2,3,2" Text="Auth-ID" FontSize="13" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"/>
-                <TextBox  x:Name="AuthIDBox" FontSize="14" Grid.Column="1" Margin="3" Grid.Row="0" Width="150" Height="24"/>
-
-                <TextBlock Margin="3,2,3,2" Text="Username" FontSize="13" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"/>
-                <TextBox  x:Name="LoginBox" FontSize="14" Grid.Column="1" Margin="3" Grid.Row="1" Width="150" Height="24"/>
+            <TextBlock Margin="3,2,3,2" Text="Username" FontSize="13" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"/>
+                <TextBox  x:Name="LoginBox" FontSize="14" Grid.Column="1" Margin="3" Grid.Row="0" Width="150" Height="24"/>
             
-            <TextBlock Margin="3,2,3,2" Text="Password" FontSize="13" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center"/>
-            <PasswordBox  x:Name="PasswdBox" FontSize="14" Margin="3" Grid.Column="1" Grid.Row="2" Width="150" Height="24" />
+            <TextBlock Margin="3,2,3,2" Text="Password" FontSize="13" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"/>
+            <PasswordBox  x:Name="PasswdBox" FontSize="14" Margin="3" Grid.Column="1" Grid.Row="1" Width="150" Height="24" />
 
-                <TextBlock Margin="3,2,3,2" Text="Server Address" FontSize="13" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center"/>
-                <TextBox  x:Name="HostnameBox" FontSize="14" Grid.Column="1" Margin="3" Grid.Row="3" Width="150" Height="24"/>
+                <TextBlock Margin="3,2,3,2" Text="Server Address" FontSize="13" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center"/>
+                <TextBox  x:Name="HostnameBox" FontSize="14" Grid.Column="1" Margin="3" Grid.Row="2" Width="150" Height="24"/>
 
-                <TextBlock Margin="3,2,3,2" Text="Server Port" FontSize="13" Grid.Column="0" Grid.Row="4" VerticalAlignment="Center"/>
-                <TextBox  x:Name="HostPortBox" FontSize="14" Grid.Column="1" Margin="3" Grid.Row="4" Width="150" Height="24"/>
+                <TextBlock Margin="3,2,3,2" Text="Server Port" FontSize="13" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center"/>
+                <TextBox  x:Name="HostPortBox" FontSize="14" Grid.Column="1" Margin="3" Grid.Row="3" Width="150" Height="24"/>
 
-                <TextBlock Margin="3,2,3,2" Text="Transport" FontSize="13" Grid.Column="0" Grid.Row="5" VerticalAlignment="Center"/>
-                <ComboBox  x:Name="TransportBox" FontSize="14" Grid.Column="1" Margin="3" Grid.Row="5" Width="150" Height="24">
+                <TextBlock Margin="3,2,3,2" Text="Transport" FontSize="13" Grid.Column="0" Grid.Row="4" VerticalAlignment="Center"/>
+                <ComboBox  x:Name="TransportBox" FontSize="14" Grid.Column="1" Margin="3" Grid.Row="4" Width="150" Height="24">
                     <TextBlock >Unencrypted (TCP)</TextBlock>
                     <TextBlock >Encrypted (TLS)</TextBlock>
                 </ComboBox>
