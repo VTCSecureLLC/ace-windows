@@ -242,7 +242,7 @@ namespace VATRP.Core.Services
 				LinphoneAPI.linphone_core_enable_video_preview(linphoneCore, false);
 				LinphoneAPI.linphone_core_set_native_preview_window_id(linphoneCore, -1);
 
-                callsDefaultParams = LinphoneAPI.linphone_core_create_call_params(linphoneCore);
+                callsDefaultParams = LinphoneAPI.linphone_core_create_call_params(linphoneCore, IntPtr.Zero);
                 LinphoneAPI.linphone_call_params_enable_video(callsDefaultParams, true);
                 LinphoneAPI.linphone_call_params_enable_early_media_sending(callsDefaultParams, true);
 
