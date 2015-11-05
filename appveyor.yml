@@ -7,7 +7,6 @@ install:
 
 build_script:
 - nuget restore VATRP.sln
-- echo using System;namespace com.vtcsecure.ace.windows { public partial class App {public static string HOCKEYAPP_ID = "%HOCKEYAPP_ID%";}} > VATRP.App/App.Constants.cs
 - set vatrpVersion=%APPVEYOR_BUILD_VERSION%
 - set vatrpConfiguration="Developer"
 - msbuild VATRP.sln /p:Configuration=%vatrpConfiguration%  /p:Targets="Build" /p:BuildInParallel=true /m
