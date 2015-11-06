@@ -8,22 +8,15 @@ namespace VATRP.Core.Interfaces
     public interface IContactsService : IVATRPservice
     {
         void AddContact(VATRPContact contact, string group);
-
         void RemoveContact(string id, bool isUserAction);
+        void RemoveContacts();
         VATRPContact FindContact(ContactID contactID);
-
         VATRPContact FindLoggedInContact();
-
         
-
         event EventHandler<ContactEventArgs> ContactAdded;
-
         event EventHandler<EventArgs> ContactsChanged;
-
         event EventHandler<ContactRemovedEventArgs> ContactRemoved;
-
         event EventHandler<ContactStatusChangedEventArgs> ContactStatusChanged;
-
         event EventHandler<EventArgs> GroupsChanged;
 
         ObservableCollection<VATRPContact> Contacts { get; }

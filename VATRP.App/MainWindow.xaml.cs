@@ -274,6 +274,7 @@ namespace com.vtcsecure.ace.windows
             _settingsView.IsVisibleChanged += OnChildVisibilityChanged;
             _messagingWindow.IsVisibleChanged += OnChildVisibilityChanged;
             _settingsView.SettingsSavedEvent += OnSettingsSaved;
+            _settingsView.ResetToDefaultEvent += OnResetToDefaultConfiguration;
             _keypadCtrl.KeypadClicked += OnKeypadClicked;
             _dialpadBox.KeypadClicked += OnDialpadClicked;
 
