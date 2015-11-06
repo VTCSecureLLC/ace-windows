@@ -52,6 +52,7 @@ namespace VATRP.Core.Interfaces
         void FillCodecsList(VATRPAccount account, CodecType codecType);
         bool UpdateNetworkingParameters(VATRPAccount account);
         void SetAVPFMode(LinphoneAVPFMode mode);
+        int GetAVPFMode();
         IntPtr GetCallParams(IntPtr callPtr);
         string GetUsedAudioCodec(IntPtr callParams);
         string GetUsedVideoCodec(IntPtr callParams);
@@ -66,5 +67,6 @@ namespace VATRP.Core.Interfaces
         void MarkChatAsRead(IntPtr chatRoomPtr);
         int GetHistorySize(string username);
         void LoadChatRoom(VATRPChat chat);
+        void EnableAdaptiveRateControl(bool bEnable);
     }
 }

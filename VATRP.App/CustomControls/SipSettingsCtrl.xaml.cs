@@ -34,6 +34,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             var config = ServiceManager.Instance.ConfigurationService;
             if (config == null)
                 return;
+            AuthIDBox.Text = App.CurrentAccount.AuthID;
             LoginBox.Text = App.CurrentAccount.Username;
             PasswdBox.Password = App.CurrentAccount.Password;
             HostnameBox.Text = App.CurrentAccount.ProxyHostname;
@@ -56,6 +57,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             if (App.CurrentAccount == null)
                 return false;
+            if (AuthIDBox.Text != App.CurrentAccount.AuthID)
+                return true;
 
             if (LoginBox.Text != App.CurrentAccount.Username)
                 return true;
@@ -121,6 +124,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 return false;
             }
             App.CurrentAccount.ProxyPort = port;
+            App.CurrentAccount.AuthID = AuthIDBox.Text;
             App.CurrentAccount.Username = LoginBox.Text;
             App.CurrentAccount.Password = PasswdBox.Password;
             App.CurrentAccount.ProxyHostname = HostnameBox.Text;

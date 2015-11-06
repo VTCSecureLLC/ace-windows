@@ -20,6 +20,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private string _mediaEncryption = string.Empty;
         private string _rtpProfile;
         private float _quality;
+        private bool _avpfenabled = false;
         #endregion
 
         public CallInfoViewModel()
@@ -167,6 +168,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 OnPropertyChanged("CallQuality");
             }
         }
+        public bool AVPFEnabled
+        {
+            get { return _avpfenabled; }
+            set
+            {
+                _avpfenabled = value;
+                OnPropertyChanged("AVPFEnabled");
+            }
+        }
+
         #endregion
 
     }

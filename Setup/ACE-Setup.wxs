@@ -11,6 +11,7 @@
     <Property Id='ARPCONTACT' Value='ACE' />
     <Property Id='ARVERSION' Value='$(var.VATRP.Version)'/>
     <Property Id="ARPPRODUCTICON" Value="APP_ICON" />
+    <Property Id="MSIFASTINSTALL" Value="1"/>
     <!-- The '.NET Framework' launch condition. -->
     <PropertyRef Id='NETFRAMEWORK40FULL' />
     <Condition Message='This setup requires the .NET Framework version v4.0.  Please install the .NET Framework and run this setup again.'><![CDATA[Installed OR NETFRAMEWORK40FULL]]></Condition>
@@ -152,7 +153,9 @@
           <Component Id='com_MSVCR120D.DLL' Guid='D95D4E57-CE4E-496A-A5A3-D59B5A5F18CF' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='MSVCR120D.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='msvcr120d.dll' Source='ThirdParties\liblinphone\msvcr120d.dll' KeyPath='yes' />
           </Component>
-
+          <Component Id='com_MSVCR100.DLL' Guid='775E2140-A5E1-41fe-8EB3-F33999F2FDD9' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+            <File Id='MSVCR100.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='msvcr100.dll' Source='ThirdParties\liblinphone\msvcr100.dll' KeyPath='yes' />
+          </Component>
         </Directory>
 
       </Directory>
@@ -230,6 +233,7 @@
       <ComponentRef Id='com_UNINSTALL.EXE' />
       <ComponentRef Id='com_MSVCR120.DLL'/>
       <ComponentRef Id='com_MSVCR120D.DLL'/>
+	  <ComponentRef Id='com_MSVCR100.DLL'/>
     </ComponentGroup>
     <!-- The composite feature of the installation package. -->
     <Feature Id='CompleteInstall' Title='All Files' Level='1'>

@@ -32,6 +32,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Grid.Column="0" Margin="3" TextAlignment="Right" Text="Audio Codec:"/>
         <TextBlock Grid.Row="0" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=AudioCodec}"/>
@@ -71,5 +72,8 @@
         <!-- -->
         <TextBlock Grid.Row="12" Grid.Column="0" Margin="3" TextAlignment="Right" Text="Call Quality:"/>
         <TextBlock Grid.Row="12" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=CallQuality, Converter={StaticResource cqc}}"/>
+        <!-- -->
+        <TextBlock Grid.Row="13" Grid.Column="0" Margin="3" TextAlignment="Right" Text="AVPF Enabled:"/>
+        <TextBlock Grid.Row="13" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=AVPFEnabled}"/>
     </Grid>
 </model:VATRPWindow>

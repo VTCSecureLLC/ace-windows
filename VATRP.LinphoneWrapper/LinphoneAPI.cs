@@ -102,6 +102,8 @@ namespace VATRP.LinphoneWrapper
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_core_accept_call_update(IntPtr lc, IntPtr call, IntPtr cp);
 
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_create_call_params(IntPtr lc, IntPtr call);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_core_terminate_call(IntPtr lc, IntPtr call);
@@ -860,6 +862,18 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_core_get_avpf_rr_interval(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_enable_adaptive_rate_control(IntPtr lc, bool enabled);
+        
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_core_adaptive_rate_control_enabled( IntPtr lc);
+        
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_adaptive_rate_algorithm(IntPtr lc, string algorithm);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_adaptive_rate_algorithm(IntPtr lc);
 
         /**
  * Returns the list of available audio codecs.
