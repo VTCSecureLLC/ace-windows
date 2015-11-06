@@ -53,16 +53,6 @@ namespace com.vtcsecure.ace.windows.Views
             MessageListView.ScrollIntoView(MessageListView.SelectedItem);
         }
 
-        private void OnSearchTextFocused(object sender, RoutedEventArgs e)
-        {
-            
-        }
-
-        private void OnSearchTextReleased(object sender, RoutedEventArgs e)
-        {
-            
-        }
-
         private void OnChatSelected(object sender, SelectionChangedEventArgs e)
         {
             if (ContactsList.SelectedItem != null)

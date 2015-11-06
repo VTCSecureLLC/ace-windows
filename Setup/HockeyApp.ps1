@@ -10,7 +10,7 @@ Get-ChildItem .\Setup\Out\*.msi | ForEach-Object {
   $id=$(& C:\ProgramData\Chocolatey\bin\curl -sLk `
     -F "bundle_version=$env:APPVEYOR_BUILD_NUMBER" `
     -F "bundle_short_version=$env:APPVEYOR_BUILD_VERSION" `
-    -F "notes=$APPVEYOR_REPO_COMMIT_MESSAGE" `
+    -F "notes=$env:APPVEYOR_REPO_COMMIT_MESSAGE" `
     -F "notes_type=1" `
     -F "status=2" `
     -F "teams=$env:HOCKEYAPP_TEAM_IDS" `
@@ -20,7 +20,7 @@ Get-ChildItem .\Setup\Out\*.msi | ForEach-Object {
   & C:\ProgramData\Chocolatey\bin\curl -sLk `
     -X PUT `
     -F "ipa=@$msi" `
-    -F "notes=$APPVEYOR_REPO_COMMIT_MESSAGE" `
+    -F "notes=$env:APPVEYOR_REPO_COMMIT_MESSAGE" `
     -F "notes_type=1" `
     -F "notify=1" `
     -F "status=2" `

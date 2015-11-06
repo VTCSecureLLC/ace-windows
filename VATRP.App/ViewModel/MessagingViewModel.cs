@@ -6,6 +6,7 @@ using System.Security.Principal;
 using System.Threading;
 using System.Timers;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Threading;
 using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Events;
@@ -30,15 +31,21 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private ObservableCollection<ContactViewModel> _contacts;
 
         private ContactViewModel _contactViewModel;
-        private int _lastSentTextIndex;
         private string _contactSearchCriteria;
+        private ICollectionView contactsListView;
 
         public MessagingViewModel()
         {
-            
+            LastInput = string.Empty;
+            _messageText = string.Empty;
+            _contactSearchCriteria = string.Empty;
+            _receiverAddress = string.Empty;
+            this.ContactsListView = CollectionViewSource.GetDefaultView(this.Contacts);
+            this.ContactsListView.Filter = new Predicate<object>(this.FilterContactsList);
+
         }
 
-        public MessagingViewModel(IChatService chatMng, IContactsService contactsMng)
+        public MessagingViewModel(IChatService chatMng, IContactsService contactsMng):this()
         {
             this._chatsManager = chatMng;
             this._contactsManager = contactsMng;
@@ -48,7 +55,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             this._chatsManager.ContactsChanged += OnContactsChanged;
             this._chatsManager.ContactAdded += OnChatContactAdded;
             this._chatsManager.ContactRemoved += OnChatContactRemoved;
-            LastInput = string.Empty;
         }
 
         private void OnChatContactRemoved(object sender, ContactRemovedEventArgs e)
@@ -276,6 +282,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
             return true;
         }
 
+        public bool FilterContactsList(object item)
+        {
+            var contactVM = item as ContactViewModel;
+            if (contactVM != null)
+                return contactVM.Contact != null && contactVM.Contact.Fullname.Contains(ContactSearchCriteria);
+            return true;
+        }
+
+        #region Properties
+        
         public bool IsContactsLoaded
         {
             get { return _contactsLoaded; }
@@ -288,8 +304,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 }
             }
         }
-
-        #region Properties
 
         public ObservableCollection<VATRPChatMessage> Messages
         {
@@ -380,6 +394,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     _contactSearchCriteria = value;
                     OnPropertyChanged("ContactSearchCriteria");
                     OnPropertyChanged("ShowSearchHint");
+                    ContactsListView.Refresh();
                 }
             }
         }
@@ -392,9 +407,25 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
-        #endregion
+        public ICollectionView ContactsListView
+        {
+            get { return this.contactsListView; }
+            private set
+            {
+                if (value == this.contactsListView)
+                {
+                    return;
+                }
+
+                this.contactsListView = value;
+                OnPropertyChanged("ContactsListView");
+            }
+        }
 
 
         public string LastInput { get; set; }
+
+        #endregion
+
     }
 }
