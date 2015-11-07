@@ -185,6 +185,7 @@ namespace com.vtcsecure.ace.windows.Views
                     break;
                 case VATRPCallState.Connected:
                 {
+                    Hide();
                     stopAnimation = true;
                     model.CallState = VATRPCallState.Connected;
                     timerCall.Start();
@@ -262,16 +263,27 @@ namespace com.vtcsecure.ace.windows.Views
         
         private void OnMute(object sender, RoutedEventArgs e)
         {
+            MuteCall();
+        }
+
+        internal void EndCall()
+        {
+            SetTimeout(delegate
+            {
+                _linphoneService.TerminateCall(_currentCall.NativeCallPtr);
+            }, 10);
+        }
+
+        internal void MuteCall()
+        {
             _linphoneService.ToggleMute();
             BtnMute.Content = _linphoneService.IsCallMuted() ? "UnMute" : "Mute";
         }
 
         private void OnEndCall(object sender, RoutedEventArgs e)
         {
-            SetTimeout(delegate
-            {
-                _linphoneService.TerminateCall(_currentCall.NativeCallPtr);
-            }, 2);
+            EndCall();
+            Hide();
         }
 
         private void OnAutoAnswerTimer(object sender, ElapsedEventArgs e)
@@ -292,6 +304,7 @@ namespace com.vtcsecure.ace.windows.Views
                 if (model.AutoAnswer == 0)
                 {
                     autoAnswerTimer.Stop();
+                    Hide();
                     _linphoneService.AcceptCall(_currentCall.NativeCallPtr, ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.USE_RTT, true));
                 }
@@ -355,6 +368,9 @@ namespace com.vtcsecure.ace.windows.Views
                 }
 #endif
                 StopAnimation();
+                
+                Hide();
+
                 model.CallState = VATRPCallState.Connected;
                 IncomingPanel.Visibility = Visibility.Collapsed;
                 InCallPanel.Visibility = Visibility.Visible;
@@ -406,6 +422,11 @@ namespace com.vtcsecure.ace.windows.Views
 
         private void OnSwitchKeypad(object sender, RoutedEventArgs e)
         {
+            ToggleKeypadView();
+        }
+
+        internal void ToggleKeypadView()
+        {
             if (KeypadCtrl != null)
             {
                 if (KeypadCtrl.Visibility == Visibility.Visible)
@@ -418,6 +439,11 @@ namespace com.vtcsecure.ace.windows.Views
         #region Call Statistics Info
         private void ToggleInfoWindow(object sender, RoutedEventArgs e)
         {
+            ToggleCallStatisticsInfo();
+        }
+
+        internal void ToggleCallStatisticsInfo()
+        {
             if (CallInfoCtrl != null)
             {
                 if (CallInfoCtrl.IsVisible)
@@ -426,7 +452,6 @@ namespace com.vtcsecure.ace.windows.Views
                     CallInfoCtrl.Show();
             }
         }
-
         public void SubscribeCallStatistics()
         {
             if (subscribedForStats)
