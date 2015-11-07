@@ -244,6 +244,27 @@ namespace VATRP.Core.Services
                 {
                     Debug.WriteLine("DeleteCallEvent: " + ex.ToString());
                 }
+                finally
+                {
+                    if (sql_con.State == ConnectionState.Open)
+                        sql_con.Close();
+                }
+
+                deleteSQL = new SQLiteCommand("VACUUM", sql_con);
+                try
+                {
+                    sql_con.Open();
+                    deleteSQL.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("VAcuum: " + ex.ToString());
+                }
+                finally
+                {
+                    if (sql_con.State == ConnectionState.Open)
+                        sql_con.Close();
+                }
             }
 
             if (OnCallHistoryEvent != null)

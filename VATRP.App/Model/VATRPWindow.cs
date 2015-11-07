@@ -257,7 +257,7 @@ namespace com.vtcsecure.ace.windows.Model
                 case VATRPWindowType.MESSAGE_VIEW:
                     return new Size() {Width = 700, Height = 400};
                 case VATRPWindowType.RECENTS_VIEW:
-                    return new Size() {Width = 500, Height = 100};
+                    return new Size() {Width = 300, Height = 500};
                 case VATRPWindowType.SELF_VIEW:
                     return new Size() {Width = 300, Height = 300};
                 case VATRPWindowType.SETTINGS_VIEW:

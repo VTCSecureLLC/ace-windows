@@ -122,14 +122,21 @@ namespace com.vtcsecure.ace.windows.Views
                         AddNewCallEvent(callEvent);
                     break;
                 case HistoryEventTypes.Load:
+                    this.AllCallsInfoLabel.Content = "Loading...";
+                    this.MissedCallsInfoLabel.Content = "Loading...";
+                    lstCallsBox.Visibility = Visibility.Collapsed;
+                    lstMissedCallsBox.Visibility = Visibility.Collapsed;
                     LoadAllCalls();
                     PopulateCalls(CallsTab.SelectedIndex == 0);
                     _populatingCalls = false;
-                    lstCallsBox.Visibility = Visibility.Visible;
                     break;
                 case HistoryEventTypes.Reset:
-                    lstCallsBox.ItemsSource = null;
-                    lstMissedCallsBox.ItemsSource = null;
+                    CallsList.Clear();
+                    MissedCallsList.Clear();
+                    this.lstCallsBox.Visibility = Visibility.Collapsed;
+                    this.lstMissedCallsBox.Visibility = Visibility.Collapsed;
+                    this.AllCallsInfoLabel.Content = "Entry list is empty";
+                    this.MissedCallsInfoLabel.Content = "Entry list is empty";
                     break;
                 case HistoryEventTypes.Delete:
                     if (callEvent != null)
@@ -202,8 +209,21 @@ namespace com.vtcsecure.ace.windows.Views
         private void PopulateCalls(bool allCalls)
         {
             ListBox lstBox = allCalls ? lstCallsBox : lstMissedCallsBox;
+            Label infoLabel = allCalls ? AllCallsInfoLabel : MissedCallsInfoLabel;
+
             ObservableCollection<RecentsCallItem> callsSource = allCalls ? CallsList : MissedCallsList;
             lstBox.ItemsSource = callsSource;
+
+            if (lstBox.Items.Count == 0)
+            {
+                lstBox.Visibility = Visibility.Collapsed;
+                infoLabel.Content = "Entry list is empty";
+            }
+            else
+            {
+                lstBox.Visibility = Visibility.Visible;
+               
+            }
         }
 
         private void CallsTab_SelectionChanged(object sender, SelectionChangedEventArgs e)

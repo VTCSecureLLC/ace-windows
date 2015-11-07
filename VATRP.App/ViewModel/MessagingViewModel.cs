@@ -90,8 +90,23 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 return;
             }
             VATRPContact contact = e.Conversation.Contact;
-            if ( contact != null)
+            if (contact != null)
+            {
                 RemoveContact(contact);
+
+                if (this.Chat == e.Conversation)
+                {
+                    this._chat = null;
+                //    MessagesListView = null;
+                }
+
+                if (_contactViewModel.Contact == e.Conversation.Contact)
+                {
+                    _contactViewModel = null;
+                    ReceiverAddress = string.Empty;
+                }
+                OnPropertyChanged("Chat");
+            }
         }
 
         private void OnNewConversationCreated(object sender, ConversationEventArgs e)

@@ -146,10 +146,30 @@ namespace VATRP.Core.Services
                 {
                     if ((contact != null) && (contact.ID == id))
                     {
-                        this.Contacts.Remove(contact);
                         if (ContactRemoved != null)
                             ContactRemoved(this, new ContactRemovedEventArgs(new ContactID(contact), isUserAction));
+                        this.Contacts.Remove(contact);
                         break;
+                    }
+                }
+            }
+        }
+
+        public void RemoveContacts()
+        {
+            lock (this.Contacts)
+            {
+                while (this.Contacts.Count > 0)
+                {
+                    foreach (VATRPContact contact in this.Contacts)
+                    {
+                        if (contact != null)
+                        {
+                            if (ContactRemoved != null)
+                                ContactRemoved(this, new ContactRemovedEventArgs(new ContactID(contact), true));
+                            this.Contacts.Remove(contact);
+                            break;
+                        }
                     }
                 }
             }
