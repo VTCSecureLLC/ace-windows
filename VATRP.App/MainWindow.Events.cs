@@ -41,6 +41,7 @@ namespace com.vtcsecure.ace.windows
                     _remoteVideoView.DestroyOnClosing = true; // allow window to be closed
                     _remoteVideoView.Close();
                     _remoteVideoView = null;
+                    _callOverlayView.Hide();
                 }
                 return;
             }
@@ -112,6 +113,7 @@ namespace com.vtcsecure.ace.windows
                         ServiceManager.LogError("Show Self preview", ex);
                         RecreateSelfView();
                     }
+                    _callOverlayView.EndCallRequested = false;
                     try
                     {
                         if (_remoteVideoView == null)
@@ -119,6 +121,7 @@ namespace com.vtcsecure.ace.windows
                             _remoteVideoView = new CallView();
                         }
                         _remoteVideoView.Title = "Remote Video"; //videoTitle;
+                        _remoteVideoView.AttachedControlsView = _callOverlayView;
                         Window window = GetWindow(_remoteVideoView);
                         if (window != null)
                         {
@@ -140,6 +143,9 @@ namespace com.vtcsecure.ace.windows
                     break;
                 case VATRPCallState.Closed:
                     _flashWindowHelper.StopFlashing();
+
+                    _callOverlayView.Hide();
+
                     if (_callView != null)
                         _callView.OnCallStateChanged(call);
                     stopPlayback = true;

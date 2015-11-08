@@ -42,6 +42,7 @@ namespace com.vtcsecure.ace.windows
         private SelfView _selfView = new SelfView();
         private readonly SettingsView _settingsView = new SettingsView();
         private readonly CallInfoView _callInfoView = new CallInfoView();
+        private readonly CallOverlayView _callOverlayView = new CallOverlayView();
         private readonly ILinphoneService _linphoneService;
         private FlashWindowHelper _flashWindowHelper = new FlashWindowHelper();
         #endregion
@@ -280,6 +281,8 @@ namespace com.vtcsecure.ace.windows
 
             _callView.KeypadCtrl = _keypadCtrl;
             _callView.CallInfoCtrl = _callInfoView;
+
+            _callOverlayView.CallManagerView = _callView;
 
             App.CurrentAccount = ServiceManager.Instance.LoadActiveAccount();
             bool hideNavigation = true;
