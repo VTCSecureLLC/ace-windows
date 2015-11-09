@@ -14,7 +14,7 @@ namespace VATRP.Core.Model
     {
         protected VATRPChat _chatID;
         protected string _content;
-        protected string _encryptedContent;
+        protected bool _isSeparator;
         protected string _fileName;
         protected bool _isHeadingMessage;
         protected bool _isIncompleteMessage;
@@ -35,6 +35,7 @@ namespace VATRP.Core.Model
             this._receiver = string.Empty;
             this._isIncompleteMessage = true;
             this.NativePtr = IntPtr.Zero;
+            this._isSeparator = false;
         }
 
         public VATRPChatMessage(MessageContentType contentType) :this()
@@ -51,17 +52,6 @@ namespace VATRP.Core.Model
             }
             return this.MessageTime.CompareTo(other.MessageTime);
         }
-
-        public string GetTimeFormattedString()
-        {
-            DateTime time = this.MessageTime;
-            if (this.MessageTime.Date.Equals(DateTime.Now.Date))
-            {
-                return this.MessageTime.ToString("HH:mm");
-            }
-            return this.MessageTime.ToString("dd MMM HH:mm");
-        }
-
 
         public VATRPChat Chat
         {
@@ -114,7 +104,7 @@ namespace VATRP.Core.Model
 
         public bool ShowInList
         {
-            get { return this.Direction == MessageDirection.Incoming || !this.IsIncompleteMessage; }
+            get { return (this.Direction == MessageDirection.Incoming || !this.IsIncompleteMessage) && !IsSeparator; }
         }
 
         public IntPtr NativePtr { get; set; }
@@ -143,18 +133,6 @@ namespace VATRP.Core.Model
         }
 
         public string ID { get; set; }
-        public string EncryptedContent
-        {
-            get
-            {
-                return this._encryptedContent;
-            }
-            set
-            {
-                this._encryptedContent = value;
-            }
-        }
-
         
         public string FileName
         {
@@ -221,12 +199,25 @@ namespace VATRP.Core.Model
                 this.OnPropertyChanged("Status");
             }
         }
-		
+
+        public bool IsSeparator
+        {
+            get
+            {
+                return this._isSeparator;
+            }
+            set
+            {
+                this._isSeparator = value;
+                this.OnPropertyChanged("IsSeparator");
+            }
+        }
+
         public bool HasDeliveryStatus
         {
             get
             {
-                return (this.Direction == MessageDirection.Outgoing) && !IsRTTMessage;
+                return (this.Direction == MessageDirection.Outgoing) && !IsRTTMessage ;
             }
         }
 
