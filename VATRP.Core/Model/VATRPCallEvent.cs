@@ -92,7 +92,7 @@ namespace VATRP.Core.Model
         {
             if (other == null)
             {
-                throw new ArgumentNullException("other");
+                return -1;
             }
             return other.StartTime.CompareTo(this.StartTime);
         }
