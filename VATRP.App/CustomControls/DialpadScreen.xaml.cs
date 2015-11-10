@@ -13,99 +13,92 @@ namespace com.vtcsecure.ace.windows.CustomControls
     /// <summary>
     /// Interaction logic for DialPad.xaml
     /// </summary>
-    public partial class DialPadScreen : UserControl
+    public partial class DialPadScreen 
     {
         #region Members
         private static readonly ILog LOG = LogManager.GetLogger(typeof(DialPadScreen));
-        private DialpadViewModel mViewModel;
-        private readonly MainWindow mainWindow;
+        private DialpadViewModel _viewModel;
         public event EventHandler<KeyPadEventArgs> KeypadPressed;
 
         #endregion
-        public DialPadScreen():
-            this(null)
-        {
-            
-        }
 
-        public DialPadScreen(MainWindow wnd)
+        public DialPadScreen()
         {
-            DataContext = ViewModel;
             InitializeComponent();
-            this.mainWindow = wnd;
         }
 
-       public DialpadViewModel ViewModel
+        public void SetViewModel(DialpadViewModel viewModel)
         {
-            get { return mViewModel ?? (mViewModel = new DialpadViewModel()); }
+            DataContext = viewModel;
+            _viewModel = viewModel;
         }
 
         #region KeyPad
 
         private void buttonKeyPad_Click(object sender, RoutedEventArgs e)
         {
-            int oldNumberLendth = ViewModel.RemotePartyNumber.Length;
+            int oldNumberLendth = _viewModel.RemotePartyNumber.Length;
             var key = DialpadKey.DialpadKey_KeyNone;
 
             if (Equals(e.OriginalSource, buttonKeyPad0))
             {
                 key = DialpadKey.DialpadKey_Key0;
-                ViewModel.RemotePartyNumber += "0";
+                _viewModel.RemotePartyNumber += "0";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad1))
             {
                 key = DialpadKey.DialpadKey_Key1;
-                ViewModel.RemotePartyNumber += "1";
+                _viewModel.RemotePartyNumber += "1";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad2))
             {
                 key = DialpadKey.DialpadKey_Key2;
-                ViewModel.RemotePartyNumber += "2";
+                _viewModel.RemotePartyNumber += "2";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad3))
             {
                 key = DialpadKey.DialpadKey_Key3;
-                ViewModel.RemotePartyNumber += "3";
+                _viewModel.RemotePartyNumber += "3";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad4))
             {
                 key = DialpadKey.DialpadKey_Key4;
-                ViewModel.RemotePartyNumber += "4";
+                _viewModel.RemotePartyNumber += "4";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad5))
             {
                 key = DialpadKey.DialpadKey_Key5;
-                ViewModel.RemotePartyNumber += "5";
+                _viewModel.RemotePartyNumber += "5";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad6))
             {
                 key = DialpadKey.DialpadKey_Key6;
-                ViewModel.RemotePartyNumber += "6";
+                _viewModel.RemotePartyNumber += "6";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad7))
             {
                 key = DialpadKey.DialpadKey_Key7;
-                ViewModel.RemotePartyNumber += "7";
+                _viewModel.RemotePartyNumber += "7";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad8))
             {
                 key = DialpadKey.DialpadKey_Key8;
-                ViewModel.RemotePartyNumber += "8";
+                _viewModel.RemotePartyNumber += "8";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad9))
             {
                 key = DialpadKey.DialpadKey_Key9;
-                ViewModel.RemotePartyNumber += "9";
+                _viewModel.RemotePartyNumber += "9";
             }
             else if (Equals(e.OriginalSource, buttonKeyPadStar))
             {
                 key = DialpadKey.DialpadKey_KeyStar;
-                ViewModel.RemotePartyNumber += "*";
+                _viewModel.RemotePartyNumber += "*";
             }
             else if (Equals(e.OriginalSource, buttonKeyPadSharp))
             {
                 key = DialpadKey.DialpadKey_KeyPound;
-                ViewModel.RemotePartyNumber += "#";
+                _viewModel.RemotePartyNumber += "#";
             }
 
             if (key != DialpadKey.DialpadKey_KeyNone)
@@ -125,9 +118,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
        
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            LOG.Debug("*************** Dialpad page OnLoaded ********* ");
-            this.ViewModel.RemotePartyNumber = string.Empty;
-            this.ProviderCmboBox.SelectedIndex = 0;
+            
         }
 
        private void OnUnloaded(object sender, RoutedEventArgs e)
@@ -135,21 +126,12 @@ namespace com.vtcsecure.ace.windows.CustomControls
            
         }
 
-        private void NumberTextBox_OnGotFocus(object sender, RoutedEventArgs e)
-        {
-        }
-
-        private void NumberTextBox_OnLostFocus(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void numberTextBox_PreviewKeyUp(object sender, KeyEventArgs e)
         {
             try
             {
                 if (e.Key == Key.Enter)
-                    MediaActionHandler.MakeVideoCall(numberTextBox.Text);
+                    MediaActionHandler.MakeVideoCall(_viewModel.RemotePartyNumber);
             }
             catch (Exception ex)
             {
@@ -159,17 +141,23 @@ namespace com.vtcsecure.ace.windows.CustomControls
         
         private void VideoCallClick(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(numberTextBox.Text))
+            if (string.IsNullOrWhiteSpace(_viewModel.RemotePartyNumber))
             {
                 MessageBox.Show("Destination address is empty", "ACE", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            MediaActionHandler.MakeVideoCall(numberTextBox.Text);
+
+            MediaActionHandler.MakeVideoCall(_viewModel.RemotePartyNumber);
+
         }
 
-        private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void OnBackSpaceClicked(object sender, MouseButtonEventArgs e)
         {
-            
+            if (!String.IsNullOrEmpty(_viewModel.RemotePartyNumber))
+            {
+                _viewModel.RemotePartyNumber = _viewModel.RemotePartyNumber.Substring(0,
+                    _viewModel.RemotePartyNumber.Length - 1);
+            }
         }
     }
         
