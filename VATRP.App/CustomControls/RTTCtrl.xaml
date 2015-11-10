@@ -1,0 +1,183 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:properties="clr-namespace:com.vtcsecure.ace.windows.Properties"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             xmlns:conv="clr-namespace:com.vtcsecure.ace.windows.Converters"
+             x:Class="com.vtcsecure.ace.windows.CustomControls.RTTCtrl"
+             mc:Ignorable="d" 
+    d:DataContext="{d:DesignData Source=../SampleData/MessageViewSampleData.xaml}"
+             d:DesignWidth="400" d:DesignHeight="500"
+             Loaded="OnLoaded"
+             Unloaded="OnUnloaded" 
+             >
+    <UserControl.Resources>
+        <conv:BoolToVisibilityConverter x:Key="bvc" OppositeBooleanValue="False"/>
+        <conv:BoolToBubbleColorConverter x:Key="bcolorc"/>
+        <conv:BoolToBubbleCornerConverter x:Key="bcornerc0" Radius="6.0"/>
+        <conv:BoolToBubbleCornerConverter x:Key="bcornerc1" Radius="6.0" Row="1"/>
+        <conv:BoolToBubbleMarginConverter x:Key="bmarginc"/>
+        <conv:MessageDeliveryStatusToBrushConverter x:Key="mdsb"/>
+        <conv:MessageDateConverter x:Key="mdc"/>
+        <conv:BoolToBubbleAlignmentConverter x:Key="BtbaText" OppositeBooleanValue="True" />
+        <conv:BoolToBubbleAlignmentConverter x:Key="BtbaTime" TrueEquivalent="Right" FalseEquivalent="Left" OppositeBooleanValue="True"/>
+        <conv:DirectionToVisibilityConverter x:Key="dvc"/>
+    </UserControl.Resources>
+    <Grid ShowGridLines="False">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Border Grid.Row ="0" Background="{StaticResource AppMainWindowBrush}" BorderBrush="{StaticResource AppMainBorderBrush}" 
+		   BorderThickness="0,0,0,1">
+            <ListBox x:Name ="MessageListView" Style="{StaticResource MessagesListBox}" 
+				ItemsSource= "{Binding MessagesListView}" Margin="0" 
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                     IsSynchronizedWithCurrentItem="True"
+                             HorizontalContentAlignment="Stretch"
+                             >
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="ContentTemplate" Value="{StaticResource SelectedMessageItemStyle}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <Grid x:Name="SeparatorWnd" Visibility="{Binding IsSeparator, Converter={StaticResource bvc}}" Margin="0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="4*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="2*"/>
+                                    <RowDefinition Height="2*"/>
+                                </Grid.RowDefinitions>
+                                <Border Grid.Column="0" Grid.Row="0" BorderBrush="#FFF0F0F0" BorderThickness="0,0,0,1"/>
+                                <Border Grid.Column="0" Grid.Row="1" BorderThickness="0,1,0,0" BorderBrush="#FFF0F0F0"/>
+                                <Border Grid.Column="2" Grid.Row="0" BorderThickness="0,0,0,1" BorderBrush="#FFF0F0F0"/>
+                                <Border Grid.Column="2" Grid.Row="1" BorderThickness="0,1,0,0" BorderBrush="#FFF0F0F0"/>
+                                <Border Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Padding="0,5" CornerRadius="3" Background="#FFF0F0F0">
+                                    <TextBlock Text="{Binding MessageTime, StringFormat=\{0:dd MMMM yyyy\}}" HorizontalAlignment="Center"></TextBlock>
+                                </Border>
+
+                            </Grid>
+                            <Grid Margin="{Binding Direction, Converter={StaticResource bmarginc}}" 
+                                            HorizontalAlignment="{Binding Direction, Converter={StaticResourceExtension BtbaText}}"
+                                      Visibility="{Binding ShowInList, Converter={StaticResource bvc}}" >
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Width="26" Height="26" Grid.Column="0"
+										Margin="5,5,5,0" VerticalAlignment="Bottom" CornerRadius="13" Background="#FFCCCCCC" BorderThickness="0" Visibility="{Binding Direction, Converter={StaticResource dvc}}">
+                                    <TextBlock Text="{Binding Contact.Initials}" Foreground="{StaticResource AppMainBorderBrush}" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                                   DataContext="{Binding Chat}"
+                                                    >
+                                    </TextBlock>
+                                </Border>
+
+
+                                <Grid Grid.Column="1"
+                                      HorizontalAlignment="{Binding Direction, Converter={StaticResourceExtension BtbaText}}"
+                                      Visibility="{Binding ShowInList, Converter={StaticResource bvc}}" >
+                                    <Grid >
+                                        <Grid.RowDefinitions>
+
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="10"/>
+                                            <ColumnDefinition Width="5"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" BorderBrush="{Binding Direction, Converter={StaticResource bcolorc}}" 
+                                                    BorderThickness="1" 
+                                            Background="{Binding Direction, Converter={StaticResource bcolorc}}" 
+                                            CornerRadius="{Binding Direction, Converter={StaticResource bcornerc0}}" >
+
+                                            <!--Text part-->
+                                            <StackPanel HorizontalAlignment="Stretch" >
+                                                <TextBlock  Text="{Binding Content}" 
+    							Margin="5,0,5,0" TextWrapping="Wrap"
+    							Foreground="{StaticResource AppMainBorderBrush}"
+    							FontSize="18" 
+    							  VerticalAlignment="Top"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <!--Date/Time-->
+                                        <Border Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" BorderBrush="{Binding Direction, Converter={StaticResource bcolorc}}" 
+                                                    BorderThickness="1" 
+                                            Background="{Binding Direction, Converter={StaticResource bcolorc}}" 
+                                            CornerRadius="{Binding Direction, Converter={StaticResource bcornerc1}}" >
+                                            <StackPanel Orientation="Horizontal"   Margin="5,5,5,5" HorizontalAlignment="{Binding Direction, Converter={StaticResourceExtension BtbaTime}}">
+                                                <TextBlock Text="{Binding MessageTime, Converter={StaticResource mdc}}" 
+    							Foreground="{StaticResource AppMainBorderBrush}" 
+    							 FontSize="12"/>
+                                                <Ellipse Width="10" Height="10" 
+                                                         Fill="{Binding Status, Converter={StaticResource mdsb}}" Margin="8,2,8,0" Visibility="{Binding HasDeliveryStatus, Converter={StaticResource bvc}}"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
+
+
+                                </Grid>
+                                <TextBlock Grid.Column="2" Width="1"/>
+                            </Grid>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+        <Border Grid.Row ="1" Background="{StaticResource AppMainWindowBrush}" BorderBrush="{StaticResource AppMainBorderBrush}" 
+		   BorderThickness="0,0,0,1">
+            <Grid >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Style="{StaticResource HintEntryFieldStyle}" Margin="0" Background="{StaticResource AppMainWindowBrush}" Grid.Column="0">
+                    <TextBlock Text="Message" Foreground="{StaticResource ChatPageComposeHintFont}" FontSize="9" VerticalAlignment="Center" 
+								   HorizontalAlignment="Left" Margin="10,0,0,0"
+					   Visibility="{Binding ShowMessageHint, Converter={StaticResource bvc}}" />
+
+                    <TextBox BorderThickness="0" Height="40" TextAlignment="Left" FontSize="18"
+									 Foreground="{StaticResource AppMainBorderBrush}" CaretBrush="{StaticResource AppMainBorderBrush}"
+								 HorizontalAlignment="Stretch" Text="{Binding MessageText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                     VerticalContentAlignment="Center"
+									 Background="Transparent" 
+                                     PreviewKeyUp="OnKeyUp" PreviewTextInput="OnTextInpput"
+                                     />
+                </Grid>
+            </Grid>
+        </Border>
+        <Border Grid.Row="2" Background="{StaticResource AppMainWindowBrush}" BorderBrush="{StaticResource AppMainBorderBrush}" 
+		   BorderThickness="0,0,0,1">
+            <Button Height="50" Background="{StaticResource AppMainWindowBrush}"  
+									BorderThickness="0" Click="OnSendButtonClicked">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal" >
+                        <TextBlock Text="Send" Foreground="White" FontSize="24" HorizontalAlignment="Center"/>
+                        <Rectangle Margin="10,0" Width="40" Height="40" Fill="{StaticResource AppMainBorderBrush}">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="/ACE;component/Resources/send_message.png"/>
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                    </StackPanel>
+                </Button.Content>
+                </Button>
+        </Border>
+    </Grid>
+</UserControl>
