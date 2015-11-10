@@ -1,5 +1,9 @@
 using System;
+using System.CodeDom;
+using System.Collections.ObjectModel;
 using System.Windows;
+using com.vtcsecure.ace.windows.Services;
+using VATRP.Core.Model;
 
 namespace com.vtcsecure.ace.windows.ViewModel
 {
@@ -8,11 +12,32 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private string _remotePartyNumber = string.Empty;
         private bool _allowAudioCall = false;
         private bool _allowVideoCall = false;
-        private int _remotePartyDigitLimit = 10;
+        private int _remotePartyDigitLimit = 12;
+        private VATRPCallState _callState;
+        private ObservableCollection<ProviderViewModel> _providers;
+        private ProviderViewModel _selectedProvider;
 
         public DialpadViewModel()
         {
+            _callState = VATRPCallState.Closed;
+            ServiceManager.Instance.ProviderService.ServiceStarted += OnProvidersListLoaded;
+        }
 
+
+        private void OnProvidersListLoaded(object sender, EventArgs args)
+        {
+            var providersList = ServiceManager.Instance.ProviderService.GetProviderList();
+
+                        var selectedprovider = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.CURRENT_PROVIDER, "");
+
+            foreach (var s in providersList)
+            {
+                var providerModel = new ProviderViewModel {Label = s};
+                Providers.Add(providerModel);
+                if (s == selectedprovider)
+                    _selectedProvider = providerModel;
+            }
         }
 
         #region Properties
@@ -22,6 +47,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
             get { return _remotePartyNumber; }
             set
             {
+
+                if (_remotePartyNumber == value)
+                    return;
 
                 if (_remotePartyNumber.Length > _remotePartyDigitLimit)
                     return;
@@ -51,6 +79,37 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 OnPropertyChanged("AllowVideoCall");
             }
         }
+
+        public VATRPCallState CallState
+        {
+            get { return _callState; }
+            set
+            {
+                _callState = value; 
+                OnPropertyChanged("CallState");
+            }
+        }
+
+        public ObservableCollection<ProviderViewModel> Providers
+        {
+            get { return _providers ?? (_providers = new ObservableCollection<ProviderViewModel>()); }
+            set
+            {
+                _providers = value; 
+                OnPropertyChanged("Providers");
+            }
+        }
+
+        public ProviderViewModel SelectedProvider
+        {
+            get { return _selectedProvider; }
+            set
+            {
+                _selectedProvider = value;
+                OnPropertyChanged("SelectedProvider");
+            }
+        }
+
         #endregion
 
     }
