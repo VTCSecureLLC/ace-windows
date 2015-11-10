@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using VATRP.Core.Enums;
 using VATRP.Core.Events;
+using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 
@@ -27,7 +28,7 @@ namespace VATRP.Core.Services
 
         public event EventHandler<EventArgs> GroupsChanged;
         public event EventHandler<EventArgs> ContactsChanged;
-
+        public event EventHandler<ContactEventArgs> LoggedInContactUpdated;
         public bool IsLoaded { get; private set; }
         public ContactService(ServiceManagerBase manager)
         {
@@ -82,6 +83,10 @@ namespace VATRP.Core.Services
             Contacts.Add(contact);
             if (ContactAdded != null)
                 ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
+
+            if (contact.IsLoggedIn && LoggedInContactUpdated != null)
+                LoggedInContactUpdated(this, new ContactEventArgs(new ContactID(contact)));
+
         }
 
         public VATRPContact FindContact(ContactID contactID)
@@ -107,7 +112,24 @@ namespace VATRP.Core.Services
             }
             return null;
         }
-        
+        public VATRPContact FindContactByPhone(string phoneNumber)
+        {
+            if (!phoneNumber.NotBlank())
+                return null;
+            lock (this.Contacts)
+            {
+                foreach (VATRPContact contact in this.Contacts)
+                {
+                    if ((contact != null) && (contact.HomePhone == phoneNumber ||
+                        contact.MobilePhone == phoneNumber))
+                    {
+                        return contact;
+                    }
+                }
+            }
+            return null;
+        }
+
         public VATRPContact FindLoggedInContact()
         {
             lock (this.Contacts)
@@ -250,6 +272,9 @@ namespace VATRP.Core.Services
         {
             return true;
         }
+
+        public event EventHandler<EventArgs> ServiceStarted;
+        public event EventHandler<EventArgs> ServiceStopped;
     }
 }
 
