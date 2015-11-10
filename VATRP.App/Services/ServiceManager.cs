@@ -29,6 +29,7 @@ namespace com.vtcsecure.ace.windows.Services
         private ISoundService _soundService;
         private IAccountService _accountService;
         private ILinphoneService _linphoneService;
+        private IProviderService _providerService;
 
         private WebClient _webClient;
         #endregion
@@ -97,6 +98,10 @@ namespace com.vtcsecure.ace.windows.Services
         {
             get { return _linphoneService ?? (_linphoneService = new LinphoneService(this)); }
         }
+        public override IProviderService ProviderService
+        {
+            get { return _providerService ?? (_providerService = new ProviderService(this)); }
+        }
 
         public override System.Windows.Threading.Dispatcher Dispatcher
         {
@@ -109,14 +114,74 @@ namespace com.vtcsecure.ace.windows.Services
         public IntPtr ActiveCallPtr { get; set; }
 
         #endregion
+
+        private ServiceManager()
+        {
+            
+        }
+
         public bool Initialize()
         {
             _webClient = new WebClient();
             _webClient.DownloadStringCompleted += CredentialsReceived;
 
+            this.ConfigurationService.ServiceStarted += OnConfigurationServiceStarted;
+            this.AccountService.ServiceStarted += OnAccountsServiceStarted;
+            this.ProviderService.ServiceStarted += OnProviderServiceStarted;
+            this.HistoryService.ServiceStarted += OnHistoryServiceStarted;
+            this.LinphoneService.ServiceStarted += OnLinphoneServiceStarted;
+
+            this.ConfigurationService.ServiceStopped += OnConfigurationServiceStopped;
+            this.AccountService.ServiceStarted += OnAccountsServiceStopped;
+            this.ProviderService.ServiceStopped += OnProviderServiceStopped;
+            this.HistoryService.ServiceStopped += OnHistoryServiceStopped;
+            this.LinphoneService.ServiceStopped += OnLinphoneServiceStopped;
             return true;
         }
 
+        private void OnConfigurationServiceStarted(object sender, EventArgs args)
+        {
+            App.CurrentAccount = LoadActiveAccount();
+        }
+        private void OnAccountsServiceStarted(object sender, EventArgs args)
+        {
+            App.CurrentAccount = LoadActiveAccount();
+        }
+        private void OnProviderServiceStarted(object sender, EventArgs args)
+        {
+            UpdateProvidersList();
+        }
+        private void OnLinphoneServiceStarted(object sender, EventArgs args)
+        {
+
+        }
+
+        private void OnHistoryServiceStarted(object sender, EventArgs args)
+        {
+
+        }
+
+        private void OnConfigurationServiceStopped(object sender, EventArgs args)
+        {
+
+        }
+        private void OnAccountsServiceStopped(object sender, EventArgs args)
+        {
+
+        }
+        private void OnProviderServiceStopped(object sender, EventArgs args)
+        {
+
+        }
+        private void OnLinphoneServiceStopped(object sender, EventArgs args)
+        {
+
+        }
+
+        private void OnHistoryServiceStopped(object sender, EventArgs args)
+        {
+
+        }
         internal bool Start()
         {
             LOG.Info("Starting services...");
@@ -125,6 +190,7 @@ namespace com.vtcsecure.ace.windows.Services
             retVal &= AccountService.Start();
             retVal &= SoundService.Start();
             retVal &= HistoryService.Start();
+            retVal &= ProviderService.Start();
             return retVal;
         }
 
@@ -175,6 +241,7 @@ namespace com.vtcsecure.ace.windows.Services
             LinphoneService.Unregister(true);
             LinphoneService.Stop();
             AccountService.Stop();
+            ProviderService.Stop();
         }
 
         internal bool RequestLinphoneCredentials(string username, string passwd)
@@ -261,6 +328,21 @@ namespace com.vtcsecure.ace.windows.Services
                 return null;
             var account = AccountService.FindAccount(accountUID);
             return account;
+        }
+
+        private void UpdateProvidersList()
+        {
+            // this list may be filled later
+
+            string[] labels = { "Sorenson VRS", "Purple VRS", "ZVRS", "Convo Relay" };
+            foreach (var label in labels)
+            {
+                if (ProviderService.FindProvider(label) == null)
+                    ProviderService.AddProvider(new VATRPServiceProvider()
+                    {
+                        Label = label
+                    });
+            }
         }
 
         internal static void LogError(string message, Exception ex)
