@@ -4,6 +4,7 @@
     xmlns:vm="clr-namespace:com.vtcsecure.ace.windows.ViewModel"
     xmlns:core="clr-namespace:VATRP.Core.Model;assembly=ACE.Core"
     MessageText="custom text message"
+    ContactSearchCriteria=""
     ReceiverAddress="test@linphone.">
     <vm:MessagingViewModel.Contacts >
         <vm:ContactViewModel IsSelected="False">
@@ -35,12 +36,13 @@
         </vm:ContactViewModel>
     </vm:MessagingViewModel.Contacts>
 
-    <!--<vm:MessagingViewModel.Messages >
-                <core:VATRPChatMessage Content="New message" MessageTime="20:36:55 11/2/2015" Direction="Incoming" IsIncompleteMessage="False"/>
-                <core:VATRPChatMessage Content="Message to Russia" MessageTime="11:32:55 8/6/2015" Direction="Incoming" IsIncompleteMessage="True"/>
-                <core:VATRPChatMessage Content="Hello how are you" MessageTime="02:10:24 01/01/2015" Direction="Outgoing" IsIncompleteMessage="False"/>
-                <core:VATRPChatMessage Content="Blaus mlaus" MessageTime="3:15:55 4/25/2015" Direction="Outgoing" IsIncompleteMessage="False"/>
-                <core:VATRPChatMessage Content="Cosoloif" MessageTime="5:41:21 9/16/2015" Direction="Incoming" IsIncompleteMessage="False"/>
-            </vm:MessagingViewModel.Messages>-->
+    <vm:MessagingViewModel.TestMessages >
+        <core:VATRPChatMessage Content="Lorem Ipsum is simply dummy text of the printing and typesetting industry. type and scrambled it to make a type specimen book." MessageTime="20:36:55 11/2/2015" Direction="Incoming" IsIncompleteMessage="False" />
+                <core:VATRPChatMessage Content="Message to Russia" MessageTime="0:0:0 11/2/2015" Direction="Incoming" IsIncompleteMessage="True" IsSeparator="True"/>
+        <core:VATRPChatMessage Content="It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged." MessageTime="02:10:24 01/01/2015" Direction="Outgoing" IsIncompleteMessage="False" IsRTTMessage="True"/>
+        <core:VATRPChatMessage Content="" MessageTime="0:0:0 11/3/2015" Direction="Outgoing" IsSeparator="True" />
+        <core:VATRPChatMessage Content="Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur" MessageTime="3:15:55 10/28/2015" Direction="Outgoing" IsIncompleteMessage="False"/>
+        <core:VATRPChatMessage Content="There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable." MessageTime="5:41:21 9/16/2015" Direction="Incoming" IsIncompleteMessage="False"/>
+            </vm:MessagingViewModel.TestMessages>
 
 </vm:MessagingViewModel>

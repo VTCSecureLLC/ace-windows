@@ -32,6 +32,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         private ContactViewModel _contactViewModel;
         private string _contactSearchCriteria;
+
+        private ICollectionView messagesListView;
         private ICollectionView contactsListView;
 
         public MessagingViewModel()
@@ -236,6 +238,13 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _contactViewModel.IsSelected = true;
             IsMessagesLoaded = false;
 
+            if ( Messages != null)
+            {
+                this.MessagesListView = CollectionViewSource.GetDefaultView(this.Messages);
+                this.MessagesListView.SortDescriptions.Add(new SortDescription("MessageTime",
+                    ListSortDirection.Ascending));
+            }
+			
             ReceiverAddress = contact.Fullname;
             OnPropertyChanged("Chat");
             OnPropertyChanged("Messages");
@@ -437,6 +446,20 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
+        public ICollectionView MessagesListView
+        {
+            get { return this.messagesListView; }
+            private set
+            {
+                if (value == this.messagesListView)
+                {
+                    return;
+                }
+
+                this.messagesListView = value;
+                OnPropertyChanged("MessagesListView");
+            }
+        }
 
         public string LastInput { get; set; }
 

@@ -499,8 +499,7 @@ namespace VATRP.Core.Services
 			}
 
             // enable rtt
-            if (rttEnabled)
-                LinphoneAPI.linphone_call_params_enable_realtime_text(callsDefaultParams, true);
+            LinphoneAPI.linphone_call_params_enable_realtime_text(callsDefaultParams, rttEnabled);
 
 			IntPtr callPtr = LinphoneAPI.linphone_core_invite_with_params (linphoneCore, destination, callsDefaultParams);
 
