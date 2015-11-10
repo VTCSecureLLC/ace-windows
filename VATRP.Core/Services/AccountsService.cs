@@ -30,7 +30,7 @@ namespace VATRP.Core.Services
         #endregion
 
         #region Methods
-public List<VATRPAccount> CodecList
+        public List<VATRPAccount> CodecList
         {
             get { return accountsList; }
         }
@@ -86,6 +86,10 @@ public List<VATRPAccount> CodecList
 
         #region IService
 
+        public event EventHandler<EventArgs> ServiceStarted;
+
+        public event EventHandler<EventArgs> ServiceStopped;
+
         public bool IsStopping
         {
             get { return _isStopping; }
@@ -119,6 +123,9 @@ public List<VATRPAccount> CodecList
                 return false;
             _isStopping = true;
             _isStopped = true;
+
+            if (ServiceStopped != null)
+                ServiceStopped(this, EventArgs.Empty);
             return true;
         }
         #endregion
@@ -163,6 +170,9 @@ public List<VATRPAccount> CodecList
 
             this.loading = false;
             _isStarted = true;
+
+            if (ServiceStarted != null)
+                ServiceStarted(this, EventArgs.Empty);
         }
 
         public bool AddAccount(VATRPAccount account)
@@ -254,9 +264,12 @@ public List<VATRPAccount> CodecList
 
         public VATRPAccount FindAccount(string accountUID)
         {
-            IEnumerable<VATRPAccount> allAccounts = (from c in this.accountsList
-                                                  where c.AccountID == accountUID
-                                                  select c).ToList();
+            var vatrpAccounts = this.accountsList;
+            if (vatrpAccounts == null)
+                return null;
+            IEnumerable<VATRPAccount> allAccounts = (from c in vatrpAccounts
+                where c.AccountID == accountUID
+                select c).ToList();
             return allAccounts.FirstOrDefault();
         }
 
@@ -265,7 +278,6 @@ public List<VATRPAccount> CodecList
             this.DeferredSave();
         }
         #endregion
-        
 
     }
 }

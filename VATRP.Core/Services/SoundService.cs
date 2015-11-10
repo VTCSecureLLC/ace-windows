@@ -25,6 +25,10 @@ namespace VATRP.Core.Services
 
         public bool IsStopped { get; set; }
 
+        public event EventHandler<EventArgs> ServiceStarted;
+
+        public event EventHandler<EventArgs> ServiceStopped;
+
         public bool Start()
         {
             if (IsStarted)
@@ -103,6 +107,5 @@ namespace VATRP.Core.Services
         {
             this.connPlayer.Stop();
         }
-
     }
 }
