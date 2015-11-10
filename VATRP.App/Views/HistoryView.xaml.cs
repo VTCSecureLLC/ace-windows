@@ -76,7 +76,6 @@ namespace com.vtcsecure.ace.windows.Views
             _historyService = ServiceManager.Instance.HistoryService;
             _historyService.OnCallHistoryEvent += OnHistoryCallEvent;
             lstCallsBox.Visibility = Visibility.Collapsed;
-            new Thread((ThreadStart)_historyService.LoadCallEvents).Start();
         }
 
         protected void OnUnloaded(object sender, RoutedEventArgs e)
