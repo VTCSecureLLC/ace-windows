@@ -58,10 +58,10 @@
     <Style x:Key = "MessagesListBox" TargetType="{x:Type ListBox}">
         <Setter Property="Background" >
             <Setter.Value>
-                <StaticResource ResourceKey="ChatPageControlBg"/>
+                <StaticResource ResourceKey="AppMainWindowBrush"/>
             </Setter.Value>
         </Setter>
-        <Setter Property="BorderBrush" Value="{StaticResource ListBorder}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource AppMainBorderBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
