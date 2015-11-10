@@ -26,14 +26,13 @@ namespace com.vtcsecure.ace.windows.Views
     /// </summary>
     public partial class MediaTextWindow
     {
-
-        private readonly MessagingViewModel model = new MessagingViewModel(ServiceManager.Instance.ChatService,
-            ServiceManager.Instance.ContactService);
-        public MediaTextWindow() : base(VATRPWindowType.MESSAGE_VIEW)
+        private MessagingViewModel _model;
+        public MediaTextWindow(MessagingViewModel vm) : base(VATRPWindowType.MESSAGE_VIEW)
         {
-            ServiceManager.Instance.ChatService.ConversationUpdated += ChatManagerOnConversationUpdated;
+            _model = vm;
+            DataContext = vm;
             InitializeComponent();
-            DataContext = model;
+            ServiceManager.Instance.ChatService.ConversationUpdated += ChatManagerOnConversationUpdated;
         }
 
         private void ChatManagerOnConversationUpdated(object sender, VATRP.Core.Events.ConversationUpdatedEventArgs e)
@@ -61,7 +60,7 @@ namespace com.vtcsecure.ace.windows.Views
 
                 if (contactModel != null)
                 {
-                    model.SetActiveChatContact(contactModel.Contact);
+                    _model.SetActiveChatContact(contactModel.Contact);
                     ScrollToEnd();
                 }
             }
@@ -71,11 +70,11 @@ namespace com.vtcsecure.ace.windows.Views
         {
             if (!ServiceManager.Instance.IsRttAvailable)
             {
-                model.SendMessage(model.MessageText);
+                _model.SendMessage(_model.MessageText);
             }
             else
             {
-                model.SendMessage('\r', false);
+                _model.SendMessage('\r', false);
             }
         }
 
@@ -88,47 +87,33 @@ namespace com.vtcsecure.ace.windows.Views
                     isIncomplete = false;
                     if (!ServiceManager.Instance.IsRttAvailable)
                     {
-                        model.SendMessage(model.MessageText);
+                        _model.SendMessage(_model.MessageText);
                         return;
                     }
                     break;
                 case Key.Space:
-                    model.LastInput = " ";
+                    _model.LastInput = " ";
                     break;
                 case Key.Back:
-                    if (!model.LastInput.NotBlank())
-                        model.LastInput += '\b';
+                    if (!_model.LastInput.NotBlank())
+                        _model.LastInput += '\b';
                     break;
                 default:
                     break;
             }
 
-            if (model.LastInput.NotBlank())
+            if (_model.LastInput.NotBlank())
             {
-                for(int i=0; i<model.LastInput.Length; i++)
-                    model.SendMessage(model.LastInput[i], isIncomplete);
+                for(int i=0; i<_model.LastInput.Length; i++)
+                    _model.SendMessage(_model.LastInput[i], isIncomplete);
             }
-            model.LastInput = string.Empty;
+            _model.LastInput = string.Empty;
         }
 
         private void OnTextInpput(object sender, TextCompositionEventArgs e)
         {
-            model.LastInput = e.Text;
+            _model.LastInput = e.Text;
         }
-
-        internal void CreateConversation(string remoteUsername)
-        {
-            var contactID = new ContactID(remoteUsername, IntPtr.Zero);
-            VATRPContact contact =
-                ServiceManager.Instance.ContactService.FindContact(contactID);
-            if (contact == null)
-            {
-                contact = new VATRPContact(contactID);
-                contact.Fullname = remoteUsername;
-                contact.DisplayName = remoteUsername;
-                ServiceManager.Instance.ContactService.AddContact(contact, string.Empty);
-            }
-            model.SetActiveChatContact(contact);
-        }
+       
     }
 }
