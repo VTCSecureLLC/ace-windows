@@ -9,7 +9,7 @@
 		mc:Ignorable="d"
 		d:DataContext="{d:DesignData Source=SampleData/MainViewSampleData.xaml}"
 
-		Title="{Binding AppTitle}" SizeToContent="WidthAndHeight" ResizeMode="NoResize"
+		Title="{Binding AppTitle}" SizeToContent="WidthAndHeight" MaxHeight="700" ResizeMode="NoResize"
 				   Closing="OnClosing" Closed="OnClosed" 
 				   SourceInitialized="OnSourceInitialized" 
 				   Loaded="OnLoaded"
@@ -31,8 +31,6 @@
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="*"></RowDefinition>
-			<RowDefinition Height="1"></RowDefinition>
-			<RowDefinition Height="Auto"></RowDefinition>
 			<RowDefinition Height="1"></RowDefinition>
 			<RowDefinition Height="Auto"></RowDefinition>
 		</Grid.RowDefinitions>
@@ -114,25 +112,27 @@
 		<Grid x:Name="ActivityViewHolder" Grid.Row="1" Grid.Column="0" Visibility="{Binding IsAccountLogged, Converter={StaticResource bvc}}" >
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto"/>
-				<RowDefinition Height="Auto"/>
-				<RowDefinition Height="Auto" MaxHeight="550"/>
+				<RowDefinition Height="*"/>
+				<RowDefinition Height="Auto" />
 			</Grid.RowDefinitions>
-			<DockPanel x:Name="LocalContactPanel" Dock="Top" Grid.Row="0" Background="{DynamicResource AppMainWindowBrush}">
+			<Border x:Name="LocalContactPanel" Grid.Row="0" Background="{DynamicResource AppMainWindowBrush}">
 				<customControls:LocalContactPanel x:Name="ctrlLocalContact" Height="Auto" Width="Auto" Margin="0"/>
-			</DockPanel>
+			</Border>
 
-			<DockPanel x:Name="ContactsPaneHolder" Grid.Row="1" Dock="Top" Visibility="{Binding IsContactDocked, Converter={StaticResource bvc}}">
+			<Border x:Name="ContactsPaneHolder" Grid.Row="1" Visibility="{Binding IsContactDocked, Converter={StaticResource bvc}}">
 				
-			</DockPanel>
-            <DockPanel x:Name="HistoryPaneHolder" Grid.Row="1" Dock="Top"   Visibility="{Binding IsCallHistoryDocked, Converter={StaticResource bvc}}">
-                <customControls:CallLogCtrl x:Name="ctrlHistory" MaxHeight="{Binding HistoryPaneHeight}" Width="Auto" Margin="0"/>
-			</DockPanel>
-			<DockPanel x:Name="DialpadHolder" Grid.Row="2" Dock="Bottom" Background="{StaticResource AppMainWindowBrush}"
-					   Visibility="{Binding IsDialpadDocked, Converter={StaticResource bvc}}">
-				<customControls:DialPadScreen x:Name="ctrlDialpad" Width="Auto" Margin="0"/>
-			</DockPanel>
-		</Grid>
-		<!--Navigation panel-->
+			</Border>
+            <Border x:Name="HistoryPaneHolder" Grid.Row="1"  Visibility="{Binding IsCallHistoryDocked, Converter={StaticResource bvc}}" Height="Auto" Background="Tomato">
+                <customControls:CallLogCtrl x:Name="ctrlHistory" MaxHeight="{Binding HistoryPaneHeight}" Margin="0"/>
+			</Border>
+
+            <Grid x:Name="DialpadHolder" Grid.Row="2" Grid.Column="0" Background="{StaticResource AppMainWindowBrush}"
+		Visibility="{Binding IsDialpadDocked, Converter={StaticResource bvc}}" Height="Auto">
+                <customControls:DialPadScreen x:Name="ctrlDialpad" Margin="0"/>
+            </Grid>
+        </Grid>
+        
+        <!--Navigation panel-->
 		<Grid x:Name="NavPanel" Margin="0" Grid.Row="3" Grid.Column="0" Visibility="{Binding IsAccountLogged, Converter={StaticResource bvc}}" Height="50" Background="{StaticResource AppMainWindowBrush}">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="*" />
