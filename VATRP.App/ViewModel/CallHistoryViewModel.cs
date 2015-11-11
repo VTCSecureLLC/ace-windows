@@ -21,6 +21,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private string _eventSearchCriteria = string.Empty;
         private DialpadViewModel _dialpadViewModel;
         private double _historyPaneHeight;
+        private HistoryCallEventViewModel _selectedCallEvent;
+
         public CallHistoryViewModel()
         {
             _callsListView = CollectionViewSource.GetDefaultView(this.Calls);
@@ -194,6 +196,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 _historyPaneHeight = value;
                 OnPropertyChanged("HistoryPaneHeight");
+            }
+        }
+
+        public HistoryCallEventViewModel SelectedCallEvent
+        {
+            get { return _selectedCallEvent; }
+            set
+            {
+                _selectedCallEvent = value; 
+                OnPropertyChanged("SelectedCallEvent");
             }
         }
     }
