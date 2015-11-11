@@ -977,6 +977,15 @@ namespace VATRP.Core.Services
                 LOG.Info(string.Format("Removing Codec from configuration: {0} , Channels: {1} ", codec.CodecName, codec.Channels));
                 cfgCodecs.Remove(codec);
             }
+            var ptPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, "H263", 90000, -1);
+            if (ptPtr != IntPtr.Zero)
+            {
+                var payload = (PayloadType)Marshal.PtrToStructure(ptPtr, typeof(PayloadType));
+                payload.send_fmtp = "CIF=1;QCIF=1";
+                payload.recv_fmtp = "CIF=1;QCIF=1";
+                Marshal.StructureToPtr(payload, ptPtr, false);
+                LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, ptPtr);
+            }
             return retValue;
 	    }
 
