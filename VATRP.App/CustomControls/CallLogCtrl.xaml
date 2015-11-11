@@ -9,7 +9,6 @@
              mc:Ignorable="d" 
     d:DataContext="{d:DesignData Source=../SampleData/CallHistoryViewSampleData.xaml}"
              d:DesignWidth="400" d:DesignHeight="500"
-               Height="300" MinHeight="300"
              Loaded="OnLoaded"
              Unloaded="OnUnloaded" 
              >
