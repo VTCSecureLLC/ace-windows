@@ -26,10 +26,8 @@ namespace com.vtcsecure.ace.windows.Converters
                 {
                     case LinphoneRegistrationState.LinphoneRegistrationOk:
                         return new SolidColorBrush(Color.FromArgb(255, 0, 255, 0));
-                        break;
                     case LinphoneRegistrationState.LinphoneRegistrationFailed:
                         return new SolidColorBrush(Color.FromArgb(255, 255, 0, 0));
-                        break;
                     default:
                         return new SolidColorBrush(Color.FromArgb(255, 200, 200, 200));
                 }
