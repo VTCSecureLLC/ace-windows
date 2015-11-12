@@ -27,8 +27,8 @@ namespace VATRP.Core.Model
         private bool _onlineNotification;
         private UserStatus _status;
         private uint _unreadMsgCount;
-
         private List<int> _groupIdList;
+        private string _avatar;
 
         public VATRPContact()
         {
@@ -113,6 +113,7 @@ namespace VATRP.Core.Model
             this.Middlename = string.Empty;
             this.MobilePhone = string.Empty;
             this.Gender = string.Empty;
+            this._avatar = string.Empty;
         }
 
         public bool IsGroupExistInGroupList(string _groupName)
@@ -188,6 +189,18 @@ namespace VATRP.Core.Model
             }
         }
 
+        public string Avatar
+        {
+            get
+            {
+                return this._avatar;
+            }
+            set
+            {
+                this._avatar = value;
+                OnPropertyChanged("Avatar");
+            }
+        }
 
         public string Firstname
         {

@@ -40,6 +40,10 @@ namespace VATRP.Core.Services
         {
             get;
         }
+        public abstract IProviderService ProviderService
+        {
+            get;
+        }
 
         public abstract System.Windows.Threading.Dispatcher Dispatcher
         {

@@ -105,6 +105,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BoolToBubbleAlignmentConverter.cs" />
+    <Compile Include="Converters\CallStateToBrushConverter.cs" />
     <Compile Include="Converters\DirectionToColumnConverter.cs" />
     <Compile Include="Converters\MessageDateConverter.cs" />
     <Compile Include="Converters\MessageDeliveryStatusToBrushConverter.cs" />
@@ -115,9 +116,24 @@
     <Compile Include="Converters\ContactSelectionToBrushConverter.cs" />
     <Compile Include="Converters\CallQualityConverter.cs" />
     <Compile Include="Converters\CallStateToStringConverter.cs" />
+    <Compile Include="Converters\RegistrationStateToBrushConverter.cs" />
     <Compile Include="Converters\VisibilityConverter.cs" />
+    <Compile Include="CustomControls\CallLogCtrl.xaml.cs">
+      <DependentUpon>CallLogCtrl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\RTTCtrl.xaml.cs">
+      <DependentUpon>RTTCtrl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\LocalContactPanel.xaml.cs">
+      <DependentUpon>LocalContactPanel.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModel\CallInfoViewModel.cs" />
     <Compile Include="ViewModel\AboutViewModel.cs" />
+    <Compile Include="ViewModel\CallHistoryViewModel.cs" />
+    <Compile Include="ViewModel\HistoryCallEventViewModel.cs" />
+    <Compile Include="ViewModel\ProviderViewModel.cs" />
+    <Compile Include="ViewModel\LocalContactViewModel.cs" />
+    <Compile Include="ViewModel\MainControllerViewModel.cs" />
     <Compile Include="ViewModel\ContactViewModel.cs" />
     <Compile Include="ViewModel\MessagingViewModel.cs" />
     <Compile Include="Views\AboutView.xaml.cs">
@@ -201,9 +217,33 @@
     <DesignDataWithDesignTimeCreatableTypes Include="SampleData\MessageViewSampleData.xaml">
       <SubType>Designer</SubType>
     </DesignDataWithDesignTimeCreatableTypes>
-    <Page Include="SampleData\CallViewSampleData.xaml">
+    <Page Include="CustomControls\CallLogCtrl.xaml">
+      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="CustomControls\RTTCtrl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="CustomControls\LocalContactPanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <DesignDataWithDesignTimeCreatableTypes Include="SampleData\CallHistoryViewSampleData.xaml">
+      <SubType>Designer</SubType>
+    </DesignDataWithDesignTimeCreatableTypes>
+    <DesignData Include="SampleData\DialpadViewSampleData.xaml">
+      <SubType>Designer</SubType>
+    </DesignData>
+    <DesignData Include="SampleData\LocalContactViewSampleData.xaml">
+      <SubType>Designer</SubType>
+    </DesignData>
+    <Page Include="SampleData\MainViewSampleData.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <DesignData Include="SampleData\CallViewSampleData.xaml">
+      <SubType>Designer</SubType>
+    </DesignData>
     <Page Include="Views\AboutView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -381,6 +421,16 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\messages.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\backspace.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\female.png" />
+    <Resource Include="Resources\male.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\send_message.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

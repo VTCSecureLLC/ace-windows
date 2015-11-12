@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using com.vtcsecure.ace.windows.ViewModel;
 using log4net;
 using com.vtcsecure.ace.windows.CustomControls;
 using com.vtcsecure.ace.windows.Model;
@@ -33,11 +34,11 @@ namespace com.vtcsecure.ace.windows
         #region Members
         private static readonly ILog LOG = LogManager.GetLogger(typeof(MainWindow));
         private readonly ContactBox _contactBox =  new ContactBox();
-        private readonly Dialpad _dialpadBox = new Dialpad();
+        private readonly Dialpad _dialpadBox;
         private readonly CallProcessingBox _callView = new CallProcessingBox();
         private readonly HistoryView _historyView = new HistoryView();
         private readonly KeyPadCtrl _keypadCtrl = new KeyPadCtrl();
-        private readonly MediaTextWindow _messagingWindow = new MediaTextWindow();
+        private readonly MediaTextWindow _messagingWindow;
         private CallView _remoteVideoView;
         private SelfView _selfView = new SelfView();
         private readonly SettingsView _settingsView = new SettingsView();
@@ -45,25 +46,33 @@ namespace com.vtcsecure.ace.windows
         private readonly CallOverlayView _callOverlayView = new CallOverlayView();
         private readonly ILinphoneService _linphoneService;
         private FlashWindowHelper _flashWindowHelper = new FlashWindowHelper();
+        private readonly MainControllerViewModel _mainViewModel;
         #endregion
 
         #region Properties
         public static LinphoneRegistrationState RegistrationState { get; set; }
+        
         #endregion
 
 
         public MainWindow() : base(VATRPWindowType.MAIN_VIEW)
         {
-            DataContext = this;
+            _mainViewModel = new MainControllerViewModel();
+
             ServiceManager.Instance.Start();
             _linphoneService = ServiceManager.Instance.LinphoneService;
             _linphoneService.RegistrationStateChangedEvent += OnRegistrationChanged;
             _linphoneService.CallStateChangedEvent += OnCallStateChanged;
             _linphoneService.GlobalStateChangedEvent += OnGlobalStateChanged;
-            _linphoneService.ErrorEvent += OnErrorEvent;
             ServiceManager.Instance.NewAccountRegisteredEvent += OnNewAccountRegistered;
             InitializeComponent();
-
+            DataContext = _mainViewModel;
+            ctrlHistory.SetDataContext(_mainViewModel.HistoryModel);
+            _dialpadBox = new Dialpad(_mainViewModel.DialpadModel);
+            _messagingWindow = new MediaTextWindow(_mainViewModel.MessagingModel);
+            ctrlDialpad.SetViewModel(_mainViewModel.DialpadModel);
+            ctrlLocalContact.SetDataContext(_mainViewModel.ContactModel);
+            ctrlRTT.SetViewModel(_mainViewModel.MessagingModel);
         }
 
         private void btnRecents_Click(object sender, RoutedEventArgs e)
@@ -140,7 +149,6 @@ namespace com.vtcsecure.ace.windows
         private void ApplyRegistrationChanges()
         {
             this.registerRequested = true;
-            RegUserLabel.Text = string.Format("Account: {0}", App.CurrentAccount.RegistrationUser);
             ServiceManager.Instance.UpdateLinphoneConfig();
 
             if (_callView.ActiveCall != null)
@@ -173,13 +181,7 @@ namespace com.vtcsecure.ace.windows
         private void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             App.AllowDestroyWindows = true;
-            CloseAllWindows();
             base.Window_Closing(sender, e);
-        }
-
-        private void CloseAllWindows()
-        {
-            
         }
 
         private void OnClosed(object sender, EventArgs e)
@@ -256,12 +258,7 @@ namespace com.vtcsecure.ace.windows
             }
         }
 
-        private void OnErrorEvent(VATRPCall call, string message)
-        {
-            Console.WriteLine("Error occurred: " + message);
-        }
-
-        private void OnGlobalStateChanged(LinphoneGlobalState state)
+       private void OnGlobalStateChanged(LinphoneGlobalState state)
         {
             Console.WriteLine("Global State changed: " + state);
         }
@@ -275,7 +272,6 @@ namespace com.vtcsecure.ace.windows
             _settingsView.IsVisibleChanged += OnChildVisibilityChanged;
             _messagingWindow.IsVisibleChanged += OnChildVisibilityChanged;
             _settingsView.SettingsSavedEvent += OnSettingsSaved;
-            _settingsView.ResetToDefaultEvent += OnResetToDefaultConfiguration;
             _keypadCtrl.KeypadClicked += OnKeypadClicked;
             _dialpadBox.KeypadClicked += OnDialpadClicked;
 
@@ -283,9 +279,8 @@ namespace com.vtcsecure.ace.windows
             _callView.CallInfoCtrl = _callInfoView;
 
             _callOverlayView.CallManagerView = _callView;
+            ctrlHistory.MakeCallRequested += OnMakeCallRequested;
 
-            App.CurrentAccount = ServiceManager.Instance.LoadActiveAccount();
-            bool hideNavigation = true;
             if (App.CurrentAccount != null)
             {
                 if (!string.IsNullOrEmpty(App.CurrentAccount.ProxyHostname) &&
@@ -294,18 +289,15 @@ namespace com.vtcsecure.ace.windows
                     App.CurrentAccount.ProxyPort != 0)
                 {
                     ServiceSelector.Visibility = Visibility.Collapsed;
-                    RegUserLabel.Text = string.Format("Account: {0}", App.CurrentAccount.RegistrationUser);
-                    hideNavigation = false;
+                    _mainViewModel.IsAccountLogged = true;
+                    _mainViewModel.IsDialpadDocked = true;
+                    _mainViewModel.IsCallHistoryDocked = true;
+                    _mainViewModel.IsContactDocked = true;
+                    _mainViewModel.IsMessagingDocked = true;
                 }
             }
             
             ServiceManager.Instance.UpdateLoggedinContact();
-
-            if (hideNavigation)
-            {
-                NavPanel.Visibility = Visibility.Collapsed;
-                StatusPanel.Visibility = Visibility.Collapsed;
-            }
         }
 
         internal void ResetToggleButton(VATRPWindowType wndType)

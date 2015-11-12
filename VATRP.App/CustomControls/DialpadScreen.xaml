@@ -4,151 +4,162 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:properties="clr-namespace:com.vtcsecure.ace.windows.Properties"
-             xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="com.vtcsecure.ace.windows.CustomControls.DialPadScreen"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             xmlns:conv="clr-namespace:com.vtcsecure.ace.windows.Converters"
+             x:Class="com.vtcsecure.ace.windows.CustomControls.DialPadScreen"
              mc:Ignorable="d" 
-             d:DesignHeight="529" d:DesignWidth="382"
+    d:DataContext="{d:DesignData Source=../SampleData/DialpadViewSampleData.xaml}"
+             d:DesignWidth="350"
              Loaded="OnLoaded"
-             Unloaded="OnUnloaded" SizeChanged="UserControl_SizeChanged"
+             Unloaded="OnUnloaded" 
              >
+    <UserControl.Resources>
+        <conv:CallStateToBrushConverter x:Key="cstb"/>
+    </UserControl.Resources>
+    <Grid ShowGridLines="False" Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="55" />
+            <RowDefinition Height="55" />
+            <RowDefinition Height="55" />
+            <RowDefinition Height="55" />
+            <RowDefinition Height="55" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-    <Grid x:Name="ContentPanel" Margin="0" Background="Gainsboro" >
-        <Grid x:Name="PhoneLayout" Margin="5,5,5,5">
-            <Grid x:Name ="DialPad" ShowGridLines="False" Grid.Row="0" Grid.Column="0" Margin="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="30"/>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="50" />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" MinWidth="100"/>
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-
-                <Grid Grid.Column="0" Grid.ColumnSpan="3" Margin="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <ComboBox x:Name="ProviderCmboBox" Grid.Column="1" Margin="4,0" >
-                        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" Text="Sorenson VRS"/>
-                        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" Text="Purple VRS"/>
-                        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" Text="ZVRS"/>
-                        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" Text="Convo Relay"/>
-                        <Separator/>
-                        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14" Text="Add new"/>
-                    </ComboBox>
-                    <Border Grid.Column="0" Background="Black" HorizontalAlignment="Stretch">
-                    <TextBox x:Name="numberTextBox" Text="{Binding RemotePartyNumber}"  FontSize="14"  Margin="1" MaxLines="1" 
-						AcceptsReturn="False" Background="White" BorderThickness="0" CharacterCasing="Lower" PreviewKeyUp="numberTextBox_PreviewKeyUp" />
-                    </Border>
-                </Grid>
-
-                <!--Row-1: 1, 2, 3-->
-                <Button Grid.Column="0"  x:Name="buttonKeyPad1" Style="{StaticResource KeypadButtonStyle}" Margin="0,0,3,3" Grid.Row="1" Click="buttonKeyPad_Click"   >
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Margin="0,8,0,8" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30" ><Run Text="1"/></TextBlock>
-                    </StackPanel>
-                </Button>
-                <Button x:Name="buttonKeyPad2" Style="{StaticResource KeypadButtonStyle}" Margin="3,0,3,3" Grid.Row="1" Grid.Column="1" Click="buttonKeyPad_Click" >
-                    <StackPanel Orientation="Vertical">
-                        <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   ><Run Text="2"/></TextBlock>
-                        <TextBlock  Margin="-4" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
-								<Run Text="ABC"/>
-                        </TextBlock>
-                    </StackPanel>
-                </Button>
-                <Button x:Name="buttonKeyPad3" Style="{StaticResource KeypadButtonStyle}" Margin="3,0,0,3" Grid.Row="1" Grid.Column="2" Click="buttonKeyPad_Click"  >
-                    <StackPanel Orientation="Vertical" >
-                        <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   Margin="0,0,0,0"><Run Text="3"/></TextBlock>
-                        <TextBlock Margin="-4"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
-								<Run Text="DEF"/>
-                        </TextBlock>
-                    </StackPanel>
-                </Button>
-                <!--Row-2: 4, 5, 6-->
-                <Button x:Name="buttonKeyPad4" Grid.Column="0" Style="{StaticResource KeypadButtonStyle}" Margin="0,3,3,3" Grid.Row="2" Click="buttonKeyPad_Click"  >
-                    <StackPanel Orientation="Vertical" >
-                        <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30" ><Run Text="4"/></TextBlock>
-                        <TextBlock Margin="-4"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
-								<Run Text="GHI"/>
-                        </TextBlock>
-                    </StackPanel>
-                </Button>
-                <Button x:Name="buttonKeyPad5" Style="{StaticResource KeypadButtonStyle}" Margin="3,3,3,3" Grid.Row="2" Grid.Column="1" Click="buttonKeyPad_Click"  >
-                    <StackPanel Orientation="Vertical" >
-                        <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"  Margin="0,0,0,0"><Run Text="5"/></TextBlock>
-                        <TextBlock Margin="-4"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
-                            <Run Text="JKL"/>
-                            </TextBlock>
-                    </StackPanel>
-                </Button>
-                <Button x:Name="buttonKeyPad6" Style="{StaticResource KeypadButtonStyle}" Margin="3,3,0,3" Grid.Row="2" Grid.Column="2" Click="buttonKeyPad_Click"  >
-                    <StackPanel Orientation="Vertical" >
-                        <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   Margin="0,0,0,0"><Run Text="6"/></TextBlock>
-                        <TextBlock Margin="-4"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
-                            <Run Text="MNO"/>
-                        </TextBlock>
-                    </StackPanel>
-                </Button>
-                <!--Row-3: 7, 8, 9-->
-                <Button Grid.Column="0"  x:Name="buttonKeyPad7" Style="{StaticResource KeypadButtonStyle}" Margin="0,3,3,3" Grid.Row="3" Click="buttonKeyPad_Click"  >
-                    <StackPanel Orientation="Vertical" >
-                        <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   Margin="0"><Run Text="7"/></TextBlock>
-                        <TextBlock Margin="-4"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
-                            <Run Text="PQRS"/>
-                        </TextBlock>
-                    </StackPanel>
-                </Button>
-                <Button x:Name="buttonKeyPad8" Style="{StaticResource KeypadButtonStyle}" Margin="3" Grid.Row="3" Grid.Column="1" Click="buttonKeyPad_Click"  >
-                    <StackPanel Orientation="Vertical" >
-                        <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   Margin="0,0,0,0"><Run Text="8"/></TextBlock>
-                        <TextBlock Margin="-4"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
-                            <Run Text="TUV"/>
-                        </TextBlock>
-                    </StackPanel>
-                </Button>
-                <Button x:Name="buttonKeyPad9" Style="{StaticResource KeypadButtonStyle}" Margin="3,3,0,3" Grid.Row="3" Grid.Column="2" Click="buttonKeyPad_Click"  >
-                    <StackPanel Orientation="Vertical" >
-                        <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   Margin="0,0,0,0"><Run Text="9"/></TextBlock>
-                        <TextBlock Margin="-4"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
-                            <Run Text="XYZ"/>
-                        </TextBlock>
-                    </StackPanel>
-                </Button>
-                <!--Row-4: *, 0, #-->
-                <Button x:Name="buttonKeyPadStar" Style="{StaticResource KeypadButtonStyle}" Margin="0,3,3,3" Grid.Row="4" Click="buttonKeyPad_Click"  >
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   Margin="0,13,0,3" ><Run Text="*"/></TextBlock>
-                    </StackPanel>
-                </Button>
-                <Button x:Name="buttonKeyPad0" Style="{StaticResource KeypadButtonStyle}" Margin="3" Grid.Row="4" Grid.Column="1" Click="buttonKeyPad_Click">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                        <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"  Margin="25,0,0,0" ><Run Text="0"/></TextBlock>
-                        <TextBlock x:Name="textBlockKeyPad0Plus" Margin="5,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center"  FontSize="14"  ><Run Text="+"/></TextBlock>
-                    </StackPanel>
-                </Button>
-                <Button x:Name="buttonKeyPadSharp" Style="{StaticResource KeypadButtonStyle}" Grid.Row="4" Grid.Column="2" Margin="3,3,0,3" Click="buttonKeyPad_Click" >
-                    <StackPanel Orientation="vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   Margin="0,0,0,0"><Run Text="#"/></TextBlock>
-                    </StackPanel>
-                </Button>
-                    <Button x:Name="buttonAudioCall" Margin="2,2" Grid.Column="0"  Grid.Row="5" Grid.ColumnSpan="3" Style="{StaticResource DialpadAudioCallHover}" Click="VideoCallClick"  Cursor="Hand">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
-                        <Rectangle Width="26" Height="26" Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="#FF1C2518">
-                            <Rectangle.OpacityMask>
-                                <ImageBrush ImageSource="..\Resources\cameraview.png" />
-                            </Rectangle.OpacityMask>
-                        </Rectangle>
-                        <TextBlock Margin="10,0,0,0" FontSize="20" Text="Call" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                    </StackPanel>
-                    </Button>
-            </Grid>
+        <Grid Grid.Column="0" Grid.ColumnSpan="3" Margin="0,1,0,0" Background="{DynamicResource AppMainWindowBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox Text="{Binding RemotePartyNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Foreground="{DynamicResource DialpadPageRemotePartyFont}"  
+                     FontSize="35" MaxLines="1" Grid.Column="0" CaretBrush="White" Margin="5,0,0,0"
+                     AcceptsReturn="False" BorderThickness="0" Background="Transparent"
+                             CharacterCasing="Lower" 
+                             PreviewKeyUp="numberTextBox_PreviewKeyUp" />
+            <Rectangle  Width="45" Fill="White" Height="30" Margin="10" Grid.Column="1" PreviewMouseUp="OnBackSpaceClicked">
+                <Rectangle.OpacityMask>
+                    <ImageBrush ImageSource="/ACE;component/Resources/backspace.png" Stretch="UniformToFill"/>
+                </Rectangle.OpacityMask>
+            </Rectangle>
         </Grid>
+
+        <!--Row-1: 1, 2, 3-->
+        <Button Grid.Column="0"  x:Name="buttonKeyPad1" Style="{StaticResource KeypadButtonStyle}" 
+                        Margin="0,1,0.5,0.5" Grid.Row="1" Click="buttonKeyPad_Click"   >
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Margin="0,8,0,8" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30" ><Run Text="1"/></TextBlock>
+            </StackPanel>
+        </Button>
+        <Button x:Name="buttonKeyPad2" Style="{StaticResource KeypadButtonStyle}" Margin="0,1,0.5,0.5" Grid.Row="1" Grid.Column="1" Click="buttonKeyPad_Click" >
+            <StackPanel Orientation="Vertical" >
+                <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30" Text="2" Margin="0,-4"/>
+                <TextBlock  Margin="0,0,0,2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
+								<Run Text="ABC"/>
+                </TextBlock>
+            </StackPanel>
+        </Button>
+        <Button x:Name="buttonKeyPad3" Style="{StaticResource KeypadButtonStyle}" Margin="0.5,1,0,0.5" Grid.Row="1" Grid.Column="2" Click="buttonKeyPad_Click"  >
+            <StackPanel Orientation="Vertical" >
+                <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30" Text="3" Margin="0,-4"/>
+                <TextBlock Margin="0,0,0,-2"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
+								<Run Text="DEF"/>
+                </TextBlock>
+            </StackPanel>
+        </Button>
+        <!--Row-2: 4, 5, 6-->
+        <Button x:Name="buttonKeyPad4" Grid.Column="0" Style="{StaticResource KeypadButtonStyle}" Margin="0,0.5,0.5,0.5" Grid.Row="2" Click="buttonKeyPad_Click"  >
+            <StackPanel Orientation="Vertical" >
+                <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30" Text="4" Margin="0,-4"/>
+                <TextBlock Margin="0,0,0,-2"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
+								<Run Text="GHI"/>
+                </TextBlock>
+            </StackPanel>
+        </Button>
+        <Button x:Name="buttonKeyPad5" Style="{StaticResource KeypadButtonStyle}" Margin="0.5,0.5,0.5,0.5" Grid.Row="2" Grid.Column="1" Click="buttonKeyPad_Click"  >
+            <StackPanel Orientation="Vertical" >
+                <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"  Margin="0,-4" Text="5"/>
+                <TextBlock Margin="0,0,0,-2"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
+                            <Run Text="JKL"/>
+                </TextBlock>
+            </StackPanel>
+        </Button>
+        <Button x:Name="buttonKeyPad6" Style="{StaticResource KeypadButtonStyle}" Margin="0.5,0.5,0,0.5" Grid.Row="2" Grid.Column="2" Click="buttonKeyPad_Click"  >
+            <StackPanel Orientation="Vertical" >
+                <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   Margin="0,-4" Text="6"/>
+                <TextBlock Margin="0,0,0,-2"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
+                            <Run Text="MNO"/>
+                </TextBlock>
+            </StackPanel>
+        </Button>
+        <!--Row-3: 7, 8, 9-->
+        <Button Grid.Column="0"  x:Name="buttonKeyPad7" Style="{StaticResource KeypadButtonStyle}" Margin="0,0.5,0.5,0.5" Grid.Row="3" Click="buttonKeyPad_Click"  >
+            <StackPanel Orientation="Vertical" >
+                <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30" Margin="0,-4" Text="7"/>
+                <TextBlock Margin="0,0,0,-2"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
+                            <Run Text="PQRS"/>
+                </TextBlock>
+            </StackPanel>
+        </Button>
+        <Button x:Name="buttonKeyPad8" Style="{StaticResource KeypadButtonStyle}" Margin="0.5" Grid.Row="3" Grid.Column="1" Click="buttonKeyPad_Click"  >
+            <StackPanel Orientation="Vertical" >
+                <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   Margin="0,-4" Text="8"/>
+                <TextBlock Margin="0,0,0,-2"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
+                            <Run Text="TUV"/>
+                </TextBlock>
+            </StackPanel>
+        </Button>
+        <Button x:Name="buttonKeyPad9" Style="{StaticResource KeypadButtonStyle}" Margin="0.5,0.5,0,0.5" Grid.Row="3" Grid.Column="2" Click="buttonKeyPad_Click"  >
+            <StackPanel Orientation="Vertical" >
+                <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   Margin="0,-4" Text="9"/>
+                <TextBlock Margin="0,0,0,-2"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
+                            <Run Text="XYZ"/>
+                </TextBlock>
+            </StackPanel>
+        </Button>
+        <!--Row-4: *, 0, #-->
+        <Button  x:Name="buttonKeyPadStar" Style="{StaticResource KeypadButtonStyle}" Margin="0,0.5,0.5,0.5" Grid.Row="4" Click="buttonKeyPad_Click"  >
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   Margin="0,13,0,3" ><Run Text="*"/></TextBlock>
+            </StackPanel>
+        </Button>
+        <Button x:Name="buttonKeyPad0" Style="{StaticResource KeypadButtonStyle}" Margin="0.5" Grid.Row="4" Grid.Column="1" Click="buttonKeyPad_Click">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"  Margin="25,0,0,0" ><Run Text="0"/></TextBlock>
+                <TextBlock x:Name="textBlockKeyPad0Plus" Margin="5,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center"  FontSize="14"  ><Run Text="+"/></TextBlock>
+            </StackPanel>
+        </Button>
+        <Button x:Name="buttonKeyPadSharp" Style="{StaticResource KeypadButtonStyle}" Grid.Row="4" Grid.Column="2" Margin="0.5,0.5,0,0.5" Click="buttonKeyPad_Click" >
+            <StackPanel Orientation="vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   Margin="0,0,0,0"><Run Text="#"/></TextBlock>
+            </StackPanel>
+        </Button>
+        <ComboBox Grid.Column="0" Grid.Row="5" Margin="0,0.5,0.5,0" SelectedItem="{Binding SelectedProvider, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+          ItemsSource="{Binding Providers}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{Binding Image}" />
+                        <TextBlock Text="{Binding Label}" FontSize="16" Foreground="{StaticResource AppMainWindowBrush}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        <Button x:Name="buttonAudioCall" Margin="0.5,0.5,0,0" Grid.Column="1"  Grid.Row="5" Grid.ColumnSpan="2" 
+                    Background="{Binding CallState, Converter={StaticResource cstb}}"
+                    Click="VideoCallClick"  Cursor="Hand">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                <Rectangle Width="52" Height="52" Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="#FFFFFFFF">
+                    <Rectangle.OpacityMask>
+                        <ImageBrush ImageSource="..\Resources\cameraview.png" />
+                    </Rectangle.OpacityMask>
+                </Rectangle>
+                <TextBlock Margin="10,0,0,0" FontSize="50" Text="Call" VerticalAlignment="Center" Foreground="White" />
+            </StackPanel>
+        </Button>
     </Grid>
-
-
 </UserControl>

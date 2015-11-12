@@ -6,6 +6,13 @@ namespace VATRP.Core.Interfaces
 {
     public interface IConfigurationService : IVATRPservice
     {
+        bool IsStarting { get; }
+        bool IsStarted { get; }
+
+        bool IsStopping {get; }
+        
+        bool IsStopped { get; }
+
         string Get(Configuration.ConfSection section, Configuration.ConfEntry entry, string defaultValue);
         bool Set(Configuration.ConfSection section, Configuration.ConfEntry entry, string value);
 

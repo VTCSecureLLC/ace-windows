@@ -61,7 +61,7 @@ namespace com.vtcsecure.ace.windows
                        _callView.OnCallStateChanged(call);
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
     Configuration.ConfEntry.USE_RTT, true))
-                        _messagingWindow.CreateConversation(call.To.Username);
+                        _mainViewModel.MessagingModel.CreateConversation(call.To.Username);
                     break;
                 case VATRPCallState.InProgress:
                     videoTitle = !string.IsNullOrWhiteSpace(call.From.DisplayName)
@@ -86,7 +86,7 @@ namespace com.vtcsecure.ace.windows
                 case VATRPCallState.Connected:
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
     Configuration.ConfEntry.USE_RTT, true))
-                        _messagingWindow.CreateConversation(call.RemoteParty.Username);
+                        _mainViewModel.MessagingModel.CreateConversation(call.RemoteParty.Username);
                     if (_callView != null)
                         _callView.OnCallStateChanged(call);
                     _flashWindowHelper.StopFlashing();
@@ -210,25 +210,22 @@ namespace com.vtcsecure.ace.windows
             var statusString = "Unregistered";
             this.BtnSettings.IsEnabled = true;
             LOG.Info(String.Format("Registration state changed. Current - {0}", state));
+            _mainViewModel.ContactModel.RegistrationState = state;
             switch (state)
             {
                 case LinphoneRegistrationState.LinphoneRegistrationProgress:
-                    RegStatusLabel.Foreground = Brushes.Black;
                     statusString = isRegistering ? "Registering..." : "Unregistering...";
                     this.BtnSettings.IsEnabled = false;
                     break;
                 case LinphoneRegistrationState.LinphoneRegistrationOk:
                     statusString = "Registered";
-                    RegStatusLabel.Foreground = Brushes.Green;
                     ServiceManager.Instance.SoundService.PlayConnectionChanged(true);
                     isRegistering = false;
                     break;
                 case LinphoneRegistrationState.LinphoneRegistrationFailed:
-                    RegStatusLabel.Foreground = Brushes.Red;
                     ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
                     break;
                 case LinphoneRegistrationState.LinphoneRegistrationCleared:
-                    RegStatusLabel.Foreground = Brushes.Red;
                     statusString = "Unregistered";
                     isRegistering = true;
                     ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
@@ -244,11 +241,15 @@ namespace com.vtcsecure.ace.windows
                         ServiceSelector.Visibility = Visibility.Visible;
                         WizardPagepanel.Visibility = Visibility.Visible;
                         NavPanel.Visibility = Visibility.Collapsed;
-                        StatusPanel.Visibility = Visibility.Collapsed;
                         signOutRequest = false;
-                        ServiceManager.Instance.AccountService.DeleteAccount(App.CurrentAccount);
+                        _mainViewModel.IsAccountLogged = false;
+                        _mainViewModel.IsDialpadDocked = false;
+                        _mainViewModel.IsCallHistoryDocked = false;
+                        _mainViewModel.IsContactDocked = false;
+                        _mainViewModel.IsMessagingDocked = false;
                         ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.ACCOUNT_IN_USE, string.Empty);
+                        ServiceManager.Instance.AccountService.DeleteAccount(App.CurrentAccount);
                         if (defaultConfigRequest)
                         {
                             ResetConfiguration();
@@ -257,11 +258,8 @@ namespace com.vtcsecure.ace.windows
                     }
                     break;
                 default:
-                    RegStatusLabel.Foreground = Brushes.Black;
                     break;
             }
-            var regString = string.Format("{0}", statusString);
-            RegStatusLabel.Content = regString;
         }
 
         private void ResetConfiguration()
@@ -277,14 +275,16 @@ namespace com.vtcsecure.ace.windows
         {
             ServiceSelector.Visibility = Visibility.Collapsed;
             WizardPagepanel.Visibility = Visibility.Collapsed;
-            RegUserLabel.Text = string.Format( "Account: {0}", App.CurrentAccount.RegistrationUser);
             LOG.Info(string.Format( "New account registered. Useaname -{0}. Host - {1} Port - {2}",
                 App.CurrentAccount.RegistrationUser,
                 App.CurrentAccount.ProxyHostname,
                 App.CurrentAccount.ProxyPort));
             NavPanel.Visibility = Visibility.Visible;
-            StatusPanel.Visibility = Visibility.Visible;
 
+            _mainViewModel.IsDialpadDocked = true;
+            _mainViewModel.IsCallHistoryDocked = true;
+            _mainViewModel.IsAccountLogged = true;
+            _mainViewModel.IsMessagingDocked = true;
             ServiceManager.Instance.UpdateLoggedinContact();
             
             if (ServiceManager.Instance.UpdateLinphoneConfig())
@@ -301,22 +301,26 @@ namespace com.vtcsecure.ace.windows
             var window = sender as VATRPWindow;
             if (window == null)
                 return;
+            var bShow = (bool)e.NewValue;
             switch (window.WindowType)
             {
                 case VATRPWindowType.CONTACT_VIEW:
-                    BtnContacts.IsChecked = (bool) e.NewValue;
+                    BtnContacts.IsChecked = bShow;
                     break;
                 case VATRPWindowType.MESSAGE_VIEW:
-                    BtnMessageView.IsChecked = (bool)e.NewValue;
+                    BtnMessageView.IsChecked = bShow;
+                    _mainViewModel.IsMessagingDocked = !bShow;
                     break;
                 case VATRPWindowType.RECENTS_VIEW:
-                    BtnRecents.IsChecked = (bool)e.NewValue;
+                    BtnRecents.IsChecked = bShow;
+                    _mainViewModel.IsCallHistoryDocked = !bShow;
                     break;
                 case VATRPWindowType.DIALPAD_VIEW:
-                    BtnDialpad.IsChecked = (bool)e.NewValue;
+                    BtnDialpad.IsChecked = bShow;
+                    _mainViewModel.IsDialpadDocked = !bShow;
                     break;
                 case VATRPWindowType.SETTINGS_VIEW:
-                    BtnSettings.IsChecked = (bool)e.NewValue;
+                    BtnSettings.IsChecked = bShow;
                     break;
             }
         }

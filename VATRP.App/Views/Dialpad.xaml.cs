@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using com.vtcsecure.ace.windows.Interfaces;
 using com.vtcsecure.ace.windows.Model;
 using com.vtcsecure.ace.windows.Services;
+using com.vtcsecure.ace.windows.ViewModel;
 using VATRP.Core.Model;
 
 namespace com.vtcsecure.ace.windows.Views
@@ -24,15 +25,20 @@ namespace com.vtcsecure.ace.windows.Views
     /// </summary>
     public partial class Dialpad
     {
-        public event EventHandler<KeyPadEventArgs> KeypadClicked; 
-        public Dialpad() : base(VATRPWindowType.DIALPAD_VIEW)
+        public event EventHandler<KeyPadEventArgs> KeypadClicked;
+
+        public Dialpad(DialpadViewModel viewModel)
+            : base(VATRPWindowType.DIALPAD_VIEW)
         {
             InitializeComponent();
+
+            ctrlDialpad.SetViewModel(viewModel);
+            ctrlDialpad.KeypadPressed += OnKeypadPressed;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            ctrlDialpad.KeypadPressed += OnKeypadPressed;
+            
         }
 
         private void OnKeypadPressed(object sender, KeyPadEventArgs e)

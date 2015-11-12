@@ -255,6 +255,8 @@ namespace VATRP.Core.Services
 
 				_isStarted = true;
 			}
+            if (ServiceStarted != null)
+                ServiceStarted(this, EventArgs.Empty);
 			return _isStarted;
 		}
 
@@ -297,6 +299,8 @@ namespace VATRP.Core.Services
             server_addr = null;
 
             LOG.Debug("Main loop exited");
+            if (ServiceStopped != null)
+                ServiceStopped(this, EventArgs.Empty);
         }
 
         void SetTimeout(int miliseconds)
@@ -605,14 +609,14 @@ namespace VATRP.Core.Services
 	            }
 
 	            // notify call state end
-	            if (LinphoneAPI.linphone_call_params_get_record_file(callsDefaultParams) != IntPtr.Zero)
-	                LinphoneAPI.linphone_call_stop_recording(call.NativeCallPtr);
+                //if (LinphoneAPI.linphone_call_params_get_record_file(callsDefaultParams) != IntPtr.Zero)
+                //    LinphoneAPI.linphone_call_stop_recording(call.NativeCallPtr);
 
                 LOG.Info("Terminate Call " + callPtr);
 
 	            call.CallState = VATRPCallState.Closed;
-	            if (CallStateChangedEvent != null)
-	                CallStateChangedEvent(call);
+                if (CallStateChangedEvent != null)
+                    CallStateChangedEvent(call);
                 LOG.Info(string.Format("Call removed from list. Call - {0}. Total calls in list: {1}", callPtr,
     callsList.Count));
 
@@ -1581,6 +1585,9 @@ namespace VATRP.Core.Services
 
         #region IVATRPInterface
 
+        public event EventHandler<EventArgs> ServiceStarted;
+
+        public event EventHandler<EventArgs> ServiceStopped;
         public bool Start()
         {
             return Start(true);
