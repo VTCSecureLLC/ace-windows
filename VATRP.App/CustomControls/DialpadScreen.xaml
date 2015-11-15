@@ -9,7 +9,7 @@
              x:Class="com.vtcsecure.ace.windows.CustomControls.DialPadScreen"
              mc:Ignorable="d" 
     d:DataContext="{d:DesignData Source=../SampleData/DialpadViewSampleData.xaml}"
-             d:DesignWidth="350"
+             d:DesignWidth="300"
              Loaded="OnLoaded"
              Unloaded="OnUnloaded" 
              >
@@ -26,9 +26,9 @@
             <RowDefinition Height="55" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="100" />
+            <ColumnDefinition Width="100" />
+            <ColumnDefinition Width="100" />
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0" Grid.ColumnSpan="3" Margin="0,1,0,0" Background="{DynamicResource AppMainWindowBrush}">
@@ -49,13 +49,13 @@
         </Grid>
 
         <!--Row-1: 1, 2, 3-->
-        <Button Grid.Column="0"  x:Name="buttonKeyPad1" Style="{StaticResource KeypadButtonStyle}" 
+        <Button Grid.Column="0"  x:Name="buttonKeyPad1" Style="{DynamicResource KeypadButtonStyle}" 
                         Margin="0,1,0.5,0.5" Grid.Row="1" Click="buttonKeyPad_Click"   >
             <StackPanel Orientation="Horizontal">
                 <TextBlock Margin="0,8,0,8" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30" ><Run Text="1"/></TextBlock>
             </StackPanel>
         </Button>
-        <Button x:Name="buttonKeyPad2" Style="{StaticResource KeypadButtonStyle}" Margin="0,1,0.5,0.5" Grid.Row="1" Grid.Column="1" Click="buttonKeyPad_Click" >
+        <Button x:Name="buttonKeyPad2" Style="{DynamicResource KeypadButtonStyle}" Margin="0,1,0.5,0.5" Grid.Row="1" Grid.Column="1" Click="buttonKeyPad_Click" >
             <StackPanel Orientation="Vertical" >
                 <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30" Text="2" Margin="0,-4"/>
                 <TextBlock  Margin="0,0,0,2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
@@ -63,7 +63,7 @@
                 </TextBlock>
             </StackPanel>
         </Button>
-        <Button x:Name="buttonKeyPad3" Style="{StaticResource KeypadButtonStyle}" Margin="0.5,1,0,0.5" Grid.Row="1" Grid.Column="2" Click="buttonKeyPad_Click"  >
+        <Button x:Name="buttonKeyPad3" Style="{DynamicResource KeypadButtonStyle}" Margin="0.5,1,0,0.5" Grid.Row="1" Grid.Column="2" Click="buttonKeyPad_Click"  >
             <StackPanel Orientation="Vertical" >
                 <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30" Text="3" Margin="0,-4"/>
                 <TextBlock Margin="0,0,0,-2"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
@@ -72,7 +72,7 @@
             </StackPanel>
         </Button>
         <!--Row-2: 4, 5, 6-->
-        <Button x:Name="buttonKeyPad4" Grid.Column="0" Style="{StaticResource KeypadButtonStyle}" Margin="0,0.5,0.5,0.5" Grid.Row="2" Click="buttonKeyPad_Click"  >
+        <Button x:Name="buttonKeyPad4" Grid.Column="0" Style="{DynamicResource KeypadButtonStyle}" Margin="0,0.5,0.5,0.5" Grid.Row="2" Click="buttonKeyPad_Click"  >
             <StackPanel Orientation="Vertical" >
                 <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30" Text="4" Margin="0,-4"/>
                 <TextBlock Margin="0,0,0,-2"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
@@ -80,7 +80,7 @@
                 </TextBlock>
             </StackPanel>
         </Button>
-        <Button x:Name="buttonKeyPad5" Style="{StaticResource KeypadButtonStyle}" Margin="0.5,0.5,0.5,0.5" Grid.Row="2" Grid.Column="1" Click="buttonKeyPad_Click"  >
+        <Button x:Name="buttonKeyPad5" Style="{DynamicResource KeypadButtonStyle}" Margin="0.5,0.5,0.5,0.5" Grid.Row="2" Grid.Column="1" Click="buttonKeyPad_Click"  >
             <StackPanel Orientation="Vertical" >
                 <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"  Margin="0,-4" Text="5"/>
                 <TextBlock Margin="0,0,0,-2"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
@@ -88,7 +88,7 @@
                 </TextBlock>
             </StackPanel>
         </Button>
-        <Button x:Name="buttonKeyPad6" Style="{StaticResource KeypadButtonStyle}" Margin="0.5,0.5,0,0.5" Grid.Row="2" Grid.Column="2" Click="buttonKeyPad_Click"  >
+        <Button x:Name="buttonKeyPad6" Style="{DynamicResource KeypadButtonStyle}" Margin="0.5,0.5,0,0.5" Grid.Row="2" Grid.Column="2" Click="buttonKeyPad_Click"  >
             <StackPanel Orientation="Vertical" >
                 <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   Margin="0,-4" Text="6"/>
                 <TextBlock Margin="0,0,0,-2"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
@@ -97,7 +97,7 @@
             </StackPanel>
         </Button>
         <!--Row-3: 7, 8, 9-->
-        <Button Grid.Column="0"  x:Name="buttonKeyPad7" Style="{StaticResource KeypadButtonStyle}" Margin="0,0.5,0.5,0.5" Grid.Row="3" Click="buttonKeyPad_Click"  >
+        <Button Grid.Column="0"  x:Name="buttonKeyPad7" Style="{DynamicResource KeypadButtonStyle}" Margin="0,0.5,0.5,0.5" Grid.Row="3" Click="buttonKeyPad_Click"  >
             <StackPanel Orientation="Vertical" >
                 <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30" Margin="0,-4" Text="7"/>
                 <TextBlock Margin="0,0,0,-2"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
@@ -105,7 +105,7 @@
                 </TextBlock>
             </StackPanel>
         </Button>
-        <Button x:Name="buttonKeyPad8" Style="{StaticResource KeypadButtonStyle}" Margin="0.5" Grid.Row="3" Grid.Column="1" Click="buttonKeyPad_Click"  >
+        <Button x:Name="buttonKeyPad8" Style="{DynamicResource KeypadButtonStyle}" Margin="0.5" Grid.Row="3" Grid.Column="1" Click="buttonKeyPad_Click"  >
             <StackPanel Orientation="Vertical" >
                 <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   Margin="0,-4" Text="8"/>
                 <TextBlock Margin="0,0,0,-2"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
@@ -113,7 +113,7 @@
                 </TextBlock>
             </StackPanel>
         </Button>
-        <Button x:Name="buttonKeyPad9" Style="{StaticResource KeypadButtonStyle}" Margin="0.5,0.5,0,0.5" Grid.Row="3" Grid.Column="2" Click="buttonKeyPad_Click"  >
+        <Button x:Name="buttonKeyPad9" Style="{DynamicResource KeypadButtonStyle}" Margin="0.5,0.5,0,0.5" Grid.Row="3" Grid.Column="2" Click="buttonKeyPad_Click" >
             <StackPanel Orientation="Vertical" >
                 <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   Margin="0,-4" Text="9"/>
                 <TextBlock Margin="0,0,0,-2"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MinWidth="25">
@@ -122,44 +122,126 @@
             </StackPanel>
         </Button>
         <!--Row-4: *, 0, #-->
-        <Button  x:Name="buttonKeyPadStar" Style="{StaticResource KeypadButtonStyle}" Margin="0,0.5,0.5,0.5" Grid.Row="4" Click="buttonKeyPad_Click"  >
+        <Button  x:Name="buttonKeyPadStar" Style="{DynamicResource KeypadButtonStyle}" Margin="0,0.5,0.5,0.5" Grid.Row="4" Click="buttonKeyPad_Click"  >
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   Margin="0,13,0,3" ><Run Text="*"/></TextBlock>
+                <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   ><Run Text="*"/></TextBlock>
             </StackPanel>
         </Button>
-        <Button x:Name="buttonKeyPad0" Style="{StaticResource KeypadButtonStyle}" Margin="0.5" Grid.Row="4" Grid.Column="1" Click="buttonKeyPad_Click">
+        <Button x:Name="buttonKeyPad0" Style="{DynamicResource KeypadButtonStyle}" Margin="0.5" Grid.Row="4" Grid.Column="1" Click="buttonKeyPad_Click" PreviewMouseLeftButtonUp="OnPlusPreviewMouseLeftButtonUp" PreviewMouseLeftButtonDown="OnPlusPreviewMouseLeftButtonDown">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"  Margin="25,0,0,0" ><Run Text="0"/></TextBlock>
-                <TextBlock x:Name="textBlockKeyPad0Plus" Margin="5,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center"  FontSize="14"  ><Run Text="+"/></TextBlock>
+                <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"  Margin="0" ><Run Text="0"/></TextBlock>
+                <TextBlock x:Name="textBlockKeyPad0Plus" Margin="2,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center"  FontSize="14"  ><Run Text="+"/></TextBlock>
             </StackPanel>
         </Button>
-        <Button x:Name="buttonKeyPadSharp" Style="{StaticResource KeypadButtonStyle}" Grid.Row="4" Grid.Column="2" Margin="0.5,0.5,0,0.5" Click="buttonKeyPad_Click" >
+        <Button x:Name="buttonKeyPadSharp" Style="{DynamicResource KeypadButtonStyle}" Grid.Row="4" Grid.Column="2" Margin="0.5,0.5,0,0.5" Click="buttonKeyPad_Click" >
             <StackPanel Orientation="vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   Margin="0,0,0,0"><Run Text="#"/></TextBlock>
             </StackPanel>
         </Button>
         <ComboBox Grid.Column="0" Grid.Row="5" Margin="0,0.5,0.5,0" SelectedItem="{Binding SelectedProvider, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
           ItemsSource="{Binding Providers}">
+            <ComboBox.Resources>
+                <System:Double x:Key="{x:Static SystemParameters.VerticalScrollBarWidthKey}">0</System:Double>
+            </ComboBox.Resources>
             <ComboBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="{Binding Image}" />
-                        <TextBlock Text="{Binding Label}" FontSize="16" Foreground="{StaticResource AppMainWindowBrush}"/>
+                        <Image Source="{Binding Logo}" />
+                        <!--<TextBlock Text="{Binding Label}" FontSize="16" Foreground="{DynamicResource AppMainWindowBrush}"/>-->
                     </StackPanel>
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>
         <Button x:Name="buttonAudioCall" Margin="0.5,0.5,0,0" Grid.Column="1"  Grid.Row="5" Grid.ColumnSpan="2" 
-                    Background="{Binding CallState, Converter={StaticResource cstb}}"
+                     
                     Click="VideoCallClick"  Cursor="Hand">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
+            <Button.Resources>
+                <Grid x:Key="CallButtonNormal" 
+                            Background="{Binding CallState, Converter={StaticResource cstb}}">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0" Grid.Column="0">
+                    <Rectangle Width="38" Height="21"   Fill="{DynamicResource DialpadPageKeyButtonNormalTextFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
+                        <Rectangle.OpacityMask>
+                            <ImageBrush ImageSource="..\Resources\cameraview.png" />
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                    </StackPanel>
+                    
+                    <TextBlock Grid.Column="1" Text="Call" HorizontalAlignment="Left" FontSize="33" VerticalAlignment="Center" Margin ="5,-3,0,0" 
+                               Foreground="{DynamicResource NavigationBarPressedButtonFont}"/>
+                    
+                </Grid>
+            </Button.Resources>
+
+            <Button.Style>
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="Opacity" Value="1" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="SnapsToDevicePixels" Value="True"/>
+                    <Setter Property="VerticalAlignment" Value="Stretch"/>
+                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                    <Setter Property="Content" Value="{DynamicResource CallButtonNormal}" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type Button}">
+                                <Grid Background="Transparent">
+
+                                    <Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
+                                        <ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                    </Border>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Content" Value="{DynamicResource CallButtonNormal}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Content" Value="{DynamicResource CallButtonNormal}" />
+                        </Trigger>
+
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsPressed}" Value="True"/>
+                            </MultiDataTrigger.Conditions>
+
+                            <Setter Property="Opacity" Value="0.7"/>
+                            <Setter Property="Content" Value="{DynamicResource CallButtonNormal}"/>
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
                 <Rectangle Width="52" Height="52" Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="#FFFFFFFF">
                     <Rectangle.OpacityMask>
                         <ImageBrush ImageSource="..\Resources\cameraview.png" />
                     </Rectangle.OpacityMask>
                 </Rectangle>
                 <TextBlock Margin="10,0,0,0" FontSize="50" Text="Call" VerticalAlignment="Center" Foreground="White" />
-            </StackPanel>
+            </StackPanel>-->
         </Button>
     </Grid>
 </UserControl>
