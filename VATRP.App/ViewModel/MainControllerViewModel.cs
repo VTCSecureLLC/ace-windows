@@ -2,6 +2,7 @@ using System;
 using System.Windows;
 using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Model;
+using System.Collections.ObjectModel;
 
 namespace com.vtcsecure.ace.windows.ViewModel
 {
@@ -12,6 +13,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _isContactDocked;
         private bool _isDialpadDocked;
         private bool _isHistoryDocked;
+        private bool _isSettingsDocked;
         private bool _isMessagingDocked;
         private bool _isCallPanelDocked;
 
@@ -19,7 +21,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private CallHistoryViewModel _historyViewModel;
         private LocalContactViewModel _contactViewModel;
         private MessagingViewModel _messageViewModel;
-        
+        private SettingsViewModel _settingsViewModel;
+        private ObservableCollection<CallViewModel> _callsViewModel;
+        private CallViewModel _activeCallViewModel;
 
         public MainControllerViewModel()
         {
@@ -29,11 +33,14 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _isHistoryDocked = false;
             _isMessagingDocked = false;
             _isCallPanelDocked = false;
+            _isSettingsDocked = false;
             _dialPadViewModel = new DialpadViewModel();
             _historyViewModel = new CallHistoryViewModel(ServiceManager.Instance.HistoryService, _dialPadViewModel);
             _contactViewModel = new LocalContactViewModel(ServiceManager.Instance.ContactService);
             _messageViewModel = new MessagingViewModel(ServiceManager.Instance.ChatService,
             ServiceManager.Instance.ContactService);
+            _settingsViewModel = new SettingsViewModel();
+            _callsViewModel = new ObservableCollection<CallViewModel>();
         }
 
         #region Properties
@@ -86,6 +93,17 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 OnPropertyChanged("IsCallHistoryDocked");
             }
         }
+
+        public bool IsSettingsDocked
+        {
+            get { return _isSettingsDocked; }
+            set
+            {
+                _isSettingsDocked = value;
+                OnPropertyChanged("IsSettingsDocked");
+            }
+        }
+        
         public bool IsMessagingDocked
         {
             get { return _isMessagingDocked; }
@@ -124,7 +142,20 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             get { return _messageViewModel; }
         }
+        public SettingsViewModel SettingsModel
+        {
+            get { return _settingsViewModel; }
+        }
 
+        public CallViewModel ActiveCallModel
+        {
+            get { return _activeCallViewModel; }
+            set
+            {
+                _activeCallViewModel = value;
+                OnPropertyChanged("ActiveCall");
+            }
+        }
         #endregion
 
     }
