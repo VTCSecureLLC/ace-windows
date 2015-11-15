@@ -871,15 +871,27 @@ namespace VATRP.Core.Services
             Contacts.Clear();
         }
 
+        #region IVATRPService
         public bool Start()
         {
+            if (ServiceStarted != null)
+                ServiceStarted(this, EventArgs.Empty);
+
             return true;
         }
 
         public bool Stop()
         {
+            if (ServiceStopped != null)
+                ServiceStopped(this, EventArgs.Empty);
+
             return true;
         }
+        
+        public event EventHandler<EventArgs> ServiceStarted;
+        public event EventHandler<EventArgs> ServiceStopped;
+
+        #endregion
     }
 }
 

@@ -8,7 +8,9 @@ namespace VATRP.Core.Interfaces
     public interface IVATRPservice
     {
         bool Start();
-
         bool Stop();
+
+        event EventHandler<EventArgs> ServiceStarted;
+        event EventHandler<EventArgs> ServiceStopped;
     }
 }

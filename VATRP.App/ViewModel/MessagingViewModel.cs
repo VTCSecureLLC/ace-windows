@@ -32,9 +32,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         private ContactViewModel _contactViewModel;
         private string _contactSearchCriteria;
-
-        private ICollectionView messagesListView;
         private ICollectionView contactsListView;
+        private ICollectionView messagesListView;
 
         public MessagingViewModel()
         {
@@ -99,7 +98,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 if (this.Chat == e.Conversation)
                 {
                     this._chat = null;
-                //    MessagesListView = null;
+                    MessagesListView = null;
                 }
 
                 if (_contactViewModel.Contact == e.Conversation.Contact)
@@ -247,7 +246,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 			
             ReceiverAddress = contact.Fullname;
             OnPropertyChanged("Chat");
-            OnPropertyChanged("Messages");
+            OnPropertyChanged("MessagesListView");
         }
 
         private ContactViewModel FindContactViewModel(ContactID contact)
@@ -312,6 +311,21 @@ namespace com.vtcsecure.ace.windows.ViewModel
             if (contactVM != null)
                 return contactVM.Contact != null && contactVM.Contact.Fullname.Contains(ContactSearchCriteria);
             return true;
+        }
+		
+        public void CreateConversation(string remoteUsername)
+        {
+            var contactID = new ContactID(remoteUsername, IntPtr.Zero);
+            VATRPContact contact =
+                ServiceManager.Instance.ContactService.FindContact(contactID);
+            if (contact == null)
+            {
+                contact = new VATRPContact(contactID);
+                contact.Fullname = remoteUsername;
+                contact.DisplayName = remoteUsername;
+                ServiceManager.Instance.ContactService.AddContact(contact, string.Empty);
+            }
+            SetActiveChatContact(contact);
         }
 
         #region Properties

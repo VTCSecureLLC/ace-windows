@@ -39,7 +39,7 @@ namespace VATRP.Core.Services
 
             this.xmlSerializer = new XmlSerializer(typeof(MyObservableCollection<XmlSection>));
 
-            this.deferredSaveTimer = new Timer(1000) {AutoReset = false};
+            this.deferredSaveTimer = new Timer(500) {AutoReset = false};
         }
         
         #region Properties
@@ -116,6 +116,8 @@ namespace VATRP.Core.Services
             _isStarting = false;
             _isStarted = true;
             _isStopped = false;
+            if (ServiceStarted != null)
+                ServiceStarted(this, EventArgs.Empty);
             return ret;
         }
 
@@ -124,24 +126,26 @@ namespace VATRP.Core.Services
             if (IsStarting || IsStopping)
                 return false;
 
-            if (IsStopped)
-                return true;
-
-            _isStopping = true;
-            if (this.deferredSaveTimer.Enabled)
+            if (!IsStopped)
             {
-                try
+                _isStopping = true;
+                if (this.deferredSaveTimer.Enabled)
                 {
-                    this.deferredSaveTimer.Stop();
-                    this.ImmediateSave();
+                    try
+                    {
+                        this.deferredSaveTimer.Stop();
+                        this.ImmediateSave();
+                    }
+                    catch (System.UnauthorizedAccessException e)
+                    {
+                        LOG.Error(e);
+                    }
                 }
-                catch (System.UnauthorizedAccessException e)
-                {
-                    LOG.Error(e);
-                }
+                _isStopping = false;
+                _isStopped = true;
+                if (ServiceStopped != null)
+                    ServiceStopped(this, EventArgs.Empty);
             }
-            _isStopping = false;
-            _isStopped = true;
             return true;
         }
 
@@ -498,5 +502,8 @@ namespace VATRP.Core.Services
 
             #endregion
         }
+
+        public event EventHandler<EventArgs> ServiceStarted;
+        public event EventHandler<EventArgs> ServiceStopped;
     }
 }

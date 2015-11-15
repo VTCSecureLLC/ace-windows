@@ -31,7 +31,7 @@ namespace com.vtcsecure.ace.windows.Services
                 Configuration.ConfEntry.USE_RTT, true));
         }
 
-        internal static void MakeVideoCall(string remoteUri)
+        internal static bool MakeVideoCall(string remoteUri)
         {
             ILinphoneService _linphoneService = ServiceManager.Instance.LinphoneService;
 
@@ -39,18 +39,19 @@ namespace com.vtcsecure.ace.windows.Services
             {
                 MessageBox.Show("Video call not supported yet.", "ACE", MessageBoxButton.OK,
                    MessageBoxImage.Warning);
-                return;
+                return false;
             }
 
             if (MainWindow.RegistrationState != LinphoneRegistrationState.LinphoneRegistrationOk)
             {
                 MessageBox.Show("Not Registered. Please register first", "ACE", MessageBoxButton.OK,
                     MessageBoxImage.Error);
-                return;
+                return false;
             }
 
             _linphoneService.MakeCall(remoteUri, true, ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.USE_RTT, true));
+            return true;
         }
 
         

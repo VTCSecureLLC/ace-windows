@@ -5,6 +5,7 @@ using System.Data.SQLite;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading;
 using log4net;
 using VATRP.Core.Events;
 using VATRP.Core.Interfaces;
@@ -34,15 +35,25 @@ namespace VATRP.Core.Services
 
 
         #region IVATRPService
+
+        public event EventHandler<EventArgs> ServiceStarted;
+        public event EventHandler<EventArgs> ServiceStopped;
+
         public bool Start()
         {
             CreateHistoryTables();
 
-            return false;
+            new Thread((ThreadStart)LoadCallEvents).Start();
+            if (ServiceStarted != null)
+                ServiceStarted(this, EventArgs.Empty);
+
+            return true;
         }
 
         public bool Stop()
         {
+            if (ServiceStopped != null)
+                ServiceStopped(this, EventArgs.Empty);
             return false;
         }
         #endregion
@@ -178,7 +189,7 @@ namespace VATRP.Core.Services
                     insertSQL.Parameters.AddWithValue("@log_uts", callEvent.StartTime.Ticks);
                     insertSQL.Parameters.AddWithValue("@duration", callEvent.Duration);
                     insertSQL.Parameters.AddWithValue("@call_state", callEvent.Status.ToString());
-                    insertSQL.Parameters.AddWithValue("@contact", callEvent.Contact != null ? callEvent.Contact.ID : null);
+                    insertSQL.Parameters.AddWithValue("@contact", callEvent.Contact != null ? callEvent.Contact.Fullname : null);
                     insertSQL.Parameters.AddWithValue("@codec", callEvent.Codec);
 
 

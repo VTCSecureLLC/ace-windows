@@ -3,7 +3,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
-    <SolidColorBrush x:Key="AppBarBrush" Color ="#FFDBDBDB"/>
+    <SolidColorBrush x:Key="AppMainWindowBrush" Color ="#FF2C373D"/>
+    <SolidColorBrush x:Key="AppMainBorderBrush" Color ="#FFFFFFFF"/>
     <SolidColorBrush x:Key="ScreenBrush" Color="#FFb0b0b0"/>
 
     <SolidColorBrush x:Key="DisabledCallButtonBackBrush" Color="#ff90e191"/>
@@ -24,23 +25,22 @@
     <SolidColorBrush x:Key="AcceptButtonNormalBrush" Color="#ff1ba1e2"/>
     <SolidColorBrush x:Key="AcceptButtonClickedBrush" Color="#ff1fb4ff"/>
 
-    <SolidColorBrush x:Key="NavigationBarBg" Color ="#FFDBDBDB"/>
-    <SolidColorBrush x:Key="NavigationBarNormalButtonBg" Color ="#FF484848"/>
-    <SolidColorBrush x:Key="NavigationBarNormalButtonFont" Color ="#FFDBDBDB"/>
-    <SolidColorBrush x:Key="NavigationBarPressedButtonBg" Color ="#FFB9B9B9"/>
-    <SolidColorBrush x:Key="NavigationBarPressedButtonFont" Color ="#FF484848"/>
+    <SolidColorBrush x:Key="NavigationBarBg" Color ="#FF2C373D"/>
+    <SolidColorBrush x:Key="NavigationBarNormalButtonBg" Color ="#FF2C373D"/>
+    <SolidColorBrush x:Key="NavigationBarNormalButtonFont" Color ="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="NavigationBarPressedButtonBg" Color ="#FF5A7380"/>
+    <SolidColorBrush x:Key="NavigationBarPressedButtonFont" Color ="#FFFFFFFF"/>
 
     <SolidColorBrush x:Key="DialpadPageBackButtonNormalFont" Color ="#FFb9ecff"/>
     <SolidColorBrush x:Key="DialpadPageBackButtonXNormalFont" Color ="#FFFFFFFF"/>
     <SolidColorBrush x:Key="DialpadPageBackButtonPressedFont" Color ="#FFb9ecff"/>
     <SolidColorBrush x:Key="DialpadPageBackButtonXPressed" Color ="#FFFFFFFF"/>
-    <SolidColorBrush x:Key="DialpadPageBrandNameFont" Color ="#FF8e8e8e"/>
-    <SolidColorBrush x:Key="DialpadPageRemotePartyFont" Color ="#FF000000"/>
-    <SolidColorBrush x:Key="DialpadPageNormalKeyButtonBg" Color ="#FFe4f2f5"/>
-    <SolidColorBrush x:Key="DialpadPagePressedKeyButtonBg" Color ="#FF3d7682"/>
+    <SolidColorBrush x:Key="DialpadPageRemotePartyFont" Color ="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="DialpadPageNormalKeyButtonBg" Color ="#FF2C373D"/>
+    <SolidColorBrush x:Key="DialpadPagePressedKeyButtonBg" Color ="#FF5a7380"/>
     <SolidColorBrush x:Key="DialpadPageDisabledKeyButtonBg" Color ="#FFe4f2f5"/>
-    <SolidColorBrush x:Key="DialpadPageKeyButtonNormalTextFont" Color ="#FF000000"/>
-    <SolidColorBrush x:Key="DialpadPageKeyButtonDisabledTextFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="DialpadPageKeyButtonNormalTextFont" Color ="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="DialpadPageKeyButtonDisabledTextFont" Color ="#FFFFFFFF"/>
 
     <SolidColorBrush x:Key="RecentsPageMainBg" Color ="#FFFFFFFF"/>
     <SolidColorBrush x:Key="RecentsPageControlBg" Color ="#FFFFFFFF"/>
@@ -48,7 +48,7 @@
     <SolidColorBrush x:Key="RecentsPageActiveTabBg" Color ="#FF88FF00"/>
     <SolidColorBrush x:Key="RecentsPageInactiveTabFont" Color ="#FF000000"/>
     <SolidColorBrush x:Key="RecentsPageInactiveTabBg" Color ="#FFFFFFFF"/>
-    <SolidColorBrush x:Key="RecentsPageCallerFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="RecentsPageCallerFont" Color ="#FF2c373d"/>
     <SolidColorBrush x:Key="RecentsPageDateFont" Color ="#FF000000"/>
     <SolidColorBrush x:Key="RecentsPageMissedFont" Color ="#FF00A8E6"/>
     <SolidColorBrush x:Key="RecentsPageCostFont" Color ="#FF000000"/>
@@ -138,8 +138,8 @@
     
     <Style x:Key="DialpadHover" TargetType="{x:Type Button}">
         <Setter Property="Opacity" Value="1"/>
-        <Setter Property="Background" Value="{DynamicResource DialpadPageNormalKeyButtonBg}" />
-        <Setter Property="Foreground" Value="{DynamicResource DialpadPageKeyButtonNormalTextFont}" />
+        <Setter Property="Background" Value="{StaticResource DialpadPageNormalKeyButtonBg}" />
+        <Setter Property="Foreground" Value="{StaticResource DialpadPageKeyButtonNormalTextFont}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
@@ -151,22 +151,22 @@
         </Setter>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{DynamicResource DialpadPagePressedKeyButtonBg}"/>
+                <Setter Property="Background" Value="{StaticResource DialpadPagePressedKeyButtonBg}"/>
                 <Setter Property="Opacity" Value="0.7"/>
             </Trigger>
             <Trigger Property="IsDefaulted" Value="True">
                 <Setter Property="Opacity" Value="1"/>
-                <Setter Property="Background" Value="{DynamicResource DialpadPageNormalKeyButtonBg}"/>
+                <Setter Property="Background" Value="{StaticResource DialpadPageNormalKeyButtonBg}"/>
             </Trigger>
             <Trigger Property="IsPressed" Value="True" >
                 <Setter Property="Opacity" Value="1"/>
-                <Setter Property="Background" Value="{DynamicResource DialpadPagePressedKeyButtonBg}"/>
+                <Setter Property="Background" Value="{StaticResource DialpadPagePressedKeyButtonBg}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
     
     <Style x:Key="DialpadAudioCallHover" TargetType="{x:Type Button}">
-        <Setter Property="Background" Value="#FF38CA20" />
+        <Setter Property="Background" Value="#FF0d6e0f" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
@@ -178,10 +178,10 @@
         </Setter>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#ff42f124"/>
+                <Setter Property="Background" Value="#FF0D830F"/>
             </Trigger>
             <Trigger Property="IsPressed" Value="True" >
-                <Setter Property="Background" Value="#ff26ff00"/>
+                <Setter Property="Background" Value="#FF145B15"/>
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -208,7 +208,8 @@
     </Style>
     
     <!--Region button sound-->
-    <Style x:Key="KeypadButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource DialpadHover}">
+    <Style x:Key="KeypadButtonStyle" TargetType="{x:Type Button}" 
+           BasedOn="{StaticResource DialpadHover}">
     </Style>
    
 

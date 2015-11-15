@@ -92,6 +92,7 @@
     <Compile Include="Events\StringEventArgs.cs" />
     <Compile Include="Extensions\CollectionExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Interfaces\IProviderService.cs" />
     <Compile Include="Interfaces\IConfigurationService.cs" />
     <Compile Include="Interfaces\IChatService.cs" />
     <Compile Include="Interfaces\IContactService.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="Interfaces\ISoundService.cs" />
     <Compile Include="Interfaces\IVATRPservice.cs" />
     <Compile Include="Model\CallParams.cs" />
+    <Compile Include="Model\VATRPServiceProvider.cs" />
     <Compile Include="Model\VATRPUserGroup.cs" />
     <Compile Include="Model\Utils\Time.cs" />
     <Compile Include="Model\Utils\Tools.cs" />
@@ -133,6 +135,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Services\ProviderService.cs" />
     <Compile Include="Services\AccountsService.cs" />
     <Compile Include="Services\ChatsService.cs" />
     <Compile Include="Services\ConfigurationService.cs" />

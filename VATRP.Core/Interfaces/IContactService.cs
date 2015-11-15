@@ -11,6 +11,7 @@ namespace VATRP.Core.Interfaces
         void RemoveContact(string id, bool isUserAction);
         void RemoveContacts();
         VATRPContact FindContact(ContactID contactID);
+        VATRPContact FindContactByPhone(string phoneNumber);
         VATRPContact FindLoggedInContact();
         
         event EventHandler<ContactEventArgs> ContactAdded;
@@ -18,7 +19,8 @@ namespace VATRP.Core.Interfaces
         event EventHandler<ContactRemovedEventArgs> ContactRemoved;
         event EventHandler<ContactStatusChangedEventArgs> ContactStatusChanged;
         event EventHandler<EventArgs> GroupsChanged;
-
+        event EventHandler<ContactEventArgs> LoggedInContactUpdated;
+		
         ObservableCollection<VATRPContact> Contacts { get; }
 
     }
