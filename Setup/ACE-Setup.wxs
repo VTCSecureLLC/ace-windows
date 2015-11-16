@@ -38,6 +38,9 @@
           <Component Id='com_ACE.EXE' Guid='4A11254E-C1B4-4067-9E51-D4A29B0BE04D' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='_ACE.EXE' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='ACE.exe' Source='VATRP.App\bin\$(var.Configuration)\ACE.exe' KeyPath='yes' />
           </Component>
+          <Component Id='com_VIDEOWRAPPER.DLL' Guid='E0604FE5-8055-40fb-8884-54384B5A1642' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+            <File Id='VATRP.LINPHONE.VIDEOWRAPPER.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='VATRP.Linphone.VideoWrapper.dll' Source='VATRP.App\bin\$(var.Configuration)\VATRP.Linphone.VideoWrapper.dll' KeyPath='yes' />
+          </Component>
 
           <Component Id='com_ORTP.DLL' Guid='D9CD42E9-B55E-4988-BA4A-CB30F7BCC02A' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='ORTP.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='ortp.dll' Source='ThirdParties\liblinphone\ortp.dll' KeyPath='yes' />
@@ -229,6 +232,7 @@
       <ComponentRef Id='com_SQLITE3.DLL' />
       <ComponentRef Id='com_OPENH264.DLL' />
       <ComponentRef Id='comLIBMSOPENH264.DLL' />
+      <ComponentRef Id='com_VIDEOWRAPPER.DLL' />
       <ComponentRef Id='com_dirDesktopFolder' />
       <ComponentRef Id='com_UNINSTALL.EXE' />
       <ComponentRef Id='com_MSVCR120.DLL'/>

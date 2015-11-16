@@ -105,7 +105,12 @@ namespace com.vtcsecure.ace.windows.Services
 
         public override System.Windows.Threading.Dispatcher Dispatcher
         {
-            get { return Application.Current.Dispatcher; }
+            get
+            {
+                if (Application.Current != null) 
+                    return Application.Current.Dispatcher;
+                return null;
+            }
         }
  #endregion
 

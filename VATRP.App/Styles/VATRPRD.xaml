@@ -22,13 +22,16 @@
     <SolidColorBrush x:Key="DialbuttonClickedBrush" Color="#FF3D7682" />
     <SolidColorBrush x:Key="MarkerBrush" Color="#FF202020" />
 
-    <SolidColorBrush x:Key="AcceptButtonNormalBrush" Color="#ff1ba1e2"/>
+    <SolidColorBrush x:Key="AcceptButtonNormalBrush" Color="#ff3fbe3f"/>
     <SolidColorBrush x:Key="AcceptButtonClickedBrush" Color="#ff1fb4ff"/>
+    <SolidColorBrush x:Key="CallBarNormalBg" Color="#FF2C373D"/>
+    <SolidColorBrush x:Key="CallBarPressedBg" Color="#FFbe3f3f"/>
+    <SolidColorBrush x:Key="CallBarEndCallBg" Color="#FFbe3f3f"/>
 
     <SolidColorBrush x:Key="NavigationBarBg" Color ="#FF2C373D"/>
     <SolidColorBrush x:Key="NavigationBarNormalButtonBg" Color ="#FF2C373D"/>
     <SolidColorBrush x:Key="NavigationBarNormalButtonFont" Color ="#FFFFFFFF"/>
-    <SolidColorBrush x:Key="NavigationBarPressedButtonBg" Color ="#FF5A7380"/>
+    <SolidColorBrush x:Key="NavigationBarPressedButtonBg" Color ="#FF5C7584"/>
     <SolidColorBrush x:Key="NavigationBarPressedButtonFont" Color ="#FFFFFFFF"/>
 
     <SolidColorBrush x:Key="DialpadPageBackButtonNormalFont" Color ="#FFb9ecff"/>
@@ -41,8 +44,9 @@
     <SolidColorBrush x:Key="DialpadPageDisabledKeyButtonBg" Color ="#FFe4f2f5"/>
     <SolidColorBrush x:Key="DialpadPageKeyButtonNormalTextFont" Color ="#FFFFFFFF"/>
     <SolidColorBrush x:Key="DialpadPageKeyButtonDisabledTextFont" Color ="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="DialpadMakeCallButtonBg" Color ="#FF2B912D"/>
 
-    <SolidColorBrush x:Key="RecentsPageMainBg" Color ="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="RecentsPageMainBg" Color ="#FFE9EFE9"/>
     <SolidColorBrush x:Key="RecentsPageControlBg" Color ="#FFFFFFFF"/>
     <SolidColorBrush x:Key="RecentsPageActiveTabFont" Color ="#FF000000"/>
     <SolidColorBrush x:Key="RecentsPageActiveTabBg" Color ="#FF88FF00"/>
@@ -60,9 +64,9 @@
 
     <SolidColorBrush x:Key="KeyPageButtonNormalFont" Color ="#FFFFFFFF"/>
     <SolidColorBrush x:Key="KeyPageButtonPressedFont" Color ="#FFFFFFFF"/>
-    <SolidColorBrush x:Key="KeyPageButtonNormalBg" Color ="#FF9d9d9d"/>
-    <SolidColorBrush x:Key="KeyPageButtonPressedBg" Color ="#FF7b7b7b"/>
-    <SolidColorBrush x:Key="KeyPageBg" Color ="#FF9d9d9d"/>
+    <SolidColorBrush x:Key="KeyPageButtonNormalBg" Color ="#FF2C373D"/>
+    <SolidColorBrush x:Key="KeyPageButtonPressedBg" Color ="#FF5a7380"/>
+    <SolidColorBrush x:Key="KeyPageBg" Color ="#FFFFFFFF"/>
 
     <SolidColorBrush x:Key="ChatPageTitleFont" Color ="#FF000000"/>
     <SolidColorBrush x:Key="ChatPageMainBg" Color ="#FFE2E2E2"/>
@@ -186,27 +190,7 @@
         </Style.Triggers>
     </Style>
 
-    <Style x:Key="DialpadVideoCallHover" TargetType="{x:Type Button}">
-        <Setter Property="Background" Value="#FF0D757A" />
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Button}">
-                    <Border Background="{TemplateBinding Background}">
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#FF0D757A"/>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True" >
-                <Setter Property="Background" Value="#FF118F95"/>
-            </Trigger>
-        </Style.Triggers>
-    </Style>
-    
+   
     <!--Region button sound-->
     <Style x:Key="KeypadButtonStyle" TargetType="{x:Type Button}" 
            BasedOn="{StaticResource DialpadHover}">

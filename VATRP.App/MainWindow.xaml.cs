@@ -73,16 +73,27 @@ namespace com.vtcsecure.ace.windows
             ctrlDialpad.SetViewModel(_mainViewModel.DialpadModel);
             ctrlLocalContact.SetDataContext(_mainViewModel.ContactModel);
             ctrlRTT.SetViewModel(_mainViewModel.MessagingModel);
+            ctrlCall.SetCallViewModel(_mainViewModel.ActiveCallModel);
+            _settingsView.SetSettingsModel(_mainViewModel.SettingsModel);
         }
 
         private void btnRecents_Click(object sender, RoutedEventArgs e)
         {
-            ToggleWindow(_historyView);
+            //ToggleWindow(_historyView);
+            bool isChecked = BtnRecents.IsChecked ?? false;
+            if (isChecked)
+                _mainViewModel.IsDialpadDocked = false;
+            
+            _mainViewModel.IsCallHistoryDocked = isChecked;
         }
 
         private void btnContacts_Click(object sender, RoutedEventArgs e)
         {
-            ToggleWindow(_contactBox);
+           // ToggleWindow(_contactBox);
+            bool isChecked = BtnContacts.IsChecked ?? false;
+            if (isChecked)
+                _mainViewModel.IsDialpadDocked = false;
+            _mainViewModel.IsContactDocked = isChecked;
         }
 
         private void ToggleWindow(VATRPWindow window)
@@ -102,44 +113,49 @@ namespace com.vtcsecure.ace.windows
 
         private void btnDialpad_Click(object sender, RoutedEventArgs e)
         {
-            ToggleWindow(_dialpadBox);
+            //ToggleWindow(_dialpadBox);
+            _mainViewModel.IsDialpadDocked = BtnDialpad.IsChecked ?? false;
         }
 
-        private void btnShowMessages(object sender, RoutedEventArgs e)
+        private void btnShowResources(object sender, RoutedEventArgs e)
         {
             ToggleWindow(_messagingWindow);
         }
 
         private void btnSettings_Click(object sender, RoutedEventArgs e)
         {
-            ToggleWindow(_settingsView);
+            bool isChecked = BtnSettings.IsChecked ?? false;
+            if (isChecked)
+                _mainViewModel.IsDialpadDocked = false;
+
+            _mainViewModel.IsSettingsDocked = BtnSettings.IsChecked ?? false;
         }
 
         private void OnSettingsSaved()
         {
-            if (_settingsView.SipSettingsChanged ||
-                _settingsView.CodecSettingsChanged ||
-                _settingsView.NetworkSettingsChanged ||
-                _settingsView.CallSettingsChanged ||
-                _settingsView.MediaSettingsChanged)
+            if (_mainViewModel.SettingsModel.SipSettingsChanged ||
+                _mainViewModel.SettingsModel.CodecSettingsChanged ||
+                _mainViewModel.SettingsModel.NetworkSettingsChanged ||
+                _mainViewModel.SettingsModel.CallSettingsChanged ||
+                _mainViewModel.SettingsModel.MediaSettingsChanged)
             {
                 ServiceManager.Instance.SaveAccountSettings();
-                if (_settingsView.SipSettingsChanged)
+                if (_mainViewModel.SettingsModel.SipSettingsChanged)
                     ApplyRegistrationChanges();
-                if (_settingsView.CodecSettingsChanged)
+                if (_mainViewModel.SettingsModel.CodecSettingsChanged)
                     ServiceManager.Instance.ApplyCodecChanges();
-                if (_settingsView.NetworkSettingsChanged)
+                if (_mainViewModel.SettingsModel.NetworkSettingsChanged)
                 {
                     ServiceManager.Instance.ApplyNetworkingChanges();
                 }
 
-                if (_settingsView.CallSettingsChanged)
+                if (_mainViewModel.SettingsModel.CallSettingsChanged)
                 {
                     ServiceManager.Instance.ApplyAVPFChanges();
                     ServiceManager.Instance.ApplyDtmfOnSIPInfoChanges();
                 }
 
-                if (_settingsView.MediaSettingsChanged)
+                if (_mainViewModel.SettingsModel.MediaSettingsChanged)
                 {
                     ServiceManager.Instance.ApplyMediaSettingsChanges();
                 }
@@ -151,17 +167,17 @@ namespace com.vtcsecure.ace.windows
             this.registerRequested = true;
             ServiceManager.Instance.UpdateLinphoneConfig();
 
-            if (_callView.ActiveCall != null)
+            if (_mainViewModel.ActiveCallModel != null)
             {
                 var r = MessageBox.Show("The active call will be terminated. Continue?", "ACE",
-                    MessageBoxButton.YesNo, MessageBoxImage.Question);
+                        MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-                if (r == MessageBoxResult.OK)
-                {
-                    _linphoneService.TerminateCall(_callView.ActiveCall.NativeCallPtr);
+                    if (r == MessageBoxResult.OK)
+                    {
+                        _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr);
+                    }
+                    return;
                 }
-                return;
-            }
             if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk)
             {
                 _linphoneService.Unregister(false);
@@ -275,11 +291,21 @@ namespace com.vtcsecure.ace.windows
             _keypadCtrl.KeypadClicked += OnKeypadClicked;
             _dialpadBox.KeypadClicked += OnDialpadClicked;
 
-            _callView.KeypadCtrl = _keypadCtrl;
-            _callView.CallInfoCtrl = _callInfoView;
+
+            ctrlCall.KeypadClicked += OnKeypadClicked;
+            ctrlCall.RttToggled += OnRttToggled;
 
             _callOverlayView.CallManagerView = _callView;
             ctrlHistory.MakeCallRequested += OnMakeCallRequested;
+            ctrlCall.KeypadCtrl = _keypadCtrl;
+            ctrlCall.CallInfoCtrl = _callInfoView;
+            ctrlDialpad.KeypadPressed += OnDialpadClicked;
+
+            ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
+            ctrlSettings.CodecSettingsChangeClicked += OnSettingsChangeRequired;
+            ctrlSettings.MultimediaSettingsChangeClicked += OnSettingsChangeRequired;
+            ctrlSettings.NetworkSettingsChangeClicked += OnSettingsChangeRequired;
+            ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
 
             if (App.CurrentAccount != null)
             {
@@ -292,12 +318,15 @@ namespace com.vtcsecure.ace.windows
                     _mainViewModel.IsAccountLogged = true;
                     _mainViewModel.IsDialpadDocked = true;
                     _mainViewModel.IsCallHistoryDocked = true;
-                    _mainViewModel.IsContactDocked = true;
-                    _mainViewModel.IsMessagingDocked = true;
                 }
             }
             
             ServiceManager.Instance.UpdateLoggedinContact();
+        }
+
+        private void OnRttToggled(bool switch_on)
+        {
+            _mainViewModel.IsMessagingDocked = switch_on;
         }
 
         internal void ResetToggleButton(VATRPWindowType wndType)
@@ -305,7 +334,7 @@ namespace com.vtcsecure.ace.windows
             switch (wndType)
             {
                 case VATRPWindowType.MESSAGE_VIEW:
-                    this.BtnMessageView.IsChecked = false;
+                    this.BtnResourcesView.IsChecked = false;
                     break;
                 case VATRPWindowType.CONTACT_VIEW:
                     this.BtnContacts.IsChecked = false;
@@ -326,14 +355,14 @@ namespace com.vtcsecure.ace.windows
             if (App.CurrentAccount == null || signOutRequest)
                 return;
             this.signOutRequest = true;
-            if (_callView.ActiveCall != null)
+            if (_mainViewModel.ActiveCallModel != null && _mainViewModel.ActiveCallModel.ActiveCall != null)
             {
                 var r = MessageBox.Show("The active call will be terminated. Continue?", "ACE",
                     MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                 if (r == MessageBoxResult.OK)
                 {
-                    _linphoneService.TerminateCall(_callView.ActiveCall.NativeCallPtr);
+                    _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr);
                 }
                 return;
             }

@@ -19,12 +19,19 @@ namespace com.vtcsecure.ace.windows.CustomControls
         private static readonly ILog LOG = LogManager.GetLogger(typeof(DialPadScreen));
         private DialpadViewModel _viewModel;
         public event EventHandler<KeyPadEventArgs> KeypadPressed;
-
+        private bool plusButtonHold;
+        private System.Windows.Forms.Timer timerHold;
         #endregion
 
         public DialPadScreen()
         {
             InitializeComponent();
+            timerHold = new System.Windows.Forms.Timer()
+            {
+                Interval = 300
+            };
+
+            timerHold.Tick += TimerHoldOnTick;
         }
 
         public void SetViewModel(DialpadViewModel viewModel)
@@ -42,71 +49,65 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
             if (Equals(e.OriginalSource, buttonKeyPad0))
             {
+                if (plusButtonHold)
+                {
+                    plusButtonHold = false;
+                    return;
+                }
+
                 key = DialpadKey.DialpadKey_Key0;
-                _viewModel.RemotePartyNumber += "0";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad1))
             {
                 key = DialpadKey.DialpadKey_Key1;
-                _viewModel.RemotePartyNumber += "1";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad2))
             {
                 key = DialpadKey.DialpadKey_Key2;
-                _viewModel.RemotePartyNumber += "2";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad3))
             {
                 key = DialpadKey.DialpadKey_Key3;
-                _viewModel.RemotePartyNumber += "3";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad4))
             {
                 key = DialpadKey.DialpadKey_Key4;
-                _viewModel.RemotePartyNumber += "4";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad5))
             {
                 key = DialpadKey.DialpadKey_Key5;
-                _viewModel.RemotePartyNumber += "5";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad6))
             {
                 key = DialpadKey.DialpadKey_Key6;
-                _viewModel.RemotePartyNumber += "6";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad7))
             {
                 key = DialpadKey.DialpadKey_Key7;
-                _viewModel.RemotePartyNumber += "7";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad8))
             {
                 key = DialpadKey.DialpadKey_Key8;
-                _viewModel.RemotePartyNumber += "8";
             }
             else if (Equals(e.OriginalSource, buttonKeyPad9))
             {
                 key = DialpadKey.DialpadKey_Key9;
-                _viewModel.RemotePartyNumber += "9";
             }
             else if (Equals(e.OriginalSource, buttonKeyPadStar))
             {
                 key = DialpadKey.DialpadKey_KeyStar;
-                _viewModel.RemotePartyNumber += "*";
             }
             else if (Equals(e.OriginalSource, buttonKeyPadSharp))
             {
                 key = DialpadKey.DialpadKey_KeyPound;
-                _viewModel.RemotePartyNumber += "#";
             }
 
             if (key != DialpadKey.DialpadKey_KeyNone)
             {
+                _viewModel.RemotePartyNumber += Convert.ToChar(key);
                 if (KeypadPressed != null)
                 {
                     var args = new KeyPadEventArgs(key);
-
                     KeypadPressed(this, args);
                 }
             }
@@ -158,6 +159,25 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 _viewModel.RemotePartyNumber = _viewModel.RemotePartyNumber.Substring(0,
                     _viewModel.RemotePartyNumber.Length - 1);
             }
+        }
+
+        private void OnPlusPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (timerHold != null)
+                timerHold.Enabled = false;
+        }
+
+        private void TimerHoldOnTick(object sender, EventArgs e)
+        {
+            timerHold.Stop();
+            _viewModel.RemotePartyNumber += "+";
+            plusButtonHold = true;
+        }
+
+        private void OnPlusPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (timerHold != null)
+                timerHold.Enabled = true;
         }
     }
         

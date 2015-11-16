@@ -10,6 +10,7 @@
              mc:Ignorable="d" 
     d:DataContext="{d:DesignData Source=../SampleData/MessageViewSampleData.xaml}"
              d:DesignWidth="400" d:DesignHeight="500"
+    Width="300"
              Loaded="OnLoaded"
              Unloaded="OnUnloaded" 
              >
@@ -31,7 +32,8 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Border Grid.Row ="0" Background="{StaticResource AppMainWindowBrush}" BorderBrush="{StaticResource AppMainBorderBrush}" 
+        <Border Grid.Row ="0" Background="{DynamicResource AppMainWindowBrush}" 
+                BorderBrush="{DynamicResource AppMainBorderBrush}" 
 		   BorderThickness="0,0,0,1">
             <ListBox x:Name ="MessageListView" Style="{StaticResource MessagesListBox}" 
 				ItemsSource= "{Binding MessagesListView}" Margin="0" 
@@ -169,8 +171,8 @@
 									BorderThickness="0" Click="OnSendButtonClicked">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal" >
-                        <TextBlock Text="Send" Foreground="White" FontSize="24" HorizontalAlignment="Center"/>
-                        <Rectangle Margin="10,0" Width="40" Height="40" Fill="{StaticResource AppMainBorderBrush}">
+                        <TextBlock Text="Send" Foreground="White" FontSize="26" HorizontalAlignment="Center"/>
+                        <Rectangle Margin="10,0" Width="32" Height="33" Fill="{StaticResource AppMainBorderBrush}">
                             <Rectangle.OpacityMask>
                                 <ImageBrush ImageSource="/ACE;component/Resources/send_message.png"/>
                             </Rectangle.OpacityMask>

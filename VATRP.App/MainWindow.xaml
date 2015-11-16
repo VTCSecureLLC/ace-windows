@@ -15,6 +15,7 @@
 				   Loaded="OnLoaded"
 				   StateChanged="Window_StateChanged" 
 				   LocationChanged="Window_LocationChanged" 
+                   MinHeight="700"
 				   Unloaded="Window_Unloaded" Icon="Resources/vatrp.ico"
 				   Background="White"
 				   >
@@ -122,9 +123,14 @@
 			<Border x:Name="ContactsPaneHolder" Grid.Row="1" Visibility="{Binding IsContactDocked, Converter={StaticResource bvc}}">
 				
 			</Border>
-            <Border x:Name="HistoryPaneHolder" Grid.Row="1"  Visibility="{Binding IsCallHistoryDocked, Converter={StaticResource bvc}}" Height="Auto" Background="Tomato">
-                <customControls:CallLogCtrl x:Name="ctrlHistory" MaxHeight="{Binding HistoryPaneHeight}" Margin="0"/>
+            <Border x:Name="HistoryPaneHolder" Grid.Row="1"  Visibility="{Binding IsCallHistoryDocked, Converter={StaticResource bvc}}" 
+                    VerticalAlignment="Stretch" >
+                <customControls:CallLogCtrl x:Name="ctrlHistory"  Margin="0" VerticalAlignment="Stretch"/>
 			</Border>
+            <Border x:Name="SettingsPaneHolder" Grid.Row="1"  Visibility="{Binding IsSettingsDocked, Converter={StaticResource bvc}}" 
+                    VerticalAlignment="Stretch" >
+                <customControls:MainSettingsCtrl x:Name="ctrlSettings"  Margin="0" VerticalAlignment="Stretch"/>
+            </Border>
 
             <Grid x:Name="DialpadHolder" Grid.Row="2" Grid.Column="0" Background="{StaticResource AppMainWindowBrush}"
 		Visibility="{Binding IsDialpadDocked, Converter={StaticResource bvc}}" Height="Auto">
@@ -135,41 +141,63 @@
         <!--Navigation panel-->
 		<Grid x:Name="NavPanel" Margin="0" Grid.Row="3" Grid.Column="0" Visibility="{Binding IsAccountLogged, Converter={StaticResource bvc}}" Height="50" Background="{StaticResource AppMainWindowBrush}">
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="60" />
+				<ColumnDefinition Width="60" />
+				<ColumnDefinition Width="60" />
+				<ColumnDefinition Width="60" />
+				<ColumnDefinition Width="60" />
 			</Grid.ColumnDefinitions>
-			<ToggleButton x:Name="BtnRecents" Grid.Column="0" 
-						  Click="btnRecents_Click" Width="52" Height="50" 
-						  HorizontalAlignment="Center" VerticalAlignment="Center">
+            <ToggleButton x:Name="BtnRecents" Grid.Column="0" IsChecked="{Binding IsCallHistoryDocked}"
+						  Click="btnRecents_Click" Height="60" Width="60" 
+						  HorizontalAlignment="Stretch" VerticalAlignment="Center">
 				<ToggleButton.Resources>
 					<Grid x:Key="RecentsHover" >
-						<Rectangle Fill="{StaticResource NavigationBarPressedButtonBg}" Opacity="0.7"/>
-						<Rectangle Width="25" Height="25" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{StaticResource NavigationBarPressedButtonFont}" Opacity="0.7">
-							<Rectangle.OpacityMask>
-								<ImageBrush ImageSource="Resources\recents.png" />
-							</Rectangle.OpacityMask>
-						</Rectangle>
-					</Grid>
-					<Grid x:Key="RecentsPressed">
-						<Rectangle Fill="{StaticResource NavigationBarPressedButtonBg}"/>
-						<Rectangle Width="25" Height="25" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{StaticResource NavigationBarPressedButtonFont}">
-							<Rectangle.OpacityMask>
-								<ImageBrush ImageSource="Resources\recents.png" />
-							</Rectangle.OpacityMask>
-						</Rectangle>
-					</Grid>
-					<Grid x:Key="RecentsNormal">
-						<Rectangle  Fill="{StaticResource NavigationBarNormalButtonBg}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Rectangle  Fill="{StaticResource NavigationBarPressedButtonBg}" Grid.Row="0" Grid.RowSpan="2">
+
+                        </Rectangle>
+                        <Rectangle Width="28" Height="28" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="Resources\recents.png" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock HorizontalAlignment="Center" Text="Call History" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+                    </Grid>
+                    <Grid x:Key="RecentsPressed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Rectangle  Fill="{StaticResource NavigationBarPressedButtonBg}" Grid.Row="0" Grid.RowSpan="2">
+
+                        </Rectangle>
+                        <Rectangle Width="28" Height="28" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="Resources\recents.png" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock HorizontalAlignment="Center" Text="Call History" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+                    </Grid>
+                    <Grid x:Key="RecentsNormal">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+						<Rectangle  Fill="{StaticResource NavigationBarNormalButtonBg}" Grid.Row="0" Grid.RowSpan="2">
 
 						</Rectangle>
-						<Rectangle Width="25" Height="25" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Center">
+                        <Rectangle Width="28" Height="28" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
 							<Rectangle.OpacityMask>
 								<ImageBrush ImageSource="Resources\recents.png" />
 							</Rectangle.OpacityMask>
 						</Rectangle>
+                        <TextBlock HorizontalAlignment="Center" Text="Call History" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarNormalButtonFont}"></TextBlock>
 					</Grid>
 				</ToggleButton.Resources>
 				<ToggleButton.Style>
@@ -215,32 +243,59 @@
 					</Style>
 				</ToggleButton.Style>
 			</ToggleButton>
-			<ToggleButton x:Name="BtnContacts" Grid.Column="1" Click="btnContacts_Click" Width="52" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+            <ToggleButton x:Name="BtnContacts" Grid.Column="1" Click="btnContacts_Click" Height="60" Width="60" HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding IsContactDocked}">
 				<ToggleButton.Resources>
 					<Grid x:Key="ContactsHover" >
-						<Rectangle Fill="{StaticResource NavigationBarPressedButtonBg}" Opacity="0.7"/>
-						<Rectangle Width="24" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{StaticResource NavigationBarPressedButtonFont}" Opacity="0.7">
-							<Rectangle.OpacityMask>
-								<ImageBrush ImageSource="Resources\Contacts.png" />
-							</Rectangle.OpacityMask>
-						</Rectangle>
-					</Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Rectangle  Fill="{StaticResource NavigationBarPressedButtonBg}" Grid.Row="0" Grid.RowSpan="2">
+
+                        </Rectangle>
+                        <Rectangle Width="24" Height="28" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="Resources\contacts.png" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock Text="Phonebook" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+                    </Grid>
 					<Grid x:Key="ContactsPressed">
-						<Rectangle Fill="{StaticResource NavigationBarPressedButtonBg}"/>
-						<Rectangle Width="24" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{StaticResource NavigationBarPressedButtonFont}">
-							<Rectangle.OpacityMask>
-								<ImageBrush ImageSource="Resources\Contacts.png" />
-							</Rectangle.OpacityMask>
-						</Rectangle>
-					</Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Rectangle  Fill="{StaticResource NavigationBarPressedButtonBg}" Grid.Row="0" Grid.RowSpan="2">
+
+                        </Rectangle>
+                        <Rectangle Width="24" Height="28" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="Resources\contacts.png" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock Text="Phonebook" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+
+                    </Grid>
 					<Grid x:Key="ContactsNormal">
-						<Rectangle  Fill="{StaticResource NavigationBarNormalButtonBg}"/>
-						<Rectangle Width="24" Height="28" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Center">
-							<Rectangle.OpacityMask>
-								<ImageBrush ImageSource="Resources\Contacts.png" />
-							</Rectangle.OpacityMask>
-						</Rectangle>
-					</Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Rectangle  Fill="{StaticResource NavigationBarNormalButtonBg}" Grid.Row="0" Grid.RowSpan="2">
+
+                        </Rectangle>
+                        <Rectangle Width="24" Height="28" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="Resources\contacts.png" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock Text="Phonebook" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+
+                    </Grid>
 				</ToggleButton.Resources>
 				<ToggleButton.Style>
 					<Style TargetType="{x:Type ToggleButton}">
@@ -285,32 +340,58 @@
 					</Style>
 				</ToggleButton.Style>
 			</ToggleButton>
-			<ToggleButton x:Name="BtnDialpad" Grid.Column="2" Click="btnDialpad_Click" Width="52" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center">
+            
+            <ToggleButton x:Name="BtnDialpad" Grid.Column="2" Click="btnDialpad_Click" Height="60" Width="60" HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding IsDialpadDocked}">
 				<ToggleButton.Resources>
 					<Grid x:Key="DialpadHover" >
-						<Rectangle  Fill="{StaticResource NavigationBarPressedButtonBg}" Opacity="0.7"/>
-						<Rectangle Width="26" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{StaticResource NavigationBarPressedButtonFont}" Opacity="0.7">
-							<Rectangle.OpacityMask>
-								<ImageBrush ImageSource="Resources\Dialpad.png" />
-							</Rectangle.OpacityMask>
-						</Rectangle>
-					</Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Rectangle  Fill="{StaticResource NavigationBarPressedButtonBg}" Grid.Row="0" Grid.RowSpan="2">
+
+                        </Rectangle>
+                        <Rectangle Width="28" Height="28" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="Resources\Dialpad.png" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock Text="Dialpad" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+                    </Grid>
 					<Grid x:Key="DialpadPressed">
-						<Rectangle  Fill="{StaticResource NavigationBarPressedButtonBg}"/>
-						<Rectangle Width="26" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{StaticResource NavigationBarPressedButtonFont}">
-							<Rectangle.OpacityMask>
-								<ImageBrush ImageSource="Resources\Dialpad.png" />
-							</Rectangle.OpacityMask>
-						</Rectangle>
-					</Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Rectangle  Fill="{StaticResource NavigationBarPressedButtonBg}" Grid.Row="0" Grid.RowSpan="2">
+
+                        </Rectangle>
+                        <Rectangle Width="28" Height="28" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="Resources\Dialpad.png" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock Text="Dialpad" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+
+                    </Grid>
 					<Grid x:Key="DialpadNormal">
-						<Rectangle  Fill="{StaticResource NavigationBarNormalButtonBg}"/>
-						<Rectangle Width="26" Height="24" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Center">
-							<Rectangle.OpacityMask>
-								<ImageBrush ImageSource="Resources\Dialpad.png" />
-							</Rectangle.OpacityMask>
-						</Rectangle>
-					</Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Rectangle  Fill="{StaticResource NavigationBarNormalButtonBg}" Grid.Row="0" Grid.RowSpan="2">
+
+                        </Rectangle>
+                        <Rectangle Width="28" Height="28" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="Resources\Dialpad.png" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock Text="Dialpad" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+                    </Grid>
 				</ToggleButton.Resources>
 
 				<ToggleButton.Style>
@@ -357,34 +438,58 @@
 				</ToggleButton.Style>
 
 			</ToggleButton>
-			<ToggleButton x:Name="BtnMessageView" Grid.Column="3" Click="btnShowMessages" Width="60" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center">
+			<ToggleButton x:Name="BtnResourcesView" Grid.Column="3" Click="btnShowResources" Height="60" Width="60" HorizontalAlignment="Center" VerticalAlignment="Center">
 				<ToggleButton.Resources>
-					<Grid x:Key="SelfViewHover" >
-						<Rectangle Fill="{StaticResource NavigationBarPressedButtonBg}" Opacity="0.7"/>
-						<Rectangle Width="32" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{StaticResource NavigationBarPressedButtonFont}" Opacity="0.7">
-							<Rectangle.OpacityMask>
-								<ImageBrush ImageSource="Resources\messages.png" />
-							</Rectangle.OpacityMask>
-						</Rectangle>
-					</Grid>
-					<Grid x:Key="SelfViewPressed">
-						<Rectangle Fill="{StaticResource NavigationBarPressedButtonBg}"/>
-						<Rectangle Width="32" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{StaticResource NavigationBarPressedButtonFont}">
-							<Rectangle.OpacityMask>
-								<ImageBrush ImageSource="Resources\messages.png" />
-							</Rectangle.OpacityMask>
-						</Rectangle>
-					</Grid>
-					<Grid x:Key="SelfViewNormal">
-						<Rectangle  Fill="{StaticResource NavigationBarNormalButtonBg}">
+					<Grid x:Key="ResourcesViewHover" >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-						</Rectangle>
-						<Rectangle Width="32" Height="24" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Center">
-							<Rectangle.OpacityMask>
-								<ImageBrush ImageSource="Resources\messages.png" />
-							</Rectangle.OpacityMask>
-						</Rectangle>
-					</Grid>
+                        <Rectangle  Fill="{StaticResource NavigationBarPressedButtonBg}" Grid.Row="0" Grid.RowSpan="2">
+
+                        </Rectangle>
+                        <Rectangle Width="32" Height="30" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="Resources\rtt.png" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock Text="Resources" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+
+                    </Grid>
+					<Grid x:Key="ResourcesViewPressed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Rectangle  Fill="{StaticResource NavigationBarPressedButtonBg}" Grid.Row="0" Grid.RowSpan="2">
+
+                        </Rectangle>
+                        <Rectangle Width="32" Height="30" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="Resources\rtt.png" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock Text="Resources" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+                    </Grid>
+					<Grid x:Key="ResourcesViewNormal">
+						<Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Rectangle  Fill="{StaticResource NavigationBarNormalButtonBg}" Grid.Row="0" Grid.RowSpan="2">
+
+                        </Rectangle>
+                        <Rectangle Width="32" Height="30" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="Resources\rtt.png" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock Text="Resources" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+
+                    </Grid>
 				</ToggleButton.Resources>
 
 				<ToggleButton.Style>
@@ -396,7 +501,7 @@
 						<Setter Property="SnapsToDevicePixels" Value="True"/>
 						<Setter Property="VerticalAlignment" Value="Center"/>
 						<Setter Property="HorizontalAlignment" Value="Center"/>
-						<Setter Property="Content" Value="{StaticResource SelfViewNormal}" />
+                        <Setter Property="Content" Value="{StaticResource ResourcesViewNormal}" />
 						<Setter Property="Template">
 							<Setter.Value>
 								<ControlTemplate TargetType="{x:Type ToggleButton}">
@@ -411,10 +516,10 @@
 						</Setter>
 						<Style.Triggers>
 							<Trigger Property="IsMouseOver" Value="True">
-								<Setter Property="Content" Value="{StaticResource SelfViewHover}" />
+								<Setter Property="Content" Value="{StaticResource ResourcesViewHover}" />
 							</Trigger>
 							<Trigger Property="IsChecked" Value="True">
-								<Setter Property="Content" Value="{StaticResource SelfViewPressed}" />
+								<Setter Property="Content" Value="{StaticResource ResourcesViewPressed}" />
 							</Trigger>
 
 							<MultiDataTrigger>
@@ -424,41 +529,60 @@
 								</MultiDataTrigger.Conditions>
 
 								<Setter Property="Opacity" Value="0.7"/>
-								<Setter Property="Content" Value="{StaticResource SelfViewPressed}"/>
+								<Setter Property="Content" Value="{StaticResource ResourcesViewPressed}"/>
 							</MultiDataTrigger>
 						</Style.Triggers>
 					</Style>
 				</ToggleButton.Style>
-
 			</ToggleButton>
-			<ToggleButton x:Name="BtnSettings" Grid.Column="4" Click="btnSettings_Click" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center">
+            
+			<ToggleButton x:Name="BtnSettings" Grid.Column="4" Click="btnSettings_Click" Height="60" Width="60" HorizontalAlignment="Center" VerticalAlignment="Center">
 				<ToggleButton.Resources>
 					<Grid x:Key="SettingsHover" >
-						<Rectangle  Fill="{StaticResource NavigationBarPressedButtonBg}" Opacity="0.7"/>
-						<Rectangle Width="26" Height="26" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{StaticResource NavigationBarPressedButtonFont}" Opacity="0.7">
-							<Rectangle.OpacityMask>
-								<ImageBrush ImageSource="Resources\settings.png" />
-							</Rectangle.OpacityMask>
-						</Rectangle>
-					</Grid>
-					<Grid x:Key="SettingsPressed">
-						<Rectangle  Fill="{StaticResource NavigationBarPressedButtonBg}"/>
-						<Rectangle Width="26" Height="26" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="{StaticResource NavigationBarPressedButtonFont}">
-							<Rectangle.OpacityMask>
-								<ImageBrush ImageSource="Resources\settings.png" />
-							</Rectangle.OpacityMask>
-						</Rectangle>
-					</Grid>
-					<Grid x:Key="SettingsNormal">
-						<Rectangle  Fill="{StaticResource NavigationBarNormalButtonBg}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-						</Rectangle>
-						<Rectangle Width="26" Height="26" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Center">
-							<Rectangle.OpacityMask>
-								<ImageBrush ImageSource="Resources\settings.png" />
-							</Rectangle.OpacityMask>
-						</Rectangle>
-					</Grid>
+                        <Rectangle  Fill="{StaticResource NavigationBarPressedButtonBg}" Grid.Row="0" Grid.RowSpan="2"/>
+                        <Rectangle Width="28" Height="28" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="Resources\settings.png" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock Text="Settings" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+                    </Grid>
+					<Grid x:Key="SettingsPressed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Rectangle  Fill="{StaticResource NavigationBarPressedButtonBg}" Grid.Row="0" Grid.RowSpan="2"/>
+                        <Rectangle Width="28" Height="28" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="Resources\settings.png" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock Text="Settings" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+                    </Grid>
+					<Grid x:Key="SettingsNormal">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Rectangle  Fill="{StaticResource NavigationBarNormalButtonBg}" Grid.Row="0" Grid.RowSpan="2">
+
+                        </Rectangle>
+                        <Rectangle Width="28" Height="28" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="Resources\settings.png" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock Text="Settings" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+
+                    </Grid>
 				</ToggleButton.Resources>
 
 				<ToggleButton.Style>
@@ -507,12 +631,17 @@
 
 		</Grid>
 
-        <Border Grid.Column="1" Grid.Row="0" Grid.RowSpan="5" BorderThickness="1,0,1,0" Margin="0" BorderBrush="{StaticResource AppMainBorderBrush}" Background="{StaticResource AppMainBorderBrush}" Visibility="{Binding IsCallPanelDocked, Converter={StaticResource bvc}}">
-        <DockPanel Dock="Top"  Background="{StaticResource AppMainWindowBrush}" ></DockPanel>
+        <Border Grid.Column="1" Grid.Row="0" Grid.RowSpan="4" BorderThickness="1,0,1,0" Margin="0" BorderBrush="{StaticResource AppMainBorderBrush}" 
+                Background="{StaticResource AppMainBorderBrush}" 
+                MinWidth="700" MaxWidth="700" 
+                Visibility="{Binding IsCallPanelDocked, Converter={StaticResource bvc}}">
+        <DockPanel Dock="Top"  Background="{DynamicResource AppMainWindowBrush}" >
+                <customControls:CallViewCtrl x:Name="ctrlCall" Margin="0"/>
+            </DockPanel>
         </Border>
-        <Border Grid.Column="2" Grid.Row="0" Grid.RowSpan="5" BorderThickness="1,0,1,0" Margin="0" BorderBrush="{StaticResource AppMainBorderBrush}" Background="{StaticResource AppMainBorderBrush}" Visibility="{Binding IsMessagingDocked, Converter={StaticResource bvc}}">
-        <DockPanel Dock="Top" Background="{StaticResource AppMainWindowBrush}" >
-            <customControls:RTTCtrl x:Name="ctrlRTT" Height="Auto" Width="300" Margin="0"/>
+        <Border Grid.Column="2" Grid.Row="0" Grid.RowSpan="4" BorderThickness="1,0,1,0" Margin="0" BorderBrush="{StaticResource AppMainBorderBrush}" Background="{StaticResource AppMainBorderBrush}" Visibility="{Binding IsMessagingDocked, Converter={StaticResource bvc}}">
+            <DockPanel Dock="Top" Background="{DynamicResource AppMainWindowBrush}" >
+            <customControls:RTTCtrl x:Name="ctrlRTT" Margin="0"/>
         </DockPanel>
             </Border>
 
