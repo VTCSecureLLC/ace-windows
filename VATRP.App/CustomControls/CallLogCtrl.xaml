@@ -8,7 +8,8 @@
              x:Class="com.vtcsecure.ace.windows.CustomControls.CallLogCtrl"
              mc:Ignorable="d" 
     d:DataContext="{d:DesignData Source=../SampleData/CallHistoryViewSampleData.xaml}"
-             d:DesignWidth="400" d:DesignHeight="500"
+             d:DesignWidth="300" d:DesignHeight="500"
+               MaxWidth="300"
              Loaded="OnLoaded"
              Unloaded="OnUnloaded" 
              >
@@ -18,7 +19,7 @@
     <Grid>
         <ListBox x:Name ="ContactsList" BorderThickness="0" SelectedItem="{Binding SelectedCallEvent}"
                              ItemsSource= "{Binding CallsListView}" Margin="0" 
-                             SelectionChanged="OnEventSelected" Background="#FFE9EFE9" 
+                             SelectionChanged="OnEventSelected" Background="{DynamicResource RecentsPageMainBg}" 
                              HorizontalContentAlignment="Stretch" IsSynchronizedWithCurrentItem="True">
             <ListBox.ItemTemplate>
                 <DataTemplate>
@@ -26,7 +27,6 @@
                             <Grid.ColumnDefinitions >
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="60"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -34,7 +34,7 @@
                             </Grid.RowDefinitions>
                             <!--<Border Grid.Column="0" Grid.Row="0" Width="70" Height="70" Grid.RowSpan="2"
 										Margin="5,0" VerticalAlignment="Top" CornerRadius="35" BorderThickness="3" BorderBrush="{StaticResource RecentsPageCallerFont}">-->
-                        <Image Source="{Binding Avatar}" Width="70" Height="70" Grid.RowSpan="2" Margin="5,0"/>
+                        <Image Source="{Binding Avatar}" Width="53" Height="53" Grid.RowSpan="2" Margin="5,3"/>
                             <!--</Border>-->
 
                             <TextBlock  Grid.Row="0" Grid.Column="1" Text="{Binding DisplayName}" Margin="15,0, 0, 3" VerticalAlignment="Bottom" 

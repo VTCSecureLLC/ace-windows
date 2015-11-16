@@ -9,7 +9,11 @@
     Duration="0"
     DisplayName="Test caller"
     CallState="Connected"
-    ShowInfo="False"
+    ShowInfo="True"
     AutoAnswer="20"
+    ShowIncomingCallPanel="True"
+    RemotePartyTextSize="30"
+    DisplayNameSize="35"
+    InfoTextSize="25"
     >
 </viewModel:CallViewModel>

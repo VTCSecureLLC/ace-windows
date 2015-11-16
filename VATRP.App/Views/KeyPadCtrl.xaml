@@ -53,31 +53,31 @@
         <Grid Grid.Row="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="7"/>
+                <RowDefinition Height="1"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="7"/>
+                <RowDefinition Height="1"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="7"/>
+                <RowDefinition Height="1"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="7"/>
+                <ColumnDefinition Width="1"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="7"/>
+                <ColumnDefinition Width="1"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <!--Row-1: 1, 2, 3-->
             <Button  Grid.Column="0"  x:Name="buttonKeyPad1" Style="{StaticResource KeypadButtonStyle}" Grid.Row="0"  Click="buttonKeyPad_Click" Tag="1">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Margin="0,0,0,0" FontSize="24" >
+                    <TextBlock Margin="0,0,0,0" FontSize="28" >
 								<Run Text="1"/>
                     </TextBlock>
                 </StackPanel>
             </Button>
             <Button x:Name="buttonKeyPad2" Style="{StaticResource KeypadButtonStyle}" Grid.Row="0" Grid.Column="2" Click="buttonKeyPad_Click" Tag="2">
                 <StackPanel Orientation="Vertical">
-                    <TextBlock Margin="0,0,0,0" FontSize="24"  >
+                    <TextBlock Margin="0,0,0,0" FontSize="28"  >
 								<Run Text="2"/>
                     </TextBlock>
 
@@ -85,7 +85,7 @@
             </Button>
             <Button x:Name="buttonKeyPad3" Style="{StaticResource KeypadButtonStyle}" Grid.Row="0" Grid.Column="4" Click="buttonKeyPad_Click" Tag="3">
                 <StackPanel Orientation="Vertical" >
-                    <TextBlock Margin="0,0,0,0" FontSize="24" >
+                    <TextBlock Margin="0,0,0,0" FontSize="28" >
 								<Run Text="3"/>
                     </TextBlock>
 
@@ -95,7 +95,7 @@
             <!--Row-2: 4, 5, 6-->
             <Button x:Name="buttonKeyPad4" Style="{StaticResource KeypadButtonStyle}" Grid.Row="2" Click="buttonKeyPad_Click" Tag="4">
                 <StackPanel Orientation="Vertical" >
-                    <TextBlock Margin="0,0,0,0"  FontSize="24" >
+                    <TextBlock Margin="0,0,0,0"  FontSize="28" >
 								<Run Text="4"/>
                     </TextBlock>
 
@@ -103,7 +103,7 @@
             </Button>
             <Button x:Name="buttonKeyPad5" Style="{StaticResource KeypadButtonStyle}" Grid.Row="2" Grid.Column="2" Click="buttonKeyPad_Click" Tag="5">
                 <StackPanel Orientation="Vertical" >
-                    <TextBlock Margin="0,0,0,0" FontSize="24" >
+                    <TextBlock Margin="0,0,0,0" FontSize="28" >
 								<Run Text="5"/>
                     </TextBlock>
 
@@ -111,7 +111,7 @@
             </Button>
             <Button x:Name="buttonKeyPad6" Style="{StaticResource KeypadButtonStyle}" Grid.Row="2" Grid.Column="4" Click="buttonKeyPad_Click" Tag="6">
                 <StackPanel Orientation="Vertical" >
-                    <TextBlock Margin="0,0,0,0" FontSize="24">
+                    <TextBlock Margin="0,0,0,0" FontSize="28">
 								<Run Text="6"/>
                     </TextBlock>
 
@@ -120,7 +120,7 @@
             <!--Row-3: 7, 8, 9-->
             <Button Grid.Column="0"  x:Name="buttonKeyPad7" Style="{StaticResource KeypadButtonStyle}"  Grid.Row="4" Click="buttonKeyPad_Click" Tag="7">
                 <StackPanel Orientation="Vertical" >
-                    <TextBlock Margin="0,0,0,0" FontSize="24">
+                    <TextBlock Margin="0,0,0,0" FontSize="28">
 								<Run Text="7"/>
                     </TextBlock>
 
@@ -128,7 +128,7 @@
             </Button>
             <Button x:Name="buttonKeyPad8" Style="{StaticResource KeypadButtonStyle}" Grid.Row="4" Grid.Column="2" Click="buttonKeyPad_Click" Tag="8">
                 <StackPanel Orientation="Vertical" >
-                    <TextBlock Margin="0,0,0,0" FontSize="24" >
+                    <TextBlock Margin="0,0,0,0" FontSize="28" >
 								<Run Text="8"/>
                     </TextBlock>
 
@@ -136,7 +136,7 @@
             </Button>
             <Button x:Name="buttonKeyPad9" Style="{StaticResource KeypadButtonStyle}" Grid.Row="4" Grid.Column="4" Click="buttonKeyPad_Click" Tag="9">
                 <StackPanel Orientation="Vertical" >
-                    <TextBlock Margin="0,0,0,0" FontSize="24">
+                    <TextBlock Margin="0,0,0,0" FontSize="28">
 								<Run Text="9"/>
                     </TextBlock>
 
@@ -145,14 +145,14 @@
             <!--Row-4: *, 0, #-->
             <Button x:Name="buttonKeyPadStar" Grid.Column ="0"  Style="{StaticResource KeypadButtonStyle}"  Grid.Row="6" Click="buttonKeyPad_Click" Tag="*">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock Margin="0,0,0,0" FontSize="24" >
+                    <TextBlock Margin="0,0,0,0" FontSize="28" >
 								<Run Text="*"/>
                     </TextBlock>
                 </StackPanel>
             </Button>
             <Button x:Name="buttonKeyPad0" Style="{StaticResource KeypadButtonStyle}" Grid.Row="6" Grid.Column="2" Click="buttonKeyPad_Click" Tag="0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock x:Name="textBlockKeyPad0" Margin="0,0,0,0" FontSize="24" >
+                    <TextBlock x:Name="textBlockKeyPad0" Margin="0,0,0,0" FontSize="28" >
 								<Run Text="0"/>
                     </TextBlock>
 
@@ -160,7 +160,7 @@
             </Button>
             <Button x:Name="buttonKeyPadPound" Style="{StaticResource KeypadButtonStyle}" Grid.Row="6" Grid.Column="4" Click="buttonKeyPad_Click" Tag="#">
                 <StackPanel Orientation="vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock Margin="0" FontSize="24">
+                    <TextBlock Margin="0" FontSize="28">
 								<Run Text="#"/>
                     </TextBlock>
                 </StackPanel>

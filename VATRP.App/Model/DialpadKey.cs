@@ -14,6 +14,7 @@
         DialpadKey_Key8= '8',
         DialpadKey_Key9= '9',
         DialpadKey_KeyStar= '*', 
-        DialpadKey_KeyPound = '#'
+        DialpadKey_KeyPound = '#',
+        DialpadKey_Plus = '+'
     }
 }

@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using com.vtcsecure.ace.windows.CustomControls;
 using com.vtcsecure.ace.windows.Model;
+using com.vtcsecure.ace.windows.ViewModel;
 
 namespace com.vtcsecure.ace.windows.Views
 {
@@ -20,11 +21,10 @@ namespace com.vtcsecure.ace.windows.Views
     /// </summary>
     public partial class SettingsView
     {
-        public bool SipSettingsChanged { get; private set; }
-        public bool NetworkSettingsChanged { get; private set; }
-        public bool CodecSettingsChanged { get; private set; }
-        public bool CallSettingsChanged { get; private set; }
-        public bool MediaSettingsChanged { get; private set; }
+        #region Members
+
+        private SettingsViewModel _viewModel;
+        #endregion
 
         #region Event
         public delegate void SettingsSavedDelegate();
@@ -38,12 +38,13 @@ namespace com.vtcsecure.ace.windows.Views
         public SettingsView()
             : base(VATRPWindowType.SETTINGS_VIEW)
         {
-            SipSettingsChanged = false;
-            NetworkSettingsChanged = false;
-            CodecSettingsChanged = false;
-            CallSettingsChanged = false;
-            MediaSettingsChanged = false;
             InitializeComponent();
+        }
+
+        internal void SetSettingsModel(SettingsViewModel settingsViewModel)
+        {
+            _viewModel = settingsViewModel;
+            DataContext = _viewModel;
         }
 
         private void OnSave(object sender, RoutedEventArgs e)
@@ -55,7 +56,7 @@ namespace com.vtcsecure.ace.windows.Views
                     SettingsTab.SelectedIndex = 0;
                     return;
                 }
-                SipSettingsChanged = true;
+                _viewModel.SipSettingsChanged = true;
             }
 
             if (NetworkSettingsPage != null && NetworkSettingsPage.IsChanged())
@@ -65,7 +66,7 @@ namespace com.vtcsecure.ace.windows.Views
                     SettingsTab.SelectedIndex = 1;
                     return;
                 }
-                NetworkSettingsChanged = true;
+                _viewModel.NetworkSettingsChanged = true;
             }
 
             if (CodecSettingsPage != null && CodecSettingsPage.IsChanged())
@@ -75,7 +76,7 @@ namespace com.vtcsecure.ace.windows.Views
                     SettingsTab.SelectedIndex = 2;
                     return;
                 }
-                CodecSettingsChanged = true;
+                _viewModel.CodecSettingsChanged = true;
             }
 
             if (CallSettingsPage != null && CallSettingsPage.IsChanged())
@@ -85,7 +86,7 @@ namespace com.vtcsecure.ace.windows.Views
                     SettingsTab.SelectedIndex = 4;
                     return;
                 }
-                CallSettingsChanged = true;
+                _viewModel.CallSettingsChanged = true;
             }
 
             if (MultimediaSettingsPage != null && MultimediaSettingsPage.IsChanged())
@@ -95,17 +96,13 @@ namespace com.vtcsecure.ace.windows.Views
                     SettingsTab.SelectedIndex = 3;
                     return;
                 }
-                MediaSettingsChanged = true;
+                _viewModel.MediaSettingsChanged = true;
             }
             Close();
             if (SettingsSavedEvent != null)
             {
                 SettingsSavedEvent();
-                CodecSettingsChanged = false;
-                NetworkSettingsChanged = false;
-                SipSettingsChanged = false;
-                CallSettingsChanged = false;
-                MediaSettingsChanged = false;
+                _viewModel.Reset();
             }
         }
 
@@ -122,12 +119,9 @@ namespace com.vtcsecure.ace.windows.Views
             Close();
             if (ResetToDefaultEvent != null)
                 ResetToDefaultEvent();
+            _viewModel.Reset();
 
-            CodecSettingsChanged = false;
-            NetworkSettingsChanged = false;
-            SipSettingsChanged = false;
-            CallSettingsChanged = false;
-            MediaSettingsChanged = false;
         }
+
     }
 }

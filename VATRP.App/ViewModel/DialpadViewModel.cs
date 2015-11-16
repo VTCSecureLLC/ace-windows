@@ -28,16 +28,24 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             var providersList = ServiceManager.Instance.ProviderService.GetProviderList();
 
-                        var selectedprovider = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+            var selectedprovider = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.CURRENT_PROVIDER, "");
 
             foreach (var s in providersList)
             {
                 var providerModel = new ProviderViewModel {Label = s};
+                providerModel.LoadLogo();
                 Providers.Add(providerModel);
                 if (s == selectedprovider)
                     _selectedProvider = providerModel;
             }
+
+            if (_selectedProvider == null)
+                if (Providers != null && Providers.Count > 0)
+                {
+                    _selectedProvider = Providers[0];
+                }
+            
         }
 
         #region Properties
