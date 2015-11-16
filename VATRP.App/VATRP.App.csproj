@@ -84,6 +84,7 @@
       <HintPath>..\packages\Microsoft.Bcl.1.1.8\lib\net40\System.Threading.Tasks.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -95,6 +96,7 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -121,15 +123,24 @@
     <Compile Include="CustomControls\CallLogCtrl.xaml.cs">
       <DependentUpon>CallLogCtrl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\CallViewCtrl.xaml.cs">
+      <DependentUpon>CallViewCtrl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\RTTCtrl.xaml.cs">
       <DependentUpon>RTTCtrl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\LocalContactPanel.xaml.cs">
       <DependentUpon>LocalContactPanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\MainSettingsCtrl.xaml.cs">
+      <DependentUpon>MainSettingsCtrl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Enums\VATRPSettings.cs" />
+    <Compile Include="ViewModel\SettingsViewModel.cs" />
     <Compile Include="ViewModel\CallInfoViewModel.cs" />
     <Compile Include="ViewModel\AboutViewModel.cs" />
     <Compile Include="ViewModel\CallHistoryViewModel.cs" />
+    <Compile Include="ViewModel\VideoViewModel.cs" />
     <Compile Include="ViewModel\HistoryCallEventViewModel.cs" />
     <Compile Include="ViewModel\ProviderViewModel.cs" />
     <Compile Include="ViewModel\LocalContactViewModel.cs" />
@@ -221,6 +232,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="CustomControls\CallViewCtrl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="CustomControls\RTTCtrl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -238,6 +253,10 @@
     <DesignData Include="SampleData\LocalContactViewSampleData.xaml">
       <SubType>Designer</SubType>
     </DesignData>
+    <Page Include="CustomControls\MainSettingsCtrl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="SampleData\MainViewSampleData.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -386,6 +405,10 @@
     <Resource Include="Resources\incoming.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ManagedVideoContainer\ManagedVideoContainer.csproj">
+      <Project>{e543535a-5eda-4035-a26a-71b3892a5bf5}</Project>
+      <Name>ManagedVideoContainer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VATRP.Core\VATRP.Core.csproj">
       <Project>{a4b764ef-2558-4da9-9a43-0ffaa0e93d0b}</Project>
       <Name>VATRP.Core</Name>
@@ -431,6 +454,29 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\send_message.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\resources.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\zvrs.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\convovrs.png" />
+    <Resource Include="Resources\purpleVRS.png" />
+    <Resource Include="Resources\sorensonvrs.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\video_mail.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\mute_on.png" />
+    <Resource Include="Resources\numpad.png" />
+    <Resource Include="Resources\rtt.png" />
+    <Resource Include="Resources\speaker_off.png" />
+    <Resource Include="Resources\speaker_on.png" />
+    <Resource Include="Resources\video_off.png" />
+    <Resource Include="Resources\video_on.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

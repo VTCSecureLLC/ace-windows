@@ -48,17 +48,17 @@ namespace com.vtcsecure.ace.windows.Views
 
         private void ToggleInfoWindow(object sender, RoutedEventArgs e)
         {
-            CallManagerView.ToggleCallStatisticsInfo();
+            //CallManagerView.ToggleCallStatisticsInfo();
         }
 
         private void OnSwitchKeypad(object sender, RoutedEventArgs e)
         {
-           CallManagerView.ToggleKeypadView();
+         //  CallManagerView.ToggleKeypadView();
         }
 
         private void OnMute(object sender, RoutedEventArgs e)
         {
-            CallManagerView.MuteCall();
+           // CallManagerView.MuteCall();
         }
 
         public void ShowAnimated()
@@ -95,7 +95,7 @@ namespace com.vtcsecure.ace.windows.Views
             Debug.WriteLine("!!!!!!!!!!!!!!!! Visibility changed to " + (bShow ? "Visible" :"Hidden"));
             if (EndCallRequested && !bShow)
             {
-                CallManagerView.EndCall();
+             //   CallManagerView.EndCall();
             }
         }
     }

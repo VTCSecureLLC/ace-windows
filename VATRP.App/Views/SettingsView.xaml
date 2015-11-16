@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:customControls="clr-namespace:com.vtcsecure.ace.windows.CustomControls"
         xmlns:model="clr-namespace:com.vtcsecure.ace.windows.Model"
+        xmlns:converters="clr-namespace:com.vtcsecure.ace.windows.Converters"
         Title="Settings" Height="470" Width="400" 
                    WindowStartupLocation="Manual"
                    Activated="Window_Activated" 
@@ -12,40 +13,43 @@
                    SourceInitialized="Window_Initialized"
                    Loaded="OnLoaded" Icon="/ACE;component/Resources/settings.png"
                    >
+    <model:VATRPWindow.Resources>
+        <converters:BoolToVisibilityConverter x:Key="bvc"/>
+    </model:VATRPWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
         <TabControl x:Name="SettingsTab" HorizontalAlignment="Stretch" Margin="1" Grid.Row="0" VerticalAlignment="Stretch" >
-            <TabItem Header="Account" >
+            <TabItem Header="Account" Visibility="{Binding IsSipSettingsEnabled, Converter={StaticResource bvc}}">
                 <Grid Background="#FFE5E5E5">
                     <customControls:SipSettingsCtrl x:Name="SipSettingsPage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         
                     </customControls:SipSettingsCtrl>
                 </Grid>
             </TabItem>
-            <TabItem Header="Networking" >
+            <TabItem Header="Networking" Visibility="{Binding IsNetworkSettingsEnabled, Converter={StaticResource bvc}}">
                 <Grid Background="#FFE5E5E5">
                     <customControls:NetworkSettingsCtrl x:Name="NetworkSettingsPage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         
                     </customControls:NetworkSettingsCtrl>
                 </Grid>
             </TabItem>
-            <TabItem Header="Codecs" >
+            <TabItem Header="Codecs" Visibility="{Binding IsCodecSettingsEnabled, Converter={StaticResource bvc}}">
                 <Grid Background="#FFE5E5E5">
                     <customControls:CodecsSettingsCtrl x:Name="CodecSettingsPage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
                     </customControls:CodecsSettingsCtrl>
                 </Grid>
             </TabItem>
-            <TabItem Header="Multimedia" x:Name="MultimediaTabItem">
+            <TabItem Header="Multimedia" Visibility="{Binding IsMultimediaSettingsEnabled, Converter={StaticResource bvc}}">
                 <Grid Background="#FFE5E5E5">
                     <customControls:MultimediaSettingsCtrl x:Name="MultimediaSettingsPage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                 </Grid>
             </TabItem>
 
-            <TabItem Header="Testing" x:Name="TestingTabItem">
+            <TabItem Header="Testing" x:Name="TestingTabItem" Visibility="{Binding IsTestingSettingsEnabled, Converter={StaticResource bvc}}">
                 <Grid Background="#FFE5E5E5">
                     <customControls:CallSettingsCtrl x:Name="CallSettingsPage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 

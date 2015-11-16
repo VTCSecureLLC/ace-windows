@@ -25,13 +25,13 @@ namespace com.vtcsecure.ace.windows.Converters
                 {
                     case VATRPCallState.Closed:
                     case VATRPCallState.Error:
-                        break;
+                        return new SolidColorBrush(Color.FromArgb(255, 0x2B, 0x91, 0x2D));
                     default:
                         return new SolidColorBrush(Color.FromArgb(255, 255,0,0));
                 }
             }
 
-            return new SolidColorBrush(Color.FromArgb(255, 0x0d, 0x6e, 0x0f));
+            return new SolidColorBrush(Color.FromArgb(255, 0x2B, 0x91, 0x2D));
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

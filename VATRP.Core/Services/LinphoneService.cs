@@ -632,10 +632,10 @@ namespace VATRP.Core.Services
                     LOG.Error("Exception on terminate calls. " + ex.Message);
                 }
 
-                IntPtr hwndVideo = LinphoneAPI.linphone_core_get_native_video_window_id(linphoneCore);
+                //IntPtr hwndVideo = LinphoneAPI.linphone_core_get_native_video_window_id(linphoneCore);
 
-                if (Win32NativeAPI.IsWindow(hwndVideo))
-                    Win32NativeAPI.DestroyWindow(hwndVideo);
+                //if (Win32NativeAPI.IsWindow(hwndVideo))
+                //    Win32NativeAPI.DestroyWindow(hwndVideo);
 	        }
 	        return true;
 	    }
