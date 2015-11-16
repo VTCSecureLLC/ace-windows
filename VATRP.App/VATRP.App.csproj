@@ -434,12 +434,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /b "$(SolutionDir)thirdparties\liblinphone\*.dll" "$(TargetDir)"
-mkdir "$(TargetDir)\lib"
-mkdir "$(TargetDir)\lib\mediastreamer"
-mkdir "$(TargetDir)\lib\mediastreamer\plugins"
-move  "$(TargetDir)\openh264.dll" "$(TargetDir)\lib\mediastreamer\plugins"
-move  "$(TargetDir)\libmsopenh264.dll" "$(TargetDir)\lib\mediastreamer\plugins"</PostBuildEvent>
+    <PostBuildEvent>copy /b "$(SolutionDir)\output\bin\*.dll" "$(TargetDir)"
+</PostBuildEvent>
   </PropertyGroup>
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
