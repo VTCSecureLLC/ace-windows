@@ -454,7 +454,7 @@
                                 <ImageBrush ImageSource="Resources\rtt.png" />
                             </Rectangle.OpacityMask>
                         </Rectangle>
-                        <TextBlock Text="Resources" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+                        <TextBlock Text="Messages" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
 
                     </Grid>
 					<Grid x:Key="ResourcesViewPressed">
@@ -471,7 +471,7 @@
                                 <ImageBrush ImageSource="Resources\rtt.png" />
                             </Rectangle.OpacityMask>
                         </Rectangle>
-                        <TextBlock Text="Resources" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+                        <TextBlock Text="Messages" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
                     </Grid>
 					<Grid x:Key="ResourcesViewNormal">
 						<Grid.RowDefinitions>
@@ -487,7 +487,7 @@
                                 <ImageBrush ImageSource="Resources\rtt.png" />
                             </Rectangle.OpacityMask>
                         </Rectangle>
-                        <TextBlock Text="Resources" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+                        <TextBlock Text="Messages" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
 
                     </Grid>
 				</ToggleButton.Resources>
@@ -535,8 +535,8 @@
 					</Style>
 				</ToggleButton.Style>
 			</ToggleButton>
-            
-			<ToggleButton x:Name="BtnSettings" Grid.Column="4" Click="btnSettings_Click" Height="60" Width="60" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+            <ToggleButton x:Name="BtnSettings" Grid.Column="4" Click="btnSettings_Click" Height="60" Width="60" HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding IsSettingsDocked}">
 				<ToggleButton.Resources>
 					<Grid x:Key="SettingsHover" >
                         <Grid.RowDefinitions>
