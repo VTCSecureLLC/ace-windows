@@ -41,7 +41,7 @@ namespace com.vtcsecure.ace.windows.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo language)
         {
-            throw new NotImplementedException();
+            return null;
         }
     }
 
@@ -81,7 +81,7 @@ namespace com.vtcsecure.ace.windows.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo language)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
     }
@@ -122,7 +122,7 @@ namespace com.vtcsecure.ace.windows.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo language)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public override object ProvideValue(IServiceProvider serviceProvider)
@@ -167,7 +167,7 @@ namespace com.vtcsecure.ace.windows.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo language)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
     }
