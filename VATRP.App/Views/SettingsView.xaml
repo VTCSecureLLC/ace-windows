@@ -21,35 +21,35 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-        <TabControl x:Name="SettingsTab" HorizontalAlignment="Stretch" Margin="1" Grid.Row="0" VerticalAlignment="Stretch" >
-            <TabItem Header="Account" Visibility="{Binding IsSipSettingsEnabled, Converter={StaticResource bvc}}">
+        <TabControl x:Name="SettingsTab" HorizontalAlignment="Stretch" Margin="1" Grid.Row="0" VerticalAlignment="Stretch" SelectedIndex="{Binding SelectedPage}">
+            <TabItem Header="Account">
                 <Grid Background="#FFE5E5E5">
                     <customControls:SipSettingsCtrl x:Name="SipSettingsPage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         
                     </customControls:SipSettingsCtrl>
                 </Grid>
             </TabItem>
-            <TabItem Header="Networking" Visibility="{Binding IsNetworkSettingsEnabled, Converter={StaticResource bvc}}">
+            <TabItem Header="Networking">
                 <Grid Background="#FFE5E5E5">
                     <customControls:NetworkSettingsCtrl x:Name="NetworkSettingsPage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         
                     </customControls:NetworkSettingsCtrl>
                 </Grid>
             </TabItem>
-            <TabItem Header="Codecs" Visibility="{Binding IsCodecSettingsEnabled, Converter={StaticResource bvc}}">
+            <TabItem Header="Codecs">
                 <Grid Background="#FFE5E5E5">
                     <customControls:CodecsSettingsCtrl x:Name="CodecSettingsPage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
                     </customControls:CodecsSettingsCtrl>
                 </Grid>
             </TabItem>
-            <TabItem Header="Multimedia" Visibility="{Binding IsMultimediaSettingsEnabled, Converter={StaticResource bvc}}">
+            <TabItem Header="Multimedia">
                 <Grid Background="#FFE5E5E5">
                     <customControls:MultimediaSettingsCtrl x:Name="MultimediaSettingsPage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                 </Grid>
             </TabItem>
 
-            <TabItem Header="Testing" x:Name="TestingTabItem" Visibility="{Binding IsTestingSettingsEnabled, Converter={StaticResource bvc}}">
+            <TabItem Header="Testing">
                 <Grid Background="#FFE5E5E5">
                     <customControls:CallSettingsCtrl x:Name="CallSettingsPage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
