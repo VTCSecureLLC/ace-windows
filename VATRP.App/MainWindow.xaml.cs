@@ -82,8 +82,11 @@ namespace com.vtcsecure.ace.windows
             //ToggleWindow(_historyView);
             bool isChecked = BtnRecents.IsChecked ?? false;
             if (isChecked)
+            {
                 _mainViewModel.IsDialpadDocked = false;
-            
+                _mainViewModel.IsContactDocked = false;
+                _mainViewModel.IsSettingsDocked = false;
+            }
             _mainViewModel.IsCallHistoryDocked = isChecked;
         }
 
@@ -92,7 +95,11 @@ namespace com.vtcsecure.ace.windows
            // ToggleWindow(_contactBox);
             bool isChecked = BtnContacts.IsChecked ?? false;
             if (isChecked)
+            {
                 _mainViewModel.IsDialpadDocked = false;
+                _mainViewModel.IsCallHistoryDocked = false;
+                _mainViewModel.IsSettingsDocked = false;
+            }
             _mainViewModel.IsContactDocked = isChecked;
         }
 
@@ -126,8 +133,11 @@ namespace com.vtcsecure.ace.windows
         {
             bool isChecked = BtnSettings.IsChecked ?? false;
             if (isChecked)
+            {
                 _mainViewModel.IsDialpadDocked = false;
-
+                _mainViewModel.IsCallHistoryDocked = false;
+                _mainViewModel.IsContactDocked = false;
+            }
             _mainViewModel.IsSettingsDocked = BtnSettings.IsChecked ?? false;
         }
 
