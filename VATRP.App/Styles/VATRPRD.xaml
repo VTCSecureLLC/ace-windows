@@ -24,7 +24,7 @@
 
     <SolidColorBrush x:Key="AcceptButtonNormalBrush" Color="#ff3fbe3f"/>
     <SolidColorBrush x:Key="AcceptButtonClickedBrush" Color="#ff1fb4ff"/>
-    <SolidColorBrush x:Key="CallBarNormalBg" Color="#FF2C373D"/>
+    <SolidColorBrush x:Key="CallBarNormalBg" Color="#FF5C7584"/>
     <SolidColorBrush x:Key="CallBarPressedBg" Color="#FFbe3f3f"/>
     <SolidColorBrush x:Key="CallBarEndCallBg" Color="#FFbe3f3f"/>
 
