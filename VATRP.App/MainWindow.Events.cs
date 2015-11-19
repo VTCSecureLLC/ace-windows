@@ -108,6 +108,7 @@ namespace com.vtcsecure.ace.windows
                         _mainViewModel.ActiveCallModel.OnCallStateChanged(call);
                     _mainViewModel.IsCallPanelDocked = true;
                     _flashWindowHelper.FlashWindow(_callView);
+                    Activate();
                     break;
                 case VATRPCallState.Ringing:
                     _mainViewModel.ActiveCallModel.OnCallStateChanged(call);
