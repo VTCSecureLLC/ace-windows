@@ -60,6 +60,12 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             DataContext = viewModel;
             _viewModel = viewModel;
+
+            BtnMuteOn.IsChecked = false;
+            BtnVideoOn.IsChecked = false;
+            BtnSpeaker.IsChecked = false;
+            BtnNumpad.IsChecked = false;
+            BtnRTT.IsChecked = false;
         }
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)

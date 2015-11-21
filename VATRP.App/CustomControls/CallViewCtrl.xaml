@@ -42,7 +42,7 @@
 
             <TextBlock Grid.Column="1" HorizontalAlignment="Center" Margin="0,10" Foreground="{DynamicResource AppMainBorderBrush}"
                        Text="{Binding CallerInfo}" FontSize="{Binding DisplayNameSize}" 
-                       Visibility="{Binding DisplayName.Length, Converter={StaticResource oivc}}"
+                       Visibility="{Binding CallerInfo.Length, Converter={StaticResource oivc}}"
                        />
             <TextBlock Grid.Column="2" HorizontalAlignment="Right" Margin="10,10" 
                            Foreground="{DynamicResource AppMainBorderBrush}"
@@ -430,13 +430,13 @@
 						  Click="OnToggleVideo" IsChecked="{Binding IsVideoOn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
 						  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <ToggleButton.Resources>
-                                <Grid x:Key="VideoOnPressed" Opacity="0.6">
+                                <Grid x:Key="VideoOnPressed">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
 
-                                    <Rectangle  Fill="{StaticResource CallBarPressedBg}" Grid.Row="0" Grid.RowSpan="2">
+                                    <Rectangle  Fill="{StaticResource CallBarNormalBg}" Grid.Row="0" Grid.RowSpan="2">
 
                                     </Rectangle>
                                     <Rectangle Width="59" Height="40" 
@@ -447,7 +447,7 @@
                                         </Rectangle.OpacityMask>
                                     </Rectangle>
                                 </Grid>
-                                <Grid x:Key="VideoOnNormal" Opacity="0.8">
+                                <Grid x:Key="VideoOnNormal">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
@@ -465,7 +465,7 @@
                             </ToggleButton.Resources>
                             <ToggleButton.Style>
                                 <Style TargetType="{x:Type ToggleButton}">
-                                    <Setter Property="Opacity" Value="0.8" />
+                                    <Setter Property="Opacity" Value="0.4" />
                                     <Setter Property="BorderThickness" Value="0" />
                                     <Setter Property="Padding" Value="0" />
                                     <Setter Property="Margin" Value="0" />
@@ -490,6 +490,7 @@
                                             <Setter Property="Opacity" Value="0.5" />
                                         </Trigger>
                                         <Trigger Property="IsChecked" Value="True">
+                                            <Setter Property="Opacity" Value="0.8" />
                                             <Setter Property="Content" Value="{StaticResource VideoOnPressed}" />
                                         </Trigger>
 
@@ -499,7 +500,7 @@
                                                 <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True"/>
                                             </MultiDataTrigger.Conditions>
 
-                                            <Setter Property="Opacity" Value="0.6"/>
+                                            <Setter Property="Opacity" Value="0.9"/>
                                             <Setter Property="Content" Value="{StaticResource VideoOnPressed}"/>
                                         </MultiDataTrigger>
                                     </Style.Triggers>
@@ -511,7 +512,7 @@
 						  Click="OnMute" IsChecked="{Binding IsMuteOn}"
 						  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <ToggleButton.Resources>
-                                <Grid x:Key="MutePressed" Opacity="0.6">
+                                <Grid x:Key="MutePressed">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
@@ -526,7 +527,7 @@
                                         </Rectangle.OpacityMask>
                                     </Rectangle>
                                 </Grid>
-                                <Grid x:Key="MuteNormal" Opacity="0.8">
+                                <Grid x:Key="MuteNormal">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
@@ -545,7 +546,7 @@
                             </ToggleButton.Resources>
                             <ToggleButton.Style>
                                 <Style TargetType="{x:Type ToggleButton}">
-                                    <Setter Property="Opacity" Value="0.8" />
+                                    <Setter Property="Opacity" Value="0.4" />
                                     <Setter Property="BorderThickness" Value="0" />
                                     <Setter Property="Padding" Value="0" />
                                     <Setter Property="Margin" Value="0" />
@@ -570,6 +571,7 @@
                                             <Setter Property="Opacity" Value="0.5" />
                                         </Trigger>
                                         <Trigger Property="IsChecked" Value="True">
+                                            <Setter Property="Opacity" Value="0.8" />
                                             <Setter Property="Content" Value="{StaticResource MutePressed}" />
                                         </Trigger>
 
@@ -579,7 +581,7 @@
                                                 <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True"/>
                                             </MultiDataTrigger.Conditions>
 
-                                            <Setter Property="Opacity" Value="0.6"/>
+                                            <Setter Property="Opacity" Value="0.9"/>
                                             <Setter Property="Content" Value="{StaticResource MutePressed}"/>
                                         </MultiDataTrigger>
                                     </Style.Triggers>
@@ -591,7 +593,7 @@
 						  Click="OnToggleSpeaker" IsChecked="{Binding IsSpeakerOn}"
 						  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <ToggleButton.Resources>
-                                <Grid x:Key="SpeakerPressed" Opacity="0.6">
+                                <Grid x:Key="SpeakerPressed">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
@@ -606,7 +608,7 @@
                                         </Rectangle.OpacityMask>
                                     </Rectangle>
                                 </Grid>
-                                <Grid x:Key="SpeakerNormal" Opacity="0.8">
+                                <Grid x:Key="SpeakerNormal">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
@@ -625,7 +627,7 @@
                             </ToggleButton.Resources>
                             <ToggleButton.Style>
                                 <Style TargetType="{x:Type ToggleButton}">
-                                    <Setter Property="Opacity" Value="0.8" />
+                                    <Setter Property="Opacity" Value="0.4" />
                                     <Setter Property="BorderThickness" Value="0" />
                                     <Setter Property="Padding" Value="0" />
                                     <Setter Property="Margin" Value="0" />
@@ -650,7 +652,8 @@
                                             <Setter Property="Opacity" Value="0.5" />
                                         </Trigger>
                                         <Trigger Property="IsChecked" Value="True">
-                                            <Setter Property="Content" Value="{StaticResource SpeakerPressed}" />
+                                    <Setter Property="Opacity" Value="0.8" />
+                                    <Setter Property="Content" Value="{StaticResource SpeakerPressed}" />
                                         </Trigger>
 
                                         <MultiDataTrigger>
@@ -659,7 +662,7 @@
                                                 <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True"/>
                                             </MultiDataTrigger.Conditions>
 
-                                            <Setter Property="Opacity" Value="0.6"/>
+                                            <Setter Property="Opacity" Value="0.9"/>
                                             <Setter Property="Content" Value="{StaticResource SpeakerPressed}"/>
                                         </MultiDataTrigger>
                                     </Style.Triggers>
@@ -671,13 +674,13 @@
 						  Click="OnToggleKeypad" IsChecked="{Binding IsNumpadOn}"
 						  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <ToggleButton.Resources>
-                                <Grid x:Key="NumpadPressed" Opacity="0.6">
-                                    <Grid.RowDefinitions>
+                        <Grid x:Key="NumpadPressed">
+                            <Grid.RowDefinitions>
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
 
-                                    <Rectangle  Fill="{StaticResource CallBarPressedBg}" Grid.Row="0" Grid.RowSpan="2">
+                                    <Rectangle  Fill="{StaticResource CallBarNormalBg}" Grid.Row="0" Grid.RowSpan="2">
 
                                     </Rectangle>
                                     <Rectangle Width="36" Height="36" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Grid.RowSpan="2">
@@ -686,7 +689,7 @@
                                         </Rectangle.OpacityMask>
                                     </Rectangle>
                                 </Grid>
-                                <Grid x:Key="NumpadNormal" Opacity="0.8">
+                                <Grid x:Key="NumpadNormal">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
@@ -705,7 +708,7 @@
                             </ToggleButton.Resources>
                             <ToggleButton.Style>
                                 <Style TargetType="{x:Type ToggleButton}">
-                                    <Setter Property="Opacity" Value="0.8" />
+                                    <Setter Property="Opacity" Value="0.4" />
                                     <Setter Property="BorderThickness" Value="0" />
                                     <Setter Property="Padding" Value="0" />
                                     <Setter Property="Margin" Value="0" />
@@ -730,7 +733,8 @@
                                             <Setter Property="Opacity" Value="0.5" />
                                         </Trigger>
                                         <Trigger Property="IsChecked" Value="True">
-                                            <Setter Property="Content" Value="{StaticResource NumpadPressed}" />
+                                    <Setter Property="Opacity" Value="0.8" />
+                                    <Setter Property="Content" Value="{StaticResource NumpadPressed}" />
                                         </Trigger>
 
                                         <MultiDataTrigger>
@@ -739,7 +743,7 @@
                                                 <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True"/>
                                             </MultiDataTrigger.Conditions>
 
-                                            <Setter Property="Opacity" Value="0.6"/>
+                                            <Setter Property="Opacity" Value="0.9"/>
                                             <Setter Property="Content" Value="{StaticResource NumpadPressed}"/>
                                         </MultiDataTrigger>
                                     </Style.Triggers>
@@ -751,13 +755,13 @@
 						  Click="OnToggleRTT" IsChecked="{Binding IsRttOn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
 						  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <ToggleButton.Resources>
-                                <Grid x:Key="RTTPressed" Opacity="0.6">
+                                <Grid x:Key="RTTPressed">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
 
-                                    <Rectangle  Fill="{StaticResource CallBarPressedBg}" Grid.Row="0" Grid.RowSpan="2">
+                                    <Rectangle  Fill="{StaticResource CallBarNormalBg}" Grid.Row="0" Grid.RowSpan="2">
 
                                     </Rectangle>
                                     <Rectangle Width="42" Height="39" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Grid.RowSpan="2">
@@ -766,7 +770,7 @@
                                         </Rectangle.OpacityMask>
                                     </Rectangle>
                                 </Grid>
-                                <Grid x:Key="RTTNormal" Opacity="0.8">
+                                <Grid x:Key="RTTNormal">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
@@ -785,7 +789,7 @@
                             </ToggleButton.Resources>
                             <ToggleButton.Style>
                                 <Style TargetType="{x:Type ToggleButton}">
-                                    <Setter Property="Opacity" Value="0.8" />
+                                    <Setter Property="Opacity" Value="0.4" />
                                     <Setter Property="BorderThickness" Value="0" />
                                     <Setter Property="Padding" Value="0" />
                                     <Setter Property="Margin" Value="0" />
@@ -810,7 +814,8 @@
                                             <Setter Property="Opacity" Value="0.5" />
                                         </Trigger>
                                         <Trigger Property="IsChecked" Value="True">
-                                            <Setter Property="Content" Value="{StaticResource RTTPressed}" />
+                                    <Setter Property="Opacity" Value="0.8" />
+                                    <Setter Property="Content" Value="{StaticResource RTTPressed}" />
                                         </Trigger>
 
                                         <MultiDataTrigger>
@@ -819,7 +824,7 @@
                                                 <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True"/>
                                             </MultiDataTrigger.Conditions>
 
-                                            <Setter Property="Opacity" Value="0.6"/>
+                                            <Setter Property="Opacity" Value="0.9"/>
                                             <Setter Property="Content" Value="{StaticResource RTTPressed}"/>
                                         </MultiDataTrigger>
                                     </Style.Triggers>
@@ -865,10 +870,10 @@
                                     </Setter>
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Opacity" Value="0.5" />
+                                            <Setter Property="Opacity" Value="0.9" />
                                         </Trigger>
                                         <Trigger Property="IsPressed" Value="True">
-                                            <Setter Property="Opacity" Value="0.6" />
+                                            <Setter Property="Opacity" Value="0.7" />
                                         </Trigger>
 
                                         <MultiDataTrigger>
@@ -877,7 +882,7 @@
                                                 <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsPressed}" Value="True"/>
                                             </MultiDataTrigger.Conditions>
 
-                                            <Setter Property="Opacity" Value="0.5"/>
+                                            <Setter Property="Opacity" Value="0.7"/>
                                         </MultiDataTrigger>
                                     </Style.Triggers>
                                 </Style>

@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VATRP.LinphoneWrapper", "VA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagedVideoContainer", "ManagedVideoContainer\ManagedVideoContainer.csproj", "{E543535A-5EDA-4035-A26A-71B3892A5BF5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VATRP.CustomActions", "VATRP.CustomActions\VATRP.CustomActions.csproj", "{10F23EB7-5E3F-4593-B6D6-D917C53BF45B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +44,12 @@ Global
 		{E543535A-5EDA-4035-A26A-71B3892A5BF5}.Developer|Any CPU.Build.0 = Debug|Any CPU
 		{E543535A-5EDA-4035-A26A-71B3892A5BF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E543535A-5EDA-4035-A26A-71B3892A5BF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10F23EB7-5E3F-4593-B6D6-D917C53BF45B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10F23EB7-5E3F-4593-B6D6-D917C53BF45B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10F23EB7-5E3F-4593-B6D6-D917C53BF45B}.Developer|Any CPU.ActiveCfg = Developer|Any CPU
+		{10F23EB7-5E3F-4593-B6D6-D917C53BF45B}.Developer|Any CPU.Build.0 = Developer|Any CPU
+		{10F23EB7-5E3F-4593-B6D6-D917C53BF45B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10F23EB7-5E3F-4593-B6D6-D917C53BF45B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

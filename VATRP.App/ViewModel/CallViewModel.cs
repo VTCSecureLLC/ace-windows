@@ -27,7 +27,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private double _remotePartyTextSize;
         private double _infoTextSize;
         private VATRPCall _currentCall = null;
-        private string _muteState;
         private readonly System.Timers.Timer ringTimer;
         private readonly System.Timers.Timer autoAnswerTimer;
         private bool subscribedForStats;
@@ -53,7 +52,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _displayNameSize = 30;
             _remotePartyTextSize = 25;
             _infoTextSize = 20;
-            _muteState = "Mute";
 
             timerCall = new System.Timers.Timer
             {
@@ -353,16 +351,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
-        public string MuteState
-        {
-            get { return _muteState; }
-            set
-            {
-                _muteState = value; 
-                OnPropertyChanged("MuteState");
-            }
-        }
-
         public int VideoWidth
         {
             get { return _videoWidth; }
@@ -469,8 +457,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         internal void MuteCall()
         {
             _linphoneService.ToggleMute();
-            MuteState = _linphoneService.IsCallMuted() ? "UnMute" : "Mute";
-
+            IsMuteOn = _linphoneService.IsCallMuted();
         }
 
         private void ReceiveCall(VATRPCall call)
@@ -623,7 +610,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                         timerCall.Start();
                         ShowIncomingCallPanel = false;
                         _currentCall.CallEstablishTime = DateTime.Now;
-                        MuteState = _linphoneService.IsCallMuted() ? "UnMute" : "Mute";
+                        IsMuteOn = _linphoneService.IsCallMuted();
                     }
                     break;
                 case VATRPCallState.StreamsRunning:
@@ -665,7 +652,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
             CallState = VATRPCallState.Connected;
             ShowIncomingCallPanel = false;
-            MuteState = "Mute";
+            IsMuteOn = false;
 
             SetTimeout(delegate
             {

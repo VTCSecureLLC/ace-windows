@@ -42,6 +42,7 @@ namespace com.vtcsecure.ace.windows
                     _mainViewModel.IsMessagingDocked = false;
                     _mainViewModel.IsCallPanelDocked = false;
                 }
+                _mainViewModel.ActiveCallModel = null;
                 return;
             }
 
@@ -108,6 +109,7 @@ namespace com.vtcsecure.ace.windows
                         _mainViewModel.ActiveCallModel.OnCallStateChanged(call);
                     _mainViewModel.IsCallPanelDocked = true;
                     _flashWindowHelper.FlashWindow(_callView);
+                    Activate();
                     break;
                 case VATRPCallState.Ringing:
                     _mainViewModel.ActiveCallModel.OnCallStateChanged(call);
@@ -170,12 +172,12 @@ namespace com.vtcsecure.ace.windows
                     ShowCallOverlayWindow(false); 
                     _mainViewModel.IsMessagingDocked = false;
                     _mainViewModel.IsCallPanelDocked = false;
-
+                    _mainViewModel.ActiveCallModel = null;
                     stopPlayback = true;
-                    if (_selfView != null && _selfView.IsVisible)
-                    {
-                        _selfView.Hide();
-                    }
+                    //if (_selfView != null && _selfView.IsVisible)
+                    //{
+                    //    _selfView.Hide();
+                    //}
                     
                     if (registerRequested || signOutRequest || defaultConfigRequest)
                     {
@@ -192,7 +194,8 @@ namespace com.vtcsecure.ace.windows
                     {
                         _remoteVideoView.Hide();
                     }
-                    _keypadCtrl.Hide();
+                    _keypadCtrl.Hide();     
+                    _mainViewModel.ActiveCallModel = null;
                     break;
                 default:
                     break;
