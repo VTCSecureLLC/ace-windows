@@ -22,9 +22,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private DialpadViewModel _dialpadViewModel;
         private double _historyPaneHeight;
         private HistoryCallEventViewModel _selectedCallEvent;
+        private int _activeTab;
 
         public CallHistoryViewModel()
         {
+            _activeTab = 0; // All tab is active by default
             _callsListView = CollectionViewSource.GetDefaultView(this.Calls);
             _callsListView.Filter = new Predicate<object>(this.FilterEventsList);
             _historyPaneHeight = 150;
@@ -151,6 +153,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
             var callModel = item as HistoryCallEventViewModel;
             if (callModel != null)
             {
+
+                if (callModel.CallEvent != null && ActiveTab == 1 && callModel.CallEvent.Status != VATRPHistoryEvent.StatusType.Missed)
+                    return false;
                 if ( callModel.Contact != null )
                     return callModel.Contact.Fullname.Contains(EventSearchCriteria);
                 return callModel.PhoneNumber.Contains(EventSearchCriteria);
@@ -206,6 +211,17 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 _selectedCallEvent = value; 
                 OnPropertyChanged("SelectedCallEvent");
+            }
+        }
+
+        public int ActiveTab
+        {
+            get { return _activeTab; }
+            set
+            {
+                _activeTab = value;
+                CallsListView.Refresh();
+                OnPropertyChanged("ActiveTab");
             }
         }
     }

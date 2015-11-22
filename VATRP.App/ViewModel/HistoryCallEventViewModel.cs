@@ -18,6 +18,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private string _phoneNumber;
         private string _displayName;
         private ImageSource _avatar;
+        private ImageSource _callStateIndicator;
+        private int _statusWidth;
+        private string _callDate;
+        private string _duration;
+
         public SolidColorBrush CallEventStateBrush
         {
             get { return _backColor; }
@@ -33,9 +38,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _phoneNumber = string.Empty;
             _displayName = string.Empty;
             _avatar = null;
+            _callStateIndicator = null;
+            _statusWidth = 16;
         }
 
-        public HistoryCallEventViewModel(VATRPCallEvent callEvent, VATRPContact contact)
+        public HistoryCallEventViewModel(VATRPCallEvent callEvent, VATRPContact contact):this()
         {
             this._callEvent = callEvent;
             this._contact = contact;
@@ -49,8 +56,25 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     DisplayName = _contact.Fullname;
             }
             if (_callEvent != null && _callEvent.RemoteParty.NotBlank())
+            {
                 PhoneNumber = _callEvent.RemoteParty;
+            }
             LoadContactAvatar();
+            LoadCallStateIndicator();
+
+            DateTime callTime =
+                VATRP.Core.Model.Utils.Time.ConvertUtcTimeToLocalTime(
+                    VATRP.Core.Model.Utils.Time.ConvertDateTimeToLong(callEvent.StartTime)/1000);
+            string dateFormat = "d/MM, HH:mm";
+            var diffTime = DateTime.Now - callTime;
+            if (diffTime.Days == 0)
+                dateFormat = "HH:mm";
+            else if (diffTime.Days < 8)
+                dateFormat = "ddd, HH:mm";
+            else if (diffTime.Days > 365)
+                dateFormat = "d/MM/yyyy, HH:mm";
+
+            CallDate = callTime.ToString(dateFormat);
         }
 
         private void OnContactPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -91,6 +115,34 @@ namespace com.vtcsecure.ace.windows.ViewModel
             else
             {
                 LoadCommonAvatar();
+            }
+        }
+
+        private void LoadCallStateIndicator()
+        {
+            try
+            {
+                var uriString = "pack://application:,,,/ACE;component/Resources/incoming.png";
+                if (_callEvent != null)
+                    switch (_callEvent.Status)
+                    {
+                        case VATRPHistoryEvent.StatusType.Outgoing:
+                            uriString = "pack://application:,,,/ACE;component/Resources/outgoing.png";
+                            break;
+                        case VATRPHistoryEvent.StatusType.Incoming:
+                            break;
+                        case VATRPHistoryEvent.StatusType.Missed:
+                            uriString = "pack://application:,,,/ACE;component/Resources/missed.png";
+                            _statusWidth = 26;
+                            break;
+                    }
+
+                CallStatusIndicator = new BitmapImage(new Uri(uriString));
+                
+            }
+            catch (Exception ex)
+            {
+
             }
         }
 
@@ -157,6 +209,67 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 OnPropertyChanged("Avatar");
             }
         }
+
+        public ImageSource CallStatusIndicator
+        {
+            get { return _callStateIndicator; }
+            set
+            {
+                _callStateIndicator = value;
+                OnPropertyChanged("CallStatusIndicator");
+            }
+        }
+
+        public int StatusImageWidth
+        {
+            get { return _statusWidth; }
+            set
+            {
+                _statusWidth = value;
+                OnPropertyChanged("StatusImageWidth");
+            }
+        }
+
+        public string CallDate
+        {
+            get { return _callDate; }
+            set
+            {
+                _callDate = value; 
+                OnPropertyChanged("CallDate");
+            }
+        }
+
+        public string Duration
+        {
+            get
+            {
+                if (CallEvent == null || CallEvent.Duration == -1)
+                {
+                    return "0m 0s";
+                }
+                int hours = 0, minutes = 0, seconds = 0;
+                if (CallEvent.Duration > 0)
+                {
+                    seconds = CallEvent.Duration % 60;
+                    minutes = CallEvent.Duration / 60;
+                    hours = CallEvent.Duration / 3600;
+                }
+
+                if (hours > 0)
+                {
+                    return string.Format("{0}h {1:00}m {2:00}s", hours, minutes, seconds);
+                }
+
+                if (minutes > 0)
+                {
+                    return string.Format("{0}m {1:00}s", minutes, seconds);
+                }
+
+                return string.Format("0m {0}s", seconds);
+            }
+        }
+
     }
 }
 
