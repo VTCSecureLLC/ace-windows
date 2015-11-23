@@ -108,6 +108,9 @@ namespace com.vtcsecure.ace.windows
                     if (_mainViewModel.ActiveCallModel != null)
                         _mainViewModel.ActiveCallModel.OnCallStateChanged(call);
                     _mainViewModel.IsCallPanelDocked = true;
+                    ctrlCall.ctrlOverlay.SetCallerInfo(_mainViewModel.ActiveCallModel.CallerInfo);
+                    ctrlCall.ctrlOverlay.SetCallState("Ringing");
+
                     _flashWindowHelper.FlashWindow(_callView);
                     Topmost = true;
                     Activate();
@@ -116,6 +119,8 @@ namespace com.vtcsecure.ace.windows
                 case VATRPCallState.Ringing:
                     _mainViewModel.ActiveCallModel.OnCallStateChanged(call);
                     call.RemoteParty = call.To;
+                    ctrlCall.ctrlOverlay.SetCallerInfo(_mainViewModel.ActiveCallModel.CallerInfo);
+                    ctrlCall.ctrlOverlay.SetCallState("Ringing");
                     ServiceManager.Instance.SoundService.PlayRingBackTone();
                     break;
                 case VATRPCallState.EarlyMedia:
@@ -132,6 +137,10 @@ namespace com.vtcsecure.ace.windows
                     stopPlayback = true;
                     _mainViewModel.ActiveCallModel.ShowOutgoingEndCall = false;
                     ShowCallOverlayWindow(true);
+                    ctrlCall.ctrlOverlay.SetCallerInfo(_mainViewModel.ActiveCallModel.CallerInfo);
+                    ctrlCall.ctrlOverlay.SetCallState("Connected");
+                    ctrlCall.ctrlOverlay.StartCallTimer(_mainViewModel.ActiveCallModel.Duration);
+
                     //try
                     //{
                     //    if (_selfView.IsVisible)
@@ -171,6 +180,7 @@ namespace com.vtcsecure.ace.windows
                     if (_mainViewModel.ActiveCallModel != null)
                         _mainViewModel.ActiveCallModel.OnCallStateChanged(call);
 
+                    ctrlCall.ctrlOverlay.StopCallTimer();
                     ShowCallOverlayWindow(false); 
                     _mainViewModel.IsMessagingDocked = false;
                     _mainViewModel.IsCallPanelDocked = false;
@@ -188,6 +198,7 @@ namespace com.vtcsecure.ace.windows
                     break;
                 case VATRPCallState.Error:
                     _flashWindowHelper.StopFlashing();
+                    ctrlCall.ctrlOverlay.StopCallTimer();
                     ShowCallOverlayWindow(false); 
                     if (_mainViewModel.ActiveCallModel != null)
                         _mainViewModel.ActiveCallModel.OnCallStateChanged(call);
@@ -219,8 +230,12 @@ namespace com.vtcsecure.ace.windows
             ctrlCall.ctrlOverlay.NumpadWindowLeftMargin = ctrlDialpad.ActualWidth + (700 - 230) / 2;
             ctrlCall.ctrlOverlay.NumpadWindowTopMargin = 170 - SystemParameters.CaptionHeight;
 
+            ctrlCall.ctrlOverlay.CallInfoWindowLeftMargin = ctrlDialpad.ActualWidth + (700 - 550) / 2;
+            ctrlCall.ctrlOverlay.CallInfoWindowTopMargin = 40 - SystemParameters.CaptionHeight;
+
             ctrlCall.ctrlOverlay.ShowCommandBar(bShow);
             ctrlCall.ctrlOverlay.ShowNumpadWindow(false);
+            ctrlCall.ctrlOverlay.ShowCallInfoWindow(bShow);
             if (!bShow)
                 ctrlCall.ctrlVideo.Visibility = Visibility.Hidden;
         }
