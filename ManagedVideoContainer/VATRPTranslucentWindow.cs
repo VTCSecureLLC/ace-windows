@@ -9,7 +9,7 @@ using System.Windows.Threading;
 
 namespace VATRP.Linphone.VideoWrapper
 {
-    public class VATRPTranscluentWindow
+    public class VATRPTranslucentWindow
     {
         private Window _window;
         private Window _parent;
@@ -17,7 +17,7 @@ namespace VATRP.Linphone.VideoWrapper
         double windowTopMargin;
         double windowLeftMargin;
 
-        public VATRPTranscluentWindow(VATRPOverlay decorator)
+        public VATRPTranslucentWindow(VATRPOverlay decorator)
         {
             _container = decorator;
             _window = new Window();

@@ -51,7 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IRenderable.cs" />
-    <Compile Include="VATRPTranscluentWindow.cs" />
+    <Compile Include="VATRPTranslucentWindow.cs" />
     <Compile Include="VATRPOverlay.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
