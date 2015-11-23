@@ -252,10 +252,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         public bool ShowCallParams
         {
-            get
-            {
-                return !ShowIncomingCallPanel && !ShowOutgoingEndCall;
-            }
+            get { return ShowIncomingCallPanel || ShowOutgoingEndCall; }
         }
         public bool ShowOutgoingEndCall
         {
@@ -563,7 +560,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
                             };
                         }
                         ReceiveCall(call);
-
+                        if (timerCall != null)
+                        {
+                            if (!timerCall.Enabled)
+                                timerCall.Start();
+                        }
+                        
                         VisualizeIncoming = true;
                         if (!VisualizeRinging)
                         {
@@ -587,6 +589,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     Duration = 0;
                     AutoAnswer = 0;
                     VisualizeIncoming = false;
+                    if (timerCall != null)
+                    {
+                        if (!timerCall.Enabled)
+                            timerCall.Start();
+                    }
                     if (!VisualizeRinging)
                     {
                         RingCounterBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0xD8, 0x1C, 0x1C));
@@ -606,8 +613,14 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     break;
                 case VATRPCallState.Connected:
                     {
+                        if (timerCall != null && timerCall.Enabled)
+                            timerCall.Stop();
+                        Duration = 0;
                         stopAnimation = true;
-                        timerCall.Start();
+                        if (timerCall != null)
+                        {
+                            timerCall.Start();
+                        }
                         ShowIncomingCallPanel = false;
                         _currentCall.CallEstablishTime = DateTime.Now;
                         IsMuteOn = _linphoneService.IsCallMuted();
