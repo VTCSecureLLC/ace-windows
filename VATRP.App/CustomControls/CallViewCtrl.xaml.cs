@@ -48,6 +48,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
             ctrlOverlay.NumpadOverlayWidth = 229;
             ctrlOverlay.NumpadOverlayHeight = 305;
 
+            ctrlOverlay.CallInfoOverlayWidth = 550;
+            ctrlOverlay.CallInfoOverlayHeight = 200;
         }
 
         public CallViewCtrl(CallViewModel viewModel) :

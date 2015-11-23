@@ -33,23 +33,6 @@
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
 
-        <Grid Visibility="{Binding ShowCallParams, Converter={StaticResource bvc}}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <TextBlock Grid.Column="1" HorizontalAlignment="Center" Margin="0,10" Foreground="{DynamicResource AppMainBorderBrush}"
-                       Text="{Binding CallerInfo}" FontSize="{Binding DisplayNameSize}" 
-                       Visibility="{Binding CallerInfo.Length, Converter={StaticResource oivc}}"
-                       />
-            <TextBlock Grid.Column="2" HorizontalAlignment="Right" Margin="10,10" 
-                           Foreground="{DynamicResource AppMainBorderBrush}"
-                        Text="{Binding Duration, Converter={StaticResource cdc}}" 
-                       VerticalAlignment="Top" FontSize="{Binding InfoTextSize}" 
-                       Visibility="{Binding Duration, Converter={StaticResource oivc}}"/>
-        </Grid>
             <StackPanel Grid.Row="0" Grid.RowSpan="4" x:Name="ColorAnimationBox" Background="#FFD81C1C" VerticalAlignment="Stretch" Visibility="{Binding Path=VisualizeIncoming, Converter={StaticResource bvc}, Mode=OneWay}">
                 <StackPanel.Style>
                     <Style TargetType="StackPanel">
@@ -92,26 +75,31 @@
                 </TextBlock>
             </StackPanel>
 
+        <Grid Visibility="{Binding ShowCallParams, Converter={StaticResource bvc}}">
+
+            <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Margin="0,30">
+                <TextBlock   Foreground="{DynamicResource AppMainBorderBrush}"
+                            HorizontalAlignment="Center"
+                       Text="{Binding CallerInfo}" FontSize="{Binding DisplayNameSize}" 
+                       Visibility="{Binding CallerInfo.Length, Converter={StaticResource oivc}}"
+                       />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Margin="10,0" 
+                           Foreground="{DynamicResource AppMainBorderBrush}"
+                        Text="{Binding CallState, Converter={StaticResource csts} }" 
+                       VerticalAlignment="Top" FontSize="{Binding InfoTextSize}" 
+                       Visibility="Visible"/>
+                    <TextBlock  Margin="10,0" HorizontalAlignment="Center"
+                           Foreground="{DynamicResource AppMainBorderBrush}"
+                        Text="{Binding Duration, Converter={StaticResource cdc}}" 
+                       VerticalAlignment="Top" FontSize="{Binding InfoTextSize}" 
+                       Visibility="Visible"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
         <StackPanel Visibility="{Binding ShowCallParams, Converter={StaticResource ibvc}}"
             Grid.Row="1" Grid.RowSpan="2" Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,0,40" HorizontalAlignment="Center">
-                <TextBlock HorizontalAlignment="Center" Margin="20,10" Foreground="{DynamicResource AppMainBorderBrush}"
-                       Text="{Binding DisplayName}" FontSize="{Binding DisplayNameSize}" 
-                       Visibility="{Binding DisplayName.Length, Converter={StaticResource oivc}}"
-                       />
-                <TextBlock HorizontalAlignment="Center" Foreground="{DynamicResource AppMainBorderBrush}"
-                       Margin="20,10" Text="{Binding RemoteNumber}" 
-                       VerticalAlignment="Center" FontSize="{Binding RemotePartyTextSize}"
-                       Visibility="{Binding RemoteNumber.Length, Converter={StaticResource oivc}}"
-                       />
-                <TextBlock HorizontalAlignment="Center" Margin="20,5" 
-                           Foreground="{DynamicResource AppMainBorderBrush}"
-                           Text="{Binding CallState, Converter={StaticResource csts} }" 
-                       VerticalAlignment="Center" FontSize="{Binding InfoTextSize}"/>
-                <TextBlock HorizontalAlignment="Center"  
-                           Foreground="{DynamicResource AppMainBorderBrush}"
-                       Margin="2" Text="{Binding Duration, Converter={StaticResource cdc}}" 
-                       VerticalAlignment="Center" FontSize="{Binding InfoTextSize}" 
-                       Visibility="{Binding Duration, Converter={StaticResource oivc}}"/>
                 <TextBlock HorizontalAlignment="Center" Margin="2" Text="{Binding AutoAnswer, StringFormat=AutoAnswer after {0} sec}" 
                        VerticalAlignment="Center" FontSize="{Binding InfoTextSize}" 
                            Foreground="{DynamicResource AppMainBorderBrush}"
@@ -282,7 +270,7 @@
 
         </Grid>
 
-        
+    
 <StackPanel Grid.Row="0" Grid.RowSpan="3" x:Name="VideoContainer" VerticalAlignment="Center" HorizontalAlignment="Center">
             <videoWrapper:VATRPOverlay Width="690" Height="690" 
                                        VerticalAlignment="Center" 
@@ -290,7 +278,25 @@
                                        x:Name="ctrlOverlay"
                                        Visibility="{Binding ShowInfo, Converter={StaticResource bvc}}"
                                        >
-                <videoWrapper:VATRPOverlay.OverlayNumpadChild >
+                <videoWrapper:VATRPOverlay.OverlayCallInfoChild >
+                    <Grid >
+
+                        <StackPanel HorizontalAlignment="Center" Orientation="Vertical">
+                            <TextBlock x:Name="CallerInfoLabel" Margin="0,10" Foreground="White"
+                            HorizontalAlignment="Center" Text="" FontSize="30" />
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Margin="10,0" x:Name="CallStateLabel" Text=""
+                           Foreground="White" VerticalAlignment="Top" FontSize="20" />
+                                <TextBlock  Margin="10,0" HorizontalAlignment="Center"
+                           Foreground="White" x:Name="CallDurationLabel" VerticalAlignment="Top" 
+                                            FontSize="20" 
+                       />
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </videoWrapper:VATRPOverlay.OverlayCallInfoChild >
+                
+                        <videoWrapper:VATRPOverlay.OverlayNumpadChild >
                     <Grid Background="White" Opacity="0.5">
                             <Grid.RowDefinitions>
                             <RowDefinition Height="1"/>
@@ -899,6 +905,5 @@
 
             </videoWrapper:VATRPOverlay>
         </StackPanel>
-
     </Grid>
 </UserControl>
