@@ -49,6 +49,8 @@ namespace com.vtcsecure.ace.windows
             if (_mainViewModel.ActiveCallModel == null)
             {
                 _mainViewModel.ActiveCallModel = new CallViewModel(_linphoneService, call);
+                _mainViewModel.ActiveCallModel.CallInfoCtrl = _callInfoView;
+
                 ctrlCall.SetCallViewModel(_mainViewModel.ActiveCallModel);
                 switch (App.CurrentAccount.PreferredVideoId.ToLower())
                 {
@@ -207,7 +209,8 @@ namespace com.vtcsecure.ace.windows
                     {
                         _remoteVideoView.Hide();
                     }
-                    _keypadCtrl.Hide();     
+                    _keypadCtrl.Hide();  
+                    _callInfoView.Hide();
                     _mainViewModel.ActiveCallModel = null;
                     break;
                 default:
@@ -376,6 +379,23 @@ namespace com.vtcsecure.ace.windows
                 case VATRPWindowType.SETTINGS_VIEW:
                     break;
             }
+        }
+
+        private void OnCallInfoVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (App.AllowDestroyWindows)
+                return;
+            var window = sender as VATRPWindow;
+            if (window == null)
+                return;
+            var bShow = (bool)e.NewValue;
+            if (_mainViewModel.ActiveCallModel != null)
+            {
+                _mainViewModel.ActiveCallModel.IsCallInfoOn = bShow;
+            }
+
+            if (ctrlCall != null) 
+                ctrlCall.BtnInfo.IsChecked = bShow;
         }
 
         private void OnMakeCallRequested(string called_address)

@@ -7,6 +7,7 @@ using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using System.Windows.Threading;
+using com.vtcsecure.ace.windows.Views;
 
 namespace com.vtcsecure.ace.windows.ViewModel
 {
@@ -40,6 +41,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _isSpeakerOn;
         private bool _isNumpadOn;
         private bool _isRttOn;
+        private bool _isInfoOn;
         private int _videoWidth;
         private int _videoHeight;
 
@@ -52,7 +54,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _displayNameSize = 30;
             _remotePartyTextSize = 25;
             _infoTextSize = 20;
-
+            subscribedForStats = false;
             timerCall = new System.Timers.Timer
             {
                 Interval = 1000,
@@ -317,7 +319,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 OnPropertyChanged("IsRttOn");
             }
         }
-
+        public bool IsCallInfoOn
+        {
+            get { return _isInfoOn; }
+            set
+            {
+                _isInfoOn = value;
+                OnPropertyChanged("IsCallInfoOn");
+            }
+        }
         public double DisplayNameSize
         {
             get { return _displayNameSize; }
@@ -375,6 +385,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 return _callInfoViewModel;
             }
         }
+
+        public CallInfoView CallInfoCtrl { get; set; }
         #endregion
 
         #region Methods
@@ -513,6 +525,17 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
             _currentCall = null;
             ServiceManager.Instance.ActiveCallPtr = IntPtr.Zero;
+        }
+
+        internal void ToggleCallStatisticsInfo(bool bShow)
+        {
+            if (CallInfoCtrl != null)
+            {
+                if (!bShow)
+                    CallInfoCtrl.Hide();
+                else
+                    CallInfoCtrl.Show();
+            }
         }
 
         #endregion
@@ -712,6 +735,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             if (subscribedForStats)
                 return;
             subscribedForStats = true;
+            CallInfoCtrl.SetViewModel(_callInfoViewModel);
             ServiceManager.Instance.LinphoneService.CallStatisticsChangedEvent += _callInfoViewModel.OnCallStatisticsChanged;
         }
 
