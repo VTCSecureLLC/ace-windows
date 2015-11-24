@@ -425,12 +425,13 @@
                             <RowDefinition Height="70"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="110"/>
-                        </Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="92"/>
+                            <ColumnDefinition Width="92"/>
+                            <ColumnDefinition Width="92"/>
+                            <ColumnDefinition Width="92"/>
+                            <ColumnDefinition Width="92"/>
+                            <ColumnDefinition Width="92"/>
+                </Grid.ColumnDefinitions>
 
                         <ToggleButton x:Name="BtnVideoOn" Grid.Row="0" Grid.Column="0" 
 						  Click="OnToggleVideo" IsChecked="{Binding IsVideoOn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -838,7 +839,88 @@
                             </ToggleButton.Style>
                         </ToggleButton>
 
-                        <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" 
+                <ToggleButton x:Name="BtnInfo" Grid.Row="0" Grid.Column="5" 
+						  Click="OnToggleInfo" IsChecked="{Binding IsCallInfoOn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+						  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <ToggleButton.Resources>
+                        <Grid x:Key="InfoPressed">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Rectangle  Fill="{StaticResource CallBarNormalBg}" Grid.Row="0" Grid.RowSpan="2">
+
+                            </Rectangle>
+                            <Rectangle Width="40" Height="40" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Grid.RowSpan="2">
+                                <Rectangle.OpacityMask>
+                                            <ImageBrush ImageSource="..\Resources\icon_info.png" />
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                        </Grid>
+                        <Grid x:Key="InfoNormal">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Rectangle  Fill="{StaticResource CallBarNormalBg}" Grid.Row="0" Grid.RowSpan="2">
+
+                            </Rectangle>
+                            <Rectangle Width="40" Height="40" Margin="0" Fill="{StaticResource NavigationBarNormalButtonFont}" 
+                                               VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Grid.RowSpan="2">
+                                <Rectangle.OpacityMask>
+                                    <ImageBrush ImageSource="..\Resources\icon_info.png" />
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                        </Grid>
+                    </ToggleButton.Resources>
+                    <ToggleButton.Style>
+                        <Style TargetType="{x:Type ToggleButton}">
+                            <Setter Property="Opacity" Value="0.4" />
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="Margin" Value="0" />
+                            <Setter Property="SnapsToDevicePixels" Value="True"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="Content" Value="{StaticResource InfoNormal}" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                        <Grid Background="Transparent">
+
+                                            <Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
+                                                <ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                            </Border>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Opacity" Value="0.5" />
+                                </Trigger>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter Property="Opacity" Value="0.8" />
+                                    <Setter Property="Content" Value="{StaticResource InfoPressed}" />
+                                </Trigger>
+
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                        <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True"/>
+                                    </MultiDataTrigger.Conditions>
+
+                                    <Setter Property="Opacity" Value="0.9"/>
+                                    <Setter Property="Content" Value="{StaticResource InfoPressed}"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ToggleButton.Style>
+                </ToggleButton>
+
+                <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="6" 
                                 Click="OnEndCall"  
                                 Width="250"
                                  BorderThickness="0" >
