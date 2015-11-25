@@ -88,6 +88,10 @@ namespace com.vtcsecure.ace.windows
             _log.Info("====================================================");
             _log.Info(String.Format("============== Starting VATRP v{0} =============",
                 System.Reflection.Assembly.GetEntryAssembly().GetName().Version));
+            string linphoneLibraryVersion = VATRP.LinphoneWrapper.LinphoneAPI.linphone_core_get_version_asString();
+            _log.Info(String.Format("======= LinphoneLib Version v{0} =======",
+                linphoneLibraryVersion));
+
             _log.Info("====================================================");
             //try
             //{

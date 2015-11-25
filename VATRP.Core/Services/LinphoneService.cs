@@ -1214,6 +1214,8 @@ namespace VATRP.Core.Services
 					break;
 
 				case LinphoneCallState.LinphoneCallError:
+                    string linphoneLibraryVersion = VATRP.LinphoneWrapper.LinphoneAPI.linphone_core_get_version_asString();
+                    LOG.Info("OnCallStateChanged: CallState=LinphoneCallError .LinphoneLib Version: " + linphoneLibraryVersion);
 					newstate = VATRPCallState.Error;
 			        removeCall = true;
 					break;

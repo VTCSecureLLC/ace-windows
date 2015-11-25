@@ -9,6 +9,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private string _appVersion;
         private string _appName;
         private string _copyright;
+        private string _linphoneVersion;
 
         public AboutViewModel()
         {
@@ -23,6 +24,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
             AppName = assembly.GetName().Name;
             AppVersion = string.Format("Version {0}.{1}.{2}", version.Major, version.Minor, version.Build);
+
+            string linphoneLibraryVersion = VATRP.LinphoneWrapper.LinphoneAPI.linphone_core_get_version_asString();
+            LinphoneLibVersion = string.Format("Core Version {0}", linphoneLibraryVersion);
             Copyright = "Copyright 2015";
         }
 
@@ -45,6 +49,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 _appVersion = value; 
                 OnPropertyChanged("AppVersion");
+            }
+        }
+
+        public string LinphoneLibVersion
+        {
+            get { return _linphoneVersion; }
+            set
+            {
+                _linphoneVersion = value;
+                OnPropertyChanged("LinphoneVersion");
             }
         }
 
