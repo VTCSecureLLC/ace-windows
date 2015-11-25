@@ -300,7 +300,7 @@ namespace com.vtcsecure.ace.windows
             _settingsView.SettingsSavedEvent += OnSettingsSaved;
             _keypadCtrl.KeypadClicked += OnKeypadClicked;
             _dialpadBox.KeypadClicked += OnDialpadClicked;
-
+            _callInfoView.IsVisibleChanged += OnCallInfoVisibilityChanged;
 
             ctrlCall.KeypadClicked += OnKeypadClicked;
             ctrlCall.RttToggled += OnRttToggled;
@@ -308,7 +308,6 @@ namespace com.vtcsecure.ace.windows
             _callOverlayView.CallManagerView = _callView;
             ctrlHistory.MakeCallRequested += OnMakeCallRequested;
             ctrlCall.KeypadCtrl = _keypadCtrl;
-            ctrlCall.CallInfoCtrl = _callInfoView;
             ctrlDialpad.KeypadPressed += OnDialpadClicked;
 
             ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
