@@ -236,7 +236,7 @@ namespace VATRP.Core.Services
 			if (linphoneCore != IntPtr.Zero)
 			{
                 LinphoneAPI.libmsopenh264_init();
-			    LinphoneAPI.linphone_core_set_video_preset(linphoneCore, "30");
+                LinphoneAPI.linphone_core_set_video_preset(linphoneCore, "high-fps");
 				LinphoneAPI.linphone_core_enable_video_capture(linphoneCore, true);
 				LinphoneAPI.linphone_core_enable_video_display(linphoneCore, true);
 				LinphoneAPI.linphone_core_enable_video_preview(linphoneCore, false);
