@@ -1,0 +1,131 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:properties="clr-namespace:com.vtcsecure.ace.windows.Properties"
+             xmlns:conv="clr-namespace:com.vtcsecure.ace.windows.Converters"
+             x:Class="com.vtcsecure.ace.windows.CustomControls.ContactListCtrl"
+             mc:Ignorable="d" 
+    d:DataContext="{d:DesignData Source=../SampleData/ContactViewSampleData.xaml}"
+             d:DesignWidth="300" d:DesignHeight="500"
+               MaxWidth="300"
+             Loaded="OnLoaded"
+             Unloaded="OnUnloaded" 
+    Background="{DynamicResource RecentsPageMainBg}"
+             >
+    <Grid Margin="3" >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Button x:Name="BtnAddContact" Margin="2" Grid.Row="0"
+                     Width="45"
+                    Click="OnAddContact"  Cursor="Hand">
+            <Button.Resources>
+                <Grid x:Key="AddContactNormal" Background="{DynamicResource RecentsPageMainBg}">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0" Grid.Column="0">
+                        <Rectangle Width="40" Height="40"   Fill="Gray" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="..\Resources\add_contact.png" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                    </StackPanel>
+                </Grid>
+                <Grid x:Key="AddContactPressed" Background="{DynamicResource RecentsPageMainBg}">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0" Grid.Column="0" >
+                        
+                        <Rectangle Width="40" Height="40"   Fill="LightGray" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="..\Resources\add_contact.png" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                    </StackPanel>
+                </Grid>
+            </Button.Resources>
+
+            <Button.Style>
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="Opacity" Value="1" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="SnapsToDevicePixels" Value="True"/>
+                    <Setter Property="VerticalAlignment" Value="Stretch"/>
+                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                    <Setter Property="Content" Value="{StaticResource AddContactNormal}" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type Button}">
+                                <Grid Background="Transparent">
+
+                                    <Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
+                                        <ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                    </Border>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Content" Value="{StaticResource AddContactNormal}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Content" Value="{StaticResource AddContactPressed}" />
+                        </Trigger>
+
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsPressed}" Value="True"/>
+                            </MultiDataTrigger.Conditions>
+
+                            <Setter Property="Opacity" Value="0.7"/>
+                            <Setter Property="Content" Value="{DynamicResource AddContactNormal}"/>
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        
+        </Button>
+
+        <Border  Grid.Row="1" BorderThickness="1" BorderBrush="#ff949494">
+        <ListBox x:Name ="ContactsList" BorderThickness="0" SelectedItem="{Binding SelectedContact}"
+                             ItemsSource= "{Binding ContactsListView}" Margin="0,2,0,0" 
+                             SelectionChanged="OnContactSelected" Background="White" 
+                             HorizontalContentAlignment="Stretch" IsSynchronizedWithCurrentItem="True">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                        <Grid Cursor="Hand" >
+                            <Grid.ColumnDefinitions >
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                        <Border Grid.Column="0" Grid.Row="0"  Grid.RowSpan="2" Margin="2,0">
+										 <!--VerticalAlignment="Top" CornerRadius="35" BorderThickness="0" BorderBrush="{StaticResource RecentsPageCallerFont}">-->
+                        <Grid >
+                                <Image Source="{Binding Avatar}" Width="53" Height="53"  Margin="2,3"/>
+                            </Grid>
+                        </Border>
+
+                            <TextBlock  Grid.Row="0" Grid.Column="1" Text="{Binding Contact.Fullname}" Margin="5,0, 0, 3" VerticalAlignment="Bottom" 
+								FontSize="18"  Foreground="{StaticResource RecentsPageCallerFont}" TextWrapping="NoWrap" 
+                                    TextTrimming="CharacterEllipsis" FontWeight="SemiBold" HorizontalAlignment="Left" MaxWidth="160"/>
+                            <TextBlock  Grid.Row="1" Grid.Column="1" Text="{Binding Contact.SipUsername}" Margin="5,0" MaxWidth="160"
+								FontSize="16"  Foreground="{StaticResource RecentsPageCallerFont}" FontWeight="SemiBold" HorizontalAlignment="Left" TextTrimming="CharacterEllipsis" />
+                            <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="2" >
+                            <Image x:Name="EditBtn" ToolTip="Edit contact"  Source="../Resources/edit_contact.png" VerticalAlignment="Bottom" Margin="0,0,2,0" MouseDown="OnEdit" Tag="{Binding Contact}"></Image>
+                                <Image x:Name="DelBtn" ToolTip="Delete contact" Source="../Resources/del_contact.png" VerticalAlignment="Bottom" Margin="2,0,0,0" Width="18" Height="18" Tag="{Binding Contact}" MouseDown="OnDelete"></Image>
+                            </StackPanel>
+                        </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        </Border>
+    </Grid>
+</UserControl>
