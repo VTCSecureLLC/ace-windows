@@ -303,7 +303,7 @@ namespace com.vtcsecure.ace.windows
             _settingsView.SettingsSavedEvent += OnSettingsSaved;
             _keypadCtrl.KeypadClicked += OnKeypadClicked;
             _dialpadBox.KeypadClicked += OnDialpadClicked;
-
+            _callInfoView.IsVisibleChanged += OnCallInfoVisibilityChanged;
 
             ctrlCall.KeypadClicked += OnKeypadClicked;
             ctrlCall.RttToggled += OnRttToggled;

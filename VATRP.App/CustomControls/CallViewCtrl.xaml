@@ -33,23 +33,6 @@
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
 
-        <Grid Visibility="{Binding ShowCallParams, Converter={StaticResource bvc}}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <TextBlock Grid.Column="1" HorizontalAlignment="Center" Margin="0,10" Foreground="{DynamicResource AppMainBorderBrush}"
-                       Text="{Binding CallerInfo}" FontSize="{Binding DisplayNameSize}" 
-                       Visibility="{Binding CallerInfo.Length, Converter={StaticResource oivc}}"
-                       />
-            <TextBlock Grid.Column="2" HorizontalAlignment="Right" Margin="10,10" 
-                           Foreground="{DynamicResource AppMainBorderBrush}"
-                        Text="{Binding Duration, Converter={StaticResource cdc}}" 
-                       VerticalAlignment="Top" FontSize="{Binding InfoTextSize}" 
-                       Visibility="{Binding Duration, Converter={StaticResource oivc}}"/>
-        </Grid>
             <StackPanel Grid.Row="0" Grid.RowSpan="4" x:Name="ColorAnimationBox" Background="#FFD81C1C" VerticalAlignment="Stretch" Visibility="{Binding Path=VisualizeIncoming, Converter={StaticResource bvc}, Mode=OneWay}">
                 <StackPanel.Style>
                     <Style TargetType="StackPanel">
@@ -92,26 +75,31 @@
                 </TextBlock>
             </StackPanel>
 
+        <Grid Visibility="{Binding ShowCallParams, Converter={StaticResource bvc}}">
+
+            <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Margin="0,30">
+                <TextBlock   Foreground="{DynamicResource AppMainBorderBrush}"
+                            HorizontalAlignment="Center"
+                       Text="{Binding CallerInfo}" FontSize="{Binding DisplayNameSize}" 
+                       Visibility="{Binding CallerInfo.Length, Converter={StaticResource oivc}}"
+                       />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Margin="10,0" 
+                           Foreground="{DynamicResource AppMainBorderBrush}"
+                        Text="{Binding CallState, Converter={StaticResource csts} }" 
+                       VerticalAlignment="Top" FontSize="{Binding InfoTextSize}" 
+                       Visibility="Visible"/>
+                    <TextBlock  Margin="10,0" HorizontalAlignment="Center"
+                           Foreground="{DynamicResource AppMainBorderBrush}"
+                        Text="{Binding Duration, Converter={StaticResource cdc}}" 
+                       VerticalAlignment="Top" FontSize="{Binding InfoTextSize}" 
+                       Visibility="Visible"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
         <StackPanel Visibility="{Binding ShowCallParams, Converter={StaticResource ibvc}}"
             Grid.Row="1" Grid.RowSpan="2" Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,0,40" HorizontalAlignment="Center">
-                <TextBlock HorizontalAlignment="Center" Margin="20,10" Foreground="{DynamicResource AppMainBorderBrush}"
-                       Text="{Binding DisplayName}" FontSize="{Binding DisplayNameSize}" 
-                       Visibility="{Binding DisplayName.Length, Converter={StaticResource oivc}}"
-                       />
-                <TextBlock HorizontalAlignment="Center" Foreground="{DynamicResource AppMainBorderBrush}"
-                       Margin="20,10" Text="{Binding RemoteNumber}" 
-                       VerticalAlignment="Center" FontSize="{Binding RemotePartyTextSize}"
-                       Visibility="{Binding RemoteNumber.Length, Converter={StaticResource oivc}}"
-                       />
-                <TextBlock HorizontalAlignment="Center" Margin="20,5" 
-                           Foreground="{DynamicResource AppMainBorderBrush}"
-                           Text="{Binding CallState, Converter={StaticResource csts} }" 
-                       VerticalAlignment="Center" FontSize="{Binding InfoTextSize}"/>
-                <TextBlock HorizontalAlignment="Center"  
-                           Foreground="{DynamicResource AppMainBorderBrush}"
-                       Margin="2" Text="{Binding Duration, Converter={StaticResource cdc}}" 
-                       VerticalAlignment="Center" FontSize="{Binding InfoTextSize}" 
-                       Visibility="{Binding Duration, Converter={StaticResource oivc}}"/>
                 <TextBlock HorizontalAlignment="Center" Margin="2" Text="{Binding AutoAnswer, StringFormat=AutoAnswer after {0} sec}" 
                        VerticalAlignment="Center" FontSize="{Binding InfoTextSize}" 
                            Foreground="{DynamicResource AppMainBorderBrush}"
@@ -282,7 +270,7 @@
 
         </Grid>
 
-        
+    
 <StackPanel Grid.Row="0" Grid.RowSpan="3" x:Name="VideoContainer" VerticalAlignment="Center" HorizontalAlignment="Center">
             <videoWrapper:VATRPOverlay Width="690" Height="690" 
                                        VerticalAlignment="Center" 
@@ -290,7 +278,25 @@
                                        x:Name="ctrlOverlay"
                                        Visibility="{Binding ShowInfo, Converter={StaticResource bvc}}"
                                        >
-                <videoWrapper:VATRPOverlay.OverlayNumpadChild >
+                <videoWrapper:VATRPOverlay.OverlayCallInfoChild >
+                    <Grid >
+
+                        <StackPanel HorizontalAlignment="Center" Orientation="Vertical">
+                            <TextBlock x:Name="CallerInfoLabel" Margin="0,10" Foreground="White"
+                            HorizontalAlignment="Center" Text="" FontSize="30" />
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Margin="10,0" x:Name="CallStateLabel" Text=""
+                           Foreground="White" VerticalAlignment="Top" FontSize="20" />
+                                <TextBlock  Margin="10,0" HorizontalAlignment="Center"
+                           Foreground="White" x:Name="CallDurationLabel" VerticalAlignment="Top" 
+                                            FontSize="20" 
+                       />
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </videoWrapper:VATRPOverlay.OverlayCallInfoChild >
+                
+                        <videoWrapper:VATRPOverlay.OverlayNumpadChild >
                     <Grid Background="White" Opacity="0.5">
                             <Grid.RowDefinitions>
                             <RowDefinition Height="1"/>
@@ -419,12 +425,13 @@
                             <RowDefinition Height="70"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="110"/>
-                        </Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="92"/>
+                            <ColumnDefinition Width="92"/>
+                            <ColumnDefinition Width="92"/>
+                            <ColumnDefinition Width="92"/>
+                            <ColumnDefinition Width="92"/>
+                            <ColumnDefinition Width="92"/>
+                </Grid.ColumnDefinitions>
 
                         <ToggleButton x:Name="BtnVideoOn" Grid.Row="0" Grid.Column="0" 
 						  Click="OnToggleVideo" IsChecked="{Binding IsVideoOn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -832,7 +839,88 @@
                             </ToggleButton.Style>
                         </ToggleButton>
 
-                        <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" 
+                <ToggleButton x:Name="BtnInfo" Grid.Row="0" Grid.Column="5" 
+						  Click="OnToggleInfo" IsChecked="{Binding IsCallInfoOn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+						  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <ToggleButton.Resources>
+                        <Grid x:Key="InfoPressed">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Rectangle  Fill="{StaticResource CallBarNormalBg}" Grid.Row="0" Grid.RowSpan="2">
+
+                            </Rectangle>
+                            <Rectangle Width="40" Height="40" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Grid.RowSpan="2">
+                                <Rectangle.OpacityMask>
+                                            <ImageBrush ImageSource="..\Resources\icon_info.png" />
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                        </Grid>
+                        <Grid x:Key="InfoNormal">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Rectangle  Fill="{StaticResource CallBarNormalBg}" Grid.Row="0" Grid.RowSpan="2">
+
+                            </Rectangle>
+                            <Rectangle Width="40" Height="40" Margin="0" Fill="{StaticResource NavigationBarNormalButtonFont}" 
+                                               VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Grid.RowSpan="2">
+                                <Rectangle.OpacityMask>
+                                    <ImageBrush ImageSource="..\Resources\icon_info.png" />
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                        </Grid>
+                    </ToggleButton.Resources>
+                    <ToggleButton.Style>
+                        <Style TargetType="{x:Type ToggleButton}">
+                            <Setter Property="Opacity" Value="0.4" />
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="Margin" Value="0" />
+                            <Setter Property="SnapsToDevicePixels" Value="True"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="Content" Value="{StaticResource InfoNormal}" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                        <Grid Background="Transparent">
+
+                                            <Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
+                                                <ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                            </Border>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Opacity" Value="0.5" />
+                                </Trigger>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter Property="Opacity" Value="0.8" />
+                                    <Setter Property="Content" Value="{StaticResource InfoPressed}" />
+                                </Trigger>
+
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                        <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True"/>
+                                    </MultiDataTrigger.Conditions>
+
+                                    <Setter Property="Opacity" Value="0.9"/>
+                                    <Setter Property="Content" Value="{StaticResource InfoPressed}"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ToggleButton.Style>
+                </ToggleButton>
+
+                <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="6" 
                                 Click="OnEndCall"  
                                 Width="250"
                                  BorderThickness="0" >
@@ -899,6 +987,5 @@
 
             </videoWrapper:VATRPOverlay>
         </StackPanel>
-
     </Grid>
 </UserControl>
