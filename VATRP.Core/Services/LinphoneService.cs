@@ -54,6 +54,10 @@ namespace VATRP.Core.Services
         private LinphoneCoreIsComposingReceivedCb is_composing_received;
         private LinphoneCoreMessageReceivedCb message_received;
         private LinphoneChatMessageCbsMsgStateChangedCb message_status_changed;
+        private LinphoneCoreCallLogUpdatedCb call_log_updated;
+        private readonly string _chatLogPath;
+        private readonly string _callLogPath;
+
         #endregion
 
 		#region Delegates
@@ -90,6 +94,10 @@ namespace VATRP.Core.Services
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void LinphoneChatMessageCbsMsgStateChangedCb(IntPtr msg, LinphoneChatMessageState state);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void LinphoneCoreCallLogUpdatedCb(IntPtr lc, IntPtr newcl);
+
 		#endregion
 
 		#region Events
@@ -120,6 +128,8 @@ namespace VATRP.Core.Services
         public delegate void OnMessageStatusChangedDelegate(IntPtr chatMsgPtr, LinphoneChatMessageState state);
         public event OnMessageStatusChangedDelegate OnChatMessageStatusChangedEvent;
 
+        public delegate void OnCallLogUpdatedDelegate(IntPtr lc, IntPtr callPtr);
+        public event OnCallLogUpdatedDelegate OnLinphoneCallLogUpdatedEvent;
 		#endregion
 
 		#region Properties
@@ -160,7 +170,22 @@ namespace VATRP.Core.Services
 				return _isStopped;
 			}
 		}
- #endregion
+
+        public string ChatLogPath
+        {
+            get { return _chatLogPath; }
+        }
+
+        public string CallLogPath
+        {
+            get { return _callLogPath; }
+        }
+
+        public IntPtr LinphoneCore
+        {
+            get { return linphoneCore; }
+        }
+        #endregion
 
 		#region Methods
 		public LinphoneService(ServiceManagerBase manager)
@@ -169,6 +194,8 @@ namespace VATRP.Core.Services
 			preferences = new Preferences();
 			_isStarting = false;
 			_isStarted = false;
+		    _chatLogPath = manager.BuildStoragePath("chathistory.db");
+		    _callLogPath = manager.BuildStoragePath("callhistory.db");
 		}
 
         public bool Start(bool enableLogs)
@@ -200,6 +227,7 @@ namespace VATRP.Core.Services
 		    is_composing_received = new LinphoneCoreIsComposingReceivedCb(OnIsComposingReceived);
             message_received = new LinphoneCoreMessageReceivedCb(OnMessageReceived);
             message_status_changed = new LinphoneChatMessageCbsMsgStateChangedCb(OnMessageStatusChanged);
+            call_log_updated = new LinphoneCoreCallLogUpdatedCb(OnCallLogUpdated);
 			vtable = new LinphoneCoreVTable()
 			{
 				global_state_changed = Marshal.GetFunctionPointerForDelegate(global_state_changed),
@@ -208,7 +236,7 @@ namespace VATRP.Core.Services
 				notify_presence_received = IntPtr.Zero,
 				new_subscription_requested = IntPtr.Zero,
 				auth_info_requested = IntPtr.Zero,
-				call_log_updated = IntPtr.Zero,
+                call_log_updated = Marshal.GetFunctionPointerForDelegate(call_log_updated),
                 message_received = Marshal.GetFunctionPointerForDelegate(message_received),
 				is_composing_received = Marshal.GetFunctionPointerForDelegate(is_composing_received),
 				dtmf_received = IntPtr.Zero,
@@ -232,7 +260,9 @@ namespace VATRP.Core.Services
 			vtablePtr = Marshal.AllocHGlobal(Marshal.SizeOf(vtable));
 			Marshal.StructureToPtr(vtable, vtablePtr, false);
 
-			linphoneCore = LinphoneAPI.linphone_core_new(vtablePtr, null, null, IntPtr.Zero);
+            string configPath = manager.BuildStoragePath("linphonerc.cfg");
+
+            linphoneCore = LinphoneAPI.linphone_core_new(vtablePtr, configPath, null, IntPtr.Zero);
 			if (linphoneCore != IntPtr.Zero)
 			{
                 LinphoneAPI.libmsopenh264_init();
@@ -249,7 +279,10 @@ namespace VATRP.Core.Services
                 // load installed codecs
 			    LoadAudioCodecs();
                 LoadVideoCodecs();
-			    
+
+                LinphoneAPI.linphone_core_set_chat_database_path(linphoneCore, _chatLogPath);
+                LinphoneAPI.linphone_core_set_call_logs_database_path(linphoneCore, _callLogPath);
+
 				coreLoop = new Thread(LinphoneMainLoop) {IsBackground = false};
 				coreLoop.Start();
 
@@ -265,14 +298,7 @@ namespace VATRP.Core.Services
             LOG.Debug("Main loop started");
             while (isRunning)
             {
-                try
-                {
-                    LinphoneAPI.linphone_core_iterate(linphoneCore); // roll
-                }
-                catch (AccessViolationException)
-                {
-                    
-                }
+                LinphoneAPI.linphone_core_iterate(linphoneCore); // roll
 
                 Thread.Sleep(30);
             }
@@ -292,6 +318,7 @@ namespace VATRP.Core.Services
             notify_received = null;
             message_received = null;
             message_status_changed = null;
+            call_log_updated = null;
             linphoneCore = callsDefaultParams = proxy_cfg = auth_info = t_configPtr = IntPtr.Zero;
             call_stats_updated = null;
             coreLoop = null;
@@ -1402,6 +1429,12 @@ namespace VATRP.Core.Services
             }
         }
 
+        private void OnCallLogUpdated(IntPtr lc, IntPtr newcl)
+        {
+            if (OnLinphoneCallLogUpdatedEvent != null)
+                OnLinphoneCallLogUpdatedEvent(lc, newcl);
+        }
+
 	    #endregion
 
         #region Info
@@ -1515,7 +1548,7 @@ namespace VATRP.Core.Services
 
 	    #endregion
 
-        #region History
+        #region Chat History
 
         public int GetHistorySize(string username)
         {
@@ -1582,6 +1615,7 @@ namespace VATRP.Core.Services
         }
 
         #endregion
+
 
         #region IVATRPInterface
 
