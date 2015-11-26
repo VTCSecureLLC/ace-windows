@@ -128,18 +128,19 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                        <Border Grid.Column="0" Grid.Row="0"  Grid.RowSpan="2" Margin="5,0">
+                        <Border Grid.Column="0" Grid.Row="0"  Grid.RowSpan="2" Margin="2,0">
 										 <!--VerticalAlignment="Top" CornerRadius="35" BorderThickness="0" BorderBrush="{StaticResource RecentsPageCallerFont}">-->
                         <Grid >
-                                <Image Source="{Binding Avatar}" Width="53" Height="53"  Margin="5,3"/>
+                                <Image Source="{Binding Avatar}" Width="53" Height="53"  Margin="2,3"/>
                                 <Image Source="{Binding CallStatusIndicator}" Width="{Binding StatusImageWidth}" Height="16"  VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
                             </Grid>
                         </Border>
 
-                        <TextBlock  Grid.Row="0" Grid.Column="1" Text="{Binding DisplayName}" Margin="15,0, 0, 3" VerticalAlignment="Bottom" 
-								FontSize="20"  Foreground="{StaticResource RecentsPageCallerFont}" TextWrapping="NoWrap" TextTrimming="WordEllipsis" FontWeight="SemiBold" HorizontalAlignment="Left" />
-                            <TextBlock  Grid.Row="1" Grid.Column="1" Text="{Binding PhoneNumber}" Margin="15,0"
-								FontSize="20"  Foreground="{StaticResource RecentsPageCallerFont}" FontWeight="SemiBold" HorizontalAlignment="Left" />
+                        <TextBlock  Grid.Row="0" Grid.Column="1" Text="{Binding DisplayName}" Margin="5,0, 0, 3" VerticalAlignment="Bottom" 
+								FontSize="19"  Foreground="{StaticResource RecentsPageCallerFont}" TextWrapping="NoWrap" 
+                                    TextTrimming="CharacterEllipsis" FontWeight="SemiBold" HorizontalAlignment="Left" MaxWidth="160"/>
+                            <TextBlock  Grid.Row="1" Grid.Column="1" Text="{Binding PhoneNumber}" Margin="5,0"  MaxWidth="160"
+								FontSize="19"  Foreground="{StaticResource RecentsPageCallerFont}" FontWeight="SemiBold" HorizontalAlignment="Left" />
                         <TextBlock Text="{Binding CallDate}" FontSize="13" Foreground="{StaticResource RecentsPageDateFont}" 
                                    VerticalAlignment="Bottom" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right">
                         </TextBlock>
