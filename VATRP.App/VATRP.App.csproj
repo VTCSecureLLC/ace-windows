@@ -120,6 +120,9 @@
     <Compile Include="Converters\CallStateToStringConverter.cs" />
     <Compile Include="Converters\RegistrationStateToBrushConverter.cs" />
     <Compile Include="Converters\VisibilityConverter.cs" />
+    <Compile Include="CustomControls\ContactListCtrl.xaml.cs">
+      <DependentUpon>ContactListCtrl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\CallLogCtrl.xaml.cs">
       <DependentUpon>CallLogCtrl.xaml</DependentUpon>
     </Compile>
@@ -136,6 +139,8 @@
       <DependentUpon>MainSettingsCtrl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Enums\VATRPSettings.cs" />
+    <Compile Include="ViewModel\ContactEditViewModel.cs" />
+    <Compile Include="ViewModel\ContactsViewModel.cs" />
     <Compile Include="ViewModel\SettingsViewModel.cs" />
     <Compile Include="ViewModel\CallInfoViewModel.cs" />
     <Compile Include="ViewModel\AboutViewModel.cs" />
@@ -147,6 +152,9 @@
     <Compile Include="ViewModel\MainControllerViewModel.cs" />
     <Compile Include="ViewModel\ContactViewModel.cs" />
     <Compile Include="ViewModel\MessagingViewModel.cs" />
+    <Compile Include="Views\ContactEditView.xaml.cs">
+      <DependentUpon>ContactEditView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\AboutView.xaml.cs">
       <DependentUpon>AboutView.xaml</DependentUpon>
     </Compile>
@@ -228,6 +236,10 @@
     <DesignDataWithDesignTimeCreatableTypes Include="SampleData\MessageViewSampleData.xaml">
       <SubType>Designer</SubType>
     </DesignDataWithDesignTimeCreatableTypes>
+    <Page Include="CustomControls\ContactListCtrl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="CustomControls\CallLogCtrl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -257,12 +269,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="SampleData\ContactViewSampleData.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="SampleData\MainViewSampleData.xaml">
       <SubType>Designer</SubType>
     </Page>
     <DesignData Include="SampleData\CallViewSampleData.xaml">
       <SubType>Designer</SubType>
     </DesignData>
+    <Page Include="Views\ContactEditView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\AboutView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -477,6 +496,13 @@
     <Resource Include="Resources\speaker_on.png" />
     <Resource Include="Resources\video_off.png" />
     <Resource Include="Resources\video_on.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\add_contact.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\del_contact.png" />
+    <Resource Include="Resources\edit_contact.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
