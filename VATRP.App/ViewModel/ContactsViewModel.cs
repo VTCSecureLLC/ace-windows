@@ -23,9 +23,10 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private DialpadViewModel _dialpadViewModel;
         private double _contactPaneHeight;
         private ContactViewModel _selectedContact;
-
+        private int _activeTab;
         public ContactsViewModel()
         {
+            _activeTab = 0; // All tab is active by default
             _contactsListView = CollectionViewSource.GetDefaultView(this.Contacts);
             _contactsListView.Filter = new Predicate<object>(this.FilterContactsList);
             _contactPaneHeight = 150;
@@ -70,8 +71,18 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
 
             var contact = _contactsService.FindContact(e.Contact);
-            if (contact != null )
+            if (contact != null)
+            {
                 AddContact(contact, true);
+            }
+        }
+
+        private void OnContactPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "IsFavorite" && ActiveTab == 1)
+            {
+                ContactsListView.Refresh();
+            }
         }
 
         private void ContactRemoved(object sender, ContactRemovedEventArgs e)
@@ -117,6 +128,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
             lock (this.Contacts)
             {
+                contact.PropertyChanged += OnContactPropertyChanged;
                 Contacts.Add(new ContactViewModel(contact));
             }
 
@@ -147,6 +159,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 {
                     if (contact.Contact == contactID)
                     {
+                        contact.PropertyChanged -= OnContactPropertyChanged;
                         Contacts.Remove(contact);
                         ContactsListView.Refresh();
                         break;
@@ -160,6 +173,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
             var contactModel = item as ContactViewModel;
             if (contactModel != null)
             {
+                if (contactModel.Contact != null && ActiveTab == 1 && !contactModel.Contact.IsFavorite)
+                    return false;
+
                 if ( contactModel.Contact != null )
                     return contactModel.Contact.Fullname.Contains(EventSearchCriteria);
                 return contactModel.Contact.SipUsername.Contains(EventSearchCriteria);
@@ -217,6 +233,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 OnPropertyChanged("SelectedContact");
             }
         }
-
+        public int ActiveTab
+        {
+            get { return _activeTab; }
+            set
+            {
+                _activeTab = value;
+                ContactsListView.Refresh();
+                OnPropertyChanged("ActiveTab");
+            }
+        }
     }
 }
