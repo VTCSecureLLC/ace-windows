@@ -1172,9 +1172,12 @@ namespace VATRP.Core.Services
 		void OnRegistrationChanged (IntPtr lc, IntPtr cfg, LinphoneRegistrationState cstate, string message) 
 		{
 			if (linphoneCore == IntPtr.Zero || !isRunning) return;
-			
-			if (RegistrationStateChangedEvent != null)
-				RegistrationStateChangedEvent (cstate);
+
+		    if (cfg == proxy_cfg)
+		    {
+		        if (RegistrationStateChangedEvent != null)
+		            RegistrationStateChangedEvent(cstate);
+		    }
 		}
 
 		void OnGlobalStateChanged(IntPtr lc, LinphoneGlobalState gstate, string message)
