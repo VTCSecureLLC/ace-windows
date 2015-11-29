@@ -11,6 +11,7 @@ using VATRP.Core.Enums;
 using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
+using VATRP.Core.Model.Commands;
 using VATRP.Core.Model.Utils;
 using VATRP.LinphoneWrapper;
 using VATRP.LinphoneWrapper.Enums;
@@ -32,7 +33,6 @@ namespace VATRP.Core.Services
 		private IntPtr vtablePtr;
 		private string identity;
 		Thread coreLoop;
-		private bool isRunning = true;
 		private string server_addr;
 		private bool _isStarting;
 		private bool _isStarted;
@@ -45,6 +45,8 @@ namespace VATRP.Core.Services
         private Object messagingLock = new Object();
 		LinphoneCoreVTable vtable;
 		LCSipTransports t_config;
+        private static ManualResetEvent regulator = new ManualResetEvent(false);
+        private static Queue<LinphoneCommand> commandQueue;
 
 		private LinphoneCoreRegistrationStateChangedCb registration_state_changed;
 		private LinphoneCoreCallStateChangedCb call_state_changed;
@@ -191,6 +193,7 @@ namespace VATRP.Core.Services
 		public LinphoneService(ServiceManagerBase manager)
 		{
 			this.manager = manager;
+            commandQueue = new Queue<LinphoneCommand>();
 			preferences = new Preferences();
 			_isStarting = false;
 			_isStarted = false;
@@ -217,8 +220,6 @@ namespace VATRP.Core.Services
 		        LOG.Debug(ex.ToString());
 		    }
 
-
-		    isRunning = true;
 			registration_state_changed = new LinphoneCoreRegistrationStateChangedCb(OnRegistrationChanged);
 			call_state_changed = new LinphoneCoreCallStateChangedCb(OnCallStateChanged);
 			global_state_changed = new LinphoneCoreGlobalStateChangedCb(OnGlobalStateChanged);
@@ -283,7 +284,7 @@ namespace VATRP.Core.Services
                 LinphoneAPI.linphone_core_set_chat_database_path(linphoneCore, _chatLogPath);
                 LinphoneAPI.linphone_core_set_call_logs_database_path(linphoneCore, _callLogPath);
 
-				coreLoop = new Thread(LinphoneMainLoop) {IsBackground = false};
+				coreLoop = new Thread(LinphoneMainLoop) {IsBackground = true};
 				coreLoop.Start();
 
 				_isStarted = true;
@@ -296,14 +297,78 @@ namespace VATRP.Core.Services
         void LinphoneMainLoop()
         {
             LOG.Debug("Main loop started");
+            bool isRunning = true;
             while (isRunning)
             {
-                LinphoneAPI.linphone_core_iterate(linphoneCore); // roll
+                regulator.WaitOne(30); // fire each 30 msec
+                try
+                {
+                    lock (commandQueue)
+                    {
+                        if (commandQueue.Count > 0)
+                        {
+                            var command = commandQueue.Dequeue();
+                            switch (command.Command)
+                            {
+                                case LinphoneCommandType.TerminateCall:
+                                    var terminateCmd = command as TerminateCallCommand;
 
-                Thread.Sleep(30);
+                                    if (terminateCmd != null)
+                                        LinphoneAPI.linphone_core_terminate_call(LinphoneCore, terminateCmd.CallPtr);
+                                    break;
+                                case LinphoneCommandType.TerminateAllCalls:
+                                    LinphoneAPI.linphone_core_terminate_all_calls(linphoneCore);
+                                    break;
+                                case LinphoneCommandType.AcceptCall:
+                                    var acceptCmd = command as AcceptCallCommand;
+                                    if (acceptCmd != null)
+                                        LinphoneAPI.linphone_core_accept_call_with_params(linphoneCore,
+                                            acceptCmd.CallPtr, acceptCmd.CallParamsPtr);
+                                    break;
+                                case LinphoneCommandType.DeclineCall:
+                                    var declineCmd = command as DeclineCallCommand;
+                                    if (declineCmd != null)
+                                        LinphoneAPI.linphone_core_decline_call(linphoneCore, declineCmd.CallPtr,
+                                            declineCmd.Reason);
+                                    break;
+                                case LinphoneCommandType.CreateCall:
+                                {
+                                    var createCmd = command as CreateCallCommand;
+                                    if (createCmd != null)
+                                    {
+                                        // enable rtt
+                                        LinphoneAPI.linphone_call_params_enable_realtime_text(createCmd.CallParamsPtr, createCmd.EnableRtt);
+
+                                        IntPtr callPtr = LinphoneAPI.linphone_core_invite_with_params(linphoneCore,
+                                            createCmd.Callee, createCmd.CallParamsPtr);
+
+                                        if (callPtr == IntPtr.Zero)
+                                        {
+                                            if (ErrorEvent != null)
+                                                ErrorEvent(null, "Cannot create call to " + createCmd.Callee);
+                                        }
+                                    }
+                                }
+                                    break;
+                                case LinphoneCommandType.StopLinphone:
+                                    isRunning = false;
+                                    break;
+                            }
+                        }
+                        LinphoneAPI.linphone_core_iterate(linphoneCore); // roll
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LOG.Debug("************ Linphone Main loop exception: " + ex.Message);
+                }
             }
 
             LinphoneAPI.linphone_core_destroy(linphoneCore);
+
+            if (callsDefaultParams != IntPtr.Zero)
+                LinphoneAPI.linphone_call_params_destroy(callsDefaultParams);
+            LinphoneAPI.linphone_core_iterate(linphoneCore); // roll
 
             if (vtablePtr != IntPtr.Zero)
                 Marshal.FreeHGlobal(vtablePtr);
@@ -365,7 +430,7 @@ namespace VATRP.Core.Services
 
         public bool CanMakeVideoCall()
         {
-            if (linphoneCore == IntPtr.Zero || !isRunning)
+            if (linphoneCore == IntPtr.Zero)
             {
                 if (ErrorEvent != null)
                     ErrorEvent(null, "Cannot make when Linphone Core is not working.");
@@ -377,7 +442,7 @@ namespace VATRP.Core.Services
 
         public void SendDtmfAsSipInfo(bool use_info)
         {
-            if (linphoneCore == IntPtr.Zero || !isRunning)
+            if (linphoneCore == IntPtr.Zero)
             {
                 if (ErrorEvent != null)
                     ErrorEvent(null, "Cannot make when Linphone Core is not working.");
@@ -393,14 +458,14 @@ namespace VATRP.Core.Services
 
         public void PlayDtmf(char dtmf, int duration)
         {
-            if (linphoneCore == IntPtr.Zero || !isRunning)
+            if (linphoneCore == IntPtr.Zero)
                 return;
             LinphoneAPI.linphone_core_play_dtmf(linphoneCore, dtmf, duration);
         }
 
         public void EnableAdaptiveRateControl(bool bEnable)
         {
-            if (linphoneCore == IntPtr.Zero || !isRunning)
+            if (linphoneCore == IntPtr.Zero)
                 return;
 
             var isCtrlEnabled = LinphoneAPI.linphone_core_adaptive_rate_control_enabled(linphoneCore);
@@ -448,6 +513,9 @@ namespace VATRP.Core.Services
 			if (auth_info == IntPtr.Zero)
 				LOG.Debug("failed to get auth info");
 			LinphoneAPI.linphone_core_add_auth_info(linphoneCore, auth_info);
+
+            // remove all proxy entries from linphone configuration file
+            LinphoneAPI.linphone_core_clear_proxy_config(linphoneCore);
 
 			proxy_cfg = LinphoneAPI.linphone_core_create_proxy_config(linphoneCore);
 			/*set localParty with user name and domain*/
@@ -523,32 +591,23 @@ namespace VATRP.Core.Services
                 return;
 		    }
 
-			if (linphoneCore == IntPtr.Zero || !isRunning) {
+			if (linphoneCore == IntPtr.Zero) {
 				if (ErrorEvent != null)
 					ErrorEvent (null, "Cannot make when Linphone Core is not working.");
 				return;
 			}
 
-            // enable rtt
-            LinphoneAPI.linphone_call_params_enable_realtime_text(callsDefaultParams, rttEnabled);
+		    var cmd = new CreateCallCommand(callsDefaultParams, destination, rttEnabled);
 
-			IntPtr callPtr = LinphoneAPI.linphone_core_invite_with_params (linphoneCore, destination, callsDefaultParams);
-
-			if (callPtr == IntPtr.Zero)
-			{
-                LOG.Warn("Cannot make call. Cause - Failed to initialize call in linphone libray");
-				if (ErrorEvent != null)
-					ErrorEvent (null, "Cannot call.");
-				return;
-			}
-
-			var call = new VATRPCall(callPtr);
-            LOG.Warn("Make call. Add new call. Ptr - " + callPtr);
+		    lock (commandQueue)
+		    {
+		        commandQueue.Enqueue(cmd);
+		    }
 		}
 
 		public void AcceptCall(IntPtr callPtr, bool rttEnabled)
 		{
-            if (linphoneCore == IntPtr.Zero || !isRunning)
+            if (linphoneCore == IntPtr.Zero)
             {
                 if (ErrorEvent != null)
                     ErrorEvent(null, "Cannot receive call when Linphone Core is not working.");
@@ -581,14 +640,18 @@ namespace VATRP.Core.Services
 		            LinphoneAPI.linphone_call_params_enable_realtime_text(callParamsPtr, remoteRttEnabled);
 		        }
 
+		        var cmd = new AcceptCallCommand(call.NativeCallPtr, callParamsPtr);
 		        //	LinphoneAPI.linphone_call_params_set_record_file(callsDefaultParams, null);
-		        LinphoneAPI.linphone_core_accept_call_with_params(linphoneCore, call.NativeCallPtr, callParamsPtr);
+		        lock (commandQueue)
+		        {
+		            commandQueue.Enqueue(cmd);
+		        }
 		    }
 		}
 
 	    public void DeclineCall(IntPtr callPtr)
 	    {
-	        if (linphoneCore == IntPtr.Zero || !isRunning)
+	        if (linphoneCore == IntPtr.Zero)
 	        {
 	            if (ErrorEvent != null)
 	                ErrorEvent(null, "Cannot terminate calls when Linphone Core is not working.");
@@ -612,71 +675,69 @@ namespace VATRP.Core.Services
                 if (CallStateChangedEvent != null)
                     CallStateChangedEvent(call);
                 callsList.Remove(call);
-                LinphoneAPI.linphone_core_decline_call(linphoneCore, callPtr, LinphoneReason.LinphoneReasonDeclined);
+
+                var cmd = new DeclineCallCommand(call.NativeCallPtr, LinphoneReason.LinphoneReasonDeclined);
+
+                lock (commandQueue)
+                {
+                    commandQueue.Enqueue(cmd);
+                }
 	        }
 	    }
 
-	    public bool TerminateCall(IntPtr callPtr)
-	    {
-	        if (linphoneCore == IntPtr.Zero || !isRunning)
-	        {
-	            if (ErrorEvent != null)
-	                ErrorEvent(null, "Cannot terminate calls when Linphone Core is not working.");
-	            return false;
-	        }
+        public bool TerminateCall(IntPtr callPtr)
+        {
+            if (linphoneCore == IntPtr.Zero)
+            {
+                if (ErrorEvent != null)
+                    ErrorEvent(null, "Cannot terminate calls when Linphone Core is not working.");
+                return false;
+            }
 
-	        lock (callLock)
-	        {
-	            VATRPCall call = FindCall(callPtr);
+            lock (callLock)
+            {
+                VATRPCall call = FindCall(callPtr);
 
-	            if (call == null)
-	            {
-	                LOG.Warn("TerminateCall No such call. " + callPtr);
-	                return false;
-	            }
+                if (call == null)
+                {
+                    LOG.Warn("TerminateCall No such call. " + callPtr);
+                    return false;
+                }
 
-	            // notify call state end
+                // notify call state end
                 //if (LinphoneAPI.linphone_call_params_get_record_file(callsDefaultParams) != IntPtr.Zero)
                 //    LinphoneAPI.linphone_call_stop_recording(call.NativeCallPtr);
 
                 LOG.Info("Terminate Call " + callPtr);
 
-	            call.CallState = VATRPCallState.Closed;
+                call.CallState = VATRPCallState.Closed;
                 if (CallStateChangedEvent != null)
                     CallStateChangedEvent(call);
                 LOG.Info(string.Format("Call removed from list. Call - {0}. Total calls in list: {1}", callPtr,
-    callsList.Count));
+                    callsList.Count));
 
-	            callsList.Remove(call);
+                callsList.Remove(call);
+            }
 
-                /* terminate the call */
-                try
-                {
-                    LinphoneAPI.linphone_core_terminate_call(linphoneCore, call.NativeCallPtr);
-                }
-                catch (Exception ex)
-                {
-                    LOG.Error("Exception on terminate calls. " + ex.Message);
-                }
+            var cmd = new TerminateCallCommand(callPtr);
 
-                //IntPtr hwndVideo = LinphoneAPI.linphone_core_get_native_video_window_id(linphoneCore);
+            lock (commandQueue)
+            {
+                commandQueue.Enqueue(cmd);
+            }
+            return true;
+        }
 
-                //if (Win32NativeAPI.IsWindow(hwndVideo))
-                //    Win32NativeAPI.DestroyWindow(hwndVideo);
-	        }
-	        return true;
-	    }
-
-	    public bool IsCallMuted()
+        public bool IsCallMuted()
 		{
-			if (linphoneCore == IntPtr.Zero || !isRunning)
+			if (linphoneCore == IntPtr.Zero)
 				return false;
 			return !LinphoneAPI.linphone_core_mic_enabled(linphoneCore);
 		}
 
 		public void ToggleMute()
 		{
-			if (linphoneCore == IntPtr.Zero || !isRunning)
+			if (linphoneCore == IntPtr.Zero)
 				return;
 
 			LinphoneAPI.linphone_core_enable_mic(linphoneCore, !LinphoneAPI.linphone_core_mic_enabled(linphoneCore));
@@ -699,7 +760,7 @@ namespace VATRP.Core.Services
         #region Messaging
         public void AcceptRTTProposition(IntPtr callPtr)
         {
-            if (linphoneCore == IntPtr.Zero || !isRunning)
+            if (linphoneCore == IntPtr.Zero)
             {
                 if (ErrorEvent != null)
                     ErrorEvent(null, "Cannot receive call when Linphone Core is not working.");
@@ -726,7 +787,7 @@ namespace VATRP.Core.Services
 
         public void SendRTTProposition(IntPtr callPtr)
         {
-            if (linphoneCore == IntPtr.Zero || !isRunning)
+            if (linphoneCore == IntPtr.Zero)
             {
                 if (ErrorEvent != null)
                     ErrorEvent(null, "Cannot receive call when Linphone Core is not working.");
@@ -846,7 +907,7 @@ namespace VATRP.Core.Services
 
 		public void SwitchSelfVideo()
 		{
-			if (linphoneCore == IntPtr.Zero || !isRunning)
+			if (linphoneCore == IntPtr.Zero)
 				throw new Exception("Linphone not initialized");
 
 			bool isSelfViewEnabled = LinphoneAPI.linphone_core_self_view_enabled(linphoneCore);
@@ -906,7 +967,7 @@ namespace VATRP.Core.Services
 
         public void UpdateMediaSettings(VATRPAccount account)
 	    {
-            if (linphoneCore == IntPtr.Zero || !isRunning) return;
+            if (linphoneCore == IntPtr.Zero) return;
 
 	        if (account == null)
 	        {
@@ -952,7 +1013,7 @@ namespace VATRP.Core.Services
 
         public bool UpdateNativeCodecs(VATRPAccount account, CodecType codecType)
 	    {
-            if (linphoneCore == IntPtr.Zero || !isRunning)
+            if (linphoneCore == IntPtr.Zero)
 				throw new Exception("Linphone not initialized");
 
 	        if (account == null)
@@ -1032,7 +1093,7 @@ namespace VATRP.Core.Services
 
 		private void LoadAudioCodecs()
 		{
-            if (linphoneCore == IntPtr.Zero || !isRunning)
+            if (linphoneCore == IntPtr.Zero)
                 throw new Exception("Linphone not initialized");
             _audioCodecs.Clear();
 			var audioCodecsList = new List<PayloadType>();
@@ -1069,7 +1130,7 @@ namespace VATRP.Core.Services
 
         private void LoadVideoCodecs()
         {
-            if (linphoneCore == IntPtr.Zero || !isRunning)
+            if (linphoneCore == IntPtr.Zero)
                 throw new Exception("Linphone not initialized");
 
             _videoCodecs.Clear();
@@ -1109,7 +1170,7 @@ namespace VATRP.Core.Services
         #region Networking
         public bool UpdateNetworkingParameters(VATRPAccount account)
         {
-            if (linphoneCore == IntPtr.Zero || !isRunning)
+            if (linphoneCore == IntPtr.Zero)
                 throw new Exception("Linphone not initialized");
 
             if (account == null)
@@ -1134,7 +1195,7 @@ namespace VATRP.Core.Services
 
 	    public void SetAVPFMode(LinphoneAVPFMode mode)
 	    {
-	        if (linphoneCore == IntPtr.Zero || !isRunning)
+	        if (linphoneCore == IntPtr.Zero)
                 throw new Exception("Linphone not initialized");
 
 	        int linphoneAvpfMode = LinphoneAPI.linphone_core_get_avpf_mode(linphoneCore);
@@ -1147,23 +1208,10 @@ namespace VATRP.Core.Services
 
           public int GetAVPFMode()
         {
-            if (linphoneCore == IntPtr.Zero || !isRunning)
+            if (linphoneCore == IntPtr.Zero)
                 throw new Exception("Linphone not initialized");
 
-            int linphoneAvpfMode = LinphoneAPI.linphone_core_get_avpf_mode(linphoneCore);
-            if (linphoneAvpfMode==-1)
-            {
-                LOG.Info("AVPF mode is default " + linphoneAvpfMode);
-            }
-            else if (linphoneAvpfMode ==0 )
-            {
-                LOG.Info("AVPF mode is disabled " + linphoneAvpfMode);
-            }
-            else if (linphoneAvpfMode == 1)
-            {
-                LOG.Info("AVPF mode is enabled " + linphoneAvpfMode);
-            }
-            return linphoneAvpfMode;
+            return LinphoneAPI.linphone_core_get_avpf_mode(linphoneCore);
         }
 
         #endregion
@@ -1171,7 +1219,7 @@ namespace VATRP.Core.Services
 		#region Events
 		void OnRegistrationChanged (IntPtr lc, IntPtr cfg, LinphoneRegistrationState cstate, string message) 
 		{
-			if (linphoneCore == IntPtr.Zero || !isRunning) return;
+			if (linphoneCore == IntPtr.Zero) return;
 
 		    if (cfg == proxy_cfg)
 		    {
@@ -1182,14 +1230,14 @@ namespace VATRP.Core.Services
 
 		void OnGlobalStateChanged(IntPtr lc, LinphoneGlobalState gstate, string message)
 		{
-			if (linphoneCore == IntPtr.Zero || !isRunning) return;
+			if (linphoneCore == IntPtr.Zero) return;
 
 			if (GlobalStateChangedEvent != null)
 				GlobalStateChangedEvent(gstate);
 		}
 		private void OnCallStateChanged(IntPtr lc, IntPtr callPtr, LinphoneCallState cstate, string message)
 		{
-			if (linphoneCore == IntPtr.Zero || !isRunning) return;
+			if (linphoneCore == IntPtr.Zero) return;
 
 			LOG.Info(string.Format( "OnCallStateChanged: State - {0}, CallPtr - {1}, Message: {2}", cstate, callPtr, message));
 
@@ -1321,7 +1369,7 @@ namespace VATRP.Core.Services
 
 		private void OnNotifyEventReceived(IntPtr lc, IntPtr lev, string notified_event, IntPtr body)
 		{
-			if (linphoneCore == IntPtr.Zero || !isRunning) return;
+			if (linphoneCore == IntPtr.Zero) return;
 
 			Debug.Print("linphoneService Notify:  " + notified_event);
 			if (NotifyReceivedEvent != null)
@@ -1330,7 +1378,7 @@ namespace VATRP.Core.Services
 
         private void OnCallStatsUpdated(IntPtr lc, IntPtr callPtr, IntPtr statsPtr)
         {
-            if (linphoneCore == IntPtr.Zero || !isRunning) return;
+            if (linphoneCore == IntPtr.Zero) return;
 
             lock (callLock)
             {
@@ -1346,7 +1394,7 @@ namespace VATRP.Core.Services
         }
         private void OnIsComposingReceived(IntPtr lc, IntPtr chatPtr)
         {
-            if (linphoneCore == IntPtr.Zero || !isRunning) return;
+            if (linphoneCore == IntPtr.Zero) return;
 
             var remoteUser = string.Empty;
             IntPtr remoteAddress = LinphoneAPI.linphone_chat_room_get_peer_address(chatPtr);
@@ -1372,7 +1420,7 @@ namespace VATRP.Core.Services
 
         private void OnMessageReceived(IntPtr lc, IntPtr roomPtr, IntPtr message)
         {
-            if (linphoneCore == IntPtr.Zero || !isRunning) return;
+            if (linphoneCore == IntPtr.Zero) return;
 
             lock (messagingLock)
             {
@@ -1425,7 +1473,7 @@ namespace VATRP.Core.Services
 
         private void OnMessageStatusChanged(IntPtr msgPtr, LinphoneChatMessageState state)
         {
-            if (linphoneCore == IntPtr.Zero || !isRunning) return;
+            if (linphoneCore == IntPtr.Zero) return;
 
             lock (messagingLock)
             {
@@ -1455,7 +1503,7 @@ namespace VATRP.Core.Services
         }
         public string GetUsedAudioCodec(IntPtr callParams)
         {
-            if (linphoneCore == IntPtr.Zero || !isRunning)
+            if (linphoneCore == IntPtr.Zero)
                 return string.Empty;
 
             IntPtr payloadPtr = LinphoneAPI.linphone_call_params_get_used_audio_codec(callParams);
@@ -1469,7 +1517,7 @@ namespace VATRP.Core.Services
 
         public string GetUsedVideoCodec(IntPtr callParams)
         {
-            if (linphoneCore == IntPtr.Zero || !isRunning)
+            if (linphoneCore == IntPtr.Zero)
                 return string.Empty;
 
             IntPtr payloadPtr = LinphoneAPI.linphone_call_params_get_used_video_codec(callParams);
@@ -1492,7 +1540,7 @@ namespace VATRP.Core.Services
 
 	    public float GetFrameRate(IntPtr curparams, bool sending)
         {
-            if (linphoneCore == IntPtr.Zero || !isRunning)
+            if (linphoneCore == IntPtr.Zero)
                 return 0;
 
             return sending
@@ -1502,7 +1550,7 @@ namespace VATRP.Core.Services
 
         public LinphoneMediaEncryption GetMediaEncryption(IntPtr curparams)
         {
-            if (linphoneCore == IntPtr.Zero || !isRunning)
+            if (linphoneCore == IntPtr.Zero)
                 return LinphoneMediaEncryption.LinphoneMediaEncryptionNone;
 
             return (LinphoneMediaEncryption)LinphoneAPI.linphone_call_params_get_media_encryption(curparams);
@@ -1640,26 +1688,18 @@ namespace VATRP.Core.Services
             if (IsStopped)
                 return true;
             _isStopping = true;
-            if (linphoneCore != IntPtr.Zero)
-                LinphoneAPI.linphone_core_terminate_all_calls(linphoneCore);
 
-            try
+            var cmd = new LinphoneCommand(LinphoneCommandType.TerminateAllCalls);
+            lock (commandQueue)
             {
-                if (callsDefaultParams != IntPtr.Zero)
-                    LinphoneAPI.linphone_call_params_destroy(callsDefaultParams);
-            }
-            catch (Exception ex)
-            {
-                LOG.Error("LinphoneStop: " + ex.Message);
+                commandQueue.Enqueue(cmd);
             }
 
-            SetTimeout(delegate
+            cmd = new LinphoneCommand(LinphoneCommandType.StopLinphone);
+            lock (commandQueue)
             {
-                isRunning = false;
-            }, 1000);
-
-            _isStarted = false;
-            _isStopped = true;
+                commandQueue.Enqueue(cmd);
+            }
             return true;
         }
         #endregion
