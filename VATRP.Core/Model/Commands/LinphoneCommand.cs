@@ -23,7 +23,7 @@ namespace VATRP.Core.Model.Commands
         CreateCall,
         DeclineCall,
         PauseCall,
-        ResumeCal,
+        ResumeCall,
         TerminateAllCalls,
         TerminateCall,
         StopLinphone
