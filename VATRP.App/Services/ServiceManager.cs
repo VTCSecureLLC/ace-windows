@@ -118,11 +118,21 @@ namespace com.vtcsecure.ace.windows.Services
 
         public IntPtr ActiveCallPtr { get; set; }
 
+        internal bool ConfigurationStopped { get; set; }
+        internal bool LinphoneCoreStopped { get; set; }
+        internal bool HistoryServiceStopped { get; set; }
+
+        internal bool AccountServiceStopped { get; set; }
+        internal bool ProviderServiceStopped { get; set; }
         #endregion
 
         private ServiceManager()
         {
-            
+            ConfigurationStopped = true;
+            LinphoneCoreStopped = true;
+            HistoryServiceStopped = true;
+            AccountServiceStopped = true;
+            ProviderServiceStopped = true;
         }
 
         public bool Initialize()
@@ -151,41 +161,58 @@ namespace com.vtcsecure.ace.windows.Services
         private void OnAccountsServiceStarted(object sender, EventArgs args)
         {
             App.CurrentAccount = LoadActiveAccount();
+            AccountServiceStopped = false;
         }
         private void OnProviderServiceStarted(object sender, EventArgs args)
         {
             UpdateProvidersList();
+            ProviderServiceStopped = false;
         }
         private void OnLinphoneServiceStarted(object sender, EventArgs args)
         {
-
+            LinphoneCoreStopped = false;
+            HistoryService.Start();
+            ContactService.Start();
         }
 
         private void OnHistoryServiceStarted(object sender, EventArgs args)
         {
-
+            HistoryServiceStopped = false;
         }
 
         private void OnConfigurationServiceStopped(object sender, EventArgs args)
         {
-
+            ConfigurationStopped = true;
         }
         private void OnAccountsServiceStopped(object sender, EventArgs args)
         {
-
+            AccountServiceStopped = true;
         }
         private void OnProviderServiceStopped(object sender, EventArgs args)
         {
-
+            ProviderServiceStopped = true;
         }
         private void OnLinphoneServiceStopped(object sender, EventArgs args)
         {
-
+            LinphoneCoreStopped = true;
         }
 
         private void OnHistoryServiceStopped(object sender, EventArgs args)
         {
+            HistoryServiceStopped = true;
+        }
 
+        internal bool WaitForServiceCompletion(int secToWait)
+        {
+            int nWait = secToWait*10;
+            while (nWait-- > 0)
+            {
+                if (LinphoneCoreStopped && HistoryServiceStopped && AccountServiceStopped && ProviderServiceStopped &&
+                    ConfigurationStopped)
+                    return true;
+                System.Threading.Thread.Sleep(100);
+            }
+            return false;
         }
         internal bool Start()
         {
@@ -194,7 +221,6 @@ namespace com.vtcsecure.ace.windows.Services
             retVal &= ConfigurationService.Start();
             retVal &= AccountService.Start();
             retVal &= SoundService.Start();
-            retVal &= HistoryService.Start();
             retVal &= ProviderService.Start();
             return retVal;
         }

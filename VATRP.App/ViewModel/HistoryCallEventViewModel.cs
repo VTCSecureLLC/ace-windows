@@ -49,6 +49,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
             this._backColor = callEvent.Status == VATRPHistoryEvent.StatusType.Missed ? new SolidColorBrush(Color.FromArgb(255, 0xFE, 0xCD, 0xCD)) : new SolidColorBrush(Color.FromArgb(255, 0xE9, 0xEF, 0xE9));
 
             var vatrpContact = this._contact;
+            DisplayName = callEvent.DisplayName;
+
             if (vatrpContact != null)
             {
                 vatrpContact.PropertyChanged += OnContactPropertyChanged;

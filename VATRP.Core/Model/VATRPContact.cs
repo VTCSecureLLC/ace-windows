@@ -23,6 +23,7 @@ namespace VATRP.Core.Model
         private DateTime? _lastSeen;
         private string _middlename;
         private string _mobilePhone;
+        private string _sipUsername;
         private string _gender;
         private bool _onlineNotification;
         private UserStatus _status;
@@ -113,6 +114,7 @@ namespace VATRP.Core.Model
             this.Middlename = string.Empty;
             this.MobilePhone = string.Empty;
             this.Gender = string.Empty;
+            this.SipUsername = string.Empty;
             this._avatar = string.Empty;
         }
 
@@ -422,6 +424,19 @@ namespace VATRP.Core.Model
             {
                 this._mobilePhone = value;
                 OnPropertyChanged("MobilePhone");
+            }
+        }
+
+        public string SipUsername
+        {
+            get
+            {
+                return this._sipUsername;
+            }
+            set
+            {
+                this._sipUsername = value;
+                OnPropertyChanged("SipUsername");
             }
         }
 
