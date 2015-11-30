@@ -60,36 +60,10 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         private void OnContactSelected(object sender, SelectionChangedEventArgs e)
         {
-            //var dn = string.Empty;
-            //var un = string.Empty;
             if (_contactsViewModel.SelectedContact != null)
             {
-                //if (!bEditRequest && !bDeleteRequest && !bFavoriteRequest)
-                //{
-                    if (MakeCallRequested != null && _contactsViewModel.SelectedContact.Contact != null)
-                        MakeCallRequested(_contactsViewModel.SelectedContact.Contact.SipUsername);
-                //}
-                //else if (bDeleteRequest)
-                //{
-                //    bDeleteRequest = false;
-                //    dn = _contactsViewModel.SelectedContact.Contact.Fullname;
-                //    un = _contactsViewModel.SelectedContact.Contact.SipUsername;
-                //    _contactsViewModel.SelectedContact = null;
-                //    if (MessageBox.Show("Do you want to remove the selected contact?", "ACE", MessageBoxButton.YesNo,
-                //        MessageBoxImage.Question) == MessageBoxResult.Yes)
-
-                //        ServiceManager.Instance.ContactService.DeleteLinphoneContact(dn,un);
-                //}
-                //else if (bEditRequest)
-                //{
-                //    bEditRequest = false;
-                    
-                //}
-                //else if (bFavoriteRequest)
-                //{
-                //    _contactsViewModel.SelectedContact.Contact.IsFavorite =
-                //        !_contactsViewModel.SelectedContact.Contact.IsFavorite;
-                //}
+                if (MakeCallRequested != null && _contactsViewModel.SelectedContact.Contact != null)
+                    MakeCallRequested(_contactsViewModel.SelectedContact.Contact.SipUsername);
                 _contactsViewModel.SelectedContact = null;
             }
         }
