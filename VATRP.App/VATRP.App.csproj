@@ -108,6 +108,7 @@
     </Compile>
     <Compile Include="Converters\BoolToBubbleAlignmentConverter.cs" />
     <Compile Include="Converters\CallStateToBrushConverter.cs" />
+    <Compile Include="Converters\ContactFavoriteToBrushConverter.cs" />
     <Compile Include="Converters\DirectionToColumnConverter.cs" />
     <Compile Include="Converters\MessageDateConverter.cs" />
     <Compile Include="Converters\MessageDeliveryStatusToBrushConverter.cs" />
@@ -503,6 +504,9 @@
   <ItemGroup>
     <Resource Include="Resources\del_contact.png" />
     <Resource Include="Resources\edit_contact.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\fav_contact.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
