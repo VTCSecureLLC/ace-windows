@@ -113,9 +113,34 @@
                              ItemsSource= "{Binding ContactsListView}" Margin="0,2,0,0" 
                              SelectionChanged="OnContactSelected" Background="White" Grid.Row="1"
                              HorizontalContentAlignment="Stretch" IsSynchronizedWithCurrentItem="True">
-            <ListBox.ItemTemplate>
+                    <ListBox.Resources>
+                    <Style TargetType="ListBoxItem">
+                        <Style.Resources>
+                            <!-- Background of selected item when focussed -->
+                                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FFE9EFE9"/>
+                        </Style.Resources>
+                        
+                    </Style>
+                    </ListBox.Resources>
+                    <ListBox.ItemTemplate>
                 <DataTemplate>
-                        <Grid Cursor="Hand" >
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True" >
+                                    <Setter Property="Grid.Background" TargetName="BorderControl" Value="#FFE9EFE9" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                    
+                            <Grid Cursor="Hand" x:Name="BorderControl" Background="White">
+                            <Grid.Resources>
+                                <Style x:Key="HideButtonsStyle" TargetType="StackPanel">
+                                        <Setter Property="Opacity" Value="0" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid,AncestorLevel=1}, Path=IsMouseOver}" Value="True" >
+                                                <Setter Property="Opacity" Value="1" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Resources>
                             <Grid.ColumnDefinitions >
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
@@ -137,10 +162,10 @@
                                     TextTrimming="CharacterEllipsis" FontWeight="SemiBold" HorizontalAlignment="Left" MaxWidth="150"/>
                             <TextBlock  Grid.Row="1" Grid.Column="1" Text="{Binding Contact.SipUsername}" Margin="5,0" MaxWidth="150"
 								FontSize="14"  Foreground="{StaticResource RecentsPageCallerFont}" ToolTip="{Binding Contact.SipUsername}" FontWeight="SemiBold" HorizontalAlignment="Left" TextTrimming="CharacterEllipsis" />
-                           
-                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Grid.RowSpan="2">
+                                <StackPanel x:Name="ControlBtnPanel" Style="{StaticResource HideButtonsStyle}"
+                                        Orientation="Horizontal" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Grid.RowSpan="2">
                                     
-                                <ToggleButton x:Name="FavoriteBtn" Margin="0,0,2,0" Tag="{Binding Contact}" 
+                                <ToggleButton x:Name="FavoriteBtn" Margin="0,0,2,0" Tag="{Binding Contact}" Visibility="Collapsed"
                                               HorizontalAlignment="Left" VerticalAlignment="Center" Click="btnFavorite_Click" >
                                         <ToggleButton.Resources>
                                             <Grid x:Key="FavHover" >
@@ -257,7 +282,7 @@
                                                   VerticalAlignment="Center" Click="OnDelete" >
                                         <ToggleButton.Resources>
                                             <Grid x:Key="DelHover" >
-                                                <Rectangle  Fill="White" Grid.Row="0" Grid.RowSpan="2">
+                                                <Rectangle  Fill="White" >
                                                 </Rectangle>
                                                 <Rectangle Width="20" Height="20" Fill="#FF202020" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
                                                     <Rectangle.OpacityMask>
@@ -266,7 +291,7 @@
                                                 </Rectangle>
                                             </Grid>
                                             <Grid x:Key="DelPressed">
-                                                <Rectangle  Fill="White" Grid.Row="0" Grid.RowSpan="2">
+                                                <Rectangle  Fill="White" Grid.Row="0" >
                                                 </Rectangle>
                                                 <Rectangle Width="20" Height="20" Fill="#FF202020" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
                                                     <Rectangle.OpacityMask>
@@ -275,7 +300,7 @@
                                                 </Rectangle>
                                             </Grid>
                                             <Grid x:Key="DelNormal">
-                                                <Rectangle  Fill="White" Grid.Row="0" Grid.RowSpan="2">
+                                                <Rectangle  Fill="White" Grid.Row="0" >
                                                 </Rectangle>
                                                 <Rectangle Width="20" Height="20" Fill="#FF202020" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
                                                     <Rectangle.OpacityMask>
