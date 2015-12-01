@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Globalization;
 using System.Windows.Data;
+using System.Windows.Media;
 using VATRP.Core.Model;
 
 namespace com.vtcsecure.ace.windows.Converters
 {
-    public class CallDurationConverter : IValueConverter
+    public class ContactFavoriteToBrushConverter : IValueConverter
     {
-        public CallDurationConverter()
+        public ContactFavoriteToBrushConverter()
         {
             
         }
@@ -16,20 +17,18 @@ namespace com.vtcsecure.ace.windows.Converters
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is int)
+            if (value is bool && (bool)value)
             {
-                var duration = (int)value;
-                if (duration > 3599)
-                    return string.Format("{0:D2}:{1:D2}:{2:D2}", duration/3600, (duration/60)%60, duration%60);
-                return string.Format("{0:D2}:{1:D2}", duration / 60, duration % 60);
+                return new SolidColorBrush(Color.FromArgb(0xff, 0xe7, 0x3e, 0x0a));
             }
 
-            return "00:00:00";
+            return new SolidColorBrush(Color.FromArgb(255, 32, 32, 32));
+
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         #endregion

@@ -26,8 +26,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
         
         #region Properties
         public KeyPadCtrl KeypadCtrl { get; set; }
-        public CallInfoView CallInfoCtrl { get; set; }
-
+        
         #endregion
 
         #region Events
@@ -37,6 +36,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
         public event SwitchCallbarButton SpeakerOnToggled;
         public event SwitchCallbarButton NumpadToggled;
         public event SwitchCallbarButton RttToggled;
+        public event SwitchCallbarButton CallInfoToggled;
         public event EventHandler<KeyPadEventArgs> KeypadClicked; 
         #endregion
         public CallViewCtrl()
@@ -48,6 +48,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
             ctrlOverlay.NumpadOverlayWidth = 229;
             ctrlOverlay.NumpadOverlayHeight = 305;
 
+            ctrlOverlay.CallInfoOverlayWidth = 550;
+            ctrlOverlay.CallInfoOverlayHeight = 200;
         }
 
         public CallViewCtrl(CallViewModel viewModel) :
@@ -66,6 +68,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             BtnSpeaker.IsChecked = false;
             BtnNumpad.IsChecked = false;
             BtnRTT.IsChecked = false;
+            BtnInfo.IsChecked = false;
         }
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
@@ -120,20 +123,12 @@ namespace com.vtcsecure.ace.windows.CustomControls
         }
 
         #region Call Statistics Info
-        private void ToggleInfoWindow(object sender, RoutedEventArgs e)
+        private void OnToggleInfo(object sender, RoutedEventArgs e)
         {
-            ToggleCallStatisticsInfo();
-        }
-
-        internal void ToggleCallStatisticsInfo()
-        {
-            if (CallInfoCtrl != null)
-            {
-                if (CallInfoCtrl.IsVisible)
-                    CallInfoCtrl.Hide();
-                else
-                    CallInfoCtrl.Show();
-            }
+            if (CallInfoToggled != null)
+                CallInfoToggled(BtnInfo.IsChecked ?? false);
+            if (_viewModel != null)
+                _viewModel.ToggleCallStatisticsInfo(BtnInfo.IsChecked ?? false);
         }
 
         #endregion
