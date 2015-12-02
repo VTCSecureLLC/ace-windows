@@ -27,6 +27,27 @@ namespace VATRP.LinphoneWrapper
         #endregion
 
         #region Methods
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_version();
+        public static string linphone_core_get_version_asString()
+        {
+            IntPtr ptr = linphone_core_get_version();
+            // assume returned string is utf-8 encoded
+            return PtrToStringUtf8(ptr);
+        }
+        private static string PtrToStringUtf8(IntPtr ptr) // aPtr is nul-terminated
+        {
+            if (ptr == IntPtr.Zero)
+                return "";
+            int len = 0;
+            while (System.Runtime.InteropServices.Marshal.ReadByte(ptr, len) != 0)
+                len++;
+            if (len == 0)
+                return "";
+            byte[] array = new byte[len];
+            System.Runtime.InteropServices.Marshal.Copy(ptr, array, 0, len);
+            return System.Text.Encoding.UTF8.GetString(array);
+        }
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_enable_logs(IntPtr file);
@@ -43,6 +64,12 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_core_create_proxy_config(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_clear_proxy_config(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_proxy_config_normalize_sip_uri(IntPtr proxy, string username);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_auth_info_new(string username, string userid, string passwd,
@@ -133,7 +160,7 @@ namespace VATRP.LinphoneWrapper
         public static extern IntPtr linphone_call_get_remote_address_as_string(IntPtr call);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern	int linphone_core_set_media_encryption(IntPtr lc, LinphoneMediaEncryption menc);
+        public static extern int linphone_core_set_media_encryption(IntPtr lc, LinphoneMediaEncryption menc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern LinphoneMediaEncryption linphone_core_get_media_encryption(IntPtr lc);
@@ -865,10 +892,10 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_enable_adaptive_rate_control(IntPtr lc, bool enabled);
-        
+
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_adaptive_rate_control_enabled( IntPtr lc);
-        
+        public static extern bool linphone_core_adaptive_rate_control_enabled(IntPtr lc);
+
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_set_adaptive_rate_algorithm(IntPtr lc, string algorithm);
 
@@ -1232,7 +1259,7 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_chat_room_get_peer_address(IntPtr cr);
-        
+
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_chat_room_send_message(IntPtr cr, string msg);
 
@@ -1290,7 +1317,7 @@ namespace VATRP.LinphoneWrapper
  */
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr  linphone_chat_room_get_history(IntPtr cr, int nb_message);
+        public static extern IntPtr linphone_chat_room_get_history(IntPtr cr, int nb_message);
 
 /**
  * Gets the partial list of messages in the given range, sorted from oldest to most recent.
@@ -1352,7 +1379,7 @@ namespace VATRP.LinphoneWrapper
  * @return \mslist{LinphoneChatRoom}
 **/
 
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] 
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_core_get_chat_rooms(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -1623,7 +1650,7 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern string linphone_chat_message_get_file_transfer_filepath(IntPtr msg);
-        
+
 /**
  * Fulfill a chat message char by char. Message linked to a Real Time Text Call send char in realtime following RFC 4103/T.140
  * To commit a message, use #linphone_chat_room_send_message
@@ -1688,7 +1715,8 @@ namespace VATRP.LinphoneWrapper
  */
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_chat_message_cbs_get_msg_state_changed(IntPtr  cbs);
+        public static extern IntPtr linphone_chat_message_cbs_get_msg_state_changed(IntPtr cbs);
+
 /**
  * Set the message state changed callback.
  * @param[in] cbs LinphoneChatMessageCbs object.
@@ -1705,7 +1733,8 @@ namespace VATRP.LinphoneWrapper
  */
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_chat_message_cbs_get_file_transfer_recv(IntPtr  cbs);
+        public static extern IntPtr linphone_chat_message_cbs_get_file_transfer_recv(IntPtr cbs);
+
 /**
  * Set the file transfer receive callback.
  * @param[in] cbs LinphoneChatMessageCbs object.
@@ -1722,7 +1751,8 @@ namespace VATRP.LinphoneWrapper
  */
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_chat_message_cbs_get_file_transfer_send(IntPtr  cbs);
+        public static extern IntPtr linphone_chat_message_cbs_get_file_transfer_send(IntPtr cbs);
+
 /**
  * Set the file transfer send callback.
  * @param[in] cbs LinphoneChatMessageCbs object.
@@ -1739,12 +1769,321 @@ namespace VATRP.LinphoneWrapper
  */
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_chat_message_cbs_get_file_transfer_progress_indication(IntPtr  cbs);
+        public static extern IntPtr linphone_chat_message_cbs_get_file_transfer_progress_indication(IntPtr cbs);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_chat_message_cbs_set_file_transfer_progress_indication(IntPtr cbs, IntPtr cb);
 
         #endregion
+
+
+        #region Contacts
+
+/**
+ * Set the display name for this friend
+ * @param lf #LinphoneFriend object
+ * @param name 
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_friend_set_name(IntPtr lf, string name);
+
+        /**
+ * Create a default LinphoneFriend.
+ * @param[in] lc #LinphoneCore object
+ * @return The created #LinphoneFriend object
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_create_friend(IntPtr lc);
+
+/**
+ * Create a LinphoneFriend from the given address.
+ * @param[in] lc #LinphoneCore object
+ * @param[in] address A string containing the address to create the LinphoneFriend from
+ * @return The created #LinphoneFriend object
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_create_friend_with_address(IntPtr lc, string address);
+
+        /**
+ * Add a friend to the current buddy list, if \link linphone_friend_enable_subscribes() subscription attribute \endlink is set, a SIP SUBSCRIBE message is sent.
+ * @param lc #LinphoneCore object
+ * @param fr #LinphoneFriend to add
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_add_friend(IntPtr lc, IntPtr fr);
+
+/**
+ * remove a friend from the buddy list
+ * @param lc #LinphoneCore object
+ * @param fr #LinphoneFriend to add
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_remove_friend(IntPtr lc, IntPtr fr);
+
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_friend_list(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_get_address(IntPtr lf);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_set_address(IntPtr fr, IntPtr address);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_new_with_address(string addr);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_friend_enable_subscribes(IntPtr fr, bool val);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_friend_edit(IntPtr fr);
+
+         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_friend_done(IntPtr fr);
+
+        #endregion
+
+
+        #region Call history
+
+/**
+ * Get the list of call logs (past calls).
+ * @param[in] lc LinphoneCore object
+ * @return \mslist{LinphoneCallLog}
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_call_logs(IntPtr lc);
+
+/**
+ * Get the list of call logs (past calls) that matches the given #LinphoneAddress.
+ * At the contrary of linphone_core_get_call_logs, it is your responsability to unref the logs and free this list once you are done using it.
+ * @param[in] lc LinphoneCore object
+ * @return \mslist{LinphoneCallLog}
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_call_history_for_address(IntPtr lc, IntPtr addr);
+
+/**
+ * Erase the call log.
+ * @param[in] lc LinphoneCore object
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_clear_call_logs(IntPtr lc);
+
+/**
+ * Get the number of missed calls.
+ * Once checked, this counter can be reset with linphone_core_reset_missed_calls_count().
+ * @param[in] lc #LinphoneCore object.
+ * @return The number of missed calls.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_get_missed_calls_count(IntPtr lc);
+
+/**
+ * Reset the counter of missed calls.
+ * @param[in] lc #LinphoneCore object.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_reset_missed_calls_count(IntPtr lc);
+
+/**
+ * Remove a specific call log from call history list.
+ * This function destroys the call log object. It must not be accessed anymore by the application after calling this function.
+ * @param[in] lc #LinphoneCore object
+ * @param[in] call_log #LinphoneCallLog object to remove.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_remove_call_log(IntPtr lc, IntPtr call_log);
+
+/**
+ * Sets the database filename where call logs will be stored.
+ * If the file does not exist, it will be created.
+ * @ingroup initializing
+ * @param lc the linphone core
+ * @param path filesystem path
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_call_logs_database_path(IntPtr lc, string path);
+
+/**
+ * Migrates the call logs from the linphonerc to the database if not done yet
+ * @ingroup initializing
+ * @param lc the linphone core
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_migrate_logs_from_rc_to_db(IntPtr lc);
+
+
+        #endregion
+
+        #region CallLog
+
+        /**
+ * Get the call ID used by the call.
+ * @param[in] cl LinphoneCallLog object
+ * @return The call ID used by the call as a string.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_log_get_call_id(IntPtr cl);
+
+/**
+ * Get the direction of the call.
+ * @param[in] cl LinphoneCallLog object
+ * @return The direction of the call.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern LinphoneCallDir linphone_call_log_get_dir(IntPtr cl);
+
+/**
+ * Get the duration of the call since connected.
+ * @param[in] cl LinphoneCallLog object
+ * @return The duration of the call in seconds.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_call_log_get_duration(IntPtr cl);
+
+/**
+ * Get the origin address (ie from) of the call.
+ * @param[in] cl LinphoneCallLog object
+ * @return The origin address (ie from) of the call.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_log_get_from_address(IntPtr cl);
+
+/**
+ * Get the RTP statistics computed locally regarding the call.
+ * @param[in] cl LinphoneCallLog object
+ * @return The RTP statistics that have been computed locally for the call.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] 
+        public static extern  IntPtr linphone_call_log_get_local_stats (IntPtr cl);
+
+/**
+ * Get the overall quality indication of the call.
+ * @param[in] cl LinphoneCallLog object
+ * @return The overall quality indication of the call.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern float linphone_call_log_get_quality(IntPtr cl);
+
+/**
+ * Get the persistent reference key associated to the call log.
+ *
+ * The reference key can be for example an id to an external database.
+ * It is stored in the config file, thus can survive to process exits/restarts.
+ *
+ * @param[in] cl LinphoneCallLog object
+ * @return The reference key string that has been associated to the call log, or NULL if none has been associated.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] 
+        public static extern IntPtr linphone_call_log_get_ref_key ( IntPtr cl );
+
+/**
+ * Get the remote address (that is from or to depending on call direction).
+ * @param[in] cl LinphoneCallLog object
+ * @return The remote address of the call.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_log_get_remote_address(IntPtr cl);
+
+/**
+ * Get the RTP statistics computed by the remote end and sent back via RTCP.
+ * @note Not implemented yet.
+ * @param[in] cl LinphoneCallLog object
+ * @return The RTP statistics that have been computed by the remote end for the call.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_log_get_remote_stats(IntPtr cl);
+
+/**
+ * Get the start date of the call.
+ * @param[in] cl LinphoneCallLog object
+ * @return The date of the beginning of the call.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern uint linphone_call_log_get_start_date(IntPtr cl);
+
+/**
+ * Get the status of the call.
+ * @param[in] cl LinphoneCallLog object
+ * @return The status of the call.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern LinphoneCallStatus linphone_call_log_get_status(IntPtr cl);
+
+/**
+ * Get the destination address (ie to) of the call.
+ * @param[in] cl LinphoneCallLog object
+ * @return The destination address (ie to) of the call.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_log_get_to_address(IntPtr cl);
+
+/**
+ * Associate a persistent reference key to the call log.
+ *
+ * The reference key can be for example an id to an external database.
+ * It is stored in the config file, thus can survive to process exits/restarts.
+ *
+ * @param[in] cl LinphoneCallLog object
+ * @param[in] refkey The reference key string to associate to the call log.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_call_log_set_ref_key(IntPtr cl, string refkey);
+
+/**
+ * Tell whether video was enabled at the end of the call or not.
+ * @param[in] cl LinphoneCallLog object
+ * @return A boolean value telling whether video was enabled at the end of the call.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_call_log_video_enabled(IntPtr cl);
+
+        #endregion
+
+        #region LinphoneAddress
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_address_get_display_name(IntPtr u);
+
+        
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_address_get_username(IntPtr u);
+
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_address_get_domain(IntPtr u);
+        
+        #endregion
+
 
         #endregion
 

@@ -68,6 +68,7 @@ namespace com.vtcsecure.ace.windows
             InitializeComponent();
             DataContext = _mainViewModel;
             ctrlHistory.SetDataContext(_mainViewModel.HistoryModel);
+            ctrlContacts.SetDataContext(_mainViewModel.ContactsModel);
             _dialpadBox = new Dialpad(_mainViewModel.DialpadModel);
             _messagingWindow = new MediaTextWindow(_mainViewModel.MessagingModel);
             ctrlDialpad.SetViewModel(_mainViewModel.DialpadModel);
@@ -82,8 +83,11 @@ namespace com.vtcsecure.ace.windows
             //ToggleWindow(_historyView);
             bool isChecked = BtnRecents.IsChecked ?? false;
             if (isChecked)
+            {
                 _mainViewModel.IsDialpadDocked = false;
-            
+                _mainViewModel.IsContactDocked = false;
+                _mainViewModel.IsSettingsDocked = false;
+            }
             _mainViewModel.IsCallHistoryDocked = isChecked;
         }
 
@@ -92,7 +96,11 @@ namespace com.vtcsecure.ace.windows
            // ToggleWindow(_contactBox);
             bool isChecked = BtnContacts.IsChecked ?? false;
             if (isChecked)
+            {
                 _mainViewModel.IsDialpadDocked = false;
+                _mainViewModel.IsCallHistoryDocked = false;
+                _mainViewModel.IsSettingsDocked = false;
+            }
             _mainViewModel.IsContactDocked = isChecked;
         }
 
@@ -126,8 +134,11 @@ namespace com.vtcsecure.ace.windows
         {
             bool isChecked = BtnSettings.IsChecked ?? false;
             if (isChecked)
+            {
                 _mainViewModel.IsDialpadDocked = false;
-
+                _mainViewModel.IsCallHistoryDocked = false;
+                _mainViewModel.IsContactDocked = false;
+            }
             _mainViewModel.IsSettingsDocked = BtnSettings.IsChecked ?? false;
         }
 
@@ -198,16 +209,18 @@ namespace com.vtcsecure.ace.windows
         {
             App.AllowDestroyWindows = true;
             base.Window_Closing(sender, e);
+            ServiceManager.Instance.Stop();
         }
 
         private void OnClosed(object sender, EventArgs e)
         {
+            ServiceManager.Instance.WaitForServiceCompletion(5);
+
             _linphoneService.RegistrationStateChangedEvent -= OnRegistrationChanged;
             _linphoneService.CallStateChangedEvent -= OnCallStateChanged;
             _linphoneService.GlobalStateChangedEvent -= OnGlobalStateChanged;
             ServiceManager.Instance.NewAccountRegisteredEvent -= OnNewAccountRegistered;
-
-            ServiceManager.Instance.Stop();
+            
             Application.Current.Shutdown();
         }
 
@@ -290,15 +303,15 @@ namespace com.vtcsecure.ace.windows
             _settingsView.SettingsSavedEvent += OnSettingsSaved;
             _keypadCtrl.KeypadClicked += OnKeypadClicked;
             _dialpadBox.KeypadClicked += OnDialpadClicked;
-
+            _callInfoView.IsVisibleChanged += OnCallInfoVisibilityChanged;
 
             ctrlCall.KeypadClicked += OnKeypadClicked;
             ctrlCall.RttToggled += OnRttToggled;
 
             _callOverlayView.CallManagerView = _callView;
             ctrlHistory.MakeCallRequested += OnMakeCallRequested;
+            ctrlContacts.MakeCallRequested += OnMakeCallRequested;
             ctrlCall.KeypadCtrl = _keypadCtrl;
-            ctrlCall.CallInfoCtrl = _callInfoView;
             ctrlDialpad.KeypadPressed += OnDialpadClicked;
 
             ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;

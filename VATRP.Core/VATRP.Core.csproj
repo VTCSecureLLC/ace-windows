@@ -102,6 +102,14 @@
     <Compile Include="Interfaces\ISoundService.cs" />
     <Compile Include="Interfaces\IVATRPservice.cs" />
     <Compile Include="Model\CallParams.cs" />
+    <Compile Include="Model\Commands\CreateCallCommand.cs" />
+    <Compile Include="Model\Commands\DeclineCallCommand.cs" />
+    <Compile Include="Model\Commands\CallCommand.cs" />
+    <Compile Include="Model\Commands\LinphoneCommand.cs" />
+    <Compile Include="Model\Commands\AcceptCallCommand.cs" />
+    <Compile Include="Model\Commands\ResumeCallCommand.cs" />
+    <Compile Include="Model\Commands\PauseCallCommand.cs" />
+    <Compile Include="Model\Commands\TerminateCallCommand.cs" />
     <Compile Include="Model\VATRPServiceProvider.cs" />
     <Compile Include="Model\VATRPUserGroup.cs" />
     <Compile Include="Model\Utils\Time.cs" />

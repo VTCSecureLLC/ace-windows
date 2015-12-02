@@ -24,7 +24,7 @@
 
     <SolidColorBrush x:Key="AcceptButtonNormalBrush" Color="#ff3fbe3f"/>
     <SolidColorBrush x:Key="AcceptButtonClickedBrush" Color="#ff1fb4ff"/>
-    <SolidColorBrush x:Key="CallBarNormalBg" Color="#FF2C373D"/>
+    <SolidColorBrush x:Key="CallBarNormalBg" Color="#FF5C7584"/>
     <SolidColorBrush x:Key="CallBarPressedBg" Color="#FFbe3f3f"/>
     <SolidColorBrush x:Key="CallBarEndCallBg" Color="#FFbe3f3f"/>
 
@@ -351,4 +351,90 @@
                   </Setter.Value>
               </Setter>
           </Style>
+
+        <Style x:Key="VATRPTabStyle" TargetType="TabControl">
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabControl">
+                        <Grid KeyboardNavigation.TabNavigation="Local">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Disabled">
+                                        <Storyboard>
+                                            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Border"
+                                                Storyboard.TargetProperty="(Border.BorderBrush).
+                    (SolidColorBrush.Color)">
+                                                <EasingColorKeyFrame KeyTime="0"
+                                         Value="#FF949494" />
+                                            </ColorAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <TabPanel x:Name="HeaderPanel"
+                    Grid.Row="0"
+                    Panel.ZIndex="1"
+                    Margin="0,0,4,-1"
+                    IsItemsHost="True"
+                    KeyboardNavigation.TabIndex="1"
+                    Background="Transparent" />
+                            <Border x:Name="Border"
+                  Grid.Row="1"
+                  BorderThickness="1,1,1,0"
+                  CornerRadius="0"
+                  KeyboardNavigation.TabNavigation="Local"
+                  KeyboardNavigation.DirectionalNavigation="Contained"
+                  KeyboardNavigation.TabIndex="2" 
+                                    Background="White"
+                                    >
+                                <Border.BorderBrush>
+                                    <SolidColorBrush Color="#FF949494"/>
+                                </Border.BorderBrush>
+                                <ContentPresenter x:Name="PART_SelectedContentHost"
+                              Margin="2"
+                              ContentSource="SelectedContent" />
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="TabItem">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Grid >
+                            <Border Name="tiBorder" Margin="0,1,1,0" BorderThickness="1,1,1,0" BorderBrush="#FF949494" CornerRadius="3,3,0,0">
+                                <TextBlock HorizontalAlignment="Center" 
+                                       Name="TextBlock" 
+                                       Foreground="#FF4c4c4c">
+                                <ContentPresenter ContentSource="Header" 
+                                                  Margin="20,0"
+                                                  VerticalAlignment="Center"
+                                                  HorizontalAlignment="Center"
+                                                  TextBlock.FontSize="18"/>
+                                </TextBlock>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Panel.ZIndex" Value="100"/>
+                                <Setter TargetName="tiBorder" Property="Background" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="False">
+                                <Setter TargetName="tiBorder" Property="BorderThickness" Value="0"/>
+                                <Setter TargetName="TextBlock" Property="Foreground" Value="#FFAAAAAA" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
 </ResourceDictionary>

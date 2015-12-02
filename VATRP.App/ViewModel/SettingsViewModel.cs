@@ -20,6 +20,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _isNetworkSettingsEnabled;
         private bool _isMultimediaSettingsEnabled;
         private bool _isTestingSettingsEnabled;
+        private int _selectedPage;
 
         public SettingsViewModel()
         {
@@ -34,53 +35,13 @@ namespace com.vtcsecure.ace.windows.ViewModel
         public bool CallSettingsChanged { get;  set; }
         public bool MediaSettingsChanged { get; set; }
 
-        public bool IsSipSettingsEnabled
+        public int SelectedPage
         {
-            get { return _isSipsettingsEnabled; }
+            get { return _selectedPage; }
             set
             {
-                _isSipsettingsEnabled = value;
-                OnPropertyChanged("IsSipSettingsEnabled");
-            }
-        }
-
-        public bool IsCodecSettingsEnabled
-        {
-            get { return _isCodecSettingsEnabled; }
-            set
-            {
-                _isCodecSettingsEnabled = value;
-                OnPropertyChanged("IsCodecSettingsEnabled");
-            }
-        }
-
-        public bool IsNetworkSettingsEnabled
-        {
-            get { return _isNetworkSettingsEnabled; }
-            set
-            {
-                _isNetworkSettingsEnabled = value;
-                OnPropertyChanged("IsNetworkSettingsEnabled");
-            }
-        }
-
-        public bool IsMultimediaSettingsEnabled
-        {
-            get { return _isMultimediaSettingsEnabled; }
-            set
-            {
-                _isMultimediaSettingsEnabled = value;
-                OnPropertyChanged("IsMultimediaSettingsEnabled");
-            }
-        }
-
-        public bool IsTestingSettingsEnabled
-        {
-            get { return _isTestingSettingsEnabled; }
-            set
-            {
-                _isTestingSettingsEnabled = value;
-                OnPropertyChanged("IsTestingSettingsEnabled");
+                _selectedPage = value;
+                OnPropertyChanged("SelectedPage");
             }
         }
 
@@ -94,13 +55,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             SipSettingsChanged = false;
             CallSettingsChanged = false;
             MediaSettingsChanged = false;
-
-            IsSipSettingsEnabled = false;
-            IsCodecSettingsEnabled = false;
-            IsNetworkSettingsEnabled = false;
-            IsMultimediaSettingsEnabled = false;
-            IsTestingSettingsEnabled = false;
-
         }
 
         internal void SetActiveSettings(Enums.VATRPSettings settingsType)
@@ -109,19 +63,22 @@ namespace com.vtcsecure.ace.windows.ViewModel
             switch (settingsType)
             {
                 case VATRPSettings.VATRPSettings_SIP:
-                    IsSipSettingsEnabled = true;
+                    SelectedPage = 0;
                     break;
                 case VATRPSettings.VATRPSettings_Codec:
-                    IsCodecSettingsEnabled = true;
+                    SelectedPage = 2;
                     break;
                 case VATRPSettings.VATRPSettings_Multimedia:
-                    IsMultimediaSettingsEnabled = true;
+                    SelectedPage = 3;
                     break;
                 case VATRPSettings.VATRPSettings_Network:
-                    IsNetworkSettingsEnabled = true;
+                    SelectedPage = 1;
                     break;
                 case VATRPSettings.VATRPSettings_Test:
-                    IsTestingSettingsEnabled = true;
+                    SelectedPage = 4;
+                    break;
+                default:
+                    SelectedPage = -1;
                     break;
             }
         }

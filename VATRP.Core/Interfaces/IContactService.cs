@@ -13,13 +13,18 @@ namespace VATRP.Core.Interfaces
         VATRPContact FindContact(ContactID contactID);
         VATRPContact FindContactByPhone(string phoneNumber);
         VATRPContact FindLoggedInContact();
-        
+
+        void AddLinphoneContact(string name, string sipAddress);
+        void EditLinphoneContact(string oldname, string oldsipAddress, string newname, string newsipassdress);
+        void DeleteLinphoneContact(string name, string sipAddress);
+
         event EventHandler<ContactEventArgs> ContactAdded;
         event EventHandler<EventArgs> ContactsChanged;
         event EventHandler<ContactRemovedEventArgs> ContactRemoved;
         event EventHandler<ContactStatusChangedEventArgs> ContactStatusChanged;
         event EventHandler<EventArgs> GroupsChanged;
         event EventHandler<ContactEventArgs> LoggedInContactUpdated;
+        event EventHandler<EventArgs> ContactsLoadCompleted;
 		
         ObservableCollection<VATRPContact> Contacts { get; }
 

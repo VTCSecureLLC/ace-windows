@@ -55,9 +55,11 @@ namespace VATRP.Core.Model
         {
             get
             {
-                if (!string.IsNullOrEmpty(this.Contact.DisplayName))
+                var vatrpContact = this.Contact;
+                if (vatrpContact != null && !string.IsNullOrEmpty(vatrpContact.DisplayName))
                     return this.Contact.DisplayName;
-                return _remoteParty;
+
+                return _displayName;
             }
             set
             {
