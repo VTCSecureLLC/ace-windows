@@ -469,6 +469,35 @@ namespace com.vtcsecure.ace.windows.ViewModel
             IsMuteOn = _linphoneService.IsCallMuted();
         }
 
+        internal void ToggleVideo(bool videoOn)
+        {
+            /*
+			if (camera_mute_enabled) {  // liz e - toggle video on
+				video.setBackgroundResource(R.drawable.video_on);
+				LinphoneManager.getLc().setPreviewWindow(VideoCallFragment.mCaptureView);
+				camera_mute_enabled=false;
+			} else {
+				video.setBackgroundResource(R.drawable.video_off);
+
+//				SurfaceView blankview=new SurfaceView(this){
+//					@Override
+//					protected void onDraw(Canvas canvas) {
+//						super.onDraw(canvas);
+//						Bitmap icon = BitmapFactory.decodeResource(getResources(),R.drawable.about_chat_over);
+//						canvas.drawColor(Color.BLACK);
+//						canvas.drawBitmap(icon, 10, 10, new Paint());
+//					}
+//				};
+				//VideoCallFragment.mCaptureView.draw(canvas);
+				LinphoneManager.getLc().setPreviewWindow(null);
+				camera_mute_enabled=true;
+			}
+		}
+*/
+
+            _linphoneService.ToggleVideo(videoOn, _currentCall.NativeCallPtr);
+        }
+
         private void ReceiveCall(VATRPCall call)
         {
             DisplayName = call.DisplayName;

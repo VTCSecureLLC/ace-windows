@@ -655,6 +655,25 @@ namespace VATRP.Core.Services
 			LinphoneAPI.linphone_core_enable_mic(linphoneCore, !LinphoneAPI.linphone_core_mic_enabled(linphoneCore));
 		}
 
+        public void ToggleVideo(bool enableVideo, IntPtr callPtr)
+        {
+			if (linphoneCore == IntPtr.Zero || !isRunning)
+				return;
+
+            if (callPtr == IntPtr.Zero)
+            {
+                LOG.Error("LinphoneService.ToggleVideo: Attempting to pause video but the call pointer is null. Returing without modifying call.");
+                return;
+            }
+
+            // ToDo VATRP-842: Set static image instead of using default
+//            LinphoneAPI.linphone_core_set_static_picture(linphoneCore, "Resources\\contacts.png");
+            LinphoneAPI.linphone_call_enable_camera(callPtr, enableVideo);
+            int returnValue = LinphoneAPI.linphone_core_update_call(linphoneCore, call.NativeCallPtr, IntPtr.Zero);
+
+
+        }
+
         public void SendDtmf(VATRPCall call, char dtmf)
         {
             if (call == null)
