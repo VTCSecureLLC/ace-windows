@@ -120,9 +120,10 @@
 				<customControls:LocalContactPanel x:Name="ctrlLocalContact" Height="Auto" Width="Auto" Margin="0"/>
 			</Border>
 
-			<Border x:Name="ContactsPaneHolder" Grid.Row="1" Visibility="{Binding IsContactDocked, Converter={StaticResource bvc}}">
-				
-			</Border>
+			<Border x:Name="ContactsPaneHolder" Grid.Row="1" Visibility="{Binding IsContactDocked, Converter={StaticResource bvc}}"
+                    VerticalAlignment="Stretch">
+                <customControls:ContactListCtrl x:Name="ctrlContacts"  Margin="0" VerticalAlignment="Stretch"/>
+            </Border>
             <Border x:Name="HistoryPaneHolder" Grid.Row="1"  Visibility="{Binding IsCallHistoryDocked, Converter={StaticResource bvc}}" 
                     VerticalAlignment="Stretch" >
                 <customControls:CallLogCtrl x:Name="ctrlHistory"  Margin="0" VerticalAlignment="Stretch"/>

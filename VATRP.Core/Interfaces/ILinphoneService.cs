@@ -17,6 +17,7 @@ namespace VATRP.Core.Interfaces
         event LinphoneService.IsComposingReceivedDelegate IsComposingReceivedEvent;
         event LinphoneService.OnMessageReceivedDelegate OnChatMessageReceivedEvent;
         event LinphoneService.OnMessageStatusChangedDelegate OnChatMessageStatusChangedEvent;
+        event LinphoneService.OnCallLogUpdatedDelegate OnLinphoneCallLogUpdatedEvent;
         LinphoneService.Preferences LinphoneConfig { get; }
         bool IsStarting { get; }
         bool IsStarted { get; }
@@ -69,5 +70,6 @@ namespace VATRP.Core.Interfaces
         int GetHistorySize(string username);
         void LoadChatRoom(VATRPChat chat);
         void EnableAdaptiveRateControl(bool bEnable);
+        IntPtr LinphoneCore { get; }
     }
 }

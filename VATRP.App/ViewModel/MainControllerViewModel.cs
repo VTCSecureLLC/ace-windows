@@ -24,6 +24,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private SettingsViewModel _settingsViewModel;
         private ObservableCollection<CallViewModel> _callsViewModel;
         private CallViewModel _activeCallViewModel;
+        private ContactsViewModel _contactsViewModel;
 
         public MainControllerViewModel()
         {
@@ -36,6 +37,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _isSettingsDocked = false;
             _dialPadViewModel = new DialpadViewModel();
             _historyViewModel = new CallHistoryViewModel(ServiceManager.Instance.HistoryService, _dialPadViewModel);
+            _contactsViewModel = new ContactsViewModel(ServiceManager.Instance.ContactService, _dialPadViewModel);
             _contactViewModel = new LocalContactViewModel(ServiceManager.Instance.ContactService);
             _messageViewModel = new MessagingViewModel(ServiceManager.Instance.ChatService,
             ServiceManager.Instance.ContactService);
@@ -131,6 +133,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
         public CallHistoryViewModel HistoryModel
         {
             get { return _historyViewModel; }
+        }
+
+        public ContactsViewModel ContactsModel
+        {
+            get { return _contactsViewModel; }
         }
 
         public LocalContactViewModel ContactModel
