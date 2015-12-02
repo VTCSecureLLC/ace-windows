@@ -745,7 +745,7 @@ namespace VATRP.Core.Services
 
         public void ToggleVideo(bool enableVideo, IntPtr callPtr)
         {
-			if (linphoneCore == IntPtr.Zero || !isRunning)
+			if (linphoneCore == IntPtr.Zero)
 				return;
 
             if (callPtr == IntPtr.Zero)
@@ -757,7 +757,7 @@ namespace VATRP.Core.Services
             // ToDo VATRP-842: Set static image instead of using default
 //            LinphoneAPI.linphone_core_set_static_picture(linphoneCore, "Resources\\contacts.png");
             LinphoneAPI.linphone_call_enable_camera(callPtr, enableVideo);
-            int returnValue = LinphoneAPI.linphone_core_update_call(linphoneCore, call.NativeCallPtr, IntPtr.Zero);
+            int returnValue = LinphoneAPI.linphone_core_update_call(linphoneCore, callPtr, IntPtr.Zero);
 
 
         }
