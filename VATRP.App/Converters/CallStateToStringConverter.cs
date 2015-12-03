@@ -31,6 +31,11 @@ namespace com.vtcsecure.ace.windows.Converters
                     case VATRPCallState.StreamsRunning:
                     case VATRPCallState.Connected:
                         return "Connected";
+                    case VATRPCallState.RemotePaused:
+                    case VATRPCallState.LocalPaused:
+                        return "Held";
+                    case VATRPCallState.LocalResumed:
+                        return "Resumed";
                     case VATRPCallState.Closed:
                         return "Terminated";
                     case VATRPCallState.Error:
