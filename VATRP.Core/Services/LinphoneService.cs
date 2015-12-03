@@ -272,7 +272,7 @@ namespace VATRP.Core.Services
 				LinphoneAPI.linphone_core_enable_video_display(linphoneCore, true);
 				LinphoneAPI.linphone_core_enable_video_preview(linphoneCore, false);
 				LinphoneAPI.linphone_core_set_native_preview_window_id(linphoneCore, -1);
-
+                
                 callsDefaultParams = LinphoneAPI.linphone_core_create_call_params(linphoneCore, IntPtr.Zero);
                 LinphoneAPI.linphone_call_params_enable_video(callsDefaultParams, true);
                 LinphoneAPI.linphone_call_params_enable_early_media_sending(callsDefaultParams, true);
@@ -755,9 +755,8 @@ namespace VATRP.Core.Services
             }
 
             // ToDo VATRP-842: Set static image instead of using default
-//            LinphoneAPI.linphone_core_set_static_picture(linphoneCore, "Resources\\contacts.png");
+            // LinphoneAPI.linphone_core_set_static_picture(linphoneCore, "Resources\\contacts.png");
             LinphoneAPI.linphone_call_enable_camera(callPtr, enableVideo);
-            int returnValue = LinphoneAPI.linphone_core_update_call(linphoneCore, callPtr, IntPtr.Zero);
 
 
         }
