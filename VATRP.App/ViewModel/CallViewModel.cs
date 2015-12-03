@@ -473,7 +473,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             IsMuteOn = _linphoneService.IsCallMuted();
         }
 
-<<<<<<< HEAD
         internal void ToggleCallStatisticsInfo(bool bShow)
         {
             if (CallInfoCtrl != null)
@@ -534,7 +533,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _linphoneService.ToggleVideo(videoOn, _currentCall.NativeCallPtr);
         }
 
-        private void OnIncomingCall(VATRPCall call)
+        internal void OnIncomingCall()
         {
             Duration = 0;
             AutoAnswer = 0;
