@@ -35,7 +35,7 @@ namespace VATRP.LinphoneWrapper
             // assume returned string is utf-8 encoded
             return PtrToStringUtf8(ptr);
         }
-        private static string PtrToStringUtf8(IntPtr ptr) // aPtr is nul-terminated
+        public static string PtrToStringUtf8(IntPtr ptr) // aPtr is nul-terminated
         {
             if (ptr == IntPtr.Zero)
                 return "";
@@ -107,6 +107,11 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool linphone_call_params_video_enabled(IntPtr cp);
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_core_in_call(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_current_call(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_call_params_enable_early_media_sending(IntPtr cp, bool enabled);
@@ -174,6 +179,22 @@ namespace VATRP.LinphoneWrapper
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_core_decline_call(IntPtr lc, IntPtr call, LinphoneReason reason);
 
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_redirect_call(IntPtr lc, IntPtr call, string redirect_uri);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern	int linphone_core_pause_call(IntPtr lc, IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        
+        public static extern	int linphone_core_pause_all_calls(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_resume_call(IntPtr lc, IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_defer_call_update(IntPtr lc, IntPtr call);
+        
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_call_start_recording(IntPtr call);
 
