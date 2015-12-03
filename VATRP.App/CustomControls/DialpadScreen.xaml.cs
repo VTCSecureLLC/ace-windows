@@ -132,7 +132,10 @@ namespace com.vtcsecure.ace.windows.CustomControls
             try
             {
                 if (e.Key == Key.Enter)
+                {
                     MediaActionHandler.MakeVideoCall(_viewModel.RemotePartyNumber);
+                    _viewModel.RemotePartyNumber = "";
+                }
             }
             catch (Exception ex)
             {
@@ -149,7 +152,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             }
 
             MediaActionHandler.MakeVideoCall(_viewModel.RemotePartyNumber);
-
+            _viewModel.RemotePartyNumber = "";
         }
 
         private void OnBackSpaceClicked(object sender, MouseButtonEventArgs e)
