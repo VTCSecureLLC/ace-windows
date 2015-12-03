@@ -19,7 +19,6 @@ namespace VATRP.Core.Interfaces
         void ClearCallsItems();
 
         List<VATRPCallEvent> AllCallsEvents { get; }
-        void LoadCallEvents();
 
         #endregion
     }
