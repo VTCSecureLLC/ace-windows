@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Text;
 
 namespace VATRP.Core.Extensions
 {
@@ -111,6 +112,15 @@ namespace VATRP.Core.Extensions
                 }
             }
             return (string) new string(chArray);
+        }
+
+        public static string TrimSipPrefix(this string str)
+        {
+            if (str.IndexOf("sip:") == 0)
+            {
+                str = str.Remove(0, 4);
+            }
+            return str;
         }
     }
 }
