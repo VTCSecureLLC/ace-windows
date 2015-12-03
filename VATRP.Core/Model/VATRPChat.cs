@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using VATRP.Core.Enums;
+using VATRP.Core.Events;
 using VATRP.Core.Extensions;
 using VATRP.Core.Model.Utils;
+using VATRP.LinphoneWrapper;
+using VATRP.LinphoneWrapper.Structs;
 
 namespace VATRP.Core.Model
 {
@@ -408,12 +412,13 @@ namespace VATRP.Core.Model
                 this.LastMessageDirection = this._messages[this._messages.Count - 1].Direction;
                 if (this.LastMessageTime.Date != this._messages[this._messages.Count - 1].MessageTime.Date)
                 {
-                    this.LastMessageTime = this._messages[this._messages.Count - 1].MessageTime;
+                    this.LastMessageTime = this._messages[this._messages.Count - 1].MessageTime.Date;
                     // Add date separator here
                     var chatMsg = new VATRPChatMessage(MessageContentType.Info)
                     {
                         MessageTime = new DateTime(this.LastMessageTime.Year, this.LastMessageTime.Month, this.LastMessageTime.Day),
-                        IsSeparator = true
+                        IsSeparator = true,
+                        IsIncompleteMessage = false
                     };
                     Tools.InsertByIndex(chatMsg, this.Messages, this._messages.Count - 1);
                 }
@@ -593,7 +598,25 @@ namespace VATRP.Core.Model
                 base.OnPropertyChanged("HasUnreadMsg");
             }
         }
-
+        
+        internal bool CheckMessage(VATRPChatMessage other)
+        {
+            if (other == null)
+                return false;
+            for (int i = 0; i < Messages.Count; i++)
+            {
+                var msg = Messages[i];
+                if ((msg != null) && 
+                    msg.MessageTime != other.MessageTime && 
+                    msg.Direction != other.Direction &&
+                    msg.Sender != other.Sender &&
+                    msg.Receiver != other.Receiver)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }
 
