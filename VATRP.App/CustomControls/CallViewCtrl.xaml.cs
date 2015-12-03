@@ -93,6 +93,14 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 _viewModel.MuteCall();
         }
 
+        internal void ToggleVideo(bool videoOn)
+        {
+            if (_viewModel != null)
+            {
+                _viewModel.ToggleVideo(videoOn);
+            }
+        }
+
         private void OnEndCall(object sender, RoutedEventArgs e)
         {
             EndCall();
@@ -156,6 +164,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             if (VideoOnToggled != null)
                 VideoOnToggled(BtnVideoOn.IsChecked ?? false);
+            ToggleVideo(!BtnVideoOn.IsChecked ?? false);
         }
 
         private void OnToggleSpeaker(object sender, RoutedEventArgs e)

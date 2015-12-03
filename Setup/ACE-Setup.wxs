@@ -81,8 +81,8 @@
           <Component Id='com_XML2.DLL' Guid='32DD57D7-8E08-41CD-BBE7-FBD8FC97E0C1' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='XML2.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='xml2.dll' Source='ThirdParties\liblinphone\xml2.dll' KeyPath='yes' />
           </Component>
-          <Component Id='com_ZLIB.DLL' Guid='394E8FFF-7338-4328-95DF-AA5A5CDD44ED' Permanent='no' SharedDllRefCount='no' Transitive='no'>
-            <File Id='ZLIB.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='zlib.dll' Source='ThirdParties\liblinphone\zlib.dll' KeyPath='yes' />
+          <Component Id='com_ZLIB1.DLL' Guid='394E8FFF-7338-4328-95DF-AA5A5CDD44ED' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+            <File Id='ZLIB1.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='zlib1.dll' Source='ThirdParties\liblinphone\zlib1.dll' KeyPath='yes' />
           </Component>
           <Component Id='com_MS.THREADING.TASKS.DLL' Guid='2E9BFA9C-9523-4B6E-878F-5AB23FFDAF73' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='MS.THREADING.TASKS.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='Microsoft.Threading.Tasks.dll' Source='packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.dll' KeyPath='yes' />
@@ -156,9 +156,6 @@
           <Component Id='com_MSVCR120D.DLL' Guid='D95D4E57-CE4E-496A-A5A3-D59B5A5F18CF' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='MSVCR120D.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='msvcr120d.dll' Source='ThirdParties\liblinphone\msvcr120d.dll' KeyPath='yes' />
           </Component>
-          <Component Id='com_MSVCR100.DLL' Guid='775E2140-A5E1-41fe-8EB3-F33999F2FDD9' Permanent='no' SharedDllRefCount='no' Transitive='no'>
-            <File Id='MSVCR100.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='msvcr100.dll' Source='ThirdParties\liblinphone\msvcr100.dll' KeyPath='yes' />
-          </Component>
 	  <Component Id='com_CUSTOMACTIONS.CA.DLL' Guid='E7C4B276-CE9B-43d9-B70D-0F4B732564A4' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='VATRP.CUSTOMACTIONS.CA.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='VATRP.CustomActions.CA.dll' Source='VATRP.CustomActions\bin\$(var.Configuration)\VATRP.CustomActions.CA.dll' KeyPath='yes' />
           </Component>
@@ -213,7 +210,7 @@
       <ComponentRef Id='com_INTL.DLL' />
       <ComponentRef Id='com_LINPHONE.DLL' />
       <ComponentRef Id='com_XML2.DLL' />
-      <ComponentRef Id='com_ZLIB.DLL' />
+      <ComponentRef Id='com_ZLIB1.DLL' />
       <ComponentRef Id='com_MS.THREADING.TASKS.DLL' />
       <ComponentRef Id='com_BELLESIP.DLL' />
       <ComponentRef Id='com_LINPHONEWRAPPER.DLL' />
@@ -243,7 +240,6 @@
       <ComponentRef Id='com_UNINSTALL.EXE' />
       <ComponentRef Id='com_MSVCR120.DLL'/>
       <ComponentRef Id='com_MSVCR120D.DLL'/>
-      <ComponentRef Id='com_MSVCR100.DLL'/>
       <ComponentRef Id='com_CUSTOMACTIONS.CA.DLL'/>
       <ComponentRef Id='com_CUSTOMACTIONS.DLL'/>
     </ComponentGroup>

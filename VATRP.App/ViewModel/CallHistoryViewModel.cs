@@ -28,6 +28,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             _activeTab = 0; // All tab is active by default
             _callsListView = CollectionViewSource.GetDefaultView(this.Calls);
+            _callsListView.SortDescriptions.Add(new SortDescription("SortDate", ListSortDirection.Descending));
             _callsListView.Filter = new Predicate<object>(this.FilterEventsList);
             _historyPaneHeight = 150;
         }
