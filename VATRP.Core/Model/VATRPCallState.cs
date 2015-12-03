@@ -9,8 +9,14 @@
         EarlyMedia,
         Connected,
         StreamsRunning,
+        RemoteUpdating,
         RemoteUpdated,
+        RemotePausing,
         RemotePaused,
+        LocalPausing,
+        LocalPaused,
+        LocalResuming,
+        LocalResumed,
         Closed,
         Error
     }
