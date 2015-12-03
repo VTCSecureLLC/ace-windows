@@ -41,7 +41,7 @@
                      IsSynchronizedWithCurrentItem="True"
                              HorizontalContentAlignment="Stretch"
                              >
-                <ListBox.ItemContainerStyle>
+                <!--<ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
                         <Style.Triggers>
                             <Trigger Property="IsSelected" Value="True">
@@ -49,7 +49,7 @@
                             </Trigger>
                         </Style.Triggers>
                     </Style>
-                </ListBox.ItemContainerStyle>
+                </ListBox.ItemContainerStyle>-->
 
                 <ListBox.ItemTemplate>
                     <DataTemplate>
