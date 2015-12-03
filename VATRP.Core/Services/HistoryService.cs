@@ -45,7 +45,6 @@ namespace VATRP.Core.Services
 
         public bool Start()
         {
-          //  CreateHistoryTables();
             if (manager.LinphoneService != null)
                 manager.LinphoneService.OnLinphoneCallLogUpdatedEvent += LinphoneCallEventAdded;
 
@@ -66,42 +65,6 @@ namespace VATRP.Core.Services
         }
         #endregion
 
-        private void CreateHistoryTables()
-        {
-            if (!File.Exists(dbFilePath))
-                SQLiteConnection.CreateFile(dbFilePath);
-
-            var connection = new SQLiteConnection(connectionString);
-            var cmd = new SQLiteCommand
-            {
-                Connection = connection
-            };
-
-            var sqlString = @"CREATE TABLE IF NOT EXISTS log_calls (
-'log_id'  integer PRIMARY KEY AUTOINCREMENT NOT NULL, 'call_guid' string, 'local' string, 
- 'remote' string, 'log_uts' integer, 'duration' integer default 0, 'call_state' string, 'contact' string, 
- 'codec' string)";
-            try
-            {
-                if (connection.State != ConnectionState.Open)
-                    connection.Open();
-
-                cmd.CommandText = sqlString;
-                cmd.ExecuteNonQuery();
-            }
-            catch (SQLiteException ex)
-            {
-                Debug.WriteLine("SQLite exception: " + ex.ToString());
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
-
-            if (connection.State != ConnectionState.Closed)
-                connection.Close();
-        }
-
         #region IHistoryService
 
         public List<VATRPCallEvent> AllCallsEvents
@@ -109,68 +72,6 @@ namespace VATRP.Core.Services
             get
             {
                 return _allCallsEvents;
-            }
-        }
-
-        public void LoadCallEvents()
-        {
-            isLoadingCalls = true;
-            if (_allCallsEvents == null)
-                _allCallsEvents = new List<VATRPCallEvent>();
-
-            var connection = new SQLiteConnection(connectionString);
-            var cmd = new SQLiteCommand
-            {
-                Connection = connection,
-                CommandText = "SELECT * FROM log_calls"
-            };
-
-            try
-            {
-                if (connection.State != ConnectionState.Open)
-                    connection.Open();
-
-                using (var reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        var local = reader["local"].ToString();
-                        var remote = reader["remote"].ToString();
-                        var callevent = new VATRPCallEvent(local, remote);
-
-                        callevent.CallGuid = reader["call_guid"].ToString();
-                        callevent.StartTime = new DateTime(Convert.ToInt64(reader["log_uts"]));
-
-                        callevent.EndTime = callevent.StartTime.AddSeconds(Convert.ToInt32(reader["duration"]));
-                        try
-                        {
-                            callevent.Status =
-                                (VATRPHistoryEvent.StatusType)
-                                    Enum.Parse(typeof (VATRPHistoryEvent.StatusType), reader["call_state"].ToString());
-                        }
-                        catch 
-                        {
-                            continue;
-                        }
-                        if (!reader.IsDBNull(8))
-                            callevent.Codec = reader["codec"].ToString();
-                        _allCallsEvents.Add(callevent);
-                    }
-                }
-            }
-            catch (SQLiteException ex)
-            {
-                Debug.WriteLine("SQLite exception: " + ex.ToString());
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
-            isLoadingCalls = false;
-            if (OnCallHistoryEvent != null)
-            {
-                var eargs = new VATRPCallEventArgs(HistoryEventTypes.Load);
-                OnCallHistoryEvent(null, eargs);
             }
         }
 
