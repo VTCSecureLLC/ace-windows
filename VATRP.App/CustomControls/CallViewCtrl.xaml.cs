@@ -88,8 +88,10 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         internal void ToggleVideo(bool videoOn)
         {
-            bool flag = true;
-            _viewModel.ToggleVideo(videoOn);
+            if (_viewModel != null)
+            {
+                _viewModel.ToggleVideo(videoOn);
+            }
         }
 
         private void OnEndCall(object sender, RoutedEventArgs e)
