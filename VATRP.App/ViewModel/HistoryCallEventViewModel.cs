@@ -164,6 +164,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
+        public DateTime SortDate
+        {
+            get
+            {
+                var vatrpCallEvent = this._callEvent;
+                if (vatrpCallEvent != null) 
+                    return vatrpCallEvent.StartTime;
+                return DateTime.Now;
+            }
+        }
         public VATRPCallEvent CallEvent
         {
             get { return this._callEvent; }
