@@ -120,7 +120,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         private void AddContact(VATRPContact contact, bool refreshNow = false)
         {
-            if (!contact.SipUsername.NotBlank())
+            if (!contact.SipUsername.NotBlank() || !contact.IsLinphoneContact)
                 return;
 
             if (FindContact(contact) != null)
@@ -176,9 +176,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 if (contactModel.Contact != null && ActiveTab == 1 && !contactModel.Contact.IsFavorite)
                     return false;
 
-                if ( contactModel.Contact != null )
-                    return contactModel.Contact.Fullname.Contains(EventSearchCriteria);
-                return contactModel.Contact.SipUsername.Contains(EventSearchCriteria);
+                if (contactModel.Contact != null)
+                {
+                    if (contactModel.Contact.Fullname.ToLower().Contains(EventSearchCriteria.ToLower()))
+                        return true;
+                    return contactModel.Contact.ContactAddress_ForUI.ToLower().Contains(EventSearchCriteria.ToLower());
+                }
             }
             return true;
         }
