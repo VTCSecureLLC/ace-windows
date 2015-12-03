@@ -33,7 +33,7 @@ namespace VATRP.Core.Model
             this.MessageTime = DateTime.Now;
             this._sender = string.Empty;
             this._receiver = string.Empty;
-            this._isIncompleteMessage = true;
+            this._isIncompleteMessage = false;
             this.NativePtr = IntPtr.Zero;
             this._isSeparator = false;
         }
