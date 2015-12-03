@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Xml.Serialization;
 using VATRP.Core.Enums;
+using VATRP.Core.Extensions;
 
 namespace VATRP.Core.Model
 {
@@ -24,10 +25,12 @@ namespace VATRP.Core.Model
         private string _middlename;
         private string _mobilePhone;
         private string _sipUsername;
+        private string _registrationName;
         private string _gender;
         private bool _onlineNotification;
         private UserStatus _status;
         private uint _unreadMsgCount;
+        private bool _isLinphoneContact;
         private List<int> _groupIdList;
         private string _avatar;
 
@@ -116,6 +119,8 @@ namespace VATRP.Core.Model
             this.Gender = string.Empty;
             this.SipUsername = string.Empty;
             this._avatar = string.Empty;
+            this.IsLinphoneContact = false;
+            this.RegistrationName = string.Empty;
         }
 
         public bool IsGroupExistInGroupList(string _groupName)
@@ -162,6 +167,18 @@ namespace VATRP.Core.Model
             return this.CompareTo((VATRPContact)obj);
         }
 
+        public string ContactName_ForUI
+        {
+            get
+            {
+                if (DisplayName.NotBlank())
+                    return DisplayName;
+                if (Fullname.NotBlank())
+                    return Fullname;
+                return ID;
+            }
+        }
+
         public string DisplayName
         {
             get
@@ -177,6 +194,32 @@ namespace VATRP.Core.Model
                 }
             }
         }
+        public string RegistrationName
+        {
+            get
+            {
+                return this._registrationName;
+            }
+            set
+            {
+                if (this._registrationName != value)
+                {
+                    this._registrationName = value;
+                    OnPropertyChanged("RegistrationName");
+                    OnPropertyChanged("ContactAddress_ForUI");
+                }
+            }
+        }
+
+        public string ContactAddress_ForUI
+        {
+            get
+            {
+                _registrationName.TrimSipPrefix();
+                return _registrationName;
+            }
+        }
+
 
         public string Email
         {
@@ -236,6 +279,7 @@ namespace VATRP.Core.Model
 
                 Initials = initialString;
                 OnPropertyChanged("Fullname");
+                OnPropertyChanged("ContactName_ForUI");
             }
         }
 
@@ -317,6 +361,19 @@ namespace VATRP.Core.Model
             {
                 this._isConnected = value;
                 OnPropertyChanged("LastActivity");
+            }
+        }
+
+        public bool IsLinphoneContact
+        {
+            get
+            {
+                return this._isLinphoneContact;
+            }
+            set
+            {
+                this._isLinphoneContact = value;
+                OnPropertyChanged("IsLinphoneContact");
             }
         }
         public bool IsLoggedIn
