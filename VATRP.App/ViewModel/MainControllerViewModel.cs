@@ -3,6 +3,7 @@ using System.Windows;
 using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Model;
 using System.Collections.ObjectModel;
+using VATRP.Core.Interfaces;
 
 namespace com.vtcsecure.ace.windows.ViewModel
 {
@@ -22,9 +23,10 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private LocalContactViewModel _contactViewModel;
         private MessagingViewModel _messageViewModel;
         private SettingsViewModel _settingsViewModel;
-        private ObservableCollection<CallViewModel> _callsViewModel;
+        private ObservableCollection<CallViewModel> _callsViewModelList;
         private CallViewModel _activeCallViewModel;
         private ContactsViewModel _contactsViewModel;
+        private ILinphoneService _linphoneService;
 
         public MainControllerViewModel()
         {
@@ -40,9 +42,10 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _contactsViewModel = new ContactsViewModel(ServiceManager.Instance.ContactService, _dialPadViewModel);
             _contactViewModel = new LocalContactViewModel(ServiceManager.Instance.ContactService);
             _messageViewModel = new MessagingViewModel(ServiceManager.Instance.ChatService,
-            ServiceManager.Instance.ContactService);
+                ServiceManager.Instance.ContactService);
             _settingsViewModel = new SettingsViewModel();
-            _callsViewModel = new ObservableCollection<CallViewModel>();
+            _callsViewModelList = new ObservableCollection<CallViewModel>();
+            _linphoneService = ServiceManager.Instance.LinphoneService;
         }
 
         #region Properties
@@ -52,7 +55,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             get { return _isAccountLogged; }
             set
             {
-                _isAccountLogged = value; 
+                _isAccountLogged = value;
                 OnPropertyChanged("IsAccountLogged");
             }
         }
@@ -62,7 +65,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             get { return _appTitle; }
             set
             {
-                _appTitle = value; 
+                _appTitle = value;
                 OnPropertyChanged("AppTitle");
             }
         }
@@ -82,10 +85,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
             get { return _isDialpadDocked; }
             set
             {
-                _isDialpadDocked = value; 
+                _isDialpadDocked = value;
                 OnPropertyChanged("IsDialpadDocked");
             }
         }
+
         public bool IsCallHistoryDocked
         {
             get { return _isHistoryDocked; }
@@ -105,7 +109,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 OnPropertyChanged("IsSettingsDocked");
             }
         }
-        
+
         public bool IsMessagingDocked
         {
             get { return _isMessagingDocked; }
@@ -115,6 +119,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 OnPropertyChanged("IsMessagingDocked");
             }
         }
+
         public bool IsCallPanelDocked
         {
             get { return _isCallPanelDocked; }
@@ -149,6 +154,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             get { return _messageViewModel; }
         }
+
         public SettingsViewModel SettingsModel
         {
             get { return _settingsViewModel; }
@@ -160,10 +166,178 @@ namespace com.vtcsecure.ace.windows.ViewModel
             set
             {
                 _activeCallViewModel = value;
+                if (_activeCallViewModel != null)
+                {
+                    if (_activeCallViewModel.ActiveCall != null)
+                        ServiceManager.Instance.ActiveCallPtr = _activeCallViewModel.ActiveCall.NativeCallPtr;
+                    else
+                        ServiceManager.Instance.ActiveCallPtr = IntPtr.Zero;
+                }
+                else
+                    ServiceManager.Instance.ActiveCallPtr = IntPtr.Zero;
                 OnPropertyChanged("ActiveCall");
             }
         }
+
+        public ObservableCollection<CallViewModel> CallsViewModelList
+        {
+            get { return _callsViewModelList ?? (_callsViewModelList = new ObservableCollection<CallViewModel>()); }
+            set
+            {
+                _callsViewModelList = value;
+                OnPropertyChanged("CallsViewModelList");
+            }
+        }
+
         #endregion
 
+        #region Calls management
+
+        internal CallViewModel FindCallViewModel(VATRPCall call)
+        {
+            if (call == null)
+                return null;
+            lock (CallsViewModelList)
+            {
+                foreach (var callVM in CallsViewModelList)
+                {
+                    if (callVM.Equals(call))
+                        return callVM;
+                }
+            }
+            return null;
+        }
+
+        internal void AddCalViewModel(CallViewModel callViewModel)
+        {
+            if (FindCallViewModel(callViewModel))
+                return;
+
+            lock (CallsViewModelList)
+            {
+                CallsViewModelList.Add(callViewModel);
+                OnPropertyChanged("CallsViewModelList");
+            }
+        }
+
+        internal int RemoveCalViewModel(CallViewModel callViewModel)
+        {
+            lock (CallsViewModelList)
+            {
+                CallsViewModelList.Remove(callViewModel);
+                OnPropertyChanged("CallsViewModelList");
+                return CallsViewModelList.Count;
+            }
+        }
+
+        internal CallViewModel GetNextViewModel(CallViewModel skipVM)
+        {
+            lock (CallsViewModelList)
+            {
+                foreach (var callVM in CallsViewModelList)
+                {
+                    if (!callVM.Equals(skipVM))
+                        return callVM;
+                }
+            }
+            return null;
+        }
+        internal bool FindCallViewModel(CallViewModel callViewModel)
+        {
+            lock (CallsViewModelList)
+            {
+                foreach (var callVM in CallsViewModelList)
+                {
+                    if (callVM.Equals(callViewModel))
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        internal void TerminateCall(CallViewModel viewModel)
+        {
+            lock (CallsViewModelList)
+            {
+                if (FindCallViewModel(viewModel))
+                {
+                    try
+                    {
+                        _linphoneService.TerminateCall(viewModel.ActiveCall.NativeCallPtr);
+                    }
+                    catch (Exception ex)
+                    {
+                        ServiceManager.LogError("AcceptCall", ex);
+                    }
+                }
+            }
+        }
+
+        internal void AcceptCall(CallViewModel viewModel)
+        {
+            lock (CallsViewModelList)
+            {
+                if (FindCallViewModel(viewModel))
+                {
+                    viewModel.AcceptCall();
+                    try
+                    {
+                        _linphoneService.AcceptCall(viewModel.ActiveCall.NativeCallPtr,
+                            ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                                Configuration.ConfEntry.USE_RTT, true));
+                    }
+                    catch (Exception ex)
+                    {
+                        ServiceManager.LogError("AcceptCall", ex);
+                    }
+                }
+            }
+        }
+
+        internal void DeclineCall(CallViewModel viewModel)
+        {
+            lock (CallsViewModelList)
+            {
+                if (FindCallViewModel(viewModel))
+                {
+                    viewModel.DeclineCall(false);
+                    try
+                    {
+                        _linphoneService.DeclineCall(viewModel.ActiveCall.NativeCallPtr);
+                    }
+                    catch (Exception ex)
+                    {
+                        ServiceManager.LogError("DeclineCall", ex);
+                    }
+                }
+            }
+        }
+
+        internal void EndAndAcceptCall(CallViewModel viewModel)
+        {
+            lock (CallsViewModelList)
+            {
+                CallViewModel nextCall = GetNextViewModel(viewModel);
+                if (nextCall != null)
+                {
+                    TerminateCall(nextCall);
+
+                    AcceptCall(viewModel);
+                }
+            }
+        }
+
+        #endregion
+
+        internal void ResumeCall(CallViewModel viewModel)
+        {
+            lock (CallsViewModelList)
+            {
+                if (FindCallViewModel(viewModel))
+                {
+                    viewModel.ResumeCall();
+                }
+            }
+        }
     }
 }

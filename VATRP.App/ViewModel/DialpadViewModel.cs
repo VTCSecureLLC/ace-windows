@@ -12,7 +12,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private string _remotePartyNumber = string.Empty;
         private bool _allowAudioCall = false;
         private bool _allowVideoCall = false;
-        private int _remotePartyDigitLimit = 12;
+        private int _remotePartyDigitLimit = 1000;
         private VATRPCallState _callState;
         private ObservableCollection<ProviderViewModel> _providers;
         private ProviderViewModel _selectedProvider;

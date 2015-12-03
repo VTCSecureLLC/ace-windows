@@ -6,7 +6,7 @@ using VATRP.LinphoneWrapper.Enums;
 
 namespace VATRP.Core.Model
 {
-    public class VATRPCall 
+    public class VATRPCall
     {
         private LinphoneCallDir callDirection = LinphoneCallDir.LinphoneCallIncoming;
         private VATRPCallState callState = VATRPCallState.None;
@@ -104,7 +104,7 @@ namespace VATRP.Core.Model
             set { _videoEnabled = value; }
         }
 
-        internal static bool ParseSipAddress(string sipAddress, out string username, out string hostname, out int port)
+        public static bool ParseSipAddress(string sipAddress, out string username, out string hostname, out int port)
         {
             username = string.Empty;
             hostname = string.Empty;
@@ -184,6 +184,30 @@ namespace VATRP.Core.Model
             }
 
             return bRetVal;
+        }
+
+        public virtual bool Equals(VATRPCall other)
+        {
+            if (object.ReferenceEquals(other, null))
+            {
+                return false;
+            }
+            if (object.ReferenceEquals(other, this))
+            {
+                return true;
+            }
+
+            return (this.NativeCallPtr == other.NativeCallPtr);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return ((obj is VATRPCall) && this.Equals((VATRPCall) obj));
+        }
+
+        public override int GetHashCode()
+        {
+            return this.NativeCallPtr.GetHashCode();
         }
     }
 }

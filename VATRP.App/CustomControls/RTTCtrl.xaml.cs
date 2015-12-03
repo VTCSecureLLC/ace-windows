@@ -8,6 +8,7 @@ using com.vtcsecure.ace.windows.Services;
 using com.vtcsecure.ace.windows.ViewModel;
 using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
+using System.Threading;
 
 namespace com.vtcsecure.ace.windows.CustomControls
 {
@@ -23,12 +24,27 @@ namespace com.vtcsecure.ace.windows.CustomControls
         public RTTCtrl()
         {
             InitializeComponent();
+            ServiceManager.Instance.ChatService.ConversationUpdated += ChatManagerOnConversationUpdated;
         }
 
         public void SetViewModel(MessagingViewModel viewModel)
         {
+            if (_viewModel != null && _viewModel != viewModel)
+            {
+                _viewModel.ConversationStarted -= OnConversationStarted;
+            }
             DataContext = viewModel;
             _viewModel = viewModel;
+            if (_viewModel != null)
+            {
+                _viewModel.ConversationStarted += OnConversationStarted;
+                ScrollToEnd();
+            }
+        }
+
+        private void OnConversationStarted(object sender, EventArgs eventArgs)
+        {
+            ScrollToEnd();
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
@@ -40,6 +56,23 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
            
         }
+
+       private void ChatManagerOnConversationUpdated(object sender, VATRP.Core.Events.ConversationUpdatedEventArgs e)
+       {
+           ScrollToEnd();
+       }
+
+       private void ScrollToEnd()
+       {
+           if (ServiceManager.Instance.Dispatcher.Thread != Thread.CurrentThread)
+           {
+               ServiceManager.Instance.Dispatcher.BeginInvoke((Action)(ScrollToEnd));
+               return;
+           }
+
+           MessageListView.SelectedIndex = MessageListView.Items.Count - 1;
+           MessageListView.ScrollIntoView(MessageListView.SelectedItem);
+       }
 
         private void OnKeyUp(object sender, KeyEventArgs e)
         {
@@ -75,7 +108,14 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         private void OnSendButtonClicked(object sender, RoutedEventArgs e)
         {
-            
+            if (!ServiceManager.Instance.IsRttAvailable)
+            {
+                _viewModel.SendMessage(_viewModel.MessageText);
+            }
+            else
+            {
+                _viewModel.SendMessage('\r', false);
+            }
         }
 
         private void OnTextInpput(object sender, TextCompositionEventArgs e)

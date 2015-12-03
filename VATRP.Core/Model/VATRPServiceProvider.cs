@@ -16,12 +16,15 @@ namespace VATRP.Core.Model
         [Column]
         public string ImagePath { get; set; }
 
+        [Column]
+        public string Address { get; set; }
         #endregion
 
         #region Methods
 
         public VATRPServiceProvider()
         {
+            Address = "bc1.vatrp.net";
         }
 
         #endregion

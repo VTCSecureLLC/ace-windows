@@ -34,6 +34,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private string _contactSearchCriteria;
         private ICollectionView contactsListView;
         private ICollectionView messagesListView;
+        public event EventHandler<EventArgs> ConversationStarted;
+        public event EventHandler<EventArgs> ConversationStopped;
 
         public MessagingViewModel()
         {
@@ -70,6 +72,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         private void OnChatContactAdded(object sender, ContactEventArgs e)
         {
+            if (ServiceManager.Instance.Dispatcher.Thread != Thread.CurrentThread)
+            {
+                ServiceManager.Instance.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                    new EventHandler<ContactEventArgs>(OnChatContactAdded), sender, new object[] { e });
+                return;
+            }
             var contactVM = FindContactViewModel(e.Contact);
             if (contactVM == null)
             {
@@ -93,18 +101,18 @@ namespace com.vtcsecure.ace.windows.ViewModel
             VATRPContact contact = e.Conversation.Contact;
             if (contact != null)
             {
+                if (_contactViewModel != null && _contactViewModel.Contact == e.Conversation.Contact)
+                {
+                    _contactViewModel = null;
+                    ReceiverAddress = string.Empty;
+                }
+
                 RemoveContact(contact);
 
                 if (this.Chat == e.Conversation)
                 {
                     this._chat = null;
                     MessagesListView = null;
-                }
-
-                if (_contactViewModel.Contact == e.Conversation.Contact)
-                {
-                    _contactViewModel = null;
-                    ReceiverAddress = string.Empty;
                 }
                 OnPropertyChanged("Chat");
             }
@@ -149,7 +157,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
             if (_contactViewModel != null && _contactViewModel.Contact == e.Conversation.Contact )
             {
-                OnPropertyChanged("Messages");
+                if (MessagesListView != null)
+                    MessagesListView.Refresh();
             }
         }
 
@@ -246,7 +255,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
 			
             ReceiverAddress = contact.Fullname;
             OnPropertyChanged("Chat");
-            OnPropertyChanged("MessagesListView");
+			if (MessagesListView != null)
+			     MessagesListView.Refresh();
         }
 
         private ContactViewModel FindContactViewModel(ContactID contact)
@@ -293,11 +303,18 @@ namespace com.vtcsecure.ace.windows.ViewModel
             if (!ReceiverAddress.NotBlank() || !message.NotBlank())
                 return false;
 
-            VATRPContact contact = _chatsManager.FindContact(new ContactID(this.ReceiverAddress, IntPtr.Zero));
+            string un, host;
+            int port;
+            VATRPCall.ParseSipAddress(ReceiverAddress, out un, out host, out port);
+            var contactAddress = string.Format("{0}@{1}", un, host.NotBlank() ? host : App.CurrentAccount.ProxyHostname);
+            var contactId = new ContactID(contactAddress, IntPtr.Zero);
+            VATRPContact contact = _chatsManager.FindContact(contactId);
             if (contact == null)
             {
-                contact = new VATRPContact(new ContactID(ReceiverAddress, IntPtr.Zero));
-                contact.Fullname = ReceiverAddress;
+                contact = new VATRPContact(contactId);
+                contact.Fullname = un;
+                contact.SipUsername = un;
+                contact.RegistrationName = contactAddress;
                 _contactsManager.AddContact(contact, string.Empty);
             }
 
@@ -315,17 +332,40 @@ namespace com.vtcsecure.ace.windows.ViewModel
 		
         public void CreateConversation(string remoteUsername)
         {
-            var contactID = new ContactID(remoteUsername, IntPtr.Zero);
+            string un, host;
+            int port;
+            VATRPCall.ParseSipAddress(remoteUsername, out un, out host, out port);
+            var contactAddress = string.Format("{0}@{1}", un, host.NotBlank() ? host : App.CurrentAccount.ProxyHostname);
+            var contactID = new ContactID(contactAddress, IntPtr.Zero);
+
             VATRPContact contact =
                 ServiceManager.Instance.ContactService.FindContact(contactID);
             if (contact == null)
             {
-                contact = new VATRPContact(contactID);
-                contact.Fullname = remoteUsername;
-                contact.DisplayName = remoteUsername;
+                contact = new VATRPContact(contactID)
+                {
+                    Fullname = un,
+                    DisplayName = un,
+                    SipUsername = un,
+                    RegistrationName = contactAddress
+                };
                 ServiceManager.Instance.ContactService.AddContact(contact, string.Empty);
             }
             SetActiveChatContact(contact);
+            if (ConversationStarted != null)
+                ConversationStarted(this, EventArgs.Empty);
+        }
+
+        public void ClearConversation()
+        {
+            _messageText = string.Empty;
+            _contactViewModel = null;
+            ReceiverAddress = string.Empty;
+            if (MessagesListView != null)
+                MessagesListView.Refresh();
+            OnPropertyChanged("Chat");
+            if (ConversationStopped != null)
+                ConversationStopped(this, EventArgs.Empty);
         }
 
         #region Properties

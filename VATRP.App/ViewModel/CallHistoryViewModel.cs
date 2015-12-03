@@ -157,9 +157,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
                 if (callModel.CallEvent != null && ActiveTab == 1 && callModel.CallEvent.Status != VATRPHistoryEvent.StatusType.Missed)
                     return false;
-                if ( callModel.Contact != null )
-                    return callModel.Contact.Fullname.Contains(EventSearchCriteria);
-                return callModel.PhoneNumber.Contains(EventSearchCriteria);
+                if (callModel.Contact != null)
+                {
+                    if (callModel.Contact.Fullname.ToLower().Contains(EventSearchCriteria.ToLower()))
+                        return true;
+                }
+                return callModel.PhoneNumber.ToLower().Contains(EventSearchCriteria.ToLower());
             }
             return true;
         }

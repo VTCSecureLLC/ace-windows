@@ -508,6 +508,12 @@
   <ItemGroup>
     <Resource Include="Resources\fav_contact.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\caag.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\globalvrs.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /b "$(SolutionDir)thirdparties\liblinphone\*.dll" "$(TargetDir)"
