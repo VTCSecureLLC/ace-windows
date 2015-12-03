@@ -9,7 +9,7 @@
 		mc:Ignorable="d"
 		d:DataContext="{d:DesignData Source=../SampleData/MessageViewSampleData.xaml}"
 		Title="Messaging" Height="600" Width="850"
-				   Background="{StaticResource ChatPageMainBg}"
+				   Background="{StaticResource AppMainWindowBrush}"
 				   Activated="Window_Activated" 
 				   Closing="Window_Closing" 
 				   StateChanged="Window_StateChanged" 
@@ -43,28 +43,31 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Border Grid.Row ="0" Background="{StaticResource ChatPageMainBg}" BorderBrush="{StaticResource ChatPageMainBg}" 
-		   BorderThickness="2">
+            <Border Grid.Row ="0" Background="{DynamicResource AppMainWindowBrush}" BorderBrush="{StaticResource AppMainBorderBrush}" 
+		   BorderThickness="1">
 
-                <Grid Style="{StaticResource HintEntryFieldStyle}" Margin="0" Background="White">
+                <Grid Style="{StaticResource HintEntryFieldStyle}" Margin="0" >
                     <TextBlock  Text="Enter searching text" Foreground="{StaticResource ChatPageComposeHintFont}" FontSize="9" VerticalAlignment="Center" 
 								   HorizontalAlignment="Left" Margin="10,0,0,0"
 					   Visibility="{Binding ShowSearchHint, Converter={StaticResource bvc}}" />
 
-                    <TextBox  BorderThickness="1" Height="32" TextAlignment="Left"  Foreground="{StaticResource ChatPageComposeTextboxFont}" FontSize="14"
+                    <TextBox  BorderThickness="0" Height="32" TextAlignment="Left"  
+                              Foreground="{StaticResource AppMainBorderBrush}" CaretBrush="White" FontSize="14"
 								 HorizontalAlignment="Stretch" Text="{Binding ContactSearchCriteria , Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"
 								 Background="Transparent" BorderBrush="{StaticResource ChatPageSelectContactTextBorder}"/>
                 </Grid>
             </Border>
 
-            <Border Grid.Row ="1" Background="{StaticResource ChatPageMainBg}" BorderBrush="{StaticResource ChatPageMainBg}" 
-		   BorderThickness="2">
+            <Border Grid.Row ="1" Background="{DynamicResource AppMainWindowBrush}"  BorderBrush="{StaticResource AppMainBorderBrush}" 
+		   BorderThickness="1">
                 <Grid >
 
                     <ListBox x:Name ="ContactsList" Grid.Column="0" BorderThickness="0" 
                              ItemsSource= "{Binding ContactsListView}" Margin="0" 
-                             SelectionChanged="OnChatSelected" Background="White" 
-                             HorizontalContentAlignment="Stretch" IsSynchronizedWithCurrentItem="True" >
+                             SelectionChanged="OnChatSelected" 
+                             Background="Transparent" 
+                             HorizontalContentAlignment="Stretch" IsSynchronizedWithCurrentItem="True" 
+                             >
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Background="{Binding IsSelected, Converter={StaticResource csbc}}" Margin="-2">
@@ -82,7 +85,7 @@
                                         </Border>
 
                                         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10, 0,0,0">
-                                            <TextBlock   Text="{Binding Contact.Fullname}"
+                                            <TextBlock   Text="{Binding Contact.ContactName_ForUI}"
 								FontSize="14"  Foreground="#ff5e6366" FontWeight="SemiBold" HorizontalAlignment="Left" />
                                         </StackPanel>
                                         <Border Grid.Column="2" Grid.Row="0" Width="10" Height="10" CornerRadius="15" 
@@ -100,45 +103,51 @@
                 </Grid>
             </Border>
         </Grid>
-        <Border Grid.Column ="1" Grid.Row ="0" Background="{StaticResource ChatPageMainBg}" BorderBrush="{StaticResource ChatPageMainBg}" 
-		   BorderThickness="2">
+        <Border Grid.Column ="1" Grid.Row ="0" Background="{StaticResource AppMainWindowBrush}" 
+                BorderBrush="{StaticResource AppMainBorderBrush}" 
+		   BorderThickness="1">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <Border Grid.Row ="0" Background="{StaticResource ChatPageMainBg}" BorderBrush="{StaticResource ChatPageMainBg}" 
-		   BorderThickness="0,0,0,2">
+                <Border Grid.Row ="0" Background="{StaticResource AppMainWindowBrush}" 
+                        BorderBrush="{StaticResource AppMainBorderBrush}" 
+		   BorderThickness="0,0,0,1">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <Grid Style="{StaticResource HintEntryFieldStyle}" Margin="0" Background="White" Grid.Column="0">
+                        <Grid Style="{StaticResource HintEntryFieldStyle}" Margin="0" Grid.Column="0">
                             <TextBlock Text="Address or phone number" Foreground="{StaticResource ChatPageComposeHintFont}" FontSize="9" VerticalAlignment="Center" 
 								   HorizontalAlignment="Left" Margin="10,0,0,0"
 					   Visibility="{Binding ShowReceiverHint, Converter={StaticResource bvc}}" />
 
-                            <TextBox x:Name="TextMsgBox"  BorderThickness="1" Height="32" TextAlignment="Left" Foreground="{StaticResource ChatPageComposeTextboxFont}" 
+                            <TextBox x:Name="TextMsgBox"  BorderThickness="0" Height="32" TextAlignment="Left" 
+                                     Foreground="{StaticResource AppMainBorderBrush}" 
 								 HorizontalAlignment="Stretch" Text="{Binding ReceiverAddress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged }" VerticalContentAlignment="Center" FontSize="14"
-								 Background="Transparent" BorderBrush="{StaticResource ChatPageSelectContactTextBorder}"/>
+								 Background="Transparent" 
+                                     CaretBrush="White"
+                                     BorderBrush="{StaticResource ChatPageSelectContactTextBorder}"/>
                         </Grid>
                         <Border Grid.Column ="1" Background="{StaticResource ChatPageMainBg}" BorderBrush="{StaticResource ChatPageMainBg}" 
-		   BorderThickness="2,0,0,0">
-                            <Button Width="32" Height="32" Background="White" BorderThickness="1" BorderBrush="{StaticResource ChatPageSelectContactTextBorder}"/>
+		   BorderThickness="1,0,0,0">
+                            <Button Width="32" Height="32" Background="{StaticResource AppMainWindowBrush}" BorderThickness="1" BorderBrush="{StaticResource ChatPageSelectContactTextBorder}"/>
                         </Border>
                     </Grid>
                 </Border>
 
-                <Border Grid.Row ="1" Background="{StaticResource ChatPageMainBg}" BorderBrush="{StaticResource ChatPageMainBg}" 
-		   BorderThickness="0,0,0,2">
-                    <!--                             
--->
+                <Border Grid.Row ="1" Background="{StaticResource AppMainWindowBrush}" 
+                        BorderBrush="{StaticResource AppMainBorderBrush}" 
+		   BorderThickness="0,0,0,1">
+                   
                     <ListBox x:Name ="MessageListView" Style="{StaticResource MessagesListBox}" 
-				ItemsSource= "{Binding MessagesListView}" Margin="0" BorderBrush="{StaticResource ChatPageSelectContactTextBorder}" BorderThickness="1" 
-                                 Background="White" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" IsSynchronizedWithCurrentItem="True"
+				ItemsSource= "{Binding MessagesListView}" Margin="0" 
+                              
+                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" IsSynchronizedWithCurrentItem="True"
                              HorizontalContentAlignment="Stretch"
                              >
                         <ListBox.ItemContainerStyle>
@@ -242,33 +251,34 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
                 </Border>
-                <Border Grid.Row ="2" Background="{StaticResource ChatPageMainBg}" BorderBrush="{StaticResource ChatPageMainBg}" 
-		   BorderThickness="0,2,0,0">
+                <Border Grid.Row ="2" Background="{StaticResource AppMainWindowBrush}" 
+                        BorderBrush="{StaticResource AppMainBorderBrush}" 
+		   BorderThickness="0,0,0,0">
                     <Grid >
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <Grid Style="{StaticResource HintEntryFieldStyle}" Margin="0" Background="White" Grid.Column="0">
+                        <Grid Style="{StaticResource HintEntryFieldStyle}" Margin="0"  Grid.Column="0">
                             <TextBlock Text="Message" Foreground="{StaticResource ChatPageComposeHintFont}" FontSize="9" VerticalAlignment="Center" 
 								   HorizontalAlignment="Left" Margin="10,0,0,0"
 					   Visibility="{Binding ShowMessageHint, Converter={StaticResource bvc}}" />
 
                             <TextBox BorderThickness="1" Height="32" TextAlignment="Left" FontSize="14"
-									 Foreground="{StaticResource ChatPageComposeTextboxFont}" 
+									 Foreground="{StaticResource AppMainBorderBrush}" CaretBrush="White"
 								 HorizontalAlignment="Stretch" Text="{Binding MessageText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                      VerticalContentAlignment="Center"
 									 Background="Transparent" 
-									 BorderBrush="{StaticResource ChatPageSelectContactTextBorder}"
+									 BorderBrush="{StaticResource AppMainBorderBrush}"
                                      PreviewKeyUp="OnKeyUp" PreviewTextInput="OnTextInpput"
                                      />
                         </Grid>
-                        <Border Grid.Column ="1" Background="{StaticResource ChatPageMainBg}" BorderBrush="{StaticResource ChatPageMainBg}" 
-		   BorderThickness="2,0,0,0">
-                            <Button Width="50" Height="32" Background="{StaticResource ChatPageSendButtonNormalBg}" Content="Send" 
+                        <Border Grid.Column ="1" Background="{StaticResource AppMainWindowBrush}" BorderBrush="{StaticResource ChatPageMainBg}" 
+		   BorderThickness="1,0,0,0">
+                            <Button Width="50" Height="32" Background="{StaticResource AppMainWindowBrush}" Content="Send" 
 									BorderThickness="1" BorderBrush="{StaticResource ChatPageSelectContactTextBorder}" 
-									Foreground="{StaticResource ChatPageSendButtonNormalFont}"
+									Foreground="White"
 									Click="OnSendButtonClicked"
 									/>
                         </Border>
