@@ -6,6 +6,7 @@
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:customControls="clr-namespace:com.vtcsecure.ace.windows.CustomControls"
+		xmlns:unifiedSettings="clr-namespace:com.vtcsecure.ace.windows.CustomControls.UnifiedSettings"
 		mc:Ignorable="d"
 		d:DataContext="{d:DesignData Source=SampleData/MainViewSampleData.xaml}"
 
@@ -130,7 +131,7 @@
 			</Border>
             <Border x:Name="SettingsPaneHolder" Grid.Row="1"  Visibility="{Binding IsSettingsDocked, Converter={StaticResource bvc}}" 
                     VerticalAlignment="Stretch" >
-                <customControls:MainSettingsCtrl x:Name="ctrlSettings"  Margin="0" VerticalAlignment="Stretch"/>
+                <unifiedSettings:UnifiedSettingsCtrl x:Name="ctrlSettings"  Margin="0" VerticalAlignment="Stretch"/>
             </Border>
 
             <Grid x:Name="DialpadHolder" Grid.Row="2" Grid.Column="0" Background="{StaticResource AppMainWindowBrush}"

@@ -315,11 +315,12 @@ namespace com.vtcsecure.ace.windows
             ctrlCall.KeypadCtrl = _keypadCtrl;
             ctrlDialpad.KeypadPressed += OnDialpadClicked;
 
-            ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
-            ctrlSettings.CodecSettingsChangeClicked += OnSettingsChangeRequired;
-            ctrlSettings.MultimediaSettingsChangeClicked += OnSettingsChangeRequired;
-            ctrlSettings.NetworkSettingsChangeClicked += OnSettingsChangeRequired;
-            ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
+            // Liz E. - ToDo unified Settings
+//            ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
+//            ctrlSettings.CodecSettingsChangeClicked += OnSettingsChangeRequired;
+//            ctrlSettings.MultimediaSettingsChangeClicked += OnSettingsChangeRequired;
+//            ctrlSettings.NetworkSettingsChangeClicked += OnSettingsChangeRequired;
+//            ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
 
             if (App.CurrentAccount != null)
             {
