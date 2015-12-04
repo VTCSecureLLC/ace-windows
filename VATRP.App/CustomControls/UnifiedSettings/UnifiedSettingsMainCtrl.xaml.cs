@@ -1,4 +1,5 @@
-﻿using System;
+﻿using com.vtcsecure.ace.windows.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,12 +12,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using VATRP.Core.Model;
 
 namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 {
     /// <summary>
     /// Interaction logic for UnifiedSettingsMainCtrl.xaml
     /// </summary>
+    // ToDo VATRP-985: Unified Settings: Make it so that if the edit boxes are done editing the data validates/updates immediately
     public partial class UnifiedSettingsMainCtrl : BaseUnifiedSettingsPanel
     {
 
@@ -25,6 +28,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             InitializeComponent();
             Title = "Settings";
             this.Loaded += UnifiedSettingsMainCtrl_Loaded;
+            
         }
 
         void UnifiedSettingsMainCtrl_Loaded(object sender, RoutedEventArgs e)
@@ -35,6 +39,12 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             DomainTextBox.Text = App.CurrentAccount.ProxyHostname;
             ProxyTextBox.Text = Convert.ToString(App.CurrentAccount.ProxyPort);
             TransportTextBox.Text = App.CurrentAccount.Transport;
+
+            this.AutoAnswerCheckBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.AUTO_ANSWER, false);
+            this.AvpfCheckbox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.AVPF_ON, true);
+
 
 #if DEBUG
             DebugMenuLabel.Visibility = System.Windows.Visibility.Visible;
@@ -82,6 +92,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             App.CurrentAccount.RegistrationUser = UserNameTextBox.Text;
             App.CurrentAccount.RegistrationPassword = PasswordTextBox.Password;
             App.CurrentAccount.Transport = TransportTextBox.Text;
+            
         }
 
         #region Settings Menu
@@ -146,6 +157,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         }
 
 
+        // ToDo VATRP-985 - Liz E. - not sure where the outbound proxy setting lives
         private void OnOutboundProxy(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Outbound Proxy Clicked");
@@ -153,6 +165,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnAvpf(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("AVPF Clicked");
+            bool enabled = AvpfCheckbox.IsChecked ?? false;
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.AVPF_ON, enabled);
         }
         private void OnMoreOptions(object sender, RoutedEventArgs e)
         {
@@ -235,6 +250,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnAutoAnswerCall(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Auto Answer Call Clicked");
+            bool enabled = AutoAnswerCheckBox.IsChecked ?? false;
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.AUTO_ANSWER, enabled);
         }
         #endregion
 
