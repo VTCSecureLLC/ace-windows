@@ -138,16 +138,18 @@
                 <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30"   Margin="0,0,0,0"><Run Text="#"/></TextBlock>
             </StackPanel>
         </Button>
-        <ComboBox Grid.Column="0" Grid.Row="5" Margin="0,0.5,0.5,0" SelectedItem="{Binding SelectedProvider, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-          ItemsSource="{Binding Providers}">
+        <ComboBox Grid.Column="0" Grid.Row="5" Margin="0,0.5,0.5,0" SelectedItem="{Binding SelectedProvider, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                  ItemContainerStyle="{StaticResource DialpadProviderComboBoxItemStyle}"
+          ItemsSource="{Binding Providers}" Style="{StaticResource ProviderComboStyle}" 
+                  Background="{StaticResource AppMainWindowBrush}" Foreground="{StaticResource AppMainBorderBrush}">
             <ComboBox.Resources>
-                <System:Double x:Key="{x:Static SystemParameters.VerticalScrollBarWidthKey}">0</System:Double>
+                <!--<System:Double x:Key="{x:Static SystemParameters.VerticalScrollBarWidthKey}">0</System:Double>-->
             </ComboBox.Resources>
+            
             <ComboBox.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="{Binding Logo}" />
-                        <!--<TextBlock Text="{Binding Label}" FontSize="16" Foreground="{DynamicResource AppMainWindowBrush}"/>-->
+                    <StackPanel Orientation="Horizontal" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Image Source="{Binding Logo}" Width="53" Height="53" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </StackPanel>
                 </DataTemplate>
             </ComboBox.ItemTemplate>

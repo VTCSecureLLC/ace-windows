@@ -73,8 +73,7 @@ namespace com.vtcsecure.ace.windows
             _messagingWindow = new MediaTextWindow(_mainViewModel.MessagingModel);
             ctrlDialpad.SetViewModel(_mainViewModel.DialpadModel);
             ctrlLocalContact.SetDataContext(_mainViewModel.ContactModel);
-            ctrlRTT.SetViewModel(_mainViewModel.MessagingModel);
-            ctrlCall.SetCallViewModel(_mainViewModel.ActiveCallModel);
+            ctrlCall.ParentViewModel =_mainViewModel;
             _settingsView.SetSettingsModel(_mainViewModel.SettingsModel);
         }
 
@@ -178,17 +177,18 @@ namespace com.vtcsecure.ace.windows
             this.registerRequested = true;
             ServiceManager.Instance.UpdateLinphoneConfig();
 
-            if (_mainViewModel.ActiveCallModel != null)
+            if (_mainViewModel.ActiveCallModel != null && _mainViewModel.ActiveCallModel.ActiveCall != null)
             {
                 var r = MessageBox.Show("The active call will be terminated. Continue?", "ACE",
-                        MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-                    if (r == MessageBoxResult.OK)
-                    {
-                        _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr);
-                    }
-                    return;
+                if (r == MessageBoxResult.OK)
+                {
+                    _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr);
                 }
+                return;
+            }
+
             if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk)
             {
                 _linphoneService.Unregister(false);
@@ -208,6 +208,7 @@ namespace com.vtcsecure.ace.windows
         private void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             App.AllowDestroyWindows = true;
+            registerRequested = false;
             base.Window_Closing(sender, e);
             ServiceManager.Instance.Stop();
         }
@@ -314,11 +315,12 @@ namespace com.vtcsecure.ace.windows
             ctrlCall.KeypadCtrl = _keypadCtrl;
             ctrlDialpad.KeypadPressed += OnDialpadClicked;
 
-            ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
-            ctrlSettings.CodecSettingsChangeClicked += OnSettingsChangeRequired;
-            ctrlSettings.MultimediaSettingsChangeClicked += OnSettingsChangeRequired;
-            ctrlSettings.NetworkSettingsChangeClicked += OnSettingsChangeRequired;
-            ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
+            // Liz E. - ToDo unified Settings
+//            ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
+//            ctrlSettings.CodecSettingsChangeClicked += OnSettingsChangeRequired;
+//            ctrlSettings.MultimediaSettingsChangeClicked += OnSettingsChangeRequired;
+//            ctrlSettings.NetworkSettingsChangeClicked += OnSettingsChangeRequired;
+//            ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
 
             if (App.CurrentAccount != null)
             {

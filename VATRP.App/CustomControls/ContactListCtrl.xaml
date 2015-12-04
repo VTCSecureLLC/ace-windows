@@ -160,8 +160,8 @@
                             <TextBlock  Grid.Row="0" Grid.Column="1" Text="{Binding Contact.Fullname}" Margin="5,0, 0, 3" VerticalAlignment="Bottom" 
 								FontSize="16"  Foreground="{StaticResource RecentsPageCallerFont}" TextWrapping="NoWrap" ToolTip="{Binding Contact.Fullname}"
                                     TextTrimming="CharacterEllipsis" FontWeight="SemiBold" HorizontalAlignment="Left" MaxWidth="150"/>
-                            <TextBlock  Grid.Row="1" Grid.Column="1" Text="{Binding Contact.SipUsername}" Margin="5,0" MaxWidth="150"
-								FontSize="14"  Foreground="{StaticResource RecentsPageCallerFont}" ToolTip="{Binding Contact.SipUsername}" FontWeight="SemiBold" HorizontalAlignment="Left" TextTrimming="CharacterEllipsis" />
+                            <TextBlock  Grid.Row="1" Grid.Column="1" Text="{Binding Contact.RegistrationName}" Margin="5,0" MaxWidth="150"
+								FontSize="14"  Foreground="{StaticResource RecentsPageCallerFont}" ToolTip="{Binding Contact.ContactAddress_ForUI}" FontWeight="SemiBold" HorizontalAlignment="Left" TextTrimming="CharacterEllipsis" />
                                 <StackPanel x:Name="ControlBtnPanel" Style="{StaticResource HideButtonsStyle}"
                                         Orientation="Horizontal" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Grid.RowSpan="2">
                                     

@@ -17,16 +17,23 @@ namespace com.vtcsecure.ace.windows.CustomControls
     /// <summary>
     /// Interaction logic for CallViewCtrl.xaml
     /// </summary>
-    public partial class CallViewCtrl : System.Windows.Controls.UserControl
+    public partial class CallViewCtrl
     {
         #region Members
         private static readonly ILog LOG = LogManager.GetLogger(typeof(CallViewCtrl));
         private CallViewModel _viewModel;
+        private MainControllerViewModel _parentViewModel;
         #endregion
         
         #region Properties
         public KeyPadCtrl KeypadCtrl { get; set; }
-        
+
+        public MainControllerViewModel ParentViewModel
+        {
+            get { return _parentViewModel; }
+            set { _parentViewModel = value; }
+        }
+
         #endregion
 
         #region Events
@@ -39,9 +46,11 @@ namespace com.vtcsecure.ace.windows.CustomControls
         public event SwitchCallbarButton CallInfoToggled;
         public event EventHandler<KeyPadEventArgs> KeypadClicked; 
         #endregion
+
         public CallViewCtrl()
         {
             InitializeComponent();
+            DataContext = _viewModel;
             ctrlOverlay.CommandOverlayWidth = 550;
             ctrlOverlay.CommandOverlayHeight = 550;
 
@@ -52,23 +61,19 @@ namespace com.vtcsecure.ace.windows.CustomControls
             ctrlOverlay.CallInfoOverlayHeight = 200;
         }
 
-        public CallViewCtrl(CallViewModel viewModel) :
-            this()
+        public CallViewCtrl(MainControllerViewModel parentVM):this()
         {
-            SetCallViewModel(viewModel);
+            _parentViewModel = parentVM;
         }
 
         public void SetCallViewModel(CallViewModel viewModel)
         {
+            if (_viewModel == viewModel)
+                return;
             DataContext = viewModel;
             _viewModel = viewModel;
 
-            BtnMuteOn.IsChecked = false;
-            BtnVideoOn.IsChecked = false;
-            BtnSpeaker.IsChecked = false;
-            BtnNumpad.IsChecked = false;
-            BtnRTT.IsChecked = false;
-            BtnInfo.IsChecked = false;
+           UpdateControls();
         }
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
@@ -78,12 +83,14 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         internal void EndCall()
         {
-            _viewModel.TerminateCall();
+            if (_parentViewModel != null) 
+                _parentViewModel.TerminateCall(_viewModel);
         }
 
         internal void MuteCall()
         {
-            _viewModel.MuteCall();
+            if (_viewModel.ActiveCall != null )
+                _viewModel.MuteCall();
         }
 
         internal void ToggleVideo(bool videoOn)
@@ -107,16 +114,14 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         private void AcceptCall(object sender, RoutedEventArgs e)
         {
-            if (_viewModel != null)
-                _viewModel.AcceptCall();
+            if (_parentViewModel != null)
+                _parentViewModel.AcceptCall(_viewModel);
         }
 
         private void DeclineCall(object sender, RoutedEventArgs e)
         {
-            if (_viewModel != null)
-                _viewModel.DeclineCall();
-
-            
+            if (_parentViewModel != null)
+                _parentViewModel.DeclineCall(_viewModel);
         }
 
         internal void ToggleKeypadView()
@@ -217,6 +222,42 @@ namespace com.vtcsecure.ace.windows.CustomControls
                     }
                 }
             }
+        }
+
+        private void HoldAndAcceptCall(object sender, RoutedEventArgs e)
+        {
+            _viewModel.SaveStates();
+            if (_parentViewModel != null)
+                _parentViewModel.AcceptCall(_viewModel);
+        }
+
+        private void AcceptAndEndCall(object sender, RoutedEventArgs e)
+        {
+            _viewModel.SaveStates();
+            if (_parentViewModel != null)
+                _parentViewModel.EndAndAcceptCall(_viewModel);
+        }
+        
+        internal void UpdateControls()
+        {
+            if (_viewModel != null)
+            {
+                _viewModel.LoadStates();
+                _viewModel.IsMuteOn = false;
+                BtnMuteOn.IsChecked = _viewModel.IsMuteOn;
+                BtnVideoOn.IsChecked = _viewModel.IsVideoOn;
+                BtnSpeaker.IsChecked = _viewModel.IsSpeakerOn;
+                BtnNumpad.IsChecked = _viewModel.IsNumpadOn;
+                BtnRTT.IsChecked = _viewModel.IsRttOn;
+                BtnInfo.IsChecked = _viewModel.IsCallInfoOn;
+
+                _viewModel.ToggleCallStatisticsInfo(BtnInfo.IsChecked ?? false);
+
+            }
+
+            if (RttToggled != null)
+                RttToggled(BtnRTT.IsChecked ?? false);
+            ctrlOverlay.ShowNumpadWindow(BtnNumpad.IsChecked ?? false);
         }
     }
     

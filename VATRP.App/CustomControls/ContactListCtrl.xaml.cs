@@ -75,7 +75,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             Nullable<bool> dialogResult = contactEditView.ShowDialog();
             if (dialogResult != null && dialogResult.Value)
             {
-                ServiceManager.Instance.ContactService.AddLinphoneContact(model.ContactName, model.ContactSipAddress);
+                ServiceManager.Instance.ContactService.AddLinphoneContact(model.ContactName, model.ContactSipUsername, model.ContactSipAddress);
             }
         }
 
@@ -86,14 +86,15 @@ namespace com.vtcsecure.ace.windows.CustomControls
             {
                 ContactEditViewModel model = new ContactEditViewModel(false);
                 model.ContactName = contact.Fullname;
-                model.ContactSipAddress = contact.SipUsername;
+                model.ContactSipUsername = contact.RegistrationName;
+                model.TrimSipUsername();
                 var contactEditView = new ContactEditView(model);
                 Nullable<bool> dialogResult = contactEditView.ShowDialog();
                 if (dialogResult != null && dialogResult.Value)
                 {
                     ServiceManager.Instance.ContactService.EditLinphoneContact(
                         contact.Fullname,
-                        contact.SipUsername, model.ContactName,
+                        contact.RegistrationName, model.ContactName,
                         model.ContactSipAddress);
                 }
             }
@@ -110,7 +111,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
                     ServiceManager.Instance.ContactService.DeleteLinphoneContact(
                         contact.Fullname,
-                        contact.SipUsername);
+                        contact.RegistrationName);
             }
         }
 

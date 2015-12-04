@@ -35,6 +35,7 @@ namespace VATRP.Core.Interfaces
         void AcceptCall(IntPtr callPtr, bool rttEnabled);
         void DeclineCall(IntPtr callPtr);
         bool TerminateCall(IntPtr callPtr);
+        void ResumeCall(IntPtr callPtr);
         void AcceptRTTProposition(IntPtr callPtr);
         void SendRTTProposition(IntPtr callPtr);
 
@@ -71,5 +72,7 @@ namespace VATRP.Core.Interfaces
         void LoadChatRoom(VATRPChat chat);
         void EnableAdaptiveRateControl(bool bEnable);
         IntPtr LinphoneCore { get; }
+        int GetActiveCallsCount { get; }
+        
     }
 }

@@ -41,20 +41,17 @@ namespace com.vtcsecure.ace.windows.Views
                 return;
             }
 
-            if (!_viewModel.ValidateAddress())
+            if (!_viewModel.ValidateUsername(_viewModel.ContactSipUsername))
             {
-                MessageBox.Show("Please enter correct SIP address", "ACE", MessageBoxButton.OK,
+                if (!_viewModel.ValidateAddress(_viewModel.ContactSipUsername))
+                {
+                    MessageBox.Show("Please enter correct username", "ACE", MessageBoxButton.OK,
                         MessageBoxImage.Error);
-                AddressBox.Focus();
-                return;
+                    AddressBox.Focus();
+                    return;
+                }
             }
             this.DialogResult = true;
-            Close();
-        }
-
-        private void OnCancel(object sender, RoutedEventArgs e)
-        {
-            this.DialogResult = false;
             Close();
         }
     }
