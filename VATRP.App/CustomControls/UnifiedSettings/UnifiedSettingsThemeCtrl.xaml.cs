@@ -24,5 +24,20 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             InitializeComponent();
             Title = "Theme";
         }
+        // ToDo VATRP-988 - implement color picker, connect Force  508
+        //   Sample color picker: http://www.codeproject.com/Articles/33001/WPF-A-Simple-Color-Picker-With-Preview
+        private void OnForegroundColor(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Foreground Color Clicked");
+        }
+        private void OnBackgroundColor(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Background Color Clicked");
+        }
+        private void OnForce508(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Force 508 Clicked");
+        }
+
     }
 }
