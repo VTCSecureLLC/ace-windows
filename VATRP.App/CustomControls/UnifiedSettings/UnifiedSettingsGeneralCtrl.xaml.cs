@@ -23,6 +23,43 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         {
             InitializeComponent();
             Title = "General";
+            this.Loaded += UnifiedSettingsGeneralCtrl_Loaded;
         }
+
+        // ToDo - VATRP98populate when we know where the settings are stored
+        private void UnifiedSettingsGeneralCtrl_Loaded(object sender, RoutedEventArgs e)
+        {
+        }
+
+        //
+        private void OnStartOnBoot(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Start at Boot Clicked");
+            bool enabled = this.StartAtBootCheckbox.IsChecked ?? false;
+           // ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+             //   Configuration.ConfEntry.AUTO_ANSWER, enabled);
+        }
+        private void OnWifiOnly(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Auto Answer Call Clicked");
+            bool enabled = WifiOnlyCheckBox.IsChecked ?? false;
+         //   ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+           //     Configuration.ConfEntry.AUTO_ANSWER, enabled);
+        }
+        private void OnSipEncryption(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("SIP Encryption Clicked");
+            bool enabled = SipEncryptionCheckbox.IsChecked ?? false;
+//            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+  //              Configuration.ConfEntry.AUTO_ANSWER, enabled);
+        }
+        private void OnAutoAnswerAfterNotification(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Auto Answer After Notification Clicked");
+            bool enabled = AutoAnswerAfterNotificationCheckBox.IsChecked ?? false;
+            //ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+              //  Configuration.ConfEntry.AUTO_ANSWER, enabled);
+        }
+
     }
 }
