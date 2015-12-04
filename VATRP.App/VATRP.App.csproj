@@ -139,6 +139,29 @@
     <Compile Include="CustomControls\MainSettingsCtrl.xaml.cs">
       <DependentUpon>MainSettingsCtrl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\BaseUnifiedSettingsPanel.cs" />
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioVideoCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsAudioVideoCtrl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsContentType.cs" />
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsCtrl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsGeneralCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsGeneralCtrl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsMainCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsMainCtrl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsSummaryCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsSummaryCtrl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsTextCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsTextCtrl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsThemeCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsThemeCtrl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Enums\VATRPSettings.cs" />
     <Compile Include="ViewModel\ContactEditViewModel.cs" />
     <Compile Include="ViewModel\ContactsViewModel.cs" />
@@ -269,6 +292,34 @@
     <Page Include="CustomControls\MainSettingsCtrl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioVideoCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsGeneralCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsMainCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsSummaryCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsTextCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsThemeCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SampleData\ContactViewSampleData.xaml">
       <SubType>Designer</SubType>
