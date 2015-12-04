@@ -24,6 +24,45 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         {
             InitializeComponent();
             Title = "Audio/Video";
+            this.Loaded += UnifiedSettingsAudioVideoCtrl_Loaded;
         }
+
+        // ToDo VATRP987 - Liz E. these need to be hooked into acutal settings. not sure where they live.
+        private void UnifiedSettingsAudioVideoCtrl_Loaded(object sender, RoutedEventArgs e)
+        {
+        }
+
+
+        private void OnMuteSpeaker(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Mute Speaker Call Clicked");
+            bool enabled = MuteSpeakerCheckBox.IsChecked ?? false;
+           // ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+           //     Configuration.ConfEntry.AUTO_ANSWER, enabled);
+        }
+        private void OnMuteMicrophone(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Mute Microphone Call Clicked");
+            bool enabled = MuteMicrophoneCheckBox.IsChecked ?? false;
+//            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+  //              Configuration.ConfEntry.AUTO_ANSWER, enabled);
+        }
+        private void OnEchoCancel(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Echo Cancel Call Clicked");
+            bool enabled = this.EchoCancelCheckBox.IsChecked ?? false;
+           // ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+             //   Configuration.ConfEntry.AUTO_ANSWER, enabled);
+        }
+        private void OnShowSelfView(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Show Self View Clicked");
+            bool enabled = ShowSelfViewCheckBox.IsChecked ?? false;
+            //ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+              //  Configuration.ConfEntry.AUTO_ANSWER, enabled);
+        }
+
+
+
     }
 }
