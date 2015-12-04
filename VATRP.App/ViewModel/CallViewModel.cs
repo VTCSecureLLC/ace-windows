@@ -469,6 +469,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
             IsMuteOn = _linphoneService.IsCallMuted();
         }
 
+        internal void ToggleVideo(bool videoOn)
+        {
+            _linphoneService.ToggleVideo(videoOn, _currentCall.NativeCallPtr);
+        }
+
         private void ReceiveCall(VATRPCall call)
         {
             DisplayName = call.DisplayName;

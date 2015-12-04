@@ -272,7 +272,7 @@ namespace VATRP.Core.Services
 				LinphoneAPI.linphone_core_enable_video_display(linphoneCore, true);
 				LinphoneAPI.linphone_core_enable_video_preview(linphoneCore, false);
 				LinphoneAPI.linphone_core_set_native_preview_window_id(linphoneCore, -1);
-
+                
                 callsDefaultParams = LinphoneAPI.linphone_core_create_call_params(linphoneCore, IntPtr.Zero);
                 LinphoneAPI.linphone_call_params_enable_video(callsDefaultParams, true);
                 LinphoneAPI.linphone_call_params_enable_early_media_sending(callsDefaultParams, true);
@@ -742,6 +742,24 @@ namespace VATRP.Core.Services
 
 			LinphoneAPI.linphone_core_enable_mic(linphoneCore, !LinphoneAPI.linphone_core_mic_enabled(linphoneCore));
 		}
+
+        public void ToggleVideo(bool enableVideo, IntPtr callPtr)
+        {
+			if (linphoneCore == IntPtr.Zero)
+				return;
+
+            if (callPtr == IntPtr.Zero)
+            {
+                LOG.Error("LinphoneService.ToggleVideo: Attempting to pause video but the call pointer is null. Returing without modifying call.");
+                return;
+            }
+
+            // ToDo VATRP-842: Set static image instead of using default
+            // LinphoneAPI.linphone_core_set_static_picture(linphoneCore, "Resources\\contacts.png");
+            LinphoneAPI.linphone_call_enable_camera(callPtr, enableVideo);
+
+
+        }
 
         public void SendDtmf(VATRPCall call, char dtmf)
         {
