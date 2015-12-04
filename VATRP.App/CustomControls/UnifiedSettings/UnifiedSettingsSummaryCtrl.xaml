@@ -7,6 +7,34 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-            
+        <Grid  Background="{StaticResource RecentsPageMainBg}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <!-- Row 0: View TSS -->
+            <Button Grid.Column="0" Grid.Row="0" Content="View TSS" Margin="0,2" 
+                    BorderThickness="0"  Click="OnViewTss"
+                    VerticalContentAlignment="Center">
+            </Button>
+            <!-- Row 1: Mail TSS -->
+            <Button Grid.Column="0" Grid.Row="1" Content="Mail TSS" Margin="0,2" 
+                    BorderThickness="0"  Click="OnMailTss"
+                    VerticalContentAlignment="Center">
+            </Button>
+            <!-- Row 2: Show Advanced -->
+            <Button Grid.Column="0" Grid.Row="2" Content="Show Advanced" Margin="0,2" 
+                    BorderThickness="0"  Click="OnShowAdvanced"
+                    VerticalContentAlignment="Center">
+            </Button>
+            <!-- Row 3: ShowDebug -->
+            <Button Grid.Column="0" Grid.Row="3" Content="Show Debug" Margin="0,2" 
+                    BorderThickness="0"  Click="OnShowDebug"
+                    VerticalContentAlignment="Center">
+            </Button>
+
+        </Grid>
     </Grid>
 </local:BaseUnifiedSettingsPanel>

@@ -24,5 +24,26 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             InitializeComponent();
             Title = "Summary";
         }
+
+
+        // ToDo VATRP-990 - connect these to the correct actions
+
+        private void OnViewTss(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("View TSS Clicked");
+        }
+        private void OnMailTss(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Mail TSS Clicked");
+        }
+        private void OnShowAdvanced(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Show Advanced Clicked");
+        }
+        private void OnShowDebug(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Show Debug Clicked");
+        }
+
     }
 }
