@@ -176,7 +176,7 @@
                 <Label Grid.Column="0" Grid.Row="19" Grid.ColumnSpan="2" Content="Enable Video" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" >
                 </Label>
-                <CheckBox Grid.Column="2" Grid.Row="19" Checked="OnEnableVideo" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <CheckBox Grid.Column="2" Grid.Row="19" Checked="OnEnableVideo" HorizontalAlignment="Center" VerticalAlignment="Center" Name="EnableVideoCheckBox"/>
 
                 <!-- Row 20: Text Preferences button -->
                 <Button Grid.Column="0" Grid.Row="20" Grid.ColumnSpan="2" Content="Text" Margin="0,2" 

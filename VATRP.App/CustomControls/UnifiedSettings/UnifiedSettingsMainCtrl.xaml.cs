@@ -92,7 +92,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             App.CurrentAccount.RegistrationUser = UserNameTextBox.Text;
             App.CurrentAccount.RegistrationPassword = PasswordTextBox.Password;
             App.CurrentAccount.Transport = TransportTextBox.Text;
-            
+
         }
 
         #region Settings Menu
@@ -168,6 +168,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             bool enabled = AvpfCheckbox.IsChecked ?? false;
             ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.AVPF_ON, enabled);
+            ServiceManager.Instance.ConfigurationService.SaveConfig();
+
         }
         private void OnMoreOptions(object sender, RoutedEventArgs e)
         {
@@ -198,6 +200,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnEnableVideo(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Enable Video Clicked");
+            bool enabled = EnableVideoCheckBox.IsChecked ?? false;
+            // ToDo: VATRP-985: where is the enable video setting?
+
+            ServiceManager.Instance.ConfigurationService.SaveConfig();
+
         }
 
         private void OnTextPreferences(object sender, RoutedEventArgs e)
@@ -253,6 +260,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             bool enabled = AutoAnswerCheckBox.IsChecked ?? false;
             ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.AUTO_ANSWER, enabled);
+            ServiceManager.Instance.ConfigurationService.SaveConfig();
+
         }
         #endregion
 
