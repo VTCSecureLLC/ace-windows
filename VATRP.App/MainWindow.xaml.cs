@@ -47,6 +47,7 @@ namespace com.vtcsecure.ace.windows
         private readonly ILinphoneService _linphoneService;
         private FlashWindowHelper _flashWindowHelper = new FlashWindowHelper();
         private readonly MainControllerViewModel _mainViewModel;
+        private const int CombinedUICallViewSize = 700;
         #endregion
 
         #region Properties

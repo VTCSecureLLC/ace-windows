@@ -10,6 +10,7 @@ using com.vtcsecure.ace.windows.Services;
 using com.vtcsecure.ace.windows.ViewModel;
 using com.vtcsecure.ace.windows.Views;
 using VATRP.Core.Model;
+using VATRP.LinphoneWrapper;
 using VATRP.LinphoneWrapper.Enums;
 
 namespace com.vtcsecure.ace.windows
@@ -20,7 +21,6 @@ namespace com.vtcsecure.ace.windows
 		private bool isRegistering = true;
 		private bool signOutRequest = false;
 		private bool defaultConfigRequest;
-		private string videoTitle = string.Empty;
 		private void OnCallStateChanged(VATRPCall call)
 		{
 			if (this.Dispatcher.Thread != Thread.CurrentThread)
@@ -87,10 +87,7 @@ namespace com.vtcsecure.ace.windows
 		        }
 		        _mainViewModel.ActiveCallModel = callViewModel;
 		    }
-		    else if (call.CallState == VATRPCallState.Connected)
-		    {
-		    }
-		    else if (call.CallState == VATRPCallState.LocalResumed)
+		    else if (call.CallState == VATRPCallState.StreamsRunning)
 		    {
 		        _mainViewModel.ActiveCallModel = callViewModel;
 		    }
@@ -105,19 +102,15 @@ namespace com.vtcsecure.ace.windows
 		    if (_mainViewModel.ActiveCallModel == null)
 		        _mainViewModel.ActiveCallModel = callViewModel;
 
+            LOG.Info(string.Format("CallStateChanged: State - {0}. Call: {1}", call.CallState, call.NativeCallPtr));
 		    ctrlCall.SetCallViewModel(_mainViewModel.ActiveCallModel);
 			
-			LOG.Info(string.Format("CallStateChanged: State - {0}. Call: {1}", call.CallState, call.NativeCallPtr ));
 			var stopPlayback = false;
 		    var destroycall = false;
 			switch (call.CallState)
 			{
 				case VATRPCallState.Trying:
 					// call started, 
-					videoTitle = call.To.DisplayName;
-					videoTitle = !string.IsNullOrWhiteSpace(call.To.DisplayName)
-						? string.Format("\"{0}\" {1}", call.To.DisplayName, call.To.Username)
-						: call.To.Username;
 					call.RemoteParty = call.To;
 					callViewModel.OnTrying();
 
@@ -130,23 +123,21 @@ namespace com.vtcsecure.ace.windows
 			        _mainViewModel.IsCallPanelDocked = true;
 					break;
 				case VATRPCallState.InProgress:
-					videoTitle = !string.IsNullOrWhiteSpace(call.From.DisplayName)
-						? string.Format("\"{0}\" {1}", call.From.DisplayName, call.From.Username)
-						: call.From.Username;
-					
 					call.RemoteParty = call.From;
 					ServiceManager.Instance.SoundService.PlayRingTone();
 					_mainViewModel.IsCallPanelDocked = true;
+                    
+                    callViewModel.OnIncomingCall();
 
-					if (_linphoneService.GetActiveCallsCount == 2)
-					{
-						callViewModel.ShowSwitchCallPanel = true;
-						ShowCallOverlayWindow(false);
-					}
-					else
-						callViewModel.ShowIncomingCallPanel = true;
-					
-					callViewModel.OnIncomingCall();
+			        if (_linphoneService.GetActiveCallsCount == 2)
+			        {
+			            ShowOverlayNewCallWindow(true);
+                        ctrlCall.ctrlOverlay.SetNewCallerInfo(callViewModel.CallerInfo);
+			        }
+			        else
+			        {
+			            callViewModel.ShowIncomingCallPanel = true;
+			        }
 					
 					_flashWindowHelper.FlashWindow(_callView);
 					Topmost = true;
@@ -178,41 +169,40 @@ namespace com.vtcsecure.ace.windows
 					callViewModel.ShowOutgoingEndCall = false;
 					
 					ShowCallOverlayWindow(true);
+                    ShowOverlayNewCallWindow(false);
 					ctrlCall.ctrlOverlay.SetCallerInfo(callViewModel.CallerInfo);
 					ctrlCall.ctrlOverlay.SetCallState("Connected");
-					ctrlCall.ctrlOverlay.StartCallTimer(callViewModel.Duration);
+                    ctrlCall.ctrlOverlay.ForegroundCallDuration = callViewModel.CallDuration;
 
-					//try
-					//{
-					//    if (_selfView.IsVisible)
-					//    {
-					//        Window window = Window.GetWindow(_selfView);
-					//        if (window != null)
-					//        {
-					//            var wih = new WindowInteropHelper(window);
-					//            IntPtr hWnd = wih.EnsureHandle();
-					//            ServiceManager.Instance.LinphoneService.SetVideoPreviewWindowHandle(hWnd);
-					//        }
-					//    }
-					//    else
-					//    {
-					//        _selfView.Show();
-					//    }
-					//}
-					//catch (Exception ex)
-					//{
-					//    ServiceManager.LogError("Show Self preview", ex);
-					//    RecreateSelfView();
-					//}
+			        if (_linphoneService.GetActiveCallsCount == 2)
+			        {
+			            CallViewModel nextVM = _mainViewModel.GetNextViewModel(callViewModel);
+			            if (nextVM != null)
+			            {
+			                ShowOverlaySwitchCallWindow(true);
+			                ctrlCall.ctrlOverlay.SetPausedCallerInfo(nextVM.CallerInfo);
+                            ctrlCall.ctrlOverlay.BackgroundCallDuration = nextVM.CallDuration;
+                            ctrlCall.ctrlOverlay.StartPausedCallTimer(ctrlCall.ctrlOverlay.BackgroundCallDuration);
+                            ctrlCall.BackgroundCallViewModel = nextVM;
+			            }
+			        }
+			        else
+			        {
+                        ShowOverlaySwitchCallWindow(false);
+			        }
+
+                    ctrlCall.ctrlOverlay.StartCallTimer(ctrlCall.ctrlOverlay.ForegroundCallDuration);
 					_callOverlayView.EndCallRequested = false;
 
 					ctrlCall.AddVideoControl();
 					break;
 				case VATRPCallState.StreamsRunning:
 					callViewModel.OnStreamRunning();
+                    ctrlCall.ctrlOverlay.ForegroundCallDuration = _mainViewModel.ActiveCallModel.CallDuration;
 					break;
 				case VATRPCallState.RemotePaused:
 			        callViewModel.OnRemotePaused();
+			        ctrlCall.BackgroundCallViewModel = callViewModel;
 					break;
                 case VATRPCallState.LocalPausing:
                     callViewModel.CallState = VATRPCallState.LocalPausing;
@@ -220,14 +210,51 @@ namespace com.vtcsecure.ace.windows
                 case VATRPCallState.LocalPaused:
                     callViewModel.OnLocalPaused();
                     callViewModel.CallState = VATRPCallState.LocalPaused;
-                    break;
+			        if (_linphoneService.GetActiveCallsCount == 2)
+			        {
+                        CallViewModel nextVM = _mainViewModel.GetNextViewModel(callViewModel);
+                        if (nextVM != null)
+                        {
+                            ShowOverlaySwitchCallWindow(true);
+                            ctrlCall.ctrlOverlay.SetPausedCallerInfo(callViewModel.CallerInfo);
+                            ctrlCall.ctrlOverlay.BackgroundCallDuration = callViewModel.CallDuration;
+                            ctrlCall.ctrlOverlay.StartPausedCallTimer(ctrlCall.ctrlOverlay.BackgroundCallDuration);
+                            ctrlCall.BackgroundCallViewModel = callViewModel;
+                            ctrlCall.ctrlOverlay.ForegroundCallDuration = nextVM.CallDuration;
+                            ctrlCall.SetCallViewModel(nextVM);
+                            _mainViewModel.ResumeCall(nextVM);
+                        }
+			        }
+			        break;
                 case VATRPCallState.LocalResuming:
                     callViewModel.OnResumed();
                     ShowCallOverlayWindow(true);
 					ctrlCall.ctrlOverlay.SetCallerInfo(callViewModel.CallerInfo);
 					ctrlCall.ctrlOverlay.SetCallState("Connected");
-					ctrlCall.ctrlOverlay.StartCallTimer(callViewModel.Duration);
 			        ctrlCall.UpdateControls();
+
+			        if (_linphoneService.GetActiveCallsCount == 2)
+			        {
+			            CallViewModel nextVM = _mainViewModel.GetNextViewModel(callViewModel);
+			            if (nextVM != null)
+			            {
+			                ShowOverlaySwitchCallWindow(true);
+			                ctrlCall.ctrlOverlay.SetPausedCallerInfo(nextVM.CallerInfo);
+                            ctrlCall.ctrlOverlay.BackgroundCallDuration = nextVM.CallDuration ;
+                            ctrlCall.ctrlOverlay.StartPausedCallTimer(ctrlCall.ctrlOverlay.BackgroundCallDuration);
+                            ctrlCall.BackgroundCallViewModel = nextVM;
+                            ctrlCall.SetCallViewModel(callViewModel);
+                            ctrlCall.ctrlOverlay.ForegroundCallDuration = callViewModel.CallDuration;
+			            }
+			            else
+			            {
+			                ShowOverlaySwitchCallWindow(false);
+			            }
+			        }
+			        else
+			        {
+			            ShowOverlaySwitchCallWindow(false);
+			        }
 					ctrlCall.AddVideoControl();
                     break;
                 case VATRPCallState.Closed:
@@ -241,11 +268,14 @@ namespace com.vtcsecure.ace.windows
                         _mainViewModel.MessagingModel.ClearConversation();
                         ctrlRTT.SetViewModel(null);
                     }
+                    ShowOverlayNewCallWindow(false);
+                    ShowOverlaySwitchCallWindow(false);
+                    ctrlCall.BackgroundCallViewModel = null;
+
 					int callsCount = _mainViewModel.RemoveCalViewModel(callViewModel);
 					if (callsCount == 0)
 					{
 						_callInfoView.Hide();
-                       
 						ctrlCall.ctrlOverlay.StopCallTimer();
 						ShowCallOverlayWindow(false);
 						_mainViewModel.IsMessagingDocked = false;
@@ -267,7 +297,7 @@ namespace com.vtcsecure.ace.windows
                             }
                             ShowCallOverlayWindow(true);
                             ctrlCall.ctrlOverlay.SetCallerInfo(nextVM.CallerInfo);
-                            ctrlCall.ctrlOverlay.StartCallTimer(nextVM.Duration);
+                            ctrlCall.ctrlOverlay.ForegroundCallDuration = _mainViewModel.ActiveCallModel.CallDuration;
                             ctrlCall.SetCallViewModel(_mainViewModel.ActiveCallModel);
                             ctrlCall.UpdateControls();
 					        if (nextVM.ActiveCall.CallState == VATRPCallState.LocalPaused)
@@ -285,6 +315,7 @@ namespace com.vtcsecure.ace.windows
 				case VATRPCallState.Error:
 			        destroycall = true;
 					_flashWindowHelper.StopFlashing();
+                    ctrlCall.BackgroundCallViewModel = null;
 					callViewModel.OnClosed(true);
 					stopPlayback = true;
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
@@ -340,36 +371,43 @@ namespace com.vtcsecure.ace.windows
 
 		private void ShowCallOverlayWindow(bool bShow)
 		{
-			Rect r = LayoutInformation.GetLayoutSlot(ctrlCall);
-			ctrlCall.ctrlOverlay.CommandWindowLeftMargin = ctrlDialpad.ActualWidth + (700 - 550) / 2;
+            ctrlCall.ctrlOverlay.CommandWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize - 550) / 2;
 			ctrlCall.ctrlOverlay.CommandWindowTopMargin = 500 - SystemParameters.CaptionHeight;
 
-			ctrlCall.ctrlOverlay.NumpadWindowLeftMargin = ctrlDialpad.ActualWidth + (700 - 230) / 2;
+            ctrlCall.ctrlOverlay.NumpadWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize - 230) / 2;
 			ctrlCall.ctrlOverlay.NumpadWindowTopMargin = 170 - SystemParameters.CaptionHeight;
 
-			ctrlCall.ctrlOverlay.CallInfoWindowLeftMargin = ctrlDialpad.ActualWidth + (700 - 550) / 2;
+            ctrlCall.ctrlOverlay.CallInfoWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize - 550) / 2;
 			ctrlCall.ctrlOverlay.CallInfoWindowTopMargin = 40 - SystemParameters.CaptionHeight;
 
 			ctrlCall.ctrlOverlay.ShowCommandBar(bShow);
 			ctrlCall.ctrlOverlay.ShowNumpadWindow(false);
 			ctrlCall.ctrlOverlay.ShowCallInfoWindow(bShow);
-			if (!bShow)
-				ctrlCall.ctrlVideo.Visibility = Visibility.Hidden;
+
+		    if (!bShow)
+		    {
+		        ctrlCall.ctrlVideo.Visibility = Visibility.Hidden;
+                ctrlCall.ctrlOverlay.ShowNewCallAcceptWindow(false);
+                ctrlCall.ctrlOverlay.ShowCallsSwitchWindow(false);
+		    }
 		}
 
-		private void RecreateSelfView()
-		{
-			LOG.Info("Recreate Self view");
-			try
-			{
-				_selfView = new SelfView();
-				_selfView.Show();
-			}
-			catch (Exception ex)
-			{
-				ServiceManager.LogError("RecreateSelfView", ex);
-			}
-		}
+        private void ShowOverlayNewCallWindow(bool bShow)
+        {
+            ctrlCall.ctrlOverlay.NewCallAcceptWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize - 320) / 2;
+            ctrlCall.ctrlOverlay.NewCallAcceptWindowTopMargin = 170 - SystemParameters.CaptionHeight;
+
+            ctrlCall.ctrlOverlay.ShowNewCallAcceptWindow(bShow);
+        }
+        private void ShowOverlaySwitchCallWindow(bool bShow)
+        {
+            ctrlCall.ctrlOverlay.CallsSwitchWindowLeftMargin = ctrlDialpad.ActualWidth + 10;
+            ctrlCall.ctrlOverlay.CallsSwitchWindowTopMargin = SystemParameters.CaptionHeight - 10;
+
+            ctrlCall.ctrlOverlay.ShowCallsSwitchWindow(bShow);
+            if (!bShow)
+                ctrlCall.ctrlOverlay.StopPausedCallTimer();
+        }
 
 		private void OnRegistrationChanged(LinphoneRegistrationState state)
 		{

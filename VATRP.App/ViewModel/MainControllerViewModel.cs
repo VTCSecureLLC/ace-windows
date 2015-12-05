@@ -3,12 +3,14 @@ using System.Windows;
 using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Model;
 using System.Collections.ObjectModel;
+using log4net;
 using VATRP.Core.Interfaces;
 
 namespace com.vtcsecure.ace.windows.ViewModel
 {
     public class MainControllerViewModel : ViewModelBase
     {
+        private static readonly ILog LOG = LogManager.GetLogger(typeof(MainControllerViewModel));
         private bool _isAccountLogged;
         private string _appTitle = "ACE";
         private bool _isContactDocked;
@@ -261,13 +263,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 if (FindCallViewModel(viewModel))
                 {
+                    LOG.Info(String.Format("Terminating call call for {0}. {1}", viewModel.CallerInfo,
+    viewModel.ActiveCall.NativeCallPtr));
+
                     try
                     {
                         _linphoneService.TerminateCall(viewModel.ActiveCall.NativeCallPtr);
                     }
                     catch (Exception ex)
                     {
-                        ServiceManager.LogError("AcceptCall", ex);
+                        ServiceManager.LogError("TerminateCall", ex);
                     }
                 }
             }
@@ -279,6 +284,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 if (FindCallViewModel(viewModel))
                 {
+                    LOG.Info(String.Format("Accepting call call for {0}. {1}", viewModel.CallerInfo,
+   viewModel.ActiveCall.NativeCallPtr));
+
                     viewModel.AcceptCall();
                     try
                     {
@@ -300,6 +308,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 if (FindCallViewModel(viewModel))
                 {
+                    LOG.Info(String.Format("Declining call for {0}. {1}", viewModel.CallerInfo,
+   viewModel.ActiveCall.NativeCallPtr));
+
                     viewModel.DeclineCall(false);
                     try
                     {
@@ -335,9 +346,34 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 if (FindCallViewModel(viewModel))
                 {
+                    LOG.Info(String.Format("Resuming call for {0}. {1}", viewModel.CallerInfo,
+                        viewModel.ActiveCall.NativeCallPtr));
+
                     viewModel.ResumeCall();
                 }
             }
+        }
+		
+        internal void PauseCall(CallViewModel viewModel)
+        {
+            lock (CallsViewModelList)
+            {
+                if (FindCallViewModel(viewModel))
+                {
+                    LOG.Info(String.Format("Pausing call for {0}. {1}", viewModel.CallerInfo,
+    viewModel.ActiveCall.NativeCallPtr));
+
+                    viewModel.PauseCall();
+                }
+            }
+        }
+        internal void SwitchCall(CallViewModel pausedCallViewModel, CallViewModel activeCallViewModel)
+        {
+            LOG.Info(String.Format("Switching call. Main call {0}. {1}. Secondary call {2} {3}", 
+                activeCallViewModel.CallerInfo,
+   activeCallViewModel.ActiveCall.NativeCallPtr, pausedCallViewModel.CallerInfo, pausedCallViewModel.ActiveCall.NativeCallPtr));
+
+            PauseCall(activeCallViewModel);
         }
     }
 }
