@@ -277,6 +277,7 @@ namespace VATRP.Core.Services
             linphoneCore = LinphoneAPI.linphone_core_new(vtablePtr, configPath, null, IntPtr.Zero);
 			if (linphoneCore != IntPtr.Zero)
 			{
+                LinphoneAPI.linphone_core_set_log_level_mask(OrtpLogLevel.ORTP_TRACE);
                 LinphoneAPI.libmsopenh264_init();
                 LinphoneAPI.linphone_core_set_video_preset(linphoneCore, "high-fps");
 				LinphoneAPI.linphone_core_enable_video_capture(linphoneCore, true);
@@ -314,11 +315,16 @@ namespace VATRP.Core.Services
                 regulator.WaitOne(30); // fire each 30 msec
                 try
                 {
-                    lock (commandQueue)
+                    if (commandQueue.Count > 0)
                     {
-                        if (commandQueue.Count > 0)
+                        LinphoneCommand command;
+                        lock(commandQueue)
                         {
-                            var command = commandQueue.Dequeue();
+                            command = commandQueue.Dequeue();
+                        }
+
+                        if (command != null)
+                        {
                             switch (command.Command)
                             {
                                 case LinphoneCommandType.TerminateCall:
@@ -381,8 +387,8 @@ namespace VATRP.Core.Services
 
                             }
                         }
-                        LinphoneAPI.linphone_core_iterate(linphoneCore); // roll
                     }
+                    LinphoneAPI.linphone_core_iterate(linphoneCore); // roll
                 }
                 catch (Exception ex)
                 {
