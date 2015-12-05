@@ -56,6 +56,9 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_core_disable_logs();
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_log_level_mask(OrtpLogLevel loglevel);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_core_new(IntPtr vtable, string config_path, string factory_config,
             IntPtr userdata);
 
