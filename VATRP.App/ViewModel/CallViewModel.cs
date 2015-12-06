@@ -494,6 +494,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         internal void OnRinging()
         {
+            DisplayName = _currentCall.To.DisplayName;
+            RemoteNumber = _currentCall.To.Username;
             ShowIncomingCallPanel = false;
             ShowOutgoingEndCall = true;
             AutoAnswer = 0;
