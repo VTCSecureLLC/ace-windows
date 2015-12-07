@@ -194,11 +194,7 @@ namespace com.vtcsecure.ace.windows
             {
                 _linphoneService.Unregister(false);
             }
-            else
-            {
-                _linphoneService.Register();
-            }
-
+            _linphoneService.Register();
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
@@ -317,11 +313,11 @@ namespace com.vtcsecure.ace.windows
             ctrlDialpad.KeypadPressed += OnDialpadClicked;
 
             // Liz E. - ToDo unified Settings
-//            ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
-//            ctrlSettings.CodecSettingsChangeClicked += OnSettingsChangeRequired;
-//            ctrlSettings.MultimediaSettingsChangeClicked += OnSettingsChangeRequired;
-//            ctrlSettings.NetworkSettingsChangeClicked += OnSettingsChangeRequired;
-//            ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
+            //ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
+            //ctrlSettings.CodecSettingsChangeClicked += OnSettingsChangeRequired;
+            //ctrlSettings.MultimediaSettingsChangeClicked += OnSettingsChangeRequired;
+            //ctrlSettings.NetworkSettingsChangeClicked += OnSettingsChangeRequired;
+            //ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
 
             if (App.CurrentAccount != null)
             {
