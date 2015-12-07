@@ -159,10 +159,10 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     return false;
                 if (callModel.Contact != null)
                 {
-                    if (callModel.Contact.Fullname.ToLower().Contains(EventSearchCriteria.ToLower()))
+                    if (callModel.DisplayName.ToLower().Contains(EventSearchCriteria.ToLower()))
                         return true;
                 }
-                return callModel.PhoneNumber.ToLower().Contains(EventSearchCriteria.ToLower());
+                return callModel.CallEvent != null && callModel.CallEvent.RemoteParty.ToLower().Contains(EventSearchCriteria.ToLower());
             }
             return true;
         }

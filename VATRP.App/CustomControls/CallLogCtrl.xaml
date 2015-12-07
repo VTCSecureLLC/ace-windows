@@ -50,11 +50,13 @@
                             </Grid>
                         </Border>
 
-                        <TextBlock  Grid.Row="0" Grid.Column="1" Text="{Binding DisplayName}" Margin="5,0, 0, 3" VerticalAlignment="Bottom" 
+                            <TextBlock  Grid.Row="0" Grid.Column="1" Text="{Binding CallEvent.DisplayName}" Margin="5,0, 0, 3" VerticalAlignment="Bottom" 
 								FontSize="19"  Foreground="{StaticResource RecentsPageCallerFont}" TextWrapping="NoWrap" 
                                     TextTrimming="CharacterEllipsis" FontWeight="SemiBold" HorizontalAlignment="Left" MaxWidth="150"/>
-                            <TextBlock  Grid.Row="1" Grid.Column="1" Text="{Binding PhoneNumber}" Margin="5,0"  MaxWidth="150"
-								FontSize="19"  Foreground="{StaticResource RecentsPageCallerFont}" FontWeight="SemiBold" HorizontalAlignment="Left" />
+                            <TextBlock  Grid.Row="1" Grid.Column="1" Text="{Binding CallEvent.Username}" Margin="5,0"  MaxWidth="150"
+								FontSize="19"  Foreground="{StaticResource RecentsPageCallerFont}" 
+                                        FontWeight="SemiBold" HorizontalAlignment="Left" 
+                                        ToolTip="{Binding CallEvent.RemoteParty}"/>
                         <TextBlock Text="{Binding CallDate}" FontSize="13" Foreground="{StaticResource RecentsPageDateFont}" 
                                    VerticalAlignment="Bottom" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right">
                         </TextBlock>

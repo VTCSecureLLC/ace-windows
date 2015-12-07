@@ -15,7 +15,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private VATRPCallEvent _callEvent;
         private VATRPContact _contact;
         private SolidColorBrush _backColor;
-        private string _phoneNumber;
         private string _displayName;
         private ImageSource _avatar;
         private ImageSource _callStateIndicator;
@@ -35,7 +34,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         public HistoryCallEventViewModel()
         {
-            _phoneNumber = string.Empty;
             _displayName = string.Empty;
             _avatar = null;
             _callStateIndicator = null;
@@ -57,10 +55,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 if (_contact != null && _contact.Fullname.NotBlank())
                     DisplayName = _contact.Fullname;
             }
-            if (_callEvent != null && _callEvent.RemoteParty.NotBlank())
-            {
-                PhoneNumber = _callEvent.RemoteParty;
-            }
+            
             LoadContactAvatar();
             LoadCallStateIndicator();
 
@@ -81,7 +76,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         private void OnContactPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            // reserved
+            string propertyName = e.PropertyName ?? "";
+            if (propertyName == "DisplayName")
+            {
+                this.DisplayName = this.Contact.DisplayName;
+                OnPropertyChanged("DisplayName");
+            }
         }
 
         public int CompareTo(HistoryCallEventViewModel other)
@@ -198,17 +198,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 _displayName = value;
                 OnPropertyChanged("DisplayName");
-            }
-        }
-
-        public string PhoneNumber
-        {
-            get { return _phoneNumber; }
-
-            set
-            {
-                _phoneNumber = value;
-                OnPropertyChanged("PhoneNumber");
             }
         }
 
