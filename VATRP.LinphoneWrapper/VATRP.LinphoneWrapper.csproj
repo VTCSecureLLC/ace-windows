@@ -59,6 +59,7 @@
     <Compile Include="Enums\LinphoneRegistrationState.cs" />
     <Compile Include="Enums\LinphoneTransportType.cs" />
     <Compile Include="Enums\MSVideoSize.cs" />
+    <Compile Include="Enums\OrtpLogLevel.cs" />
     <Compile Include="LinphoneAPI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\VersionInfo.cs">

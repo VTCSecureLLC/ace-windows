@@ -23,6 +23,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
         private static readonly ILog LOG = LogManager.GetLogger(typeof(CallViewCtrl));
         private CallViewModel _viewModel;
         private MainControllerViewModel _parentViewModel;
+        private CallViewModel _backgroundCallViewModel;
         #endregion
         
         #region Properties
@@ -33,7 +34,14 @@ namespace com.vtcsecure.ace.windows.CustomControls
             get { return _parentViewModel; }
             set { _parentViewModel = value; }
         }
-
+        public CallViewModel BackgroundCallViewModel
+        {
+            get { return _backgroundCallViewModel; }
+            set
+            {
+                _backgroundCallViewModel = value;
+            }
+        }
         #endregion
 
         #region Events
@@ -59,6 +67,12 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
             ctrlOverlay.CallInfoOverlayWidth = 550;
             ctrlOverlay.CallInfoOverlayHeight = 200;
+
+            ctrlOverlay.NewCallAcceptOverlayWidth = 370;
+            ctrlOverlay.NewCallAcceptOverlayHeight = 160;
+
+            ctrlOverlay.CallsSwitchOverlayWidth = 190;
+            ctrlOverlay.CallsSwitchOverlayHeight = 200;
         }
 
         public CallViewCtrl(MainControllerViewModel parentVM):this()
@@ -81,10 +95,12 @@ namespace com.vtcsecure.ace.windows.CustomControls
             
         }
 
-        internal void EndCall()
+        internal void EndCall(bool bRunning)
         {
-            if (_parentViewModel != null) 
-                _parentViewModel.TerminateCall(_viewModel);
+            if (_parentViewModel != null)
+            {
+                _parentViewModel.TerminateCall(bRunning ? _viewModel : _backgroundCallViewModel);
+            }
         }
 
         internal void MuteCall()
@@ -93,17 +109,14 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 _viewModel.MuteCall();
         }
 
-        internal void ToggleVideo(bool videoOn)
-        {
-            if (_viewModel != null)
-            {
-                _viewModel.ToggleVideo(videoOn);
-            }
-        }
-
         private void OnEndCall(object sender, RoutedEventArgs e)
         {
-            EndCall();
+            EndCall(true);
+        }
+
+        private void OnEndPaused(object sender, RoutedEventArgs e)
+        {
+            EndCall(false);
         }
 
         private void OnSwitchVideo(object sender, RoutedEventArgs e)
@@ -164,7 +177,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             if (VideoOnToggled != null)
                 VideoOnToggled(BtnVideoOn.IsChecked ?? false);
-            ToggleVideo(!BtnVideoOn.IsChecked ?? false);
+            if (_viewModel != null)
+                _viewModel.ToggleVideo(!BtnVideoOn.IsChecked ?? false);
         }
 
         private void OnToggleSpeaker(object sender, RoutedEventArgs e)
@@ -258,6 +272,20 @@ namespace com.vtcsecure.ace.windows.CustomControls
             if (RttToggled != null)
                 RttToggled(BtnRTT.IsChecked ?? false);
             ctrlOverlay.ShowNumpadWindow(BtnNumpad.IsChecked ?? false);
+        }
+
+        private void OnDeclineCall(object sender, RoutedEventArgs e)
+        {
+            if (_parentViewModel != null)
+                _parentViewModel.DeclineCall(_viewModel);
+        }
+
+        private void SwitchCall(object sender, RoutedEventArgs e)
+        {
+            if (_parentViewModel != null)
+            {
+                _parentViewModel.SwitchCall(_backgroundCallViewModel, _viewModel);
+            }
         }
     }
     
