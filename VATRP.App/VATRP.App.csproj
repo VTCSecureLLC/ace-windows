@@ -565,6 +565,9 @@
   <ItemGroup>
     <Resource Include="Resources\globalvrs.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\switch_call.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /b "$(SolutionDir)thirdparties\liblinphone\*.dll" "$(TargetDir)"

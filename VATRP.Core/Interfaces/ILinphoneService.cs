@@ -36,6 +36,7 @@ namespace VATRP.Core.Interfaces
         void DeclineCall(IntPtr callPtr);
         bool TerminateCall(IntPtr callPtr);
         void ResumeCall(IntPtr callPtr);
+        void PauseCall(IntPtr callPtr);
         void AcceptRTTProposition(IntPtr callPtr);
         void SendRTTProposition(IntPtr callPtr);
 
