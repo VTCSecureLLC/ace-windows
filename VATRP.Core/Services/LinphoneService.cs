@@ -797,12 +797,12 @@ namespace VATRP.Core.Services
 			return !LinphoneAPI.linphone_core_mic_enabled(linphoneCore);
 		}
 
-		public void ToggleMute()
+		public void ToggleMute(Boolean muted)
 		{
 			if (linphoneCore == IntPtr.Zero)
 				return;
 
-			LinphoneAPI.linphone_core_enable_mic(linphoneCore, !LinphoneAPI.linphone_core_mic_enabled(linphoneCore));
+			LinphoneAPI.linphone_core_enable_mic(linphoneCore, !muted);
 		}
 
         public void ToggleVideo(bool enableVideo, IntPtr callPtr)
