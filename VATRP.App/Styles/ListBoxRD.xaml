@@ -86,7 +86,7 @@
                         <Trigger Property="IsEnabled" Value="false">
                             <Setter Property="Background" 
                                     TargetName="Bd" 
-                                    Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                    Value="Transparent"/>
                         </Trigger>
                         <Trigger Property="IsGrouping" Value="true">
                             <Setter Property="ScrollViewer.CanContentScroll" Value="false"/>

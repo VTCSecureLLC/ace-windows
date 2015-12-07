@@ -74,9 +74,8 @@
     <SolidColorBrush x:Key="ChatPageContactNameFont" Color ="#FF000000"/>
     <SolidColorBrush x:Key="ChatPageSentBubbleBg" Color ="#FFEDEDED"/>
     <SolidColorBrush x:Key="ChatPageSentBubbleBorder" Color ="#FFEDEDED"/>
-    <SolidColorBrush x:Key="ChatPageBubbleTextFont" Color ="#FF000000"/>
-    <SolidColorBrush x:Key="ChatPageBubbleCostFont" Color ="#FF000000"/>
-    <SolidColorBrush x:Key="ChatPageBubbleDateFont" Color ="#FF000000"/>
+    <SolidColorBrush x:Key="ChatPageBubbleTextFont" Color ="#FF555555"/>
+    <SolidColorBrush x:Key="ChatPageBubbleDateFont" Color ="#FF555555"/>
     <SolidColorBrush x:Key="ChatPageBubbleSuccessFont" Color ="#FF000000"/>
     <SolidColorBrush x:Key="ChatPageBubbleFailureFont" Color ="#FF000000"/>
     <SolidColorBrush x:Key="ChatPageReceivedBubbleBg" Color ="#FFF9D1C8"/>
