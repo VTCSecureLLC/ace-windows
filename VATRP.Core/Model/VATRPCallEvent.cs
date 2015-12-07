@@ -70,6 +70,16 @@ namespace VATRP.Core.Model
             }
         }
 
+        public string Username
+        {
+            get { return this._username; }
+            set
+            {
+                this._username = value;
+                NotifyPropertyChanged("Username");
+            }
+        }
+
         public StatusType Status
         {
             get { return this._status; }
