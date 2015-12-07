@@ -797,12 +797,12 @@ namespace VATRP.Core.Services
 			return !LinphoneAPI.linphone_core_mic_enabled(linphoneCore);
 		}
 
-		public void ToggleMute()
+		public void ToggleMute(Boolean muted)
 		{
 			if (linphoneCore == IntPtr.Zero)
 				return;
 
-			LinphoneAPI.linphone_core_enable_mic(linphoneCore, !LinphoneAPI.linphone_core_mic_enabled(linphoneCore));
+			LinphoneAPI.linphone_core_enable_mic(linphoneCore, !muted);
 		}
 
         public void ToggleVideo(bool enableVideo, IntPtr callPtr)
@@ -1450,7 +1450,10 @@ namespace VATRP.Core.Services
 		                    };
 		                }
 		                contact.RegistrationName = contactAddress;
-		                call.ChatRoom = new VATRPChat(contact, "");
+		                call.ChatRoom = new VATRPChat(contact, "rtt");
+		                var loggedContact = manager.ContactService.FindLoggedInContact();
+		                if (loggedContact != null)
+		                    call.ChatRoom.AddContact(loggedContact);
 		            }
 
 		            callsList.Add(call);
@@ -1572,8 +1575,6 @@ namespace VATRP.Core.Services
                 var chatMessage = new VATRPChatMessage(MessageContentType.Text)
                 {
                     Direction = LinphoneAPI.linphone_chat_message_is_outgoing(message) ? MessageDirection.Outgoing : MessageDirection.Incoming,
-                    Sender = from,
-                    Receiver = to,
                     IsIncompleteMessage = false,
                     MessageTime = localTime,
                     Content = messageString,
@@ -1773,6 +1774,9 @@ namespace VATRP.Core.Services
                             MessageTime = localTime,
                             Content = messageString,
                             IsRead = LinphoneAPI.linphone_chat_message_is_read(curStruct.data),
+                            IsRTTMessage = false,
+                            IsRTTStartMarker = false,
+                            IsRTTEndMarker = false,
                             Chat = chat
                         };
                         chat.Messages.Add(chatMessage);

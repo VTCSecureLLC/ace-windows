@@ -9,6 +9,7 @@ using com.vtcsecure.ace.windows.ViewModel;
 using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 using System.Threading;
+using VATRP.Core.Model;
 
 namespace com.vtcsecure.ace.windows.CustomControls
 {
@@ -31,18 +32,17 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             if (_viewModel != null && _viewModel != viewModel)
             {
-                _viewModel.ConversationStarted -= OnConversationStarted;
+                _viewModel.ConversationUpdated -= OnConversationUpdated;
             }
             DataContext = viewModel;
             _viewModel = viewModel;
             if (_viewModel != null)
             {
-                _viewModel.ConversationStarted += OnConversationStarted;
-                ScrollToEnd();
+                _viewModel.ConversationUpdated += OnConversationUpdated;
             }
         }
 
-        private void OnConversationStarted(object sender, EventArgs eventArgs)
+        private void OnConversationUpdated(object sender, EventArgs eventArgs)
         {
             ScrollToEnd();
         }
@@ -71,7 +71,11 @@ namespace com.vtcsecure.ace.windows.CustomControls
            }
 
            MessageListView.SelectedIndex = MessageListView.Items.Count - 1;
-           MessageListView.ScrollIntoView(MessageListView.SelectedItem);
+           var item = MessageListView.SelectedItem as VATRPChatMessage;
+           if (item != null)
+           {
+               MessageListView.ScrollIntoView(item);
+           }
        }
 
         private void OnKeyUp(object sender, KeyEventArgs e)

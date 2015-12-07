@@ -6,11 +6,11 @@ using VATRP.Core.Enums;
 
 namespace com.vtcsecure.ace.windows.Converters
 {
-    public class DirectionToColumnConverter : IValueConverter
+    public class DirectionToColumnSpanConverter : IValueConverter
     {
-        public DirectionToColumnConverter()
+        public DirectionToColumnSpanConverter()
         {
-            FalseEquivalent = 1;
+            FalseEquivalent = 2;
             OppositeBooleanValue = false;
         }
         public bool OppositeBooleanValue { get; set; }
@@ -28,7 +28,7 @@ namespace com.vtcsecure.ace.windows.Converters
                     booleanValue = !booleanValue;
                 }
 
-                return booleanValue ? 2 : FalseEquivalent;
+                return booleanValue ? 3 : FalseEquivalent;
             }
             return FalseEquivalent;
             
@@ -38,6 +38,7 @@ namespace com.vtcsecure.ace.windows.Converters
         {
             throw new NotImplementedException();
         }
+        
         
     }
 }

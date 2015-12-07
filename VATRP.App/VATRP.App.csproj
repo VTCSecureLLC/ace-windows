@@ -107,14 +107,19 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BoolToBubbleAlignmentConverter.cs" />
+    <Compile Include="Converters\BoolToBubbleMarginConverter.cs" />
     <Compile Include="Converters\CallStateToBrushConverter.cs" />
     <Compile Include="Converters\ContactFavoriteToBrushConverter.cs" />
+    <Compile Include="Converters\DirectionToMarkerColumnConverter.cs" />
+    <Compile Include="Converters\DirectionToMessageColumnConverter.cs" />
+    <Compile Include="Converters\DirectionToColumnSpanConverter.cs" />
     <Compile Include="Converters\DirectionToColumnConverter.cs" />
     <Compile Include="Converters\MessageDateConverter.cs" />
     <Compile Include="Converters\MessageDeliveryStatusToBrushConverter.cs" />
     <Compile Include="Converters\BoolToBubbleColorConverter.cs" />
     <Compile Include="Converters\BoolToBubbleCornerConverter.cs" />
-    <Compile Include="Converters\BoolToBubbleMarginConverter.cs" />
+    <Compile Include="Converters\DirectionToDateMarginConverter.cs" />
+    <Compile Include="Converters\MultipleParamsToBubbleMarginConverter.cs" />
     <Compile Include="Converters\CallDurationConverter.cs" />
     <Compile Include="Converters\ContactSelectionToBrushConverter.cs" />
     <Compile Include="Converters\CallQualityConverter.cs" />
@@ -330,6 +335,9 @@
     <DesignData Include="SampleData\CallViewSampleData.xaml">
       <SubType>Designer</SubType>
     </DesignData>
+    <Page Include="SampleData\RTTSampleData.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\ContactEditView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -473,6 +481,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\arrow_left.png" />
     <Resource Include="Resources\incoming.png" />
   </ItemGroup>
   <ItemGroup>
@@ -567,6 +576,13 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\switch_call.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\arrow_right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\RTT_end.png" />
+    <Resource Include="Resources\RTT_start.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

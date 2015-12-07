@@ -103,10 +103,10 @@ namespace com.vtcsecure.ace.windows.CustomControls
             }
         }
 
-        internal void MuteCall()
+        internal void MuteCall( Boolean muted)
         {
             if (_viewModel.ActiveCall != null )
-                _viewModel.MuteCall();
+                _viewModel.MuteCall(muted);
         }
 
         private void OnEndCall(object sender, RoutedEventArgs e)
@@ -205,7 +205,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             if (MuteOnToggled != null)
                 MuteOnToggled(BtnMuteOn.IsChecked ?? false);
-            MuteCall();
+            MuteCall(BtnMuteOn.IsChecked ?? false);
         }
 
         private void buttonKeyPad(object sender, RoutedEventArgs e)
