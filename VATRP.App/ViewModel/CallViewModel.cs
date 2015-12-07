@@ -45,6 +45,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _isNumpadOn;
         private bool _isRttOn;
         private bool _isInfoOn;
+        private bool _isCallOnHold;
         private int _videoWidth;
         private int _videoHeight;
 
@@ -54,6 +55,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _savedIsNumpadOn;
         private bool _savedIsRttOn;
         private bool _savedIsInfoOn;
+        private bool _savedIsCallHoldOn;
 
         public CallViewModel()
         {
@@ -327,7 +329,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 OnPropertyChanged("IsCallInfoOn");
             }
         }
-
+		
+        public bool IsCallOnHold
+        {
+            get { return _isCallOnHold; }
+            set
+            {
+                _isCallOnHold = value;
+                OnPropertyChanged("IsCallOnHold");
+            }
+        }
         public double DisplayNameSize
         {
             get { return _displayNameSize; }
@@ -384,6 +395,48 @@ namespace com.vtcsecure.ace.windows.ViewModel
         }
 
         public CallInfoView CallInfoCtrl { get; set; }
+
+        public bool SavedIsVideoOn
+        {
+            get { return _savedIsVideoOn; }
+            set { _savedIsVideoOn = value; }
+        }
+
+        public bool SavedIsMuteOn
+        {
+            get { return _savedIsMuteOn; }
+            set { _savedIsMuteOn = value; }
+        }
+
+        public bool SavedIsSpeakerOn
+        {
+            get { return _savedIsSpeakerOn; }
+            set { _savedIsSpeakerOn = value; }
+        }
+
+        public bool SavedIsNumpadOn
+        {
+            get { return _savedIsNumpadOn; }
+            set { _savedIsNumpadOn = value; }
+        }
+
+        public bool SavedIsRttOn
+        {
+            get { return _savedIsRttOn; }
+            set { _savedIsRttOn = value; }
+        }
+
+        public bool SavedIsInfoOn
+        {
+            get { return _savedIsInfoOn; }
+            set { _savedIsInfoOn = value; }
+        }
+
+        public bool SavedIsCallHoldOn
+        {
+            get { return _savedIsCallHoldOn; }
+            set { _savedIsCallHoldOn = value; }
+        }
 
         #endregion
 
@@ -461,10 +514,10 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 _linphoneService.TerminateCall(_currentCall.NativeCallPtr);
         }
 
-        internal void MuteCall( Boolean on)
+        internal void MuteCall()
         {
-            _linphoneService.ToggleMute(on);
-            IsMuteOn = on;
+            _linphoneService.ToggleMute();
+            IsMuteOn = _linphoneService.IsCallMuted();
         }
 
         internal void ToggleCallStatisticsInfo(bool bShow)
@@ -597,6 +650,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         internal void OnStreamRunning()
         {
+            CallState = VATRPCallState.StreamsRunning;
             SubscribeCallStatistics();
         }
 
@@ -803,24 +857,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
             return ActiveCall.Equals(other);
         }
 
-        internal void SaveStates()
-        {
-            _savedIsVideoOn = IsVideoOn;
-            _savedIsMuteOn = IsMuteOn;
-            _savedIsSpeakerOn = IsSpeakerOn;
-            _savedIsNumpadOn = IsNumpadOn;
-            _savedIsRttOn = IsRttOn;
-            _savedIsInfoOn = IsCallInfoOn;
-        }
 
-        internal void LoadStates()
-        {
-            IsVideoOn = _savedIsVideoOn;
-            IsMuteOn = _savedIsMuteOn;
-            IsSpeakerOn = _savedIsSpeakerOn;
-            IsNumpadOn = _savedIsNumpadOn;
-            IsRttOn = _savedIsRttOn;
-            IsCallInfoOn = _savedIsInfoOn;
-        }
+        public bool PauseRequest { get; set; }
+
+        public bool ResumeRequest { get; set; }
     }
 }

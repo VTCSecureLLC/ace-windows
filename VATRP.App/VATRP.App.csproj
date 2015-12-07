@@ -584,6 +584,10 @@
     <Resource Include="Resources\RTT_end.png" />
     <Resource Include="Resources\RTT_start.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\hold_off.png" />
+    <Resource Include="Resources\hold_on.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /b "$(SolutionDir)thirdparties\liblinphone\*.dll" "$(TargetDir)"
