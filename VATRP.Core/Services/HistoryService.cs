@@ -23,8 +23,6 @@ namespace VATRP.Core.Services
         private static readonly ILog LOG = LogManager.GetLogger(typeof (HistoryService));
 
         private readonly ServiceManagerBase manager;
-        private readonly string connectionString;
-        private readonly string dbFilePath;
         private bool isLoadingCalls;
         private  List<VATRPCallEvent> _allCallsEvents;
 
@@ -33,9 +31,6 @@ namespace VATRP.Core.Services
         public HistoryService(ServiceManagerBase manager)
         {
             this.manager = manager;
-            dbFilePath = manager.BuildStoragePath("history.db");
-            connectionString = string.Format("Data Source={0};Version=3;UseUTF16Encoding=True;", dbFilePath);
-           // CreateHistoryTables();
         }
 
 
@@ -135,6 +130,7 @@ namespace VATRP.Core.Services
             if (string.IsNullOrEmpty(un))
                 return null;
 
+            remoteParty = string.Format("sip:{0}@{1}", un, host);
             var callevent = new VATRPCallEvent("", remoteParty)
             {
                 DisplayName = dn,
