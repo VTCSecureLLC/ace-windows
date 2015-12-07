@@ -461,10 +461,10 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 _linphoneService.TerminateCall(_currentCall.NativeCallPtr);
         }
 
-        internal void MuteCall()
+        internal void MuteCall( Boolean on)
         {
-            _linphoneService.ToggleMute();
-            IsMuteOn = _linphoneService.IsCallMuted();
+            _linphoneService.ToggleMute(on);
+            IsMuteOn = on;
         }
 
         internal void ToggleCallStatisticsInfo(bool bShow)
