@@ -60,7 +60,7 @@ namespace com.vtcsecure.ace.windows.Views
 
                 if (contactModel != null)
                 {
-                    _model.SetActiveChatContact(contactModel.Contact);
+                    _model.SetActiveChatContact(contactModel.Contact, IntPtr.Zero);
                     ScrollToEnd();
                 }
             }

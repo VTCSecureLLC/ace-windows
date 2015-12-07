@@ -89,7 +89,7 @@ namespace com.vtcsecure.ace.windows
 		    }
 		    else if (call.CallState == VATRPCallState.StreamsRunning)
 		    {
-		        _mainViewModel.ActiveCallModel = callViewModel;
+                _mainViewModel.ActiveCallModel = callViewModel;
 		    }
 
 		    if (callViewModel.Declined)
@@ -113,16 +113,10 @@ namespace com.vtcsecure.ace.windows
 					// call started, 
 					call.RemoteParty = call.To;
 					callViewModel.OnTrying();
-
-			        if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-			            Configuration.ConfEntry.USE_RTT, true))
-			        {
-                        ctrlRTT.SetViewModel(_mainViewModel.MessagingModel);
-			            _mainViewModel.MessagingModel.CreateConversation(call.To.Username);
-			        }
 			        _mainViewModel.IsCallPanelDocked = true;
 					break;
 				case VATRPCallState.InProgress:
+                    
 					call.RemoteParty = call.From;
 					ServiceManager.Instance.SoundService.PlayRingTone();
 					_mainViewModel.IsCallPanelDocked = true;
@@ -160,7 +154,7 @@ namespace com.vtcsecure.ace.windows
 						Configuration.ConfEntry.USE_RTT, true))
 					{
                         ctrlRTT.SetViewModel(_mainViewModel.MessagingModel);
-						_mainViewModel.MessagingModel.CreateConversation(call.RemoteParty.Username);
+						_mainViewModel.MessagingModel.CreateRttConversation(call.RemoteParty.Username, call.NativeCallPtr);
 					}
 					
 					callViewModel.OnConnected();
@@ -265,7 +259,7 @@ namespace com.vtcsecure.ace.windows
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                        Configuration.ConfEntry.USE_RTT, true))
                     {
-                        _mainViewModel.MessagingModel.ClearConversation();
+                        _mainViewModel.MessagingModel.ClearRTTConversation(call.NativeCallPtr);
                         ctrlRTT.SetViewModel(null);
                     }
                     ShowOverlayNewCallWindow(false);
@@ -293,7 +287,8 @@ namespace com.vtcsecure.ace.windows
                         Configuration.ConfEntry.USE_RTT, true))
                             {
                                 ctrlRTT.SetViewModel(_mainViewModel.MessagingModel);
-                                _mainViewModel.MessagingModel.CreateConversation(nextVM.ActiveCall.RemoteParty.Username);
+                                _mainViewModel.MessagingModel.CreateRttConversation(
+                                    nextVM.ActiveCall.RemoteParty.Username, nextVM.ActiveCall.NativeCallPtr);
                             }
                             ShowCallOverlayWindow(true);
                             ctrlCall.ctrlOverlay.SetCallerInfo(nextVM.CallerInfo);
@@ -321,7 +316,7 @@ namespace com.vtcsecure.ace.windows
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                        Configuration.ConfEntry.USE_RTT, true))
                     {
-                        _mainViewModel.MessagingModel.ClearConversation();
+                        _mainViewModel.MessagingModel.ClearRTTConversation(call.NativeCallPtr);
                         ctrlRTT.SetViewModel(null);
                     }
 

@@ -1450,7 +1450,10 @@ namespace VATRP.Core.Services
 		                    };
 		                }
 		                contact.RegistrationName = contactAddress;
-		                call.ChatRoom = new VATRPChat(contact, "");
+		                call.ChatRoom = new VATRPChat(contact, "rtt");
+		                var loggedContact = manager.ContactService.FindLoggedInContact();
+		                if (loggedContact != null)
+		                    call.ChatRoom.AddContact(loggedContact);
 		            }
 
 		            callsList.Add(call);
@@ -1572,8 +1575,6 @@ namespace VATRP.Core.Services
                 var chatMessage = new VATRPChatMessage(MessageContentType.Text)
                 {
                     Direction = LinphoneAPI.linphone_chat_message_is_outgoing(message) ? MessageDirection.Outgoing : MessageDirection.Incoming,
-                    Sender = from,
-                    Receiver = to,
                     IsIncompleteMessage = false,
                     MessageTime = localTime,
                     Content = messageString,
@@ -1773,6 +1774,9 @@ namespace VATRP.Core.Services
                             MessageTime = localTime,
                             Content = messageString,
                             IsRead = LinphoneAPI.linphone_chat_message_is_read(curStruct.data),
+                            IsRTTMessage = false,
+                            IsRTTStartMarker = false,
+                            IsRTTEndMarker = false,
                             Chat = chat
                         };
                         chat.Messages.Add(chatMessage);
