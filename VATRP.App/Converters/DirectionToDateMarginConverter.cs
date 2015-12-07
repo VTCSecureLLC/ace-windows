@@ -6,23 +6,22 @@ using VATRP.Core.Enums;
 
 namespace com.vtcsecure.ace.windows.Converters
 {
-    public class BoolToBubbleMarginConverter : IValueConverter
+    public class DirectionToDateMarginConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is MessageDirection && (MessageDirection)value == MessageDirection.Outgoing)
+            int extraHeight = 15;
+            if (value is bool && (bool)value)
             {
-                return new Thickness(20, 10, 5, 10);
+                extraHeight += 5;
             }
-            return new Thickness(5, 10, 20, 10);
-            
+            return new Thickness(0, extraHeight, 0, extraHeight);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
-        
     }
 }
 
