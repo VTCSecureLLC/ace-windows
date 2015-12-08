@@ -194,7 +194,11 @@ namespace com.vtcsecure.ace.windows
             {
                 _linphoneService.Unregister(false);
             }
-            _linphoneService.Register();
+            else
+            {
+                _linphoneService.Register();
+            }
+
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
@@ -207,6 +211,7 @@ namespace com.vtcsecure.ace.windows
             App.AllowDestroyWindows = true;
             registerRequested = false;
             base.Window_Closing(sender, e);
+            _mainViewModel.MessagingModel.StopInputProcessor();
             ServiceManager.Instance.Stop();
         }
 
@@ -305,6 +310,7 @@ namespace com.vtcsecure.ace.windows
 
             ctrlCall.KeypadClicked += OnKeypadClicked;
             ctrlCall.RttToggled += OnRttToggled;
+            ctrlCall.SwitchHoldCallsRequested += OnSwitchHoldCallsRequested;
 
             _callOverlayView.CallManagerView = _callView;
             ctrlHistory.MakeCallRequested += OnMakeCallRequested;
@@ -313,11 +319,11 @@ namespace com.vtcsecure.ace.windows
             ctrlDialpad.KeypadPressed += OnDialpadClicked;
 
             // Liz E. - ToDo unified Settings
-            //ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
-            //ctrlSettings.CodecSettingsChangeClicked += OnSettingsChangeRequired;
-            //ctrlSettings.MultimediaSettingsChangeClicked += OnSettingsChangeRequired;
-            //ctrlSettings.NetworkSettingsChangeClicked += OnSettingsChangeRequired;
-            //ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
+//            ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
+//            ctrlSettings.CodecSettingsChangeClicked += OnSettingsChangeRequired;
+//            ctrlSettings.MultimediaSettingsChangeClicked += OnSettingsChangeRequired;
+//            ctrlSettings.NetworkSettingsChangeClicked += OnSettingsChangeRequired;
+//            ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
 
             if (App.CurrentAccount != null)
             {
