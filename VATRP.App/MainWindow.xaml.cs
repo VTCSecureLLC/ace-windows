@@ -211,6 +211,7 @@ namespace com.vtcsecure.ace.windows
             App.AllowDestroyWindows = true;
             registerRequested = false;
             base.Window_Closing(sender, e);
+            _mainViewModel.MessagingModel.StopInputProcessor();
             ServiceManager.Instance.Stop();
         }
 
