@@ -167,9 +167,6 @@
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsThemeCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsThemeCtrl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsVideoCtrl.xaml.cs">
-      <DependentUpon>UnifiedSettingsVideoCtrl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Enums\VATRPSettings.cs" />
     <Compile Include="ViewModel\ContactEditViewModel.cs" />
     <Compile Include="ViewModel\ContactsViewModel.cs" />
@@ -326,10 +323,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsThemeCtrl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsVideoCtrl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
