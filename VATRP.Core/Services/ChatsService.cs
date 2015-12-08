@@ -692,6 +692,9 @@ namespace VATRP.Core.Services
             var message = chat.SearchIncompleteMessage(MessageDirection.Outgoing);
             if (message == null)
             {
+                if (key == '\r')
+                    return false;
+
                 message = new VATRPChatMessage(MessageContentType.Text)
                 {
                     Direction = MessageDirection.Outgoing,
@@ -725,8 +728,8 @@ namespace VATRP.Core.Services
             {
                 createBubble = true;
             }
- 
-            message.IsIncompleteMessage = inCompleteMessage;
+
+            message.IsIncompleteMessage = !createBubble;
             
             // send message to linphone
             var chatPtr = chat.NativePtr;
@@ -738,10 +741,11 @@ namespace VATRP.Core.Services
             if (message.NativePtr != IntPtr.Zero)
                 message.Status = _linphoneSvc.GetMessageStatus(message.NativePtr);
 
-            if (createBubble && !message.Content.NotBlank())
+            if (createBubble)
             {
                 // delete empty message 
-                chatID.DeleteMessage(message);
+                if (!message.Content.NotBlank())
+                    chatID.DeleteMessage(message);
             }
             this.OnConversationUpdated(chatID, true);
             return true;

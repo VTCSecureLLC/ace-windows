@@ -449,7 +449,7 @@
 								 HorizontalAlignment="Stretch" Text="{Binding MessageText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
 									 VerticalContentAlignment="Center"
 									 Background="Transparent" 
-									 PreviewKeyUp="OnKeyUp" PreviewTextInput="OnTextInpput"
+									 PreviewKeyUp="OnKeyUp" PreviewTextInput="OnTextInput"
 									 />
                 </Grid>
             </Grid>

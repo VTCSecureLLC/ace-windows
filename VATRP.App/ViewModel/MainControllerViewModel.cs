@@ -10,7 +10,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 {
     public class MainControllerViewModel : ViewModelBase
     {
-        private static readonly ILog LOG = LogManager.GetLogger(typeof(MainControllerViewModel));
+        private static readonly ILog LOG = LogManager.GetLogger(typeof (MainControllerViewModel));
         private bool _isAccountLogged;
         private string _appTitle = "ACE";
         private bool _isContactDocked;
@@ -244,6 +244,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
             return null;
         }
+
         internal bool FindCallViewModel(CallViewModel callViewModel)
         {
             lock (CallsViewModelList)
@@ -264,7 +265,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 if (FindCallViewModel(viewModel))
                 {
                     LOG.Info(String.Format("Terminating call call for {0}. {1}", viewModel.CallerInfo,
-    viewModel.ActiveCall.NativeCallPtr));
+                        viewModel.ActiveCall.NativeCallPtr));
 
                     try
                     {
@@ -285,7 +286,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 if (FindCallViewModel(viewModel))
                 {
                     LOG.Info(String.Format("Accepting call call for {0}. {1}", viewModel.CallerInfo,
-   viewModel.ActiveCall.NativeCallPtr));
+                        viewModel.ActiveCall.NativeCallPtr));
 
                     viewModel.AcceptCall();
                     try
@@ -309,7 +310,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 if (FindCallViewModel(viewModel))
                 {
                     LOG.Info(String.Format("Declining call for {0}. {1}", viewModel.CallerInfo,
-   viewModel.ActiveCall.NativeCallPtr));
+                        viewModel.ActiveCall.NativeCallPtr));
 
                     viewModel.DeclineCall(false);
                     try
@@ -353,7 +354,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 }
             }
         }
-		
+
         internal void PauseCall(CallViewModel viewModel)
         {
             lock (CallsViewModelList)
@@ -361,19 +362,30 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 if (FindCallViewModel(viewModel))
                 {
                     LOG.Info(String.Format("Pausing call for {0}. {1}", viewModel.CallerInfo,
-    viewModel.ActiveCall.NativeCallPtr));
-
+                        viewModel.ActiveCall.NativeCallPtr));
                     viewModel.PauseCall();
                 }
             }
         }
-        internal void SwitchCall(CallViewModel pausedCallViewModel, CallViewModel activeCallViewModel)
-        {
-            LOG.Info(String.Format("Switching call. Main call {0}. {1}. Secondary call {2} {3}", 
-                activeCallViewModel.CallerInfo,
-   activeCallViewModel.ActiveCall.NativeCallPtr, pausedCallViewModel.CallerInfo, pausedCallViewModel.ActiveCall.NativeCallPtr));
 
-            PauseCall(activeCallViewModel);
+        internal bool SwitchCall(CallViewModel pausedCallViewModel, CallViewModel activeCallViewModel)
+        {
+            LOG.Info(String.Format("Switching call. Main call {0}. {1}. Secondary call {2} {3}",
+                activeCallViewModel.CallerInfo,
+                activeCallViewModel.ActiveCall.NativeCallPtr, pausedCallViewModel.CallerInfo,
+                pausedCallViewModel.ActiveCall.NativeCallPtr));
+
+            if (activeCallViewModel.CallState == VATRPCallState.LocalPaused && activeCallViewModel.PauseRequest)
+            {
+                if (pausedCallViewModel.CallState == VATRPCallState.LocalPaused && pausedCallViewModel.PauseRequest)
+                    return false;
+				ResumeCall(pausedCallViewModel);
+            }
+            else
+            {
+                PauseCall(activeCallViewModel);
+            }
+            return true;
         }
     }
 }

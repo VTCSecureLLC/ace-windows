@@ -80,34 +80,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         private void OnKeyUp(object sender, KeyEventArgs e)
         {
-            bool isIncomplete = true;
-            switch (e.Key)
-            {
-                case Key.Enter:
-                    isIncomplete = false;
-                    if (!ServiceManager.Instance.IsRttAvailable)
-                    {
-                        _viewModel.SendMessage(_viewModel.MessageText);
-                        return;
-                    }
-                    break;
-                case Key.Space:
-                    _viewModel.LastInput = " ";
-                    break;
-                case Key.Back:
-                    if (!_viewModel.LastInput.NotBlank())
-                        _viewModel.LastInput += '\b';
-                    break;
-                default:
-                    break;
-            }
-
-            if (_viewModel.LastInput.NotBlank())
-            {
-                for (int i = 0; i < _viewModel.LastInput.Length; i++)
-                    _viewModel.SendMessage(_viewModel.LastInput[i], isIncomplete);
-            }
-            _viewModel.LastInput = string.Empty;
+            _viewModel.ProcessKeyUp(e.Key);
         }
 
         private void OnSendButtonClicked(object sender, RoutedEventArgs e)
@@ -118,13 +91,14 @@ namespace com.vtcsecure.ace.windows.CustomControls
             }
             else
             {
-                _viewModel.SendMessage('\r', false);
+                _viewModel.EnqueueInput("\r");
+                _viewModel.ProcessKeyUp(Key.Enter);
             }
         }
 
-        private void OnTextInpput(object sender, TextCompositionEventArgs e)
+        private void OnTextInput(object sender, TextCompositionEventArgs e)
         {
-            _viewModel.LastInput = e.Text;
+            _viewModel.EnqueueInput(e.Text);
         }
     }
         
