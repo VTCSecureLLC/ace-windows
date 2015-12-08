@@ -26,10 +26,10 @@ namespace com.vtcsecure.ace.windows.Views
     /// </summary>
     public partial class MediaTextWindow
     {
-        private MessagingViewModel _model;
+        private MessagingViewModel _viewModel;
         public MediaTextWindow(MessagingViewModel vm) : base(VATRPWindowType.MESSAGE_VIEW)
         {
-            _model = vm;
+            _viewModel = vm;
             DataContext = vm;
             InitializeComponent();
             ServiceManager.Instance.ChatService.ConversationUpdated += ChatManagerOnConversationUpdated;
@@ -60,7 +60,7 @@ namespace com.vtcsecure.ace.windows.Views
 
                 if (contactModel != null)
                 {
-                    _model.SetActiveChatContact(contactModel.Contact, IntPtr.Zero);
+                    _viewModel.SetActiveChatContact(contactModel.Contact, IntPtr.Zero);
                     ScrollToEnd();
                 }
             }
@@ -70,49 +70,23 @@ namespace com.vtcsecure.ace.windows.Views
         {
             if (!ServiceManager.Instance.IsRttAvailable)
             {
-                _model.SendMessage(_model.MessageText);
+                _viewModel.SendMessage(_viewModel.MessageText);
             }
             else
             {
-                _model.SendMessage('\r', false);
+                _viewModel.EnqueueInput("\r");
+                _viewModel.ProcessKeyUp(Key.Enter);
             }
         }
 
         private void OnKeyUp(object sender, KeyEventArgs e)
         {
-            bool isIncomplete = true;
-            switch (e.Key)
-            {
-                case Key.Enter:
-                    isIncomplete = false;
-                    if (!ServiceManager.Instance.IsRttAvailable)
-                    {
-                        _model.SendMessage(_model.MessageText);
-                        return;
-                    }
-                    break;
-                case Key.Space:
-                    _model.LastInput = " ";
-                    break;
-                case Key.Back:
-                    if (!_model.LastInput.NotBlank())
-                        _model.LastInput += '\b';
-                    break;
-                default:
-                    break;
-            }
-
-            if (_model.LastInput.NotBlank())
-            {
-                for(int i=0; i<_model.LastInput.Length; i++)
-                    _model.SendMessage(_model.LastInput[i], isIncomplete);
-            }
-            _model.LastInput = string.Empty;
+            _viewModel.ProcessKeyUp(e.Key);
         }
 
         private void OnTextInpput(object sender, TextCompositionEventArgs e)
         {
-            _model.LastInput = e.Text;
+            _viewModel.EnqueueInput(e.Text);
         }
        
     }
