@@ -27,6 +27,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private UnifiedSettingsTextCtrl _textPanel;
         private UnifiedSettingsSummaryCtrl _summaryPanel;
 
+        private UnifiedSettingsVideoCtrl _videoSettingsPanel;
+
         private BaseUnifiedSettingsPanel _currentContent;
         private List<BaseUnifiedSettingsPanel> _previousContent;
 
@@ -51,7 +53,10 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             _summaryPanel = new UnifiedSettingsSummaryCtrl();
             _summaryPanel.ContentChanging += HandleContentChanging;
-            
+
+            _videoSettingsPanel = new UnifiedSettingsVideoCtrl();
+            _videoSettingsPanel.ContentChanging += HandleContentChanging;
+
             _previousContent = new List<BaseUnifiedSettingsPanel>();
             _currentContent = _mainPanel;
 
@@ -131,6 +136,21 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                     break;
                 case UnifiedSettingsContentType.SummaryContent: MoveToContentPanel(_summaryPanel);
                     break;
+//                case UnifiedSettingsContentType.TransportContent: MoveToContentPanel(_transportPanel);
+//                    break;
+//                case UnifiedSettingsContentType.TextSettingsContent: MoveToContentPanel(_textSettingsPanel);
+//                    break;
+//                case UnifiedSettingsContentType.AudioSettingsContent: MoveToContentPanel(_audioSettingsPanel);
+//                    break;
+                case UnifiedSettingsContentType.VideoSettingsContent: MoveToContentPanel(_videoSettingsPanel);
+                    break;
+//                case UnifiedSettingsContentType.CallSettingsContent: MoveToContentPanel(_callSettingsPanel);
+//                    break;
+//                case UnifiedSettingsContentType.NetworkSettingsContent: MoveToContentPanel(_networkSettingsPanel);
+//                    break;
+//                case UnifiedSettingsContentType.AdvancedSettingsContent: MoveToContentPanel(_advancedSettingsPanel);
+//                    break;
+
                 default: break;
             }
         }
