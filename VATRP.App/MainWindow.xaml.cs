@@ -201,9 +201,9 @@ namespace com.vtcsecure.ace.windows
 
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void MQuit_Click(object sender, RoutedEventArgs e)
         {
-            
+            Close();
         }
 
         private void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
