@@ -215,13 +215,13 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnAudioPreferences(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Audio Preferences Clicked");
+            OnContentChanging(UnifiedSettingsContentType.AudioSettingsContent);
         }
 
         private void OnVideoPreferences(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Video Preferences Clicked");
             OnContentChanging(UnifiedSettingsContentType.VideoSettingsContent);
-
         }
 
         private void OnCallPreferences(object sender, RoutedEventArgs e)
