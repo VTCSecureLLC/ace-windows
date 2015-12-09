@@ -396,12 +396,15 @@ namespace VATRP.Core.Services
                 }
             }
 
-            LinphoneAPI.linphone_core_destroy(linphoneCore);
+
 
             if (callsDefaultParams != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(callsDefaultParams);
                 LinphoneAPI.linphone_call_params_destroy(callsDefaultParams);
+            }
             LinphoneAPI.linphone_core_iterate(linphoneCore); // roll
-
+            
             if (vtablePtr != IntPtr.Zero)
                 Marshal.FreeHGlobal(vtablePtr);
             if (t_configPtr != IntPtr.Zero)
@@ -410,6 +413,9 @@ namespace VATRP.Core.Services
             if (RegistrationStateChangedEvent != null)
                 RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationCleared);
 
+            
+            Marshal.FreeHGlobal(linphoneCore);
+            LinphoneAPI.linphone_core_destroy(linphoneCore);
             registration_state_changed = null;
             call_state_changed = null;
             notify_received = null;
@@ -425,6 +431,7 @@ namespace VATRP.Core.Services
             LOG.Debug("Main loop exited");
             if (ServiceStopped != null)
                 ServiceStopped(this, EventArgs.Empty);
+         
         }
 
         void SetTimeout(int miliseconds)
