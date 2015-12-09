@@ -12,6 +12,14 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         AudioVideoContent,
         ThemeContent,
         TextContent,
-        SummaryContent
+        SummaryContent,
+
+        TransportContent,
+        TextSettingsContent,
+        AudioSettingsContent,
+        VideoSettingsContent,
+        CallSettingsContent,
+        NetworkSettingsContent,
+        AdvancedSettingsContent
     }
 }
