@@ -66,14 +66,14 @@
             <Label Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="3"  Content="Video Codecs" VerticalContentAlignment="Center"  Background="Gray">
             </Label>
 
-            <ListView Background="{StaticResource RecentsPageMainBg}" Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="3" Height="130"
+            <ListView Background="{StaticResource RecentsPageMainBg}" Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="3" Height="200" Width="280" HorizontalAlignment="Left"
                       x:Name="VideoCodecsListView" SelectionMode="Single" SelectionChanged="VideoCodecsListView_SelectionChanged">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Name" Width="100" DisplayMemberBinding="{Binding Path=CodecName}" />
-                        <GridViewColumn Header="Rate (Hz)" Width="80" DisplayMemberBinding="{Binding Path=Rate}"/>
-                        <GridViewColumn Header="Channels" Width="80" DisplayMemberBinding="{Binding Path=Channels}"/>
-                        <GridViewColumn Header="Status" Width="50">
+                        <GridViewColumn Header="Name" Width="95" DisplayMemberBinding="{Binding Path=CodecName}" />
+                        <GridViewColumn Header="Rate (Hz)" Width="70" DisplayMemberBinding="{Binding Path=Rate}"/>
+                        <GridViewColumn Header="Channels" Width="70" DisplayMemberBinding="{Binding Path=Channels}"/>
+                        <GridViewColumn Header="Status" Width="45">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Width="50">

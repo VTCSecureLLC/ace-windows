@@ -17,33 +17,25 @@ using com.vtcsecure.ace.windows.Services;
 namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 {
     /// <summary>
-    /// Interaction logic for UnifiedSettingsVideoCtrl.xaml
+    /// Interaction logic for UnifiedSettingsAudioCtrl.xaml
     /// </summary>
-    public partial class UnifiedSettingsVideoCtrl : BaseUnifiedSettingsPanel
+    public partial class UnifiedSettingsAudioCtrl : BaseUnifiedSettingsPanel
     {
-        public UnifiedSettingsVideoCtrl()
+        public UnifiedSettingsAudioCtrl()
         {
             InitializeComponent();
-            //            VideoCodecsListView.Items.Clear();
-            // foreach (var item in App.CurrentAccount.VideoCodecsList)
-            // {
-            //     VideoCodecsListView.Items.Add(item);
-            // }
-            this.Loaded += UnifiedSettingsVideoCtrl_Loaded;
+            this.Loaded += UnifiedSettingsAudioCtrl_Loaded;
         }
 
-
-        void UnifiedSettingsVideoCtrl_Loaded(object sender, RoutedEventArgs e)
+        void UnifiedSettingsAudioCtrl_Loaded(object sender, RoutedEventArgs e)
         {
-            VideoPresetValueLabel.Content = "high-fps";
-
             if (App.CurrentAccount == null)
                 return;
 
-            VideoCodecsListView.Items.Clear();
-            foreach (var item in App.CurrentAccount.VideoCodecsList)
+            AudioCodecsListView.Items.Clear();
+            foreach (var item in App.CurrentAccount.AudioCodecsList)
             {
-                VideoCodecsListView.Items.Add(item);
+                AudioCodecsListView.Items.Add(item);
             }
         }
 
@@ -53,41 +45,40 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 return false;
 
             bool changed = false;
-
-            foreach (var item in VideoCodecsListView.Items)
+            // check audio codecs
+            foreach (var item in AudioCodecsListView.Items)
             {
                 var cfgCodec = item as VATRPCodec;
                 if (cfgCodec != null)
                 {
-                    foreach (var accountCodec in App.CurrentAccount.VideoCodecsList)
+                    foreach (var accountCodec in App.CurrentAccount.AudioCodecsList)
                     {
                         if (accountCodec.CodecName == cfgCodec.CodecName && accountCodec.Channels == cfgCodec.Channels &&
-                            accountCodec.Rate == cfgCodec.Rate)
+                            accountCodec.Rate == cfgCodec.Rate && accountCodec.Status != cfgCodec.Status)
                         {
                             changed = true;
                         }
                     }
                 }
             }
+
             return changed;
         }
-
 
         public override void SaveData()
         {
             if (App.CurrentAccount == null)
                 return;
 
-
-            foreach (var item in VideoCodecsListView.Items)
+            foreach (var item in AudioCodecsListView.Items)
             {
                 var cfgCodec = item as VATRPCodec;
                 if (cfgCodec != null)
                 {
-                    foreach (var accountCodec in App.CurrentAccount.VideoCodecsList)
+                    foreach (var accountCodec in App.CurrentAccount.AudioCodecsList)
                     {
                         if (accountCodec.CodecName == cfgCodec.CodecName && accountCodec.Channels == cfgCodec.Channels &&
-                            accountCodec.Rate == cfgCodec.Rate)
+                            accountCodec.Rate == cfgCodec.Rate && accountCodec.Status != cfgCodec.Status)
                         {
                             accountCodec.Status = cfgCodec.Status;
                         }
@@ -98,40 +89,28 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             ServiceManager.Instance.SaveAccountSettings();
         }
 
-        #region General Video Settings
-        private void OnAutomaticallyStart(object sender, RoutedEventArgs e)
+        #region Audio Settings (in call)
+        private void OnMuteMicrophone(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("Automatically Start Video Clicked");
-            bool enabled = AutomaticallyStartCheckBox.IsChecked ?? false;
+            Console.WriteLine("Mute Microphone Clicked");
+            bool enabled = MuteMicrophoneCheckBox.IsChecked ?? false;
             // ToDo 1199
         }
-
-        private void OnAutomaticallyAccept(object sender, RoutedEventArgs e)
+        private void OnMuteSpeaker(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("Automatically Accept Video Clicked");
-            bool enabled = AutomaticallyAcceptCheckBox.IsChecked ?? false;
-            // ToDo 1199
-        }
-        private void OnShowSelfView(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Show Self View Clicked");
-            bool enabled = ShowSelfViewCheckBox.IsChecked ?? false;
-            // ToDo 1199
-        }
-        private void OnVideoPreset(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Video Preset Clicked");
-            // ToDo 1199
-        }
-        private void OnPreferredVideoSize(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Preferred Video Size Clicked");
+            Console.WriteLine("Mute Speaker Clicked");
+            bool enabled = MuteSpeakerCheckBox.IsChecked ?? false;
             // ToDo 1199
         }
 
         #endregion
 
-        #region videoCodecs
+        #region Audio Codecs
+
+        private void AudioCodecsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+        }
+
         public static T FindAncestorOrSelf<T>(DependencyObject obj)
         where T : DependencyObject
         {
@@ -159,10 +138,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 SaveData();
             }
         }
-
-        private void VideoCodecsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-        }
         #endregion
+
+
     }
 }
