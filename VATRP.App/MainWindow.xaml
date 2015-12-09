@@ -45,7 +45,7 @@
 				<MenuItem Header="_Check for Updates" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 				<MenuItem Header="_Hide ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 				<MenuItem Header="_Show All" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Quit ACE" Click="MenuItem_Click" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Quit ACE" Click="MQuit_Click" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 			</MenuItem>
 			<MenuItem x:Name="ViewItem" Header="_View" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
 				<MenuItem Header="_Minimize" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
