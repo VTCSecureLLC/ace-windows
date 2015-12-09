@@ -30,11 +30,13 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             //     VideoCodecsListView.Items.Add(item);
             // }
             this.Loaded += UnifiedSettingsVideoCtrl_Loaded;
-            
+            this.Unloaded += UnifiedSettingsVideoCtrl_Unloaded;
         }
+
 
         void UnifiedSettingsVideoCtrl_Loaded(object sender, RoutedEventArgs e)
         {
+            VideoPresetValueLabel.Content = "high-fps";
 
             if (App.CurrentAccount == null)
                 return;
@@ -71,45 +73,31 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             return changed;
         }
 
-        public bool Save()
+
+        public override void SaveData()
         {
             if (App.CurrentAccount == null)
                 return false;
 
-            foreach (var item in VideoCodecsListView.Items)
+            if (IsChanged())
             {
-                var cfgCodec = item as VATRPCodec;
-                if (cfgCodec != null)
+                foreach (var item in VideoCodecsListView.Items)
                 {
-                    foreach (var accountCodec in App.CurrentAccount.VideoCodecsList)
+                    var cfgCodec = item as VATRPCodec;
+                    if (cfgCodec != null)
                     {
-                        if (accountCodec.CodecName == cfgCodec.CodecName && accountCodec.Channels == cfgCodec.Channels &&
-                            accountCodec.Rate == cfgCodec.Rate)
+                        foreach (var accountCodec in App.CurrentAccount.VideoCodecsList)
                         {
-                            accountCodec.Status = cfgCodec.Status;
+                            if (accountCodec.CodecName == cfgCodec.CodecName && accountCodec.Channels == cfgCodec.Channels &&
+                                accountCodec.Rate == cfgCodec.Rate)
+                            {
+                                accountCodec.Status = cfgCodec.Status;
+                            }
                         }
                     }
                 }
-            }
-            return true;
-        }
-
-        public override void SaveData()
-        {
-            foreach (var item in VideoCodecsListView.Items)
-            {
-                var cfgCodec = item as VATRPCodec;
-                if (cfgCodec != null)
-                {
-                    foreach (var accountCodec in App.CurrentAccount.VideoCodecsList)
-                    {
-                        if (accountCodec.CodecName == cfgCodec.CodecName && accountCodec.Channels == cfgCodec.Channels &&
-                            accountCodec.Rate == cfgCodec.Rate)
-                        {
-                            accountCodec.Status = cfgCodec.Status;
-                        }
-                    }
-                }
+                ServiceManager.Instance.ApplyCodecChanges();
+                ServiceManager.Instance.SaveAccountSettings();
             }
         }
 
@@ -171,8 +159,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 listView.SelectedItem = null;
                 var index = listView.ItemContainerGenerator.IndexFromContainer(lvItem);
                 listView.SelectedIndex = index;
-                ServiceManager.Instance.ApplyCodecChanges();
-
+                SaveData();
             }
         }
 
