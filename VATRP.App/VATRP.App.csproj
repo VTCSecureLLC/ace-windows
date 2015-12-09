@@ -145,6 +145,9 @@
       <DependentUpon>MainSettingsCtrl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\UnifiedSettings\BaseUnifiedSettingsPanel.cs" />
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsAudioCtrl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioVideoCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsAudioVideoCtrl.xaml</DependentUpon>
     </Compile>
@@ -167,7 +170,11 @@
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsThemeCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsThemeCtrl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsVideoCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsVideoCtrl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Enums\VATRPSettings.cs" />
+    <Compile Include="ViewModel\FeedbackViewModel.cs" />
     <Compile Include="ViewModel\ContactEditViewModel.cs" />
     <Compile Include="ViewModel\ContactsViewModel.cs" />
     <Compile Include="ViewModel\SettingsViewModel.cs" />
@@ -181,6 +188,9 @@
     <Compile Include="ViewModel\MainControllerViewModel.cs" />
     <Compile Include="ViewModel\ContactViewModel.cs" />
     <Compile Include="ViewModel\MessagingViewModel.cs" />
+    <Compile Include="Views\FeedbackView.xaml.cs">
+      <DependentUpon>FeedbackView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ContactEditView.xaml.cs">
       <DependentUpon>ContactEditView.xaml</DependentUpon>
     </Compile>
@@ -298,6 +308,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioCtrl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioVideoCtrl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -326,6 +340,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsVideoCtrl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="SampleData\ContactViewSampleData.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -336,6 +354,10 @@
       <SubType>Designer</SubType>
     </DesignData>
     <Page Include="SampleData\RTTSampleData.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\FeedbackView.xaml">
+      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\ContactEditView.xaml">

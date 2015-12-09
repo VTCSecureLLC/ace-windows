@@ -40,6 +40,10 @@ namespace com.vtcsecure.ace.windows
 				{
 					CallInfoCtrl = _callInfoView
 				};
+
+                callViewModel.VideoWidth = CombinedUICallViewSize;
+			    callViewModel.VideoHeight = CombinedUICallViewSize;
+#if false
 				switch (App.CurrentAccount.PreferredVideoId.ToLower())
 				{
 					case "qcif":
@@ -67,6 +71,7 @@ namespace com.vtcsecure.ace.windows
 						callViewModel.VideoHeight = (int)MSVideoSize.MS_VIDEO_SIZE_CIF_H;
 						break;
 				}
+#endif
 				_mainViewModel.AddCalViewModel(callViewModel);
 			}
 

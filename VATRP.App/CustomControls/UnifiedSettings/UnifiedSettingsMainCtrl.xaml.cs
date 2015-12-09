@@ -38,7 +38,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             PasswordTextBox.Password = App.CurrentAccount.Password;
             DomainTextBox.Text = App.CurrentAccount.ProxyHostname;
             ProxyTextBox.Text = Convert.ToString(App.CurrentAccount.ProxyPort);
-            TransportTextBox.Text = App.CurrentAccount.Transport;
+            TransportValueLabel.Content = App.CurrentAccount.Transport;
 
             this.AutoAnswerCheckBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.AUTO_ANSWER, false);
@@ -91,7 +91,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             App.CurrentAccount.ProxyHostname = DomainTextBox.Text;
             App.CurrentAccount.RegistrationUser = UserNameTextBox.Text;
             App.CurrentAccount.RegistrationPassword = PasswordTextBox.Password;
-            App.CurrentAccount.Transport = TransportTextBox.Text;
+            App.CurrentAccount.Transport = (string)TransportValueLabel.Content;
 
         }
 
@@ -215,11 +215,13 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnAudioPreferences(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Audio Preferences Clicked");
+            OnContentChanging(UnifiedSettingsContentType.AudioSettingsContent);
         }
 
         private void OnVideoPreferences(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Video Preferences Clicked");
+            OnContentChanging(UnifiedSettingsContentType.VideoSettingsContent);
         }
 
         private void OnCallPreferences(object sender, RoutedEventArgs e)
