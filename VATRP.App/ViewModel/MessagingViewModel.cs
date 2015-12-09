@@ -1,12 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Security.Principal;
+using System.Text;
 using System.Threading;
 using System.Timers;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Threading;
 using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Events;
@@ -27,25 +30,30 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private readonly IContactsService _contactsManager;
         private bool _isMessagesLoaded;
         private bool _contactsLoaded;
-
         private ObservableCollection<ContactViewModel> _contacts;
 
         private ContactViewModel _contactViewModel;
+        private ContactViewModel _loggedInContactViewModel;
         private string _contactSearchCriteria;
         private ICollectionView contactsListView;
         private ICollectionView messagesListView;
-        public event EventHandler<EventArgs> ConversationStarted;
-        public event EventHandler<EventArgs> ConversationStopped;
-
+        private ObservableCollection<VATRPChatMessage> _testMessages;
+        public event EventHandler<EventArgs> ConversationUpdated;
+        Thread _inputProcessorThread;
+        private bool _isRunning;
+        private Queue<string> _inputTypingQueue = new Queue<string>();
+        private Queue<Key> _pressedKeys = new Queue<Key>();
+        private static ManualResetEvent regulator = new ManualResetEvent(false);
         public MessagingViewModel()
         {
-            LastInput = string.Empty;
             _messageText = string.Empty;
             _contactSearchCriteria = string.Empty;
             _receiverAddress = string.Empty;
             this.ContactsListView = CollectionViewSource.GetDefaultView(this.Contacts);
             this.ContactsListView.Filter = new Predicate<object>(this.FilterContactsList);
-
+            _isRunning = true;
+            _inputProcessorThread = new Thread(ProcessInputCharacters) { IsBackground = true };
+            _inputProcessorThread.Start();
         }
 
         public MessagingViewModel(IChatService chatMng, IContactsService contactsMng):this()
@@ -58,6 +66,28 @@ namespace com.vtcsecure.ace.windows.ViewModel
             this._chatsManager.ContactsChanged += OnContactsChanged;
             this._chatsManager.ContactAdded += OnChatContactAdded;
             this._chatsManager.ContactRemoved += OnChatContactRemoved;
+            this._contactsManager.LoggedInContactUpdated += OnLoggedContactUpdated;
+        }
+
+        #region Events
+        private void OnLoggedContactUpdated(object sender, ContactEventArgs e)
+        {
+            if (ServiceManager.Instance.Dispatcher.Thread != Thread.CurrentThread)
+            {
+                ServiceManager.Instance.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                    new EventHandler<ContactEventArgs>(OnChatContactAdded), sender, new object[] { e });
+                return;
+            }
+
+            
+            if (_loggedInContactViewModel == null || _loggedInContactViewModel.Contact != e.Contact)
+            {
+                var loggedInContact = _contactsManager.FindContact(e.Contact);
+                if (loggedInContact != null)
+                {
+                    _loggedInContactViewModel = new ContactViewModel(loggedInContact);
+                }
+            }
         }
 
         private void OnChatContactRemoved(object sender, ContactRemovedEventArgs e)
@@ -159,6 +189,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 if (MessagesListView != null)
                     MessagesListView.Refresh();
+                if (ConversationUpdated != null)
+                    ConversationUpdated(this, EventArgs.Empty);
             }
         }
 
@@ -177,7 +209,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
                 LoadContacts();
                 if (Contacts != null && Contacts.Count > 0)
-                    SetActiveChatContact(this.Contacts[0].Contact);
+                    SetActiveChatContact(this.Contacts[0].Contact, IntPtr.Zero);
             }
         }
 
@@ -202,6 +234,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
+        #endregion
+
+        #region Methods
         public void LoadContacts()
         {
             foreach (var contact in _chatsManager.Contacts)
@@ -211,9 +246,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
             OnPropertyChanged("Contacts");
         }
 
-        public void SetActiveChatContact(VATRPContact contact)
+        public void SetActiveChatContact(VATRPContact contact, IntPtr callPtr)
         {
             if (contact == null)
+                return;
+
+            if (Chat != null && Chat.Contact == contact)
                 return;
 
             Console.WriteLine("SetActiveChat " + contact.Fullname);
@@ -233,11 +271,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
 
             _contactViewModel = contactVM;
-            
 
-            if (this.Chat != null)
+            if (Chat != null)
             {
-                if (this.Chat.Contact != null)
+                Chat.CallPtr = callPtr;
+                
+                if (Chat.Contact != null)
                 {
                     this.Chat.Contact.PropertyChanged += this.Contact_PropertyChanged;
                 }
@@ -257,8 +296,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
             OnPropertyChanged("Chat");
 			if (MessagesListView != null)
 			     MessagesListView.Refresh();
+            if (ConversationUpdated != null)
+                ConversationUpdated(this, EventArgs.Empty);
         }
 
+        
         private ContactViewModel FindContactViewModel(ContactID contact)
         {
             if (contact != null)
@@ -276,26 +318,53 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             if (!ServiceManager.Instance.IsRttAvailable)
                 return;
-
-            var message = string.Format("{0}", key);
-            if (!ReadyToSend(message))
-                return;
-
-            _chatsManager.ComposeAndSendMessage(ServiceManager.Instance.ActiveCallPtr, Chat, key, isIncomplete);
-
-            if (!isIncomplete)
+            Dispatcher dispatcher = null;
+            try
             {
-                MessageText = string.Empty;
+                dispatcher = ServiceManager.Instance.Dispatcher;
             }
+            catch (NullReferenceException)
+            {
+                return;
+            }
+
+            if (dispatcher != null)
+                dispatcher.BeginInvoke((Action) delegate()
+                {
+                    var message = string.Format("{0}", key);
+                    if (!message.NotBlank())
+                        return;
+
+                    _chatsManager.ComposeAndSendMessage(ServiceManager.Instance.ActiveCallPtr, Chat, key, isIncomplete);
+
+                    if (!isIncomplete || key == '\r')
+                    {
+                        MessageText = string.Empty;
+                    }
+                });
         }
 
         internal void SendMessage(string message)
         {
-            if (!ReadyToSend(message))
+            Dispatcher dispatcher = null;
+            try
+            {
+                dispatcher = ServiceManager.Instance.Dispatcher;
+            }
+            catch (NullReferenceException)
+            {
                 return;
+            }
 
-            _chatsManager.ComposeAndSendMessage(Chat, MessageText);
-            MessageText = string.Empty;
+            if (dispatcher != null)
+                dispatcher.BeginInvoke((Action) delegate()
+                {
+                    if (!ReadyToSend(message))
+                        return;
+
+                    _chatsManager.ComposeAndSendMessage(Chat, MessageText);
+                    MessageText = string.Empty;
+                });
         }
 
         private bool ReadyToSend(string message)
@@ -311,14 +380,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
             VATRPContact contact = _chatsManager.FindContact(contactId);
             if (contact == null)
             {
-                contact = new VATRPContact(contactId);
-                contact.Fullname = un;
-                contact.SipUsername = un;
-                contact.RegistrationName = contactAddress;
+                contact = new VATRPContact(contactId)
+                {
+                    Fullname = un,
+                    SipUsername = un,
+                    RegistrationName = contactAddress
+                };
                 _contactsManager.AddContact(contact, string.Empty);
             }
-
-            SetActiveChatContact(contact);
+            SetActiveChatContact(contact, IntPtr.Zero);
             return true;
         }
 
@@ -330,7 +400,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             return true;
         }
 		
-        public void CreateConversation(string remoteUsername)
+        public void CreateRttConversation(string remoteUsername, IntPtr callPtr)
         {
             string un, host;
             int port;
@@ -351,25 +421,125 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 };
                 ServiceManager.Instance.ContactService.AddContact(contact, string.Empty);
             }
-            SetActiveChatContact(contact);
-            if (ConversationStarted != null)
-                ConversationStarted(this, EventArgs.Empty);
+            SetActiveChatContact(contact, callPtr);
+#if false
+            if (Chat != null)
+                Chat.InsertRttWrapupMarkers(callPtr);
+#endif
         }
 
-        public void ClearConversation()
+        public void ClearRTTConversation(IntPtr callPtr)
         {
             _messageText = string.Empty;
             _contactViewModel = null;
+
+            if (Chat != null)
+                Chat.ClearRttMarkers(callPtr);
+
             ReceiverAddress = string.Empty;
             if (MessagesListView != null)
                 MessagesListView.Refresh();
             OnPropertyChanged("Chat");
-            if (ConversationStopped != null)
-                ConversationStopped(this, EventArgs.Empty);
         }
 
+        private void ProcessInputCharacters(object obj)
+        {
+            var sb = new StringBuilder();
+            int wait_time = 5;
+            bool dequeInputKey = false;
+            while (_isRunning)
+            {
+                Key inputKey = Key.None;
+
+                regulator.WaitOne(wait_time);
+
+                wait_time = 5;
+
+                lock (_pressedKeys)
+                {
+                    if (_pressedKeys.Count != 0)
+                    {
+                        dequeInputKey = false;
+                        inputKey = _pressedKeys.Peek();
+                    }
+                }
+
+                lock (_inputTypingQueue)
+                {
+                    if (_inputTypingQueue.Count != 0)
+                        sb.Append(_inputTypingQueue.Dequeue());
+                }
+
+                bool isIncomplete = true;
+                bool continueRtt = true;
+                switch (inputKey)
+                {
+                    case Key.Enter:
+                        isIncomplete = false;
+                        if (!ServiceManager.Instance.IsRttAvailable)
+                        {
+                            SendMessage(MessageText);
+                            continueRtt = false;
+                        }
+                        dequeInputKey = true;
+                        break;
+                    case Key.Space:
+                        sb.Append(' ');
+                        dequeInputKey = true;
+                        break;
+                    case Key.Back:
+                        if (sb.Length > 0)
+                        {
+                            Debug.WriteLine("Bksp");
+                            sb.Append('\b');
+                        }
+                        dequeInputKey = true;
+                        break;
+                    default:
+                        break;
+                }
+
+                if (sb.Length > 0 && continueRtt)
+                {
+                    for (int i = 0; i < sb.Length; i++)
+                    {
+                        SendMessage(sb[i], isIncomplete);
+                    }
+                }
+
+                if (dequeInputKey || sb.Length == 0)
+                {
+                    lock (_pressedKeys)
+                    {
+                        if (_pressedKeys.Count != 0)
+                        {
+                            _pressedKeys.Dequeue();
+                        }
+                        else
+                        {
+                            wait_time = Int32.MaxValue;
+                        }
+                    }
+                }
+                sb.Remove(0, sb.Length);
+
+            }
+        }
+
+        internal void EnqueueInput(string inputString)
+        {
+            lock (_inputTypingQueue)
+            {
+                _inputTypingQueue.Enqueue(inputString);
+            }
+            //LastInput = inputString;
+            regulator.Set();
+        }
+
+        #endregion
+
         #region Properties
-        
+
         public bool IsContactsLoaded
         {
             get { return _contactsLoaded; }
@@ -393,6 +563,20 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
+        public ObservableCollection<VATRPChatMessage> TestMessages
+        {
+            get
+            {
+                if (_testMessages == null)
+                    _testMessages = new ObservableCollection<VATRPChatMessage>();
+                return _testMessages;
+            }
+            set
+            {
+                _testMessages = value; 
+                OnPropertyChanged("TestMessages");
+            }
+        }
 
         public ObservableCollection<ContactViewModel> Contacts
         {
@@ -404,6 +588,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
             get
             {
                 return this._chat;
+            }
+            set
+            {
+                this._chat = value;
+                OnPropertyChanged("Chat");
             }
         }
         
@@ -485,6 +674,14 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
+        public ContactViewModel LoggedContact
+        {
+            get
+            {
+                return _loggedInContactViewModel;
+            }
+        }
+
         public ICollectionView ContactsListView
         {
             get { return this.contactsListView; }
@@ -515,9 +712,22 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
-        public string LastInput { get; set; }
-
         #endregion
 
+
+        internal void ProcessKeyUp(Key key)
+        {
+            lock (_pressedKeys)
+            {
+                _pressedKeys.Enqueue(key);
+            }
+            regulator.Set();
+        }
+
+        internal void StopInputProcessor()
+        {
+            _isRunning = false;
+            regulator.Set();
+        }
     }
 }

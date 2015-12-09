@@ -107,14 +107,19 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BoolToBubbleAlignmentConverter.cs" />
+    <Compile Include="Converters\BoolToBubbleMarginConverter.cs" />
     <Compile Include="Converters\CallStateToBrushConverter.cs" />
     <Compile Include="Converters\ContactFavoriteToBrushConverter.cs" />
+    <Compile Include="Converters\DirectionToMarkerColumnConverter.cs" />
+    <Compile Include="Converters\DirectionToMessageColumnConverter.cs" />
+    <Compile Include="Converters\DirectionToColumnSpanConverter.cs" />
     <Compile Include="Converters\DirectionToColumnConverter.cs" />
     <Compile Include="Converters\MessageDateConverter.cs" />
     <Compile Include="Converters\MessageDeliveryStatusToBrushConverter.cs" />
     <Compile Include="Converters\BoolToBubbleColorConverter.cs" />
     <Compile Include="Converters\BoolToBubbleCornerConverter.cs" />
-    <Compile Include="Converters\BoolToBubbleMarginConverter.cs" />
+    <Compile Include="Converters\DirectionToDateMarginConverter.cs" />
+    <Compile Include="Converters\MultipleParamsToBubbleMarginConverter.cs" />
     <Compile Include="Converters\CallDurationConverter.cs" />
     <Compile Include="Converters\ContactSelectionToBrushConverter.cs" />
     <Compile Include="Converters\CallQualityConverter.cs" />
@@ -140,6 +145,9 @@
       <DependentUpon>MainSettingsCtrl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\UnifiedSettings\BaseUnifiedSettingsPanel.cs" />
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsAudioCtrl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioVideoCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsAudioVideoCtrl.xaml</DependentUpon>
     </Compile>
@@ -162,7 +170,11 @@
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsThemeCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsThemeCtrl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsVideoCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsVideoCtrl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Enums\VATRPSettings.cs" />
+    <Compile Include="ViewModel\FeedbackViewModel.cs" />
     <Compile Include="ViewModel\ContactEditViewModel.cs" />
     <Compile Include="ViewModel\ContactsViewModel.cs" />
     <Compile Include="ViewModel\SettingsViewModel.cs" />
@@ -176,6 +188,9 @@
     <Compile Include="ViewModel\MainControllerViewModel.cs" />
     <Compile Include="ViewModel\ContactViewModel.cs" />
     <Compile Include="ViewModel\MessagingViewModel.cs" />
+    <Compile Include="Views\FeedbackView.xaml.cs">
+      <DependentUpon>FeedbackView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ContactEditView.xaml.cs">
       <DependentUpon>ContactEditView.xaml</DependentUpon>
     </Compile>
@@ -293,6 +308,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioCtrl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioVideoCtrl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -321,6 +340,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsVideoCtrl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="SampleData\ContactViewSampleData.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -330,6 +353,13 @@
     <DesignData Include="SampleData\CallViewSampleData.xaml">
       <SubType>Designer</SubType>
     </DesignData>
+    <Page Include="SampleData\RTTSampleData.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\FeedbackView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\ContactEditView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -473,6 +503,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\arrow_left.png" />
     <Resource Include="Resources\incoming.png" />
   </ItemGroup>
   <ItemGroup>
@@ -567,6 +598,17 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\switch_call.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\arrow_right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\RTT_end.png" />
+    <Resource Include="Resources\RTT_start.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\hold_off.png" />
+    <Resource Include="Resources\hold_on.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

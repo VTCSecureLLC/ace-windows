@@ -211,6 +211,7 @@ namespace com.vtcsecure.ace.windows
             App.AllowDestroyWindows = true;
             registerRequested = false;
             base.Window_Closing(sender, e);
+            _mainViewModel.MessagingModel.StopInputProcessor();
             ServiceManager.Instance.Stop();
         }
 
@@ -309,6 +310,7 @@ namespace com.vtcsecure.ace.windows
 
             ctrlCall.KeypadClicked += OnKeypadClicked;
             ctrlCall.RttToggled += OnRttToggled;
+            ctrlCall.SwitchHoldCallsRequested += OnSwitchHoldCallsRequested;
 
             _callOverlayView.CallManagerView = _callView;
             ctrlHistory.MakeCallRequested += OnMakeCallRequested;
@@ -389,11 +391,19 @@ namespace com.vtcsecure.ace.windows
             }
             
 		}
-		
+
+        #region Menu Handlers
         private void OnAboutClicked(object sender, RoutedEventArgs e)
         {
             AboutView aboutView = new AboutView();
             aboutView.Show();
         }
+
+        private void OnProvideFeedback(object sender, RoutedEventArgs e)
+        {
+            var feedbackView = new FeedbackView();
+            feedbackView.Show();
+        }
+        #endregion
     }
 }

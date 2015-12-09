@@ -9,6 +9,7 @@ using com.vtcsecure.ace.windows.ViewModel;
 using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 using System.Threading;
+using VATRP.Core.Model;
 
 namespace com.vtcsecure.ace.windows.CustomControls
 {
@@ -31,18 +32,17 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             if (_viewModel != null && _viewModel != viewModel)
             {
-                _viewModel.ConversationStarted -= OnConversationStarted;
+                _viewModel.ConversationUpdated -= OnConversationUpdated;
             }
             DataContext = viewModel;
             _viewModel = viewModel;
             if (_viewModel != null)
             {
-                _viewModel.ConversationStarted += OnConversationStarted;
-                ScrollToEnd();
+                _viewModel.ConversationUpdated += OnConversationUpdated;
             }
         }
 
-        private void OnConversationStarted(object sender, EventArgs eventArgs)
+        private void OnConversationUpdated(object sender, EventArgs eventArgs)
         {
             ScrollToEnd();
         }
@@ -71,39 +71,16 @@ namespace com.vtcsecure.ace.windows.CustomControls
            }
 
            MessageListView.SelectedIndex = MessageListView.Items.Count - 1;
-           MessageListView.ScrollIntoView(MessageListView.SelectedItem);
+           var item = MessageListView.SelectedItem as VATRPChatMessage;
+           if (item != null)
+           {
+               MessageListView.ScrollIntoView(item);
+           }
        }
 
         private void OnKeyUp(object sender, KeyEventArgs e)
         {
-            bool isIncomplete = true;
-            switch (e.Key)
-            {
-                case Key.Enter:
-                    isIncomplete = false;
-                    if (!ServiceManager.Instance.IsRttAvailable)
-                    {
-                        _viewModel.SendMessage(_viewModel.MessageText);
-                        return;
-                    }
-                    break;
-                case Key.Space:
-                    _viewModel.LastInput = " ";
-                    break;
-                case Key.Back:
-                    if (!_viewModel.LastInput.NotBlank())
-                        _viewModel.LastInput += '\b';
-                    break;
-                default:
-                    break;
-            }
-
-            if (_viewModel.LastInput.NotBlank())
-            {
-                for (int i = 0; i < _viewModel.LastInput.Length; i++)
-                    _viewModel.SendMessage(_viewModel.LastInput[i], isIncomplete);
-            }
-            _viewModel.LastInput = string.Empty;
+            _viewModel.ProcessKeyUp(e.Key);
         }
 
         private void OnSendButtonClicked(object sender, RoutedEventArgs e)
@@ -114,13 +91,14 @@ namespace com.vtcsecure.ace.windows.CustomControls
             }
             else
             {
-                _viewModel.SendMessage('\r', false);
+                _viewModel.EnqueueInput("\r");
+                _viewModel.ProcessKeyUp(Key.Enter);
             }
         }
 
-        private void OnTextInpput(object sender, TextCompositionEventArgs e)
+        private void OnTextInput(object sender, TextCompositionEventArgs e)
         {
-            _viewModel.LastInput = e.Text;
+            _viewModel.EnqueueInput(e.Text);
         }
     }
         

@@ -74,6 +74,5 @@ namespace VATRP.Core.Interfaces
         void EnableAdaptiveRateControl(bool bEnable);
         IntPtr LinphoneCore { get; }
         int GetActiveCallsCount { get; }
-        
     }
 }

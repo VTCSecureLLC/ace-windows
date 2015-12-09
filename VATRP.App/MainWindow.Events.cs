@@ -40,6 +40,10 @@ namespace com.vtcsecure.ace.windows
 				{
 					CallInfoCtrl = _callInfoView
 				};
+
+                callViewModel.VideoWidth = CombinedUICallViewSize;
+			    callViewModel.VideoHeight = CombinedUICallViewSize;
+#if false
 				switch (App.CurrentAccount.PreferredVideoId.ToLower())
 				{
 					case "qcif":
@@ -67,6 +71,7 @@ namespace com.vtcsecure.ace.windows
 						callViewModel.VideoHeight = (int)MSVideoSize.MS_VIDEO_SIZE_CIF_H;
 						break;
 				}
+#endif
 				_mainViewModel.AddCalViewModel(callViewModel);
 			}
 
@@ -89,7 +94,7 @@ namespace com.vtcsecure.ace.windows
 		    }
 		    else if (call.CallState == VATRPCallState.StreamsRunning)
 		    {
-		        _mainViewModel.ActiveCallModel = callViewModel;
+                _mainViewModel.ActiveCallModel = callViewModel;
 		    }
 
 		    if (callViewModel.Declined)
@@ -113,16 +118,10 @@ namespace com.vtcsecure.ace.windows
 					// call started, 
 					call.RemoteParty = call.To;
 					callViewModel.OnTrying();
-
-			        if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-			            Configuration.ConfEntry.USE_RTT, true))
-			        {
-                        ctrlRTT.SetViewModel(_mainViewModel.MessagingModel);
-			            _mainViewModel.MessagingModel.CreateConversation(call.To.Username);
-			        }
 			        _mainViewModel.IsCallPanelDocked = true;
 					break;
 				case VATRPCallState.InProgress:
+                    
 					call.RemoteParty = call.From;
 					ServiceManager.Instance.SoundService.PlayRingTone();
 					_mainViewModel.IsCallPanelDocked = true;
@@ -160,7 +159,7 @@ namespace com.vtcsecure.ace.windows
 						Configuration.ConfEntry.USE_RTT, true))
 					{
                         ctrlRTT.SetViewModel(_mainViewModel.MessagingModel);
-						_mainViewModel.MessagingModel.CreateConversation(call.RemoteParty.Username);
+						_mainViewModel.MessagingModel.CreateRttConversation(call.RemoteParty.Username, call.NativeCallPtr);
 					}
 					
 					callViewModel.OnConnected();
@@ -198,11 +197,18 @@ namespace com.vtcsecure.ace.windows
 					break;
 				case VATRPCallState.StreamsRunning:
 					callViewModel.OnStreamRunning();
+                    ShowCallOverlayWindow(true);
+					ctrlCall.ctrlOverlay.SetCallState("Connected");
+			        ctrlCall.UpdateControls();
                     ctrlCall.ctrlOverlay.ForegroundCallDuration = _mainViewModel.ActiveCallModel.CallDuration;
 					break;
 				case VATRPCallState.RemotePaused:
 			        callViewModel.OnRemotePaused();
-			        ctrlCall.BackgroundCallViewModel = callViewModel;
+                    callViewModel.CallState = VATRPCallState.RemotePaused;
+                    ShowCallOverlayWindow(true);
+                    ctrlCall.ctrlOverlay.SetCallerInfo(callViewModel.CallerInfo);
+                    ctrlCall.ctrlOverlay.SetCallState("Connected");
+                    ctrlCall.UpdateControls();
 					break;
                 case VATRPCallState.LocalPausing:
                     callViewModel.CallState = VATRPCallState.LocalPausing;
@@ -210,24 +216,42 @@ namespace com.vtcsecure.ace.windows
                 case VATRPCallState.LocalPaused:
                     callViewModel.OnLocalPaused();
                     callViewModel.CallState = VATRPCallState.LocalPaused;
+			        callViewModel.IsCallOnHold = true;
+			        bool updateInfoView = callViewModel.PauseRequest;
 			        if (_linphoneService.GetActiveCallsCount == 2)
 			        {
-                        CallViewModel nextVM = _mainViewModel.GetNextViewModel(callViewModel);
-                        if (nextVM != null)
-                        {
-                            ShowOverlaySwitchCallWindow(true);
-                            ctrlCall.ctrlOverlay.SetPausedCallerInfo(callViewModel.CallerInfo);
-                            ctrlCall.ctrlOverlay.BackgroundCallDuration = callViewModel.CallDuration;
-                            ctrlCall.ctrlOverlay.StartPausedCallTimer(ctrlCall.ctrlOverlay.BackgroundCallDuration);
-                            ctrlCall.BackgroundCallViewModel = callViewModel;
-                            ctrlCall.ctrlOverlay.ForegroundCallDuration = nextVM.CallDuration;
-                            ctrlCall.SetCallViewModel(nextVM);
-                            _mainViewModel.ResumeCall(nextVM);
-                        }
+			            if (!callViewModel.PauseRequest)
+			            {
+			                CallViewModel nextVM = _mainViewModel.GetNextViewModel(callViewModel);
+
+			                if (nextVM != null)
+			                {
+			                    ShowOverlaySwitchCallWindow(true);
+			                    ctrlCall.ctrlOverlay.SetPausedCallerInfo(callViewModel.CallerInfo);
+			                    ctrlCall.ctrlOverlay.BackgroundCallDuration = callViewModel.CallDuration;
+			                    ctrlCall.ctrlOverlay.StartPausedCallTimer(ctrlCall.ctrlOverlay.BackgroundCallDuration);
+			                    ctrlCall.BackgroundCallViewModel = callViewModel;
+			                    ctrlCall.ctrlOverlay.ForegroundCallDuration = nextVM.CallDuration;
+			                    ctrlCall.SetCallViewModel(nextVM);
+			                    if (!nextVM.PauseRequest)
+			                        _mainViewModel.ResumeCall(nextVM);
+			                    else
+			                        updateInfoView = true;
+			                }
+			            }
+			        }
+
+                    if (updateInfoView)
+			        {
+                        ShowCallOverlayWindow(true);
+                        ctrlCall.ctrlOverlay.SetCallerInfo(callViewModel.CallerInfo);
+                        ctrlCall.ctrlOverlay.SetCallState("On Hold");
+                        ctrlCall.UpdateControls();
 			        }
 			        break;
                 case VATRPCallState.LocalResuming:
                     callViewModel.OnResumed();
+                    callViewModel.IsCallOnHold = false;
                     ShowCallOverlayWindow(true);
 					ctrlCall.ctrlOverlay.SetCallerInfo(callViewModel.CallerInfo);
 					ctrlCall.ctrlOverlay.SetCallState("Connected");
@@ -245,6 +269,11 @@ namespace com.vtcsecure.ace.windows
                             ctrlCall.BackgroundCallViewModel = nextVM;
                             ctrlCall.SetCallViewModel(callViewModel);
                             ctrlCall.ctrlOverlay.ForegroundCallDuration = callViewModel.CallDuration;
+                            if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                        Configuration.ConfEntry.USE_RTT, true))
+                            {
+                                _mainViewModel.MessagingModel.CreateRttConversation(call.RemoteParty.Username, call.NativeCallPtr);
+                            }
 			            }
 			            else
 			            {
@@ -265,7 +294,7 @@ namespace com.vtcsecure.ace.windows
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                        Configuration.ConfEntry.USE_RTT, true))
                     {
-                        _mainViewModel.MessagingModel.ClearConversation();
+                        _mainViewModel.MessagingModel.ClearRTTConversation(call.NativeCallPtr);
                         ctrlRTT.SetViewModel(null);
                     }
                     ShowOverlayNewCallWindow(false);
@@ -293,16 +322,22 @@ namespace com.vtcsecure.ace.windows
                         Configuration.ConfEntry.USE_RTT, true))
                             {
                                 ctrlRTT.SetViewModel(_mainViewModel.MessagingModel);
-                                _mainViewModel.MessagingModel.CreateConversation(nextVM.ActiveCall.RemoteParty.Username);
+                                _mainViewModel.MessagingModel.CreateRttConversation(
+                                    nextVM.ActiveCall.RemoteParty.Username, nextVM.ActiveCall.NativeCallPtr);
                             }
                             ShowCallOverlayWindow(true);
                             ctrlCall.ctrlOverlay.SetCallerInfo(nextVM.CallerInfo);
                             ctrlCall.ctrlOverlay.ForegroundCallDuration = _mainViewModel.ActiveCallModel.CallDuration;
                             ctrlCall.SetCallViewModel(_mainViewModel.ActiveCallModel);
                             ctrlCall.UpdateControls();
-					        if (nextVM.ActiveCall.CallState == VATRPCallState.LocalPaused)
+					        if (nextVM.ActiveCall.CallState == VATRPCallState.LocalPaused )
 					        {
-					            _mainViewModel.ResumeCall(nextVM);
+					            if (!nextVM.PauseRequest)
+					                _mainViewModel.ResumeCall(nextVM);
+					            else
+					            {
+                                    ctrlCall.ctrlOverlay.SetCallState("On Hold");
+					            }
 					        }
 					    }
 					}
@@ -321,7 +356,7 @@ namespace com.vtcsecure.ace.windows
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                        Configuration.ConfEntry.USE_RTT, true))
                     {
-                        _mainViewModel.MessagingModel.ClearConversation();
+                        _mainViewModel.MessagingModel.ClearRTTConversation(call.NativeCallPtr);
                         ctrlRTT.SetViewModel(null);
                     }
 
@@ -369,15 +404,45 @@ namespace com.vtcsecure.ace.windows
 		    }
 		}
 
-		private void ShowCallOverlayWindow(bool bShow)
+	    private void OnSwitchHoldCallsRequested(object sender, EventArgs eventArgs)
+	    {
+	        if (_linphoneService.GetActiveCallsCount != 2)
+	            return;
+
+	        CallViewModel callViewModel = ctrlCall.BackgroundCallViewModel;
+            CallViewModel nextVM = _mainViewModel.GetNextViewModel(callViewModel);
+	        if (nextVM != null)
+	        {
+	            ShowOverlaySwitchCallWindow(true);
+	            ctrlCall.ctrlOverlay.SetPausedCallerInfo(nextVM.CallerInfo);
+	            ctrlCall.ctrlOverlay.BackgroundCallDuration = nextVM.CallDuration;
+	            ctrlCall.ctrlOverlay.StartPausedCallTimer(ctrlCall.ctrlOverlay.BackgroundCallDuration);
+	            ctrlCall.BackgroundCallViewModel = nextVM;
+	            ctrlCall.SetCallViewModel(callViewModel);
+                ctrlCall.ctrlOverlay.SetCallerInfo(callViewModel.CallerInfo);
+	            ctrlCall.ctrlOverlay.ForegroundCallDuration = callViewModel.CallDuration;
+	            if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+	                Configuration.ConfEntry.USE_RTT, true))
+	            {
+	                _mainViewModel.MessagingModel.CreateRttConversation(callViewModel.ActiveCall.RemoteParty.Username,
+	                    callViewModel.ActiveCall.NativeCallPtr);
+	            }
+	        }
+	        else
+	        {
+	            ShowOverlaySwitchCallWindow(false);
+	        }
+	    }
+
+	    private void ShowCallOverlayWindow(bool bShow)
 		{
-            ctrlCall.ctrlOverlay.CommandWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize - 550) / 2;
+            ctrlCall.ctrlOverlay.CommandWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize - 660) / 2;
 			ctrlCall.ctrlOverlay.CommandWindowTopMargin = 500 - SystemParameters.CaptionHeight;
 
             ctrlCall.ctrlOverlay.NumpadWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize - 230) / 2;
 			ctrlCall.ctrlOverlay.NumpadWindowTopMargin = 170 - SystemParameters.CaptionHeight;
 
-            ctrlCall.ctrlOverlay.CallInfoWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize - 550) / 2;
+            ctrlCall.ctrlOverlay.CallInfoWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize - 660) / 2;
 			ctrlCall.ctrlOverlay.CallInfoWindowTopMargin = 40 - SystemParameters.CaptionHeight;
 
 			ctrlCall.ctrlOverlay.ShowCommandBar(bShow);
