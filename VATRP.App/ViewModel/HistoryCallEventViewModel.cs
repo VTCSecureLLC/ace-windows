@@ -62,14 +62,14 @@ namespace com.vtcsecure.ace.windows.ViewModel
             DateTime callTime =
                 VATRP.Core.Model.Utils.Time.ConvertUtcTimeToLocalTime(
                     VATRP.Core.Model.Utils.Time.ConvertDateTimeToLong(callEvent.StartTime)/1000);
-            string dateFormat = "d/MM, HH:mm";
+            string dateFormat = "d/MM h:mm tt";
             var diffTime = DateTime.Now - callTime;
             if (diffTime.Days == 0)
-                dateFormat = "HH:mm";
+                dateFormat = "h:mm tt";
             else if (diffTime.Days < 8)
-                dateFormat = "ddd, HH:mm";
+                dateFormat = "ddd h:mm tt";
             else if (diffTime.Days > 365)
-                dateFormat = "d/MM/yyyy, HH:mm";
+                dateFormat = "dd/MM h:mm tt";
 
             CallDate = callTime.ToString(dateFormat);
         }
