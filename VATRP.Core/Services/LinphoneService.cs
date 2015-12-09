@@ -401,7 +401,7 @@ namespace VATRP.Core.Services
             if (callsDefaultParams != IntPtr.Zero)
             {
                 Marshal.FreeHGlobal(callsDefaultParams);
-                LinphoneAPI.linphone_call_params_destroy(callsDefaultParams);
+                //LinphoneAPI.linphone_call_params_destroy(callsDefaultParams);
             }
             LinphoneAPI.linphone_core_iterate(linphoneCore); // roll
             
@@ -415,7 +415,7 @@ namespace VATRP.Core.Services
 
             
             Marshal.FreeHGlobal(linphoneCore);
-            LinphoneAPI.linphone_core_destroy(linphoneCore);
+            //LinphoneAPI.linphone_core_destroy(linphoneCore);
             registration_state_changed = null;
             call_state_changed = null;
             notify_received = null;
