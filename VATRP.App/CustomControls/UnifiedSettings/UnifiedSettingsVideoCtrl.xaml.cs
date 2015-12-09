@@ -30,7 +30,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             //     VideoCodecsListView.Items.Add(item);
             // }
             this.Loaded += UnifiedSettingsVideoCtrl_Loaded;
-            this.Unloaded += UnifiedSettingsVideoCtrl_Unloaded;
         }
 
 
@@ -77,28 +76,28 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         public override void SaveData()
         {
             if (App.CurrentAccount == null)
-                return false;
+                return;
 
-            if (IsChanged())
+            if (!IsChanged())
+                return;
+
+            foreach (var item in VideoCodecsListView.Items)
             {
-                foreach (var item in VideoCodecsListView.Items)
+                var cfgCodec = item as VATRPCodec;
+                if (cfgCodec != null)
                 {
-                    var cfgCodec = item as VATRPCodec;
-                    if (cfgCodec != null)
+                    foreach (var accountCodec in App.CurrentAccount.VideoCodecsList)
                     {
-                        foreach (var accountCodec in App.CurrentAccount.VideoCodecsList)
+                        if (accountCodec.CodecName == cfgCodec.CodecName && accountCodec.Channels == cfgCodec.Channels &&
+                            accountCodec.Rate == cfgCodec.Rate)
                         {
-                            if (accountCodec.CodecName == cfgCodec.CodecName && accountCodec.Channels == cfgCodec.Channels &&
-                                accountCodec.Rate == cfgCodec.Rate)
-                            {
-                                accountCodec.Status = cfgCodec.Status;
-                            }
+                            accountCodec.Status = cfgCodec.Status;
                         }
                     }
                 }
-                ServiceManager.Instance.ApplyCodecChanges();
-                ServiceManager.Instance.SaveAccountSettings();
             }
+            ServiceManager.Instance.ApplyCodecChanges();
+            ServiceManager.Instance.SaveAccountSettings();
         }
 
         #region General Video Settings
