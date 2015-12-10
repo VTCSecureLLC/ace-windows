@@ -42,7 +42,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
         Thread _inputProcessorThread;
         private bool _isRunning;
         private Queue<string> _inputTypingQueue = new Queue<string>();
-        private Queue<Key> _pressedKeys = new Queue<Key>();
         private static ManualResetEvent regulator = new ManualResetEvent(false);
         public MessagingViewModel()
         {
@@ -446,83 +445,38 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             var sb = new StringBuilder();
             int wait_time = 5;
-            bool dequeInputKey = false;
+            bool readyToDeque = true;
             while (_isRunning)
             {
-                Key inputKey = Key.None;
-
                 regulator.WaitOne(wait_time);
 
-                wait_time = 5;
+                wait_time = 1;
 
-                lock (_pressedKeys)
-                {
-                    if (_pressedKeys.Count != 0)
-                    {
-                        dequeInputKey = false;
-                        inputKey = _pressedKeys.Peek();
-                    }
-                }
+                if (!readyToDeque)
+                    continue;
 
                 lock (_inputTypingQueue)
                 {
                     if (_inputTypingQueue.Count != 0)
+                    {
                         sb.Append(_inputTypingQueue.Dequeue());
-                }
-
-                bool isIncomplete = true;
-                bool continueRtt = true;
-                switch (inputKey)
-                {
-                    case Key.Enter:
-                        isIncomplete = false;
-                        if (!ServiceManager.Instance.IsRttAvailable)
-                        {
-                            SendMessage(MessageText);
-                            continueRtt = false;
-                        }
-                        dequeInputKey = true;
-                        break;
-                    case Key.Space:
-                        sb.Append(' ');
-                        dequeInputKey = true;
-                        break;
-                    case Key.Back:
-                        if (sb.Length > 0)
-                        {
-                            Debug.WriteLine("Bksp");
-                            sb.Append('\b');
-                        }
-                        dequeInputKey = true;
-                        break;
-                    default:
-                        break;
-                }
-
-                if (sb.Length > 0 && continueRtt)
-                {
-                    for (int i = 0; i < sb.Length; i++)
+                    }
+                    else
                     {
-                        SendMessage(sb[i], isIncomplete);
+                        wait_time = Int32.MaxValue;
+                        readyToDeque = true;
+                        continue;
                     }
                 }
 
-                if (dequeInputKey || sb.Length == 0)
+                readyToDeque = false;
+                for (int i = 0; i < sb.Length; i++)
                 {
-                    lock (_pressedKeys)
-                    {
-                        if (_pressedKeys.Count != 0)
-                        {
-                            _pressedKeys.Dequeue();
-                        }
-                        else
-                        {
-                            wait_time = Int32.MaxValue;
-                        }
-                    }
+                    SendMessage(sb[i], sb[i] != '\r');
                 }
+
                 sb.Remove(0, sb.Length);
-
+                readyToDeque = true;
             }
         }
 
@@ -532,7 +486,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 _inputTypingQueue.Enqueue(inputString);
             }
-            //LastInput = inputString;
             regulator.Set();
         }
 
@@ -630,7 +583,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         public bool ShowMessageHint
         {
-            get { return !MessageText.NotBlank(); }
+            get { return string.IsNullOrEmpty(MessageText); }
         }
 
         public bool ShowSearchHint
@@ -713,16 +666,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
         }
 
         #endregion
-
-
-        internal void ProcessKeyUp(Key key)
-        {
-            lock (_pressedKeys)
-            {
-                _pressedKeys.Enqueue(key);
-            }
-            regulator.Set();
-        }
 
         internal void StopInputProcessor()
         {

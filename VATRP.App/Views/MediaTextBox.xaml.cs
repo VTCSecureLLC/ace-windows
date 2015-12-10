@@ -75,18 +75,51 @@ namespace com.vtcsecure.ace.windows.Views
             else
             {
                 _viewModel.EnqueueInput("\r");
-                _viewModel.ProcessKeyUp(Key.Enter);
             }
         }
 
-        private void OnKeyUp(object sender, KeyEventArgs e)
+        private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            _viewModel.ProcessKeyUp(e.Key);
+            Char inputKey = Char.MinValue;
+            switch (e.Key)
+            {
+                case Key.None:
+                    break;
+                case Key.Back:
+                    inputKey = '\b';
+                    break;
+                case Key.Tab:
+                    inputKey = '\t';
+                    break;
+                case Key.LineFeed:
+                    inputKey = '\n';
+                    break;
+                case Key.Clear:
+                    break;
+                case Key.Return:
+                    inputKey = '\r';
+                    break;
+                case Key.Space:
+                    inputKey = ' ';
+                    break;
+                default:
+                    break;
+            }
+            if (inputKey != Char.MinValue)
+            {
+                _viewModel.EnqueueInput(inputKey.ToString());
+            }
         }
 
         private void OnTextInpput(object sender, TextCompositionEventArgs e)
         {
             _viewModel.EnqueueInput(e.Text);
+            if (!ServiceManager.Instance.IsRttAvailable )
+            {
+                if (e.Text.Length > 0 && e.Text[e.Text.Length - 1] == '\r')
+                    _viewModel.SendMessage(_viewModel.MessageText);
+                return;
+            }
         }
        
     }

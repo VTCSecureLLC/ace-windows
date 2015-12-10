@@ -46,6 +46,10 @@ namespace VATRP.Core.Interfaces
         void ToggleVideo(bool enableVideo, IntPtr callPtr);
         void SendDtmf(VATRPCall call, char dtmf);
         void EnableVideo(bool enable);
+        bool IsEchoCancellationEnabled();
+        void EnableEchoCancellation(bool enable);
+        bool IsSelfViewEnabled();
+        void EnableSelfView(bool enable);
         void SwitchSelfVideo();
         void SetVideoPreviewWindowHandle(IntPtr hWnd, bool reset = false);
         void SetPreviewVideoSize(MSVideoSize w, MSVideoSize h);

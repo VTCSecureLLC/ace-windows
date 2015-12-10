@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using VATRP.Core.Model;
 using com.vtcsecure.ace.windows.Services;
+using com.vtcsecure.ace.windows.Enums;
 
 namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 {
@@ -32,10 +33,28 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             if (App.CurrentAccount == null)
                 return;
 
+            MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
+            MuteSpeakerCheckBox.IsChecked = App.CurrentAccount.MuteSpeaker;
+            MuteSpeakerCheckBox.IsEnabled = false;
+
             AudioCodecsListView.Items.Clear();
             foreach (var item in App.CurrentAccount.AudioCodecsList)
             {
                 AudioCodecsListView.Items.Add(item);
+            }
+        }
+
+        public override void UpdateForMenuSettingChange(ACEMenuSettings menuSetting)
+        {
+            if (App.CurrentAccount == null)
+                return;
+
+            switch (menuSetting)
+            {
+                case ACEMenuSettings.MuteMicrophoneMenu: MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -94,13 +113,23 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         {
             Console.WriteLine("Mute Microphone Clicked");
             bool enabled = MuteMicrophoneCheckBox.IsChecked ?? false;
-            // ToDo 1199
+            if (enabled != App.CurrentAccount.MuteMicrophone)
+            {
+                App.CurrentAccount.MuteMicrophone = enabled;
+                ServiceManager.Instance.ApplyMediaSettingsChanges();
+                ServiceManager.Instance.SaveAccountSettings();
+            }
         }
         private void OnMuteSpeaker(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Mute Speaker Clicked");
             bool enabled = MuteSpeakerCheckBox.IsChecked ?? false;
-            // ToDo 1199
+            if (enabled != App.CurrentAccount.MuteSpeaker)
+            {
+                App.CurrentAccount.MuteSpeaker = enabled;
+                ServiceManager.Instance.ApplyMediaSettingsChanges();
+                ServiceManager.Instance.SaveAccountSettings();
+            }
         }
 
         #endregion

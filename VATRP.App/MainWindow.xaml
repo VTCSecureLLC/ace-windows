@@ -71,11 +71,14 @@
 				<MenuItem Header="_Volume" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 				<MenuItem Header="_Enter Full" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 			</MenuItem>
-			<MenuItem x:Name="AudioItem" Header="_Audio" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
-				<MenuItem Header="_Mute Microphone" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Increase Volume" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+			<MenuItem x:Name="AudioItem" Header="_Audio" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" SubmenuOpened="OnAudioMenuItemOpened">
+				<MenuItem Header="_Mute Microphone" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"
+                          Click="OnMuteMicrophone" Name="MuteMicrophoneCheckbox" IsCheckable="True"/>
+				<!-- Commenting these out instead of removing in case we put them back  in
+                <MenuItem Header="_Increase Volume" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 				<MenuItem Header="_Decrease Volume" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 				<MenuItem Header="_Speaker" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+                -->
 			</MenuItem>
 			<MenuItem x:Name="EditItem" Header="_Edit"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
 				<MenuItem Header="_New"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>

@@ -32,7 +32,7 @@
             <Label Grid.Column="0" Grid.Row="3"  Content="Force 508" 
                    VerticalContentAlignment="Center" HorizontalAlignment="Left" Name="AutoAnswerLabel">
             </Label>
-            <CheckBox Grid.Column="1" Grid.Row="30" Checked="OnForce508" HorizontalAlignment="Center" 
+            <CheckBox Grid.Column="1" Grid.Row="30" Checked="OnForce508" Unchecked="OnForce508" HorizontalAlignment="Center" 
                       VerticalAlignment="Center"  Name="Force508CheckBox"/>
 
         </Grid>
