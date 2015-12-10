@@ -356,6 +356,7 @@ namespace VATRP.Core.Services
                                     {
                                         // enable rtt
                                         LinphoneAPI.linphone_call_params_enable_realtime_text(createCmd.CallParamsPtr, createCmd.EnableRtt);
+                                        MuteCall(createCmd.MuteMicrophone);
 
                                         IntPtr callPtr = LinphoneAPI.linphone_core_invite_with_params(linphoneCore,
                                             createCmd.Callee, createCmd.CallParamsPtr);
@@ -617,7 +618,7 @@ namespace VATRP.Core.Services
 		#endregion
 
 		#region Call
-		public void MakeCall(string destination, bool videoOn, bool rttEnabled)
+		public void MakeCall(string destination, bool videoOn, bool rttEnabled, bool muteMicrophone)
 		{
 		    if (callsList.Count > 0)
 		    {
@@ -637,7 +638,7 @@ namespace VATRP.Core.Services
 				return;
 			}
 
-		    var cmd = new CreateCallCommand(callsDefaultParams, destination, rttEnabled);
+		    var cmd = new CreateCallCommand(callsDefaultParams, destination, rttEnabled, muteMicrophone);
 
 		    lock (commandQueue)
 		    {
@@ -645,7 +646,7 @@ namespace VATRP.Core.Services
 		    }
 		}
 
-		public void AcceptCall(IntPtr callPtr, bool rttEnabled)
+		public void AcceptCall(IntPtr callPtr, bool rttEnabled, bool muteMicrophone)
 		{
             if (linphoneCore == IntPtr.Zero)
             {
@@ -679,6 +680,7 @@ namespace VATRP.Core.Services
 
 		            LinphoneAPI.linphone_call_params_enable_realtime_text(callParamsPtr, remoteRttEnabled);
 		        }
+                MuteCall(muteMicrophone);
 
 		        var cmd = new AcceptCallCommand(call.NativeCallPtr, callParamsPtr);
 		        //	LinphoneAPI.linphone_call_params_set_record_file(callsDefaultParams, null);
@@ -804,7 +806,10 @@ namespace VATRP.Core.Services
 				return false;
 			return !LinphoneAPI.linphone_core_mic_enabled(linphoneCore);
 		}
-
+        public void MuteCall(bool muteCall)
+        {
+            LinphoneAPI.linphone_core_enable_mic(linphoneCore, !muteCall);
+        }
 		public void ToggleMute()
 		{
 			if (linphoneCore == IntPtr.Zero)
