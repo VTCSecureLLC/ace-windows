@@ -1,4 +1,5 @@
-﻿using com.vtcsecure.ace.windows.Services;
+﻿using com.vtcsecure.ace.windows.Enums;
+using com.vtcsecure.ace.windows.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
     /// </summary>
     public partial class UnifiedSettingsAudioVideoCtrl : BaseUnifiedSettingsPanel
     {
+        public CallViewCtrl CallControl;
 
         public UnifiedSettingsAudioVideoCtrl()
         {
@@ -39,8 +41,22 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             MuteSpeakerCheckBox.IsEnabled = false;
             EchoCancelCheckBox.IsChecked = App.CurrentAccount.EchoCancel;
             ShowSelfViewCheckBox.IsChecked = App.CurrentAccount.ShowSelfView;
-
         }
+
+        public override void UpdateForMenuSettingChange(ACEMenuSettings menuSetting)
+        {
+            if (App.CurrentAccount == null)
+                return;
+
+            switch (menuSetting)
+            {
+                case ACEMenuSettings.MuteMicrophoneMenu: MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
+                    break;
+                default:
+                    break;
+            }
+        }
+
 
 
         private void OnMuteMicrophone(object sender, RoutedEventArgs e)
@@ -52,6 +68,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 App.CurrentAccount.MuteMicrophone = enabled;
                 ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
+
+                if ((CallControl != null) && CallControl.IsLoaded)
+                {
+                    CallControl.UpdateMuteSettingsIfOpen();
+                }
             }
         }
         private void OnMuteSpeaker(object sender, RoutedEventArgs e)

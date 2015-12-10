@@ -41,6 +41,7 @@ namespace VATRP.Core.Interfaces
         void SendRTTProposition(IntPtr callPtr);
 
         bool SendChar(uint charCode, IntPtr callPtr, ref IntPtr chatRoomPtr, ref IntPtr chatMsgPtr);
+        void MuteCall(bool isMuted);
         bool IsCallMuted();
         void ToggleMute();
         void ToggleVideo(bool enableVideo, IntPtr callPtr);
