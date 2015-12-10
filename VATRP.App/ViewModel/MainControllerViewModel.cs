@@ -289,11 +289,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
                         viewModel.ActiveCall.NativeCallPtr));
 
                     viewModel.AcceptCall();
+                    bool muteMicrophone = false;
+                    if (App.CurrentAccount != null)
+                    {
+                        muteMicrophone = App.CurrentAccount.MuteMicrophone;
+                    }
                     try
                     {
                         _linphoneService.AcceptCall(viewModel.ActiveCall.NativeCallPtr,
                             ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                                Configuration.ConfEntry.USE_RTT, true));
+                                Configuration.ConfEntry.USE_RTT, true), muteMicrophone);
                     }
                     catch (Exception ex)
                     {
