@@ -78,11 +78,6 @@ namespace com.vtcsecure.ace.windows.CustomControls
            }
        }
 
-        private void OnKeyUp(object sender, KeyEventArgs e)
-        {
-            _viewModel.ProcessKeyUp(e.Key);
-        }
-
         private void OnSendButtonClicked(object sender, RoutedEventArgs e)
         {
             if (!ServiceManager.Instance.IsRttAvailable)
@@ -92,13 +87,45 @@ namespace com.vtcsecure.ace.windows.CustomControls
             else
             {
                 _viewModel.EnqueueInput("\r");
-                _viewModel.ProcessKeyUp(Key.Enter);
             }
         }
 
         private void OnTextInput(object sender, TextCompositionEventArgs e)
         {
             _viewModel.EnqueueInput(e.Text);
+        }
+
+        private void OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            Char inputKey = Char.MinValue;
+            switch (e.Key)
+            {
+                case Key.None:
+                    break;
+                case Key.Back:
+                    inputKey = '\b';
+                    break;
+                case Key.Tab:
+                    inputKey = '\t';
+                    break;
+                case Key.LineFeed:
+                    inputKey = '\n';
+                    break;
+                case Key.Clear:
+                    break;
+                case Key.Return:
+                    inputKey = '\r';
+                    break;
+                case Key.Space:
+                    inputKey = ' ';
+                    break;
+                default:
+                    break;
+            }
+            if (inputKey != Char.MinValue)
+            {
+                _viewModel.EnqueueInput(inputKey.ToString());
+            }
         }
     }
         

@@ -446,11 +446,13 @@
 
                     <TextBox BorderThickness="0" Height="40" TextAlignment="Left" FontSize="18"
 									 Foreground="{StaticResource AppMainBorderBrush}" CaretBrush="{StaticResource AppMainBorderBrush}"
-								 HorizontalAlignment="Stretch" Text="{Binding MessageText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+								 HorizontalAlignment="Stretch"  
 									 VerticalContentAlignment="Center"
-									 Background="Transparent" 
-									 PreviewKeyUp="OnKeyUp" PreviewTextInput="OnTextInput"
-									 />
+									 Background="Transparent" PreviewKeyDown="OnPreviewKeyDown" 
+                             PreviewTextInput="OnTextInput"
+                    Text="{Binding MessageText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+
+                        />
                 </Grid>
             </Grid>
         </Border>
