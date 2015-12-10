@@ -58,7 +58,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
             if (_callHistoryModel.SelectedCallEvent != null)
             {
                 if (MakeCallRequested != null)
-                    MakeCallRequested(_callHistoryModel.SelectedCallEvent.PhoneNumber);
+                    if (_callHistoryModel.SelectedCallEvent.CallEvent != null)
+                        MakeCallRequested(_callHistoryModel.SelectedCallEvent.CallEvent.RemoteParty);
                 _callHistoryModel.SelectedCallEvent = null;
             }
         }

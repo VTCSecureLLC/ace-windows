@@ -11,6 +11,7 @@ namespace VATRP.Core.Model
         protected StatusType _status;
         protected DateTime _date;
         protected string _displayName;
+        protected string _username;
         protected VATRPContact _contact;
         protected string _guid;
 

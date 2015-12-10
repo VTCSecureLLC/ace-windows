@@ -15,7 +15,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private VATRPCallEvent _callEvent;
         private VATRPContact _contact;
         private SolidColorBrush _backColor;
-        private string _phoneNumber;
         private string _displayName;
         private ImageSource _avatar;
         private ImageSource _callStateIndicator;
@@ -35,7 +34,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         public HistoryCallEventViewModel()
         {
-            _phoneNumber = string.Empty;
             _displayName = string.Empty;
             _avatar = null;
             _callStateIndicator = null;
@@ -57,31 +55,33 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 if (_contact != null && _contact.Fullname.NotBlank())
                     DisplayName = _contact.Fullname;
             }
-            if (_callEvent != null && _callEvent.RemoteParty.NotBlank())
-            {
-                PhoneNumber = _callEvent.RemoteParty;
-            }
+            
             LoadContactAvatar();
             LoadCallStateIndicator();
 
             DateTime callTime =
                 VATRP.Core.Model.Utils.Time.ConvertUtcTimeToLocalTime(
                     VATRP.Core.Model.Utils.Time.ConvertDateTimeToLong(callEvent.StartTime)/1000);
-            string dateFormat = "d/MM, HH:mm";
+            string dateFormat = "d/MM h:mm tt";
             var diffTime = DateTime.Now - callTime;
             if (diffTime.Days == 0)
-                dateFormat = "HH:mm";
+                dateFormat = "h:mm tt";
             else if (diffTime.Days < 8)
-                dateFormat = "ddd, HH:mm";
+                dateFormat = "ddd h:mm tt";
             else if (diffTime.Days > 365)
-                dateFormat = "d/MM/yyyy, HH:mm";
+                dateFormat = "dd/MM h:mm tt";
 
             CallDate = callTime.ToString(dateFormat);
         }
 
         private void OnContactPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            // reserved
+            string propertyName = e.PropertyName ?? "";
+            if (propertyName == "DisplayName")
+            {
+                this.DisplayName = this.Contact.DisplayName;
+                OnPropertyChanged("DisplayName");
+            }
         }
 
         public int CompareTo(HistoryCallEventViewModel other)
@@ -198,17 +198,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 _displayName = value;
                 OnPropertyChanged("DisplayName");
-            }
-        }
-
-        public string PhoneNumber
-        {
-            get { return _phoneNumber; }
-
-            set
-            {
-                _phoneNumber = value;
-                OnPropertyChanged("PhoneNumber");
             }
         }
 

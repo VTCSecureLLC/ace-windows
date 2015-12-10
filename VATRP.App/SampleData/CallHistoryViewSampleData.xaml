@@ -6,7 +6,7 @@
     ActiveTab="0"
     >
     <vm:CallHistoryViewModel.Calls >
-        <vm:HistoryCallEventViewModel DisplayName="John Delofeu" PhoneNumber="123456789">
+        <vm:HistoryCallEventViewModel DisplayName="John Delofeu" >
             <vm:HistoryCallEventViewModel.CallEvent>
                 <core:VATRPCallEvent Status="Outgoing" RemoteParty="Peter_4" StartTime="11/11/2015 13:05:20" EndTime="11/11/2015 14:00:00" />
             </vm:HistoryCallEventViewModel.CallEvent>
@@ -18,7 +18,7 @@
             </vm:HistoryCallEventViewModel.CallEventStateBrush>
 
         </vm:HistoryCallEventViewModel>
-        <vm:HistoryCallEventViewModel DisplayName="Maximus Rufus" PhoneNumber="+14587995482">
+        <vm:HistoryCallEventViewModel DisplayName="Maximus Rufus" >
             <vm:HistoryCallEventViewModel.CallEvent>
                 <core:VATRPCallEvent Status="Missed" RemoteParty="Peter_5" StartTime="01/05/2015 22:05:20" EndTime="02/11/2015 14:00:00" />
             </vm:HistoryCallEventViewModel.CallEvent>
@@ -30,7 +30,7 @@
             </vm:HistoryCallEventViewModel.CallEventStateBrush>
 
         </vm:HistoryCallEventViewModel>
-        <vm:HistoryCallEventViewModel DisplayName="Fernan Montegue" PhoneNumber="+7489523417">
+        <vm:HistoryCallEventViewModel DisplayName="Fernan Montegue" >
             <vm:HistoryCallEventViewModel.CallEvent>
                 <core:VATRPCallEvent Status="Incoming" RemoteParty="Vladilen" StartTime="01/02/2015 00:15:20" EndTime="01/11/2015 10:06:00" />
             </vm:HistoryCallEventViewModel.CallEvent>
