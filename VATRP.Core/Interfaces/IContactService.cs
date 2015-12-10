@@ -14,7 +14,7 @@ namespace VATRP.Core.Interfaces
         VATRPContact FindContactByPhone(string phoneNumber);
         VATRPContact FindLoggedInContact();
 
-        void AddLinphoneContact(string name, string sipAddress);
+        void AddLinphoneContact(string name, string username, string sipAddress);
         void EditLinphoneContact(string oldname, string oldsipAddress, string newname, string newsipassdress);
         void DeleteLinphoneContact(string name, string sipAddress);
 

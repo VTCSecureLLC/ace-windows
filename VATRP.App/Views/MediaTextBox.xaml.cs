@@ -26,10 +26,10 @@ namespace com.vtcsecure.ace.windows.Views
     /// </summary>
     public partial class MediaTextWindow
     {
-        private MessagingViewModel _model;
+        private MessagingViewModel _viewModel;
         public MediaTextWindow(MessagingViewModel vm) : base(VATRPWindowType.MESSAGE_VIEW)
         {
-            _model = vm;
+            _viewModel = vm;
             DataContext = vm;
             InitializeComponent();
             ServiceManager.Instance.ChatService.ConversationUpdated += ChatManagerOnConversationUpdated;
@@ -60,7 +60,7 @@ namespace com.vtcsecure.ace.windows.Views
 
                 if (contactModel != null)
                 {
-                    _model.SetActiveChatContact(contactModel.Contact);
+                    _viewModel.SetActiveChatContact(contactModel.Contact, IntPtr.Zero);
                     ScrollToEnd();
                 }
             }
@@ -70,49 +70,56 @@ namespace com.vtcsecure.ace.windows.Views
         {
             if (!ServiceManager.Instance.IsRttAvailable)
             {
-                _model.SendMessage(_model.MessageText);
+                _viewModel.SendMessage(_viewModel.MessageText);
             }
             else
             {
-                _model.SendMessage('\r', false);
+                _viewModel.EnqueueInput("\r");
             }
         }
 
-        private void OnKeyUp(object sender, KeyEventArgs e)
+        private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            bool isIncomplete = true;
+            Char inputKey = Char.MinValue;
             switch (e.Key)
             {
-                case Key.Enter:
-                    isIncomplete = false;
-                    if (!ServiceManager.Instance.IsRttAvailable)
-                    {
-                        _model.SendMessage(_model.MessageText);
-                        return;
-                    }
-                    break;
-                case Key.Space:
-                    _model.LastInput = " ";
+                case Key.None:
                     break;
                 case Key.Back:
-                    if (!_model.LastInput.NotBlank())
-                        _model.LastInput += '\b';
+                    inputKey = '\b';
+                    break;
+                case Key.Tab:
+                    inputKey = '\t';
+                    break;
+                case Key.LineFeed:
+                    inputKey = '\n';
+                    break;
+                case Key.Clear:
+                    break;
+                case Key.Return:
+                    inputKey = '\r';
+                    break;
+                case Key.Space:
+                    inputKey = ' ';
                     break;
                 default:
                     break;
             }
-
-            if (_model.LastInput.NotBlank())
+            if (inputKey != Char.MinValue)
             {
-                for(int i=0; i<_model.LastInput.Length; i++)
-                    _model.SendMessage(_model.LastInput[i], isIncomplete);
+                _viewModel.EnqueueInput(inputKey.ToString());
             }
-            _model.LastInput = string.Empty;
         }
 
         private void OnTextInpput(object sender, TextCompositionEventArgs e)
         {
-            _model.LastInput = e.Text;
+            _viewModel.EnqueueInput(e.Text);
+            if (!ServiceManager.Instance.IsRttAvailable )
+            {
+                if (e.Text.Length > 0 && e.Text[e.Text.Length - 1] == '\r')
+                    _viewModel.SendMessage(_viewModel.MessageText);
+                return;
+            }
         }
        
     }

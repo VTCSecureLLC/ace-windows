@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Security.Policy;
 using System.Text;
 using VATRP.Core.Enums;
+using VATRP.Core.Events;
 using VATRP.Core.Extensions;
 using VATRP.Core.Model.Utils;
+using VATRP.LinphoneWrapper;
+using VATRP.LinphoneWrapper.Structs;
 
 namespace VATRP.Core.Model
 {
@@ -22,6 +28,10 @@ namespace VATRP.Core.Model
 
         public int ChatUniqueID;
 
+        public VATRPChat() : this(null, string.Empty)
+        {
+            
+        }
         public VATRPChat(VATRPContact contact, string dialogId ) : base(contact, dialogId)
         {
             this._typing_text = string.Empty;
@@ -62,7 +72,7 @@ namespace VATRP.Core.Model
             return true;
         }
 
-        internal void AddMessage(VATRPChatMessage msg)
+        internal void AddMessage(VATRPChatMessage msg, bool isRtt)
         {
             if (this.IsMessagesLoaded)
             {
@@ -70,7 +80,26 @@ namespace VATRP.Core.Model
                 {
                     return;
                 }
-                this.Messages.Add(msg);
+                    
+                if (!isRtt)
+                {
+                    this.Messages.Add(msg);
+                }
+                else
+                {
+                    // RTT message should be inserted before RTT end marker
+                    if (this.Messages.Count > 0)
+                    {
+                        if (Messages[Messages.Count - 1].IsRTTEndMarker)
+                        {
+                            Tools.InsertByIndex(msg, this.Messages, this._messages.Count - 2);
+                        }
+                        else
+                        {
+                            this.Messages.Add(msg);
+                        }
+                    }
+                }
             }
             else if (this.TempMessages != null)
             {
@@ -94,13 +123,52 @@ namespace VATRP.Core.Model
             }
         }
 
-        internal void ClearTyping()
+        public void ClearRttMarkers(IntPtr callPtr)
         {
-            if (this._typingIdList != null)
+            bool continueSearch = true;
+            while (continueSearch)
             {
-                this._typingIdList.Clear();
-                this.TypingText = string.Empty;
+                continueSearch = false;
+                for (int i = 0; i < Messages.Count; i++)
+                {
+                    Messages[i].IsIncompleteMessage = false;
+                    if (Messages[i].IsRTTMarker)
+                    {
+                        Messages[i].IsRTTMarker = false;
+                    }
+                    else if (Messages[i].IsRTTStartMarker || Messages[i].IsRTTEndMarker)
+                    {
+                        Messages.RemoveAt(i);
+                        continueSearch = true;
+                        break;
+                    }
+                }
             }
+        }
+
+        public void InsertRttWrapupMarkers(IntPtr callPtr)
+        {
+            var startRttMessage = new VATRPChatMessage(MessageContentType.Text)
+            {
+                IsRTTMarker = false,
+                IsRTTStartMarker = true,
+                IsIncompleteMessage = false,
+                IsRTTMessage = false,
+                MessageTime = DateTime.Now
+            };
+
+            Messages.Add(startRttMessage);
+
+            var endRttMessage = new VATRPChatMessage(MessageContentType.Text)
+            {
+                IsRTTMarker = false,
+                IsRTTEndMarker = true,
+                IsIncompleteMessage = false,
+                IsRTTMessage = false,
+                MessageTime = DateTime.Now.AddHours(3)
+            };
+
+            Messages.Add(endRttMessage);
         }
 
         public int CompareTo(VATRPChat other)
@@ -180,116 +248,6 @@ namespace VATRP.Core.Model
             }
             return null;
         }
-
-        internal void InsertMessageByTimestamp(VATRPChatMessage msg)
-        {
-            if (this.IsMessagesLoaded)
-            {
-                if (this.Messages == null)
-                {
-                    return;
-                }
-                InsertMessageByTimestamp(msg, this.Messages);
-            }
-            else
-            {
-                if (this.TempMessages == null)
-                {
-                    return;
-                }
-                InsertMessageByTimestamp(msg, this.TempMessages);
-            }
-            this.UpdateLastMessage();
-        }
-
-        private static void InsertMessageByTimestamp(VATRPChatMessage message, ObservableCollection<VATRPChatMessage> messageList)
-        {
-            if ((message != null) && (messageList != null) && (message.Content != null))
-            {
-                bool addToList = false;
-                for (int i = 0; i < messageList.Count; i++)
-                {
-                    var msg = messageList[i];
-                    if ((msg != null) && !msg.IsHeadingMessage)
-                    {
-                        long utcTimeStamp = 0L;
-                        long localTimeToUtc = 0L;
-                        try
-                        {
-                            if (msg.UtcTimestamp != 0)
-                            {
-                                localTimeToUtc = msg.UtcTimestamp;
-                            }
-                            else
-                            {
-                                DateTime time = msg.MessageTime;
-                                if (msg.MessageTime == DateTime.MinValue)
-                                {
-                                    continue;
-                                }
-                                localTimeToUtc = long.Parse(Time.ConvertLocalTimeToUtcTime(msg.MessageTime));
-                            }
-                        }
-                        catch (Exception exception)
-                        {
-                            Debug.WriteLine("Chat.InsertMessageByTimestamp: Error: " + exception.Message);
-                            continue;
-                        }
-
-                        if (utcTimeStamp <= localTimeToUtc)
-                        {
-                            Tools.InsertByIndex(msg, messageList, i);
-                            addToList = true;
-                            break;
-                        }
-                    }
-                }
-                if (!addToList)
-                {
-                    Console.WriteLine("Adding new message: " + message);
-                    messageList.Add(message);
-                }
-            }
-        }
-
-        private void InsertMessageToTop(VATRPChatMessage msg)
-        {
-            if (this.IsMessagesLoaded)
-            {
-                if (this.Messages == null)
-                {
-                    return;
-                }
-                InsertMessageToTop(msg, this.Messages);
-            }
-            else
-            {
-                if (this.TempMessages == null)
-                {
-                    return;
-                }
-                InsertMessageToTop(msg, this.TempMessages);
-            }
-            this.UpdateLastMessage();
-        }
-
-        private static void InsertMessageToTop(VATRPChatMessage msg, ObservableCollection<VATRPChatMessage> messageList)
-        {
-            if ((msg != null) && (messageList != null))
-            {
-                Tools.InsertToTop(msg, messageList);
-            }
-        }
-
-        internal bool IsExistsTypingContacts()
-        {
-            if (this._typingIdList == null)
-            {
-                return false;
-            }
-            return (this._typingIdList.Count > 0);
-        }
-
 
         internal void SetTyping(ContactID contactID)
         {
@@ -400,22 +358,29 @@ namespace VATRP.Core.Model
         }
 
 
-        internal void UpdateLastMessage()
+        internal void UpdateLastMessage(bool updateRttMessage)
         {
             if ((this._messages != null) && (this._messages.Count != 0))
             {
-                this.LastMessage = this._messages[this._messages.Count - 1].Content;
-                this.LastMessageDirection = this._messages[this._messages.Count - 1].Direction;
-                if (this.LastMessageTime.Date != this._messages[this._messages.Count - 1].MessageTime.Date)
+                int offset = !updateRttMessage ? 1 : 2;
+                this.LastMessage = this._messages[this._messages.Count - offset].Content;
+                
+                if (this.LastMessageTime.Date != this._messages[this._messages.Count - offset].MessageTime.Date)
                 {
-                    this.LastMessageTime = this._messages[this._messages.Count - 1].MessageTime;
+                    this.LastMessageTime = this._messages[this._messages.Count - offset].MessageTime.Date;
                     // Add date separator here
                     var chatMsg = new VATRPChatMessage(MessageContentType.Info)
                     {
                         MessageTime = new DateTime(this.LastMessageTime.Year, this.LastMessageTime.Month, this.LastMessageTime.Day),
-                        IsSeparator = true
+                        IsSeparator = true,
+                        IsRTTMarker = updateRttMessage,
+                        IsIncompleteMessage = false
                     };
-                    Tools.InsertByIndex(chatMsg, this.Messages, this._messages.Count - 1);
+                    Tools.InsertByIndex(chatMsg, this.Messages, this._messages.Count - offset);
+                }
+                else
+                {
+                    this.LastMessageTime = this._messages[this._messages.Count - offset].MessageTime.Date;
                 }
             }
         }
@@ -440,6 +405,18 @@ namespace VATRP.Core.Model
                 if (this.Contacts.Count >= 1)
                 {
                     return this.Contacts[0];
+                }
+                return null;
+            }
+        }
+
+        public VATRPContact LoggedContact
+        {
+            get
+            {
+                if (this.Contacts.Count > 1)
+                {
+                    return this.Contacts[1];
                 }
                 return null;
             }
@@ -516,8 +493,6 @@ namespace VATRP.Core.Model
             }
         }
 
-        public MessageDirection LastMessageDirection { get; private set; }
-
         public DateTime LastMessageTime { get; private set; }
 
         public ObservableCollection<VATRPChatMessage> Messages
@@ -552,6 +527,8 @@ namespace VATRP.Core.Model
         }
 
         public bool ShowNotInCL_Notification { get; set; }
+
+        public IntPtr CallPtr { get; set; }
 
         public ObservableCollection<VATRPChatMessage> TempMessages
         {
@@ -592,6 +569,23 @@ namespace VATRP.Core.Model
                 base.OnPropertyChanged("UnreadMsgCount");
                 base.OnPropertyChanged("HasUnreadMsg");
             }
+        }
+        
+        internal bool CheckMessage(VATRPChatMessage other)
+        {
+            if (other == null)
+                return false;
+            for (int i = 0; i < Messages.Count; i++)
+            {
+                var msg = Messages[i];
+                if ((msg != null) && 
+                    msg.MessageTime != other.MessageTime && 
+                    msg.Direction != other.Direction )
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
     }

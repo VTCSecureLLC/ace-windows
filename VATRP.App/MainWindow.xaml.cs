@@ -47,6 +47,7 @@ namespace com.vtcsecure.ace.windows
         private readonly ILinphoneService _linphoneService;
         private FlashWindowHelper _flashWindowHelper = new FlashWindowHelper();
         private readonly MainControllerViewModel _mainViewModel;
+        private const int CombinedUICallViewSize = 700;
         #endregion
 
         #region Properties
@@ -73,8 +74,7 @@ namespace com.vtcsecure.ace.windows
             _messagingWindow = new MediaTextWindow(_mainViewModel.MessagingModel);
             ctrlDialpad.SetViewModel(_mainViewModel.DialpadModel);
             ctrlLocalContact.SetDataContext(_mainViewModel.ContactModel);
-            ctrlRTT.SetViewModel(_mainViewModel.MessagingModel);
-            ctrlCall.SetCallViewModel(_mainViewModel.ActiveCallModel);
+            ctrlCall.ParentViewModel =_mainViewModel;
             _settingsView.SetSettingsModel(_mainViewModel.SettingsModel);
         }
 
@@ -178,17 +178,18 @@ namespace com.vtcsecure.ace.windows
             this.registerRequested = true;
             ServiceManager.Instance.UpdateLinphoneConfig();
 
-            if (_mainViewModel.ActiveCallModel != null)
+            if (_mainViewModel.ActiveCallModel != null && _mainViewModel.ActiveCallModel.ActiveCall != null)
             {
                 var r = MessageBox.Show("The active call will be terminated. Continue?", "ACE",
-                        MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-                    if (r == MessageBoxResult.OK)
-                    {
-                        _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr);
-                    }
-                    return;
+                if (r == MessageBoxResult.OK)
+                {
+                    _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr);
                 }
+                return;
+            }
+
             if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk)
             {
                 _linphoneService.Unregister(false);
@@ -200,15 +201,36 @@ namespace com.vtcsecure.ace.windows
 
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void UpdateMenuSettingsForRegistrationState()
         {
-            
+            if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk)
+            {
+                MuteMicrophoneCheckbox.IsChecked = false;
+                MuteMicrophoneCheckbox.IsEnabled = false;
+            }
+            else
+            {
+                MuteMicrophoneCheckbox.IsEnabled = true;
+                if (App.CurrentAccount != null)
+                {
+                    MuteMicrophoneCheckbox.IsEnabled = App.CurrentAccount.MuteMicrophone;
+                }
+            }
+
+        }
+
+
+        private void MQuit_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
 
         private void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             App.AllowDestroyWindows = true;
+            registerRequested = false;
             base.Window_Closing(sender, e);
+            _mainViewModel.MessagingModel.StopInputProcessor();
             ServiceManager.Instance.Stop();
         }
 
@@ -307,6 +329,7 @@ namespace com.vtcsecure.ace.windows
 
             ctrlCall.KeypadClicked += OnKeypadClicked;
             ctrlCall.RttToggled += OnRttToggled;
+            ctrlCall.SwitchHoldCallsRequested += OnSwitchHoldCallsRequested;
 
             _callOverlayView.CallManagerView = _callView;
             ctrlHistory.MakeCallRequested += OnMakeCallRequested;
@@ -314,11 +337,12 @@ namespace com.vtcsecure.ace.windows
             ctrlCall.KeypadCtrl = _keypadCtrl;
             ctrlDialpad.KeypadPressed += OnDialpadClicked;
 
-            ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
-            ctrlSettings.CodecSettingsChangeClicked += OnSettingsChangeRequired;
-            ctrlSettings.MultimediaSettingsChangeClicked += OnSettingsChangeRequired;
-            ctrlSettings.NetworkSettingsChangeClicked += OnSettingsChangeRequired;
-            ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
+            // Liz E. - ToDo unified Settings
+//            ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
+//            ctrlSettings.CodecSettingsChangeClicked += OnSettingsChangeRequired;
+//            ctrlSettings.MultimediaSettingsChangeClicked += OnSettingsChangeRequired;
+//            ctrlSettings.NetworkSettingsChangeClicked += OnSettingsChangeRequired;
+//            ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
 
             if (App.CurrentAccount != null)
             {
@@ -386,11 +410,49 @@ namespace com.vtcsecure.ace.windows
             }
             
 		}
-		
+
+        #region Menu Handlers
         private void OnAboutClicked(object sender, RoutedEventArgs e)
         {
             AboutView aboutView = new AboutView();
             aboutView.Show();
         }
+
+        private void OnProvideFeedback(object sender, RoutedEventArgs e)
+        {
+            var feedbackView = new FeedbackView();
+            feedbackView.Show();
+        }
+
+        
+        private void OnAudioMenuItemOpened(object sender, RoutedEventArgs e)
+        {
+            if (App.CurrentAccount != null)
+            {
+                MuteMicrophoneCheckbox.IsEnabled = true;
+                MuteMicrophoneCheckbox.IsChecked = App.CurrentAccount.MuteMicrophone;
+            }
+            else
+            {
+                MuteMicrophoneCheckbox.IsEnabled = false;
+                MuteMicrophoneCheckbox.IsChecked = false;
+            }
+
+        }
+
+        // Video
+        private void OnMuteMicrophone(object sender, RoutedEventArgs e)
+        {
+            bool enabled = MuteMicrophoneCheckbox.IsChecked;
+            if (enabled != App.CurrentAccount.MuteMicrophone)
+            {
+                App.CurrentAccount.MuteMicrophone = enabled;
+                ServiceManager.Instance.ApplyMediaSettingsChanges();
+                ServiceManager.Instance.SaveAccountSettings();
+
+                ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettings.MuteMicrophoneMenu);
+            }
+        }
+        #endregion
     }
 }

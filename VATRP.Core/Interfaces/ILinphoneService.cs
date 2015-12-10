@@ -31,18 +31,25 @@ namespace VATRP.Core.Interfaces
         void PlayDtmf(char dtmf, int duration);
         bool Register();
         bool Unregister(bool deferred);
-        void MakeCall(string destination, bool videoOn, bool rttEnabled);
-        void AcceptCall(IntPtr callPtr, bool rttEnabled);
+        void MakeCall(string destination, bool videoOn, bool rttEnabled, bool muteMicrophone);
+        void AcceptCall(IntPtr callPtr, bool rttEnabled, bool muteMicrophone);
         void DeclineCall(IntPtr callPtr);
         bool TerminateCall(IntPtr callPtr);
+        void ResumeCall(IntPtr callPtr);
+        void PauseCall(IntPtr callPtr);
         void AcceptRTTProposition(IntPtr callPtr);
         void SendRTTProposition(IntPtr callPtr);
 
         bool SendChar(uint charCode, IntPtr callPtr, ref IntPtr chatRoomPtr, ref IntPtr chatMsgPtr);
         bool IsCallMuted();
         void ToggleMute();
+        void ToggleVideo(bool enableVideo, IntPtr callPtr);
         void SendDtmf(VATRPCall call, char dtmf);
         void EnableVideo(bool enable);
+        bool IsEchoCancellationEnabled();
+        void EnableEchoCancellation(bool enable);
+        bool IsSelfViewEnabled();
+        void EnableSelfView(bool enable);
         void SwitchSelfVideo();
         void SetVideoPreviewWindowHandle(IntPtr hWnd, bool reset = false);
         void SetPreviewVideoSize(MSVideoSize w, MSVideoSize h);
@@ -70,5 +77,6 @@ namespace VATRP.Core.Interfaces
         void LoadChatRoom(VATRPChat chat);
         void EnableAdaptiveRateControl(bool bEnable);
         IntPtr LinphoneCore { get; }
+        int GetActiveCallsCount { get; }
     }
 }

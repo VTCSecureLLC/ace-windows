@@ -13,6 +13,7 @@ using VATRP.Core.Model;
 using VATRP.LinphoneWrapper.Enums;
 using VATRP.LinphoneWrapper;
 using System.Runtime.InteropServices;
+using VATRP.Core.Extensions;
 using VATRP.LinphoneWrapper.Structs;
 
 namespace VATRP.Core.Services
@@ -22,8 +23,6 @@ namespace VATRP.Core.Services
         private static readonly ILog LOG = LogManager.GetLogger(typeof (HistoryService));
 
         private readonly ServiceManagerBase manager;
-        private readonly string connectionString;
-        private readonly string dbFilePath;
         private bool isLoadingCalls;
         private  List<VATRPCallEvent> _allCallsEvents;
 
@@ -32,9 +31,6 @@ namespace VATRP.Core.Services
         public HistoryService(ServiceManagerBase manager)
         {
             this.manager = manager;
-            dbFilePath = manager.BuildStoragePath("history.db");
-            connectionString = string.Format("Data Source={0};Version=3;UseUTF16Encoding=True;", dbFilePath);
-           // CreateHistoryTables();
         }
 
 
@@ -45,7 +41,6 @@ namespace VATRP.Core.Services
 
         public bool Start()
         {
-          //  CreateHistoryTables();
             if (manager.LinphoneService != null)
                 manager.LinphoneService.OnLinphoneCallLogUpdatedEvent += LinphoneCallEventAdded;
 
@@ -66,42 +61,6 @@ namespace VATRP.Core.Services
         }
         #endregion
 
-        private void CreateHistoryTables()
-        {
-            if (!File.Exists(dbFilePath))
-                SQLiteConnection.CreateFile(dbFilePath);
-
-            var connection = new SQLiteConnection(connectionString);
-            var cmd = new SQLiteCommand
-            {
-                Connection = connection
-            };
-
-            var sqlString = @"CREATE TABLE IF NOT EXISTS log_calls (
-'log_id'  integer PRIMARY KEY AUTOINCREMENT NOT NULL, 'call_guid' string, 'local' string, 
- 'remote' string, 'log_uts' integer, 'duration' integer default 0, 'call_state' string, 'contact' string, 
- 'codec' string)";
-            try
-            {
-                if (connection.State != ConnectionState.Open)
-                    connection.Open();
-
-                cmd.CommandText = sqlString;
-                cmd.ExecuteNonQuery();
-            }
-            catch (SQLiteException ex)
-            {
-                Debug.WriteLine("SQLite exception: " + ex.ToString());
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
-
-            if (connection.State != ConnectionState.Closed)
-                connection.Close();
-        }
-
         #region IHistoryService
 
         public List<VATRPCallEvent> AllCallsEvents
@@ -109,68 +68,6 @@ namespace VATRP.Core.Services
             get
             {
                 return _allCallsEvents;
-            }
-        }
-
-        public void LoadCallEvents()
-        {
-            isLoadingCalls = true;
-            if (_allCallsEvents == null)
-                _allCallsEvents = new List<VATRPCallEvent>();
-
-            var connection = new SQLiteConnection(connectionString);
-            var cmd = new SQLiteCommand
-            {
-                Connection = connection,
-                CommandText = "SELECT * FROM log_calls"
-            };
-
-            try
-            {
-                if (connection.State != ConnectionState.Open)
-                    connection.Open();
-
-                using (var reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        var local = reader["local"].ToString();
-                        var remote = reader["remote"].ToString();
-                        var callevent = new VATRPCallEvent(local, remote);
-
-                        callevent.CallGuid = reader["call_guid"].ToString();
-                        callevent.StartTime = new DateTime(Convert.ToInt64(reader["log_uts"]));
-
-                        callevent.EndTime = callevent.StartTime.AddSeconds(Convert.ToInt32(reader["duration"]));
-                        try
-                        {
-                            callevent.Status =
-                                (VATRPHistoryEvent.StatusType)
-                                    Enum.Parse(typeof (VATRPHistoryEvent.StatusType), reader["call_state"].ToString());
-                        }
-                        catch 
-                        {
-                            continue;
-                        }
-                        if (!reader.IsDBNull(8))
-                            callevent.Codec = reader["codec"].ToString();
-                        _allCallsEvents.Add(callevent);
-                    }
-                }
-            }
-            catch (SQLiteException ex)
-            {
-                Debug.WriteLine("SQLite exception: " + ex.ToString());
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
-            isLoadingCalls = false;
-            if (OnCallHistoryEvent != null)
-            {
-                var eargs = new VATRPCallEventArgs(HistoryEventTypes.Load);
-                OnCallHistoryEvent(null, eargs);
             }
         }
 
@@ -233,8 +130,12 @@ namespace VATRP.Core.Services
             if (string.IsNullOrEmpty(un))
                 return null;
 
-            var callevent = new VATRPCallEvent("", un);
-            callevent.DisplayName = dn;
+            remoteParty = string.Format("sip:{0}@{1}", un, host);
+            var callevent = new VATRPCallEvent("", remoteParty)
+            {
+                DisplayName = dn,
+                Username = un
+            };
 
             tmpPtr = LinphoneAPI.linphone_call_log_get_call_id(callLogPtr);
             if (tmpPtr != IntPtr.Zero)
@@ -288,121 +189,12 @@ namespace VATRP.Core.Services
             get { return isLoadingCalls; }
         }
 
-        public int AddCallEvent(VATRPCallEvent callEvent)
-        {
-            var retVal = 0;
-            /*
-            using (var sql_con = new SQLiteConnection(connectionString))
-            {
-                try
-                {
-                    var insertSQL =
-                        new SQLiteCommand("INSERT INTO log_calls (log_id, call_guid, local, remote, log_uts, " +
-                                          "duration, call_state, contact, codec) VALUES (null, @call_guid, @local, @remote, @log_uts, " +
-                                          "@duration, @call_state, @contact, @codec)",
-                            sql_con);
-                    insertSQL.Parameters.AddWithValue("@call_guid", callEvent.CallGuid);
-                    insertSQL.Parameters.AddWithValue("@local", callEvent.LocalParty);
-                    insertSQL.Parameters.AddWithValue("@remote", callEvent.RemoteParty);
-                    insertSQL.Parameters.AddWithValue("@log_uts", callEvent.StartTime.Ticks);
-                    insertSQL.Parameters.AddWithValue("@duration", callEvent.Duration);
-                    insertSQL.Parameters.AddWithValue("@call_state", callEvent.Status.ToString());
-                    insertSQL.Parameters.AddWithValue("@contact", callEvent.Contact != null ? callEvent.Contact.Fullname : null);
-                    insertSQL.Parameters.AddWithValue("@codec", callEvent.Codec);
-
-
-                    sql_con.Open();
-                    retVal = insertSQL.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex.ToString());
-                }
-            }
-
-            if (retVal > 0)
-            {
-                if (OnCallHistoryEvent != null)
-                {
-                    var eargs = new VATRPCallEventArgs(HistoryEventTypes.Add);
-                    OnCallHistoryEvent(callEvent, eargs);
-                }
-            }*/
-            return retVal;
-        }
-
-        public int DeleteCallEvent(VATRPCallEvent callEvent)
-        {
-            var retVal = 0;
-            if (manager.LinphoneService.LinphoneCore == IntPtr.Zero)
-                return 0;
-            //using (var sql_con = new SQLiteConnection(connectionString))
-            //{
-            //    var deleteSQL = new SQLiteCommand("DELETE FROM log_calls WHERE call_guid = ?",
-            //        sql_con);
-            //    deleteSQL.Parameters.Add(callEvent.CallGuid);
-            //    try
-            //    {
-            //        sql_con.Open();
-            //        retVal = deleteSQL.ExecuteNonQuery();
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        Debug.WriteLine("DeleteCallEvent: " + ex.ToString());
-            //    }
-            //}
-
-            //if (OnCallHistoryEvent != null)
-            //{
-            //    var eargs = new VATRPCallEventArgs(HistoryEventTypes.Delete);
-            //    OnCallHistoryEvent(callEvent, eargs);
-            //}
-            return retVal;
-        }
-
+       
         public void ClearCallsItems()
         {
             if (manager.LinphoneService.LinphoneCore != IntPtr.Zero)
             {
                 LinphoneAPI.linphone_core_clear_call_logs(manager.LinphoneService.LinphoneCore);
-
-
-                //using (var sql_con = new SQLiteConnection(connectionString))
-                //{
-                //    var deleteSQL = new SQLiteCommand("DELETE FROM log_calls",
-                //        sql_con);
-                //    try
-                //    {
-                //        sql_con.Open();
-                //        deleteSQL.ExecuteNonQuery();
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        Debug.WriteLine("DeleteCallEvent: " + ex.ToString());
-                //    }
-                //    finally
-                //    {
-                //        if (sql_con.State == ConnectionState.Open)
-                //            sql_con.Close();
-                //    }
-
-                //    deleteSQL = new SQLiteCommand("VACUUM", sql_con);
-                //    try
-                //    {
-                //        sql_con.Open();
-                //        deleteSQL.ExecuteNonQuery();
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        Debug.WriteLine("VAcuum: " + ex.ToString());
-                //    }
-                //    finally
-                //    {
-                //        if (sql_con.State == ConnectionState.Open)
-                //            sql_con.Close();
-                //    }
-                //}
-
 
                 if (OnCallHistoryEvent != null)
                 {

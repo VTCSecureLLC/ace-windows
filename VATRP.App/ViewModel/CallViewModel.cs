@@ -7,12 +7,15 @@ using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using System.Windows.Threading;
+using com.vtcsecure.ace.windows.CustomControls;
 using com.vtcsecure.ace.windows.Views;
+using log4net;
 
 namespace com.vtcsecure.ace.windows.ViewModel
 {
-    public class CallViewModel : ViewModelBase
+    public class CallViewModel : ViewModelBase, IEquatable<CallViewModel>, IEquatable<VATRPCall>
     {
+        private static readonly ILog LOG = LogManager.GetLogger(typeof(CallViewModel));
         private bool _visualizeRing;
         private bool _visualizeIncoming;
         private int _ringCount;
@@ -20,7 +23,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private VATRPCallState _callState;
         private string _displayName;
         private string _remoteNumber;
-        private int _duration;
+        private int _callDuration;
         private int _autoAnswer;
         private ILinphoneService _linphoneService;
         private bool _hasVideo;
@@ -42,8 +45,17 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _isNumpadOn;
         private bool _isRttOn;
         private bool _isInfoOn;
+        private bool _isCallOnHold;
         private int _videoWidth;
         private int _videoHeight;
+
+        private bool _savedIsVideoOn;
+        private bool _savedIsMuteOn;
+        private bool _savedIsSpeakerOn;
+        private bool _savedIsNumpadOn;
+        private bool _savedIsRttOn;
+        private bool _savedIsInfoOn;
+        private bool _savedIsCallHoldOn;
 
         public CallViewModel()
         {
@@ -55,6 +67,18 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _remotePartyTextSize = 25;
             _infoTextSize = 20;
             subscribedForStats = false;
+            Declined = false;
+            // initialize based on stored settings:
+            if (App.CurrentAccount != null)
+            {
+                _savedIsVideoOn = App.CurrentAccount.ShowSelfView;
+                _isVideoOn = App.CurrentAccount.ShowSelfView;
+                _savedIsMuteOn = App.CurrentAccount.MuteMicrophone;
+                _isMuteOn = App.CurrentAccount.MuteMicrophone;
+                _isSpeakerOn = App.CurrentAccount.MuteSpeaker;
+                _savedIsSpeakerOn = App.CurrentAccount.MuteSpeaker;
+            }
+
             timerCall = new System.Timers.Timer
             {
                 Interval = 1000,
@@ -80,13 +104,29 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _callInfoViewModel = new CallInfoViewModel();
         }
 
-        public CallViewModel(ILinphoneService linphoneSvc, VATRPCall call):this()
+        public CallViewModel(ILinphoneService linphoneSvc, VATRPCall call) : this()
         {
             _linphoneService = linphoneSvc;
             _currentCall = call;
-       }
+            _currentCall.CallStartTime = DateTime.Now;
+            _currentCall.CallEstablishTime = DateTime.MinValue;
+            // initialize based on stored settings:
+            if (App.CurrentAccount != null)
+            {
+                _savedIsVideoOn = App.CurrentAccount.ShowSelfView;
+                _isVideoOn = App.CurrentAccount.ShowSelfView;
+                _savedIsMuteOn = App.CurrentAccount.MuteMicrophone;
+                _isMuteOn = App.CurrentAccount.MuteMicrophone;
+                _isSpeakerOn = App.CurrentAccount.MuteSpeaker;
+                _savedIsSpeakerOn = App.CurrentAccount.MuteSpeaker;
+            }
+
+
+        }
 
         #region Properties
+
+        public bool Declined { get; set; }
 
         public bool VisualizeIncoming
         {
@@ -130,10 +170,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         public bool ShowInfo
         {
-            get
-            {
-                return _showInfo;
-            }
+            get { return _showInfo; }
             set
             {
                 if (_showInfo != value)
@@ -146,31 +183,19 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         public VATRPCall ActiveCall
         {
-            get
-            {
-                return _currentCall;
-            }
+            get { return _currentCall; }
+
+            set { _currentCall = value; }
         }
 
         public VATRPCallState CallState
         {
-            get
-            {
-                return _callState;
-            }
+            get { return _callState; }
+
             set
             {
                 _callState = value;
                 OnPropertyChanged("CallState");
-                switch (_callState)
-                {
-                    case VATRPCallState.StreamsRunning:
-                        ShowInfo = true;
-                        break;
-                    default:
-                        ShowInfo = false;
-                        break;
-                }
             }
         }
 
@@ -205,25 +230,27 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 return DisplayName;
             }
         }
-        public int Duration
+
+        public int CallDuration
         {
-            get { return _duration; }
-            set
+            get
             {
-                if (_duration != value)
-                {
-                    _duration = value;
-                    OnPropertyChanged("Duration");
-                }
+                if (_currentCall.CallEstablishTime == DateTime.MinValue)
+                    return 0;
+                return (int)(DateTime.Now - _currentCall.CallEstablishTime).TotalSeconds;
             }
         }
-
+        public int RingDuration
+        {
+            get { return (int)(DateTime.Now - _currentCall.CallStartTime).TotalSeconds; }
+        }
+		
         public int AutoAnswer
         {
             get { return _autoAnswer; }
             set
             {
-                _autoAnswer = value; 
+                _autoAnswer = value;
                 OnPropertyChanged("AutoAnswer");
             }
         }
@@ -233,17 +260,14 @@ namespace com.vtcsecure.ace.windows.ViewModel
             get { return _hasVideo; }
             set
             {
-                _hasVideo = value; 
+                _hasVideo = value;
                 OnPropertyChanged("HasVideo");
             }
         }
 
         public bool ShowIncomingCallPanel
         {
-            get
-            {
-                return _showIncomingCallPanel;
-            }
+            get { return _showIncomingCallPanel; }
             set
             {
                 _showIncomingCallPanel = value;
@@ -256,15 +280,13 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             get { return ShowIncomingCallPanel || ShowOutgoingEndCall; }
         }
+
         public bool ShowOutgoingEndCall
         {
-            get
-            {
-                return !ShowInfo && _showOutgoingCallPanel;
-            }
+            get { return !ShowInfo && _showOutgoingCallPanel; }
             set
             {
-                _showOutgoingCallPanel = value ;
+                _showOutgoingCallPanel = value;
                 OnPropertyChanged("ShowOutgoingEndCall");
                 OnPropertyChanged("ShowCallParams");
             }
@@ -275,8 +297,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
             get { return _isVideoOn; }
             set
             {
-                _isVideoOn = value; 
-                OnPropertyChanged("IsVieoOn");
+                _isVideoOn = value;
+                OnPropertyChanged("IsVideoOn");
             }
         }
 
@@ -319,6 +341,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 OnPropertyChanged("IsRttOn");
             }
         }
+
         public bool IsCallInfoOn
         {
             get { return _isInfoOn; }
@@ -328,12 +351,22 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 OnPropertyChanged("IsCallInfoOn");
             }
         }
+		
+        public bool IsCallOnHold
+        {
+            get { return _isCallOnHold; }
+            set
+            {
+                _isCallOnHold = value;
+                OnPropertyChanged("IsCallOnHold");
+            }
+        }
         public double DisplayNameSize
         {
             get { return _displayNameSize; }
             set
             {
-                _displayNameSize = value; 
+                _displayNameSize = value;
                 OnPropertyChanged("DisplayNameSize");
             }
         }
@@ -380,13 +413,53 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         public CallInfoViewModel CallInfoModel
         {
-            get
-            {
-                return _callInfoViewModel;
-            }
+            get { return _callInfoViewModel; }
         }
 
         public CallInfoView CallInfoCtrl { get; set; }
+
+        public bool SavedIsVideoOn
+        {
+            get { return _savedIsVideoOn; }
+            set { _savedIsVideoOn = value; }
+        }
+
+        public bool SavedIsMuteOn
+        {
+            get { return _savedIsMuteOn; }
+            set { _savedIsMuteOn = value; }
+        }
+
+        public bool SavedIsSpeakerOn
+        {
+            get { return _savedIsSpeakerOn; }
+            set { _savedIsSpeakerOn = value; }
+        }
+
+        public bool SavedIsNumpadOn
+        {
+            get { return _savedIsNumpadOn; }
+            set { _savedIsNumpadOn = value; }
+        }
+
+        public bool SavedIsRttOn
+        {
+            get { return _savedIsRttOn; }
+            set { _savedIsRttOn = value; }
+        }
+
+        public bool SavedIsInfoOn
+        {
+            get { return _savedIsInfoOn; }
+            set { _savedIsInfoOn = value; }
+        }
+
+        public bool SavedIsCallHoldOn
+        {
+            get { return _savedIsCallHoldOn; }
+            set { _savedIsCallHoldOn = value; }
+        }
+
         #endregion
 
         #region Methods
@@ -401,7 +474,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                         new EventHandler<ElapsedEventArgs>(OnUpdatecallTimer), sender, new object[] {e});
                     return;
                 }
-                Duration++;
+                OnPropertyChanged("RingDuration");
                 timerCall.Start();
             }
         }
@@ -416,7 +489,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                         new EventHandler<ElapsedEventArgs>(OnUpdateRingCounter), sender, new object[] {e});
                     return;
                 }
-                RingCount += 1;
+                RingCount++;
                 ringTimer.Start();
             }
         }
@@ -439,10 +512,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     if (AutoAnswer == 0)
                     {
                         autoAnswerTimer.Stop();
+                        bool muteMicrophone = false;
+                        if (App.CurrentAccount != null)
+                        {
+                            muteMicrophone = App.CurrentAccount.MuteMicrophone;
+                        }
                         //Hide();
                         _linphoneService.AcceptCall(_currentCall.NativeCallPtr,
                             ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                                Configuration.ConfEntry.USE_RTT, true));
+                                Configuration.ConfEntry.USE_RTT, true), muteMicrophone);
                     }
                 }
             }
@@ -459,7 +537,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         internal void TerminateCall()
         {
-            if (_currentCall != null) 
+            if (_currentCall != null)
                 _linphoneService.TerminateCall(_currentCall.NativeCallPtr);
         }
 
@@ -467,14 +545,79 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             _linphoneService.ToggleMute();
             IsMuteOn = _linphoneService.IsCallMuted();
+            if (App.CurrentAccount != null)
+            {
+                App.CurrentAccount.MuteMicrophone = IsMuteOn;
+                // this now needs to be able to update the unified settings control as well.
+            }
         }
 
-        private void ReceiveCall(VATRPCall call)
+        internal void ToggleCallStatisticsInfo(bool bShow)
         {
-            DisplayName = call.DisplayName;
-            RemoteNumber = call.From.Username;
-            ShowIncomingCallPanel = true;
+            if (CallInfoCtrl != null)
+            {
+                if (!bShow)
+                    CallInfoCtrl.Hide();
+                else
+                    CallInfoCtrl.Show();
+            }
+        }
+
+        #endregion
+
+        #region Events
+
+
+        internal void OnTrying()
+        {
+            DisplayName = _currentCall.To.DisplayName;
+            RemoteNumber = _currentCall.To.Username;
+            AutoAnswer = 0;
+            ShowIncomingCallPanel = false;
+            ShowOutgoingEndCall = true;
+        }
+
+        internal void OnRinging()
+        {
+            DisplayName = _currentCall.To.DisplayName;
+            RemoteNumber = _currentCall.To.Username;
+            ShowIncomingCallPanel = false;
+            ShowOutgoingEndCall = true;
+            AutoAnswer = 0;
+            VisualizeIncoming = false;
+            if (timerCall != null)
+            {
+                if (!timerCall.Enabled)
+                    timerCall.Start();
+            }
+            CallState = VATRPCallState.Ringing;
+            if (!VisualizeRinging)
+            {
+                RingCounterBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0xD8, 0x1C, 0x1C));
+                VisualizeRinging = true;
+                RingCount = 1;
+                if (ringTimer != null)
+                {
+                    if (ringTimer.Enabled)
+                        ringTimer.Stop();
+                    ringTimer.Interval = 4000;
+                    ringTimer.Start();
+                }
+            }
+        }
+
+        internal void ToggleVideo(bool videoOn)
+        {
+            _linphoneService.ToggleVideo(videoOn, _currentCall.NativeCallPtr);
+        }
+
+        internal void OnIncomingCall()
+        {
+            AutoAnswer = 0;
+            DisplayName = _currentCall.From.DisplayName;
+            RemoteNumber = _currentCall.From.Username;
             ShowOutgoingEndCall = false;
+            CallState = VATRPCallState.InProgress;
 #if DEBUG
             if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.AUTO_ANSWER, false))
@@ -495,181 +638,85 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 }
             }
 #endif
+            if (timerCall != null)
+            {
+                if (!timerCall.Enabled)
+                    timerCall.Start();
+            }
+
+            VisualizeIncoming = true;
+            if (!VisualizeRinging)
+            {
+                RingCounterBrush = new SolidColorBrush(Colors.White);
+                VisualizeRinging = true;
+                RingCount = 1;
+                if (ringTimer != null)
+                {
+                    if (ringTimer.Enabled)
+                        ringTimer.Stop();
+                    ringTimer.Interval = 1800;
+                    ringTimer.Start();
+                }
+            }
         }
 
-        private void OnCallClosed()
+        internal void OnEarlyMedia()
         {
+
+        }
+
+        internal void OnConnected()
+        {
+            if (timerCall != null && timerCall.Enabled)
+                timerCall.Stop();
+            StopAnimation();
+
+            if (_currentCall.CallEstablishTime == DateTime.MinValue)
+                _currentCall.CallEstablishTime = DateTime.Now;
+
+            CallState = VATRPCallState.Connected;
             ShowIncomingCallPanel = false;
+            IsMuteOn = _linphoneService.IsCallMuted();
+            ShowInfo = true;
+        }
+
+        internal void OnStreamRunning()
+        {
+            CallState = VATRPCallState.StreamsRunning;
+            SubscribeCallStatistics();
+        }
+
+        internal void OnResumed()
+        {
+            CallState = VATRPCallState.LocalResumed;
+        }
+
+        internal void OnRemotePaused()
+        {
+            CallState = VATRPCallState.RemotePaused;
+        }
+
+        internal void OnLocalPaused()
+        {
+            CallState = VATRPCallState.LocalPaused;
+        }
+
+        internal void OnClosed(bool error)
+        {
+            CallState = VATRPCallState.Closed;
+            ShowIncomingCallPanel = false;
+            ShowInfo = false;
+            StopAnimation();
+
             UnsubscribeCallStaistics();
-            
+
             if (timerCall.Enabled)
                 timerCall.Stop();
 #if DEBUG
             if (autoAnswerTimer.Enabled)
                 autoAnswerTimer.Stop();
 #endif
-
-            if (App.ActiveCallHistoryEvent != null)
-            {
-                if (Duration == 0)
-                {
-                    if (App.ActiveCallHistoryEvent.Status == VATRPHistoryEvent.StatusType.Incoming)
-                        App.ActiveCallHistoryEvent.Status = VATRPHistoryEvent.StatusType.Missed;
-                }
-                else
-                {
-                    App.ActiveCallHistoryEvent.EndTime = DateTime.Now;
-                }
-                ServiceManager.Instance.HistoryService.AddCallEvent(App.ActiveCallHistoryEvent);
-                App.ActiveCallHistoryEvent = null;
-            }
-            _currentCall = null;
-            ServiceManager.Instance.ActiveCallPtr = IntPtr.Zero;
         }
-
-        internal void ToggleCallStatisticsInfo(bool bShow)
-        {
-            if (CallInfoCtrl != null)
-            {
-                if (!bShow)
-                    CallInfoCtrl.Hide();
-                else
-                    CallInfoCtrl.Show();
-            }
-        }
-
-        #endregion
-
-        #region Events
-        internal void OnCallStateChanged(VATRPCall call)
-        {
-            bool stopAnimation = false;
-            _currentCall = call;
-            ServiceManager.Instance.ActiveCallPtr = call.NativeCallPtr;
-            CallState = call.CallState;
-
-            switch (call.CallState)
-            {
-                case VATRPCallState.Trying:
-                    DisplayName = _currentCall.To.DisplayName;
-                    RemoteNumber = _currentCall.To.Username;
-                    Duration = 0;
-                    AutoAnswer = 0;
-                    ShowIncomingCallPanel = false;
-                    ShowOutgoingEndCall = true;
-                    if (App.ActiveCallHistoryEvent == null)
-                    {
-                        App.ActiveCallHistoryEvent = new VATRPCallEvent(App.CurrentAccount.RegistrationUser, call.To.Username)
-                        {
-                            DisplayName = call.To.DisplayName,
-                            Status = VATRPHistoryEvent.StatusType.Outgoing
-                        };
-                    }
-                    break;
-                case VATRPCallState.InProgress:
-                    {
-                        CallState = VATRPCallState.InProgress;
-                        Duration = 0;
-                        AutoAnswer = 0;
-                        DisplayName = _currentCall.From.DisplayName;
-                        RemoteNumber = _currentCall.From.Username;
-                        if (App.ActiveCallHistoryEvent == null)
-                        {
-                            App.ActiveCallHistoryEvent = new VATRPCallEvent(App.CurrentAccount.RegistrationUser,
-                                call.From.Username)
-                            {
-                                DisplayName = call.From.DisplayName,
-                                Status = VATRPHistoryEvent.StatusType.Incoming
-                            };
-                        }
-                        ReceiveCall(call);
-                        if (timerCall != null)
-                        {
-                            if (!timerCall.Enabled)
-                                timerCall.Start();
-                        }
-                        
-                        VisualizeIncoming = true;
-                        if (!VisualizeRinging)
-                        {
-                            RingCounterBrush = new SolidColorBrush(Colors.White);
-                            VisualizeRinging = true;
-                            RingCount = 1;
-                            if (ringTimer != null)
-                            {
-                                if (ringTimer.Enabled)
-                                    ringTimer.Stop();
-                                ringTimer.Interval = 1800;
-                                ringTimer.Start();
-                            }
-                        }
-                    }
-                    break;
-                case VATRPCallState.Ringing:
-                {
-                    ShowIncomingCallPanel = false;
-                    ShowOutgoingEndCall = true;
-                    Duration = 0;
-                    AutoAnswer = 0;
-                    VisualizeIncoming = false;
-                    if (timerCall != null)
-                    {
-                        if (!timerCall.Enabled)
-                            timerCall.Start();
-                    }
-                    if (!VisualizeRinging)
-                    {
-                        RingCounterBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0xD8, 0x1C, 0x1C));
-                        VisualizeRinging = true;
-                        RingCount = 1;
-                        if (ringTimer != null)
-                        {
-                            if (ringTimer.Enabled)
-                                ringTimer.Stop();
-                            ringTimer.Interval = 4000;
-                            ringTimer.Start();
-                        }
-                    }
-                }
-                    break;
-                case VATRPCallState.EarlyMedia:
-                    break;
-                case VATRPCallState.Connected:
-                    {
-                        if (timerCall != null && timerCall.Enabled)
-                            timerCall.Stop();
-                        Duration = 0;
-                        stopAnimation = true;
-                        if (timerCall != null)
-                        {
-                            timerCall.Start();
-                        }
-                        ShowIncomingCallPanel = false;
-                        _currentCall.CallEstablishTime = DateTime.Now;
-                        IsMuteOn = _linphoneService.IsCallMuted();
-                    }
-                    break;
-                case VATRPCallState.StreamsRunning:
-                    SubscribeCallStatistics();
-                    break;
-                case VATRPCallState.Closed:
-                    stopAnimation = true;
-                    OnCallClosed();
-                    break;
-                case VATRPCallState.Error:
-                    stopAnimation = true;
-                    CallState = VATRPCallState.Error;
-                    OnCallClosed();
-                    break;
-            }
-
-            if (stopAnimation)
-            {
-                StopAnimation();
-            }
-        }
-
-
 
         #endregion
 
@@ -686,38 +733,24 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
             //Hide();
 
-            CallState = VATRPCallState.Connected;
             ShowIncomingCallPanel = false;
             IsMuteOn = false;
 
+
+        }
+
+        internal void DeclineCall(bool declineOnTimeout)
+        {
+#if DEBUG
+            if (autoAnswerTimer.Enabled)
+            {
+                AutoAnswer = 0;
+                autoAnswerTimer.Stop();
+            }
+#endif
             SetTimeout(delegate
             {
                 if (_currentCall != null)
-                {
-                    try
-                    {
-                        _linphoneService.AcceptCall(_currentCall.NativeCallPtr,
-                            ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                                Configuration.ConfEntry.USE_RTT, true));
-                    }
-                    catch (Exception ex)
-                    {
-                        ServiceManager.LogError("AcceptCall", ex);
-                    }
-                }
-            }, 5);
-        }
-
-        internal void DeclineCall()
-        {
-#if DEBUG
-                if (autoAnswerTimer.Enabled)
-                {
-                    AutoAnswer = 0;
-                    autoAnswerTimer.Stop();
-                }
-#endif
-                SetTimeout(delegate
                 {
                     try
                     {
@@ -727,7 +760,44 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     {
                         ServiceManager.LogError("DeclineCall", ex);
                     }
-                }, 5);
+                }
+            }, 30);
+        }
+
+        internal void PauseCall()
+        {
+            SetTimeout(delegate
+            {
+                if (_currentCall != null)
+                {
+                    try
+                    {
+                        _linphoneService.PauseCall(_currentCall.NativeCallPtr);
+                    }
+                    catch (Exception ex)
+                    {
+                        ServiceManager.LogError("PauseCall", ex);
+                    }
+                }
+            }, 30);
+        }
+
+        internal void ResumeCall()
+        {
+            SetTimeout(delegate
+            {
+                if (_currentCall != null)
+                {
+                    try
+                    {
+                        _linphoneService.ResumeCall(_currentCall.NativeCallPtr);
+                    }
+                    catch (Exception ex)
+                    {
+                        ServiceManager.LogError("ResumeCall", ex);
+                    }
+                }
+            }, 30);
         }
 
         public void SubscribeCallStatistics()
@@ -736,7 +806,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 return;
             subscribedForStats = true;
             CallInfoCtrl.SetViewModel(_callInfoViewModel);
-            ServiceManager.Instance.LinphoneService.CallStatisticsChangedEvent += _callInfoViewModel.OnCallStatisticsChanged;
+            ServiceManager.Instance.LinphoneService.CallStatisticsChangedEvent +=
+                _callInfoViewModel.OnCallStatisticsChanged;
         }
 
         public void UnsubscribeCallStaistics()
@@ -744,24 +815,88 @@ namespace com.vtcsecure.ace.windows.ViewModel
             if (!subscribedForStats)
                 return;
             subscribedForStats = false;
-            ServiceManager.Instance.LinphoneService.CallStatisticsChangedEvent -= _callInfoViewModel.OnCallStatisticsChanged;
-        }
-
-        void SetTimeout(Action callback, int miliseconds)
-        {
-            System.Timers.Timer timeout = new System.Timers.Timer();
-            timeout.Interval = miliseconds;
-            timeout.AutoReset = false;
-            timeout.Elapsed += (object sender, System.Timers.ElapsedEventArgs e) =>
-            {
-                callback();
-            };
-            timeout.Start();
+            ServiceManager.Instance.LinphoneService.CallStatisticsChangedEvent -=
+                _callInfoViewModel.OnCallStatisticsChanged;
         }
 
         internal void SwitchSelfVideo()
         {
             _linphoneService.SwitchSelfVideo();
         }
+
+        internal void HoldAndAcceptCall()
+        {
+#if DEBUG
+            if (autoAnswerTimer.Enabled)
+            {
+                AutoAnswer = 0;
+                autoAnswerTimer.Stop();
+            }
+#endif
+            StopAnimation();
+
+            IsMuteOn = false;
+
+            if (_currentCall != null)
+            {
+                try
+                {
+                    bool muteMicrophone = false;
+                    if (App.CurrentAccount != null)
+                    {
+                        muteMicrophone = App.CurrentAccount.MuteMicrophone;
+                    }
+                    _linphoneService.AcceptCall(_currentCall.NativeCallPtr,
+                        ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                            Configuration.ConfEntry.USE_RTT, true), muteMicrophone);
+                }
+                catch (Exception ex)
+                {
+                    ServiceManager.LogError("AcceptCall", ex);
+                }
+            }
+        }
+
+        private void SetTimeout(Action callback, int miliseconds)
+        {
+            var timeout = new System.Timers.Timer {Interval = miliseconds, AutoReset = false};
+            timeout.Elapsed += (sender, e) => callback();
+            timeout.Start();
+        }
+
+        public bool Equals(CallViewModel other)
+        {
+            if (ReferenceEquals(other, null))
+            {
+                return false;
+            }
+            if (ReferenceEquals(other, this))
+            {
+                return true;
+            }
+
+            if (ActiveCall == null || other.ActiveCall == null)
+                return false;
+
+            return ActiveCall.Equals(other.ActiveCall);
+        }
+
+        public bool Equals(VATRPCall other)
+        {
+            if (ReferenceEquals(other, null))
+            {
+                return false;
+            }
+
+            if (ActiveCall == null)
+                return false;
+
+            return ActiveCall.Equals(other);
+        }
+
+
+        public bool PauseRequest { get; set; }
+
+        public bool ResumeRequest { get; set; }
     }
 }

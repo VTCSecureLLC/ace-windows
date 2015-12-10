@@ -34,7 +34,7 @@ namespace com.vtcsecure.ace.windows
         public static VATRPAccount CurrentAccount { get; set; }
         public static bool CanMakeVideoCall { get; set; }
 
-        internal static VATRPCallEvent ActiveCallHistoryEvent { get; set; }
+        internal static bool AppClosing { get; set; }
         #endregion
 
         protected override async void OnStartup(StartupEventArgs e)

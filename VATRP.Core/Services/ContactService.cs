@@ -81,6 +81,7 @@ namespace VATRP.Core.Services
             }
             return null;
         }
+
         private void LoadLinphoneContacts()
         {
             if (manager.LinphoneService.LinphoneCore == IntPtr.Zero)
@@ -125,16 +126,22 @@ namespace VATRP.Core.Services
                             host = Marshal.PtrToStringAnsi(tmpPtr);
                         }
 
-                        if (string.IsNullOrWhiteSpace(un))
-                            continue;
+                        if (!string.IsNullOrWhiteSpace(un))
+                        {
 
-                        var fqdn = string.Format("sip:{0}@{1}", un, host);
-                        var cfgSipaddress = string.Format("{0}@{1}", un, host);
-                        VATRPContact contact = new VATRPContact(new ContactID(fqdn, IntPtr.Zero));
-                        contact.Fullname = dn;
-                        contact.Gender = "male";
-                        contact.SipUsername = cfgSipaddress;
-                        Contacts.Add(contact);
+                            var cfgSipaddress = string.Format("{0}@{1}", un, host);
+                            VATRPContact contact = new VATRPContact(new ContactID(cfgSipaddress, IntPtr.Zero))
+                            {
+                                DisplayName = dn,
+                                Fullname = dn.NotBlank() ? dn : un,
+                                Gender = "male",
+                                SipUsername = un,
+                                RegistrationName = cfgSipaddress,
+                                IsLinphoneContact = true
+                            };
+
+                            Contacts.Add(contact);
+                        }
                     }
                     contactsPtr = curStruct.next;
                 } while (curStruct.next != IntPtr.Zero);
@@ -145,25 +152,28 @@ namespace VATRP.Core.Services
                 ContactsLoadCompleted(this, EventArgs.Empty);
         }
         
-        public void AddLinphoneContact(string name, string sipAddress)
+        public void AddLinphoneContact(string name, string username,  string sipAddress)
         {
             if (manager.LinphoneService.LinphoneCore == IntPtr.Zero)
                 return;
 
-            var prefix = "sip:";
-            if (sipAddress.IndexOf(prefix) == 0)
-                prefix = "";
-            var fqdn = string.Format("{0} <{1}{2}>", name, prefix, sipAddress);
-            var cfgSipaddress = string.Format("{0}{1}", prefix, sipAddress);
+            sipAddress.TrimSipPrefix();
+
+            var fqdn = string.Format("{0} <sip:{1}>", name, sipAddress);
             IntPtr friendPtr = LinphoneAPI.linphone_friend_new_with_address(fqdn);
             if (friendPtr != IntPtr.Zero)
             {
                 LinphoneAPI.linphone_core_add_friend(manager.LinphoneService.LinphoneCore, friendPtr);
                 LinphoneAPI.linphone_friend_enable_subscribes(friendPtr, false);
-                VATRPContact contact = new VATRPContact(new ContactID(cfgSipaddress, IntPtr.Zero));
-                contact.Fullname = name;
-                contact.Gender = "male";
-                contact.SipUsername = sipAddress;
+                VATRPContact contact = new VATRPContact(new ContactID(sipAddress, IntPtr.Zero))
+                {
+                    DisplayName = name,
+                    Fullname = name,
+                    Gender = "male",
+                    SipUsername = username,
+                    RegistrationName = sipAddress,
+                    IsLinphoneContact = true
+                };
                 Contacts.Add(contact);
                 if (ContactAdded != null)
                     ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
@@ -219,12 +229,17 @@ namespace VATRP.Core.Services
                                 var fqdn = string.Format("sip:{0}@{1}", un, host);
                                 var cfgSipAddress = string.Format("{0}@{1}", un, host);
 
-                                var newfqdn = newsipassdress;
-                                if (newfqdn.IndexOf("sip:") != 0)
-                                    newfqdn = newsipassdress.Insert(0, "sip:");
-                                if (oldsipAddress == cfgSipAddress)
+
+                                newsipassdress.TrimSipPrefix();
+
+                                var newfqdn = string.Format("sip:{0}", newsipassdress);
+
+                                int port;
+                                VATRPCall.ParseSipAddress(newsipassdress, out un, out host, out port);
+
+                                if (string.Compare(oldsipAddress, cfgSipAddress, StringComparison.InvariantCultureIgnoreCase) == 0)
                                 {
-                                    VATRPContact contact = FindContact(new ContactID(fqdn, IntPtr.Zero));
+                                    VATRPContact contact = FindContact(new ContactID(cfgSipAddress, IntPtr.Zero));
                                     if (contact != null)
                                     {
                                         
@@ -238,9 +253,11 @@ namespace VATRP.Core.Services
 
                                             LinphoneAPI.linphone_friend_set_address(curStruct.data, tmpPtr);
                                             LinphoneAPI.linphone_friend_done(curStruct.data);
+                                            contact.DisplayName = newname;
                                             contact.Fullname = newname;
-                                            contact.SipUsername = newsipassdress;
-                                            contact.ID = newfqdn;
+                                            contact.SipUsername = un;
+                                            contact.RegistrationName = newsipassdress;
+                                            contact.ID = newsipassdress;
                                         }
                                         return;
                                     }
@@ -300,14 +317,17 @@ namespace VATRP.Core.Services
 
                                 var fqdn = string.Format("sip:{0}@{1}", un, host);
                                 var cfgSipAddress = string.Format("{0}@{1}", un, host);
-                                if (sipAddress == cfgSipAddress)
+
+                                sipAddress.TrimSipPrefix();
+
+                                if (string.Compare(sipAddress, cfgSipAddress, StringComparison.InvariantCultureIgnoreCase) == 0)
                                 {
-                                    VATRPContact contact = FindContact(new ContactID(fqdn, IntPtr.Zero));
+                                    VATRPContact contact = FindContact(new ContactID(cfgSipAddress, IntPtr.Zero));
                                     if (contact != null)
                                     {
                                         LinphoneAPI.linphone_core_remove_friend(manager.LinphoneService.LinphoneCore,
                                             curStruct.data);
-                                        RemoveContact(fqdn, true);
+                                        RemoveContact(cfgSipAddress, true);
                                         return;
                                     }
                                 }
@@ -509,6 +529,8 @@ namespace VATRP.Core.Services
             IsLoaded = false;
             LoadLinphoneContacts();
             IsLoaded = true;
+            if (ServiceStarted != null)
+                ServiceStarted(this, EventArgs.Empty);
             return true;
         }
 

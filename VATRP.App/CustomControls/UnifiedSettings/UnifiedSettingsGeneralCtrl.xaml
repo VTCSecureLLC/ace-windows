@@ -1,0 +1,48 @@
+﻿<local:BaseUnifiedSettingsPanel x:Class="com.vtcsecure.ace.windows.CustomControls.UnifiedSettings.UnifiedSettingsGeneralCtrl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:com.vtcsecure.ace.windows.CustomControls.UnifiedSettings"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Grid  Background="{StaticResource RecentsPageMainBg}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220*"/>
+                <ColumnDefinition Width="27*"/>
+            </Grid.ColumnDefinitions>
+            <!-- Row 0: Start at Boot -->
+            <Label Grid.Column="0" Grid.Row="0" Content="Start at boot" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left" Name="StartAtBootLabel">
+            </Label>
+            <CheckBox Grid.Column="1" Grid.Row="0" Checked="OnStartOnBoot" Unchecked="OnStartOnBoot" HorizontalAlignment="Center" VerticalAlignment="Center" Name="StartAtBootCheckbox"/>
+
+            <!-- Row 1: SIP Encryption -->
+            <Label Grid.Column="0" Grid.Row="1" Content="SIP Encryption" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left" Name="SipEncrptionLabel">
+            </Label>
+            <CheckBox Grid.Column="1" Grid.Row="1" Checked="OnSipEncryption" Unchecked="OnSipEncryption" HorizontalAlignment="Center" VerticalAlignment="Center" Name="SipEncryptionCheckbox"/>
+
+            <!-- Row 2: Wifi Only -->
+            <Label Grid.Column="0" Grid.Row="2" Content="Wifi Only" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left" Name="WifiOnlyLabel">
+            </Label>
+            <CheckBox Grid.Column="1" Grid.Row="2" Checked="OnWifiOnly" Unchecked="OnWifiOnly" HorizontalAlignment="Center" VerticalAlignment="Center"  Name="WifiOnlyCheckBox"/>
+
+            <!-- Row 3: Auto-answer after notification -->
+            <Label Grid.Column="0" Grid.Row="3" Content="Auto-answer After Notification" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left"  Name="AutoAnswerAfterNotificationLabel">
+            </Label>
+            <CheckBox Grid.Column="1" Grid.Row="3" Checked="OnAutoAnswerAfterNotification" Unchecked="OnAutoAnswerAfterNotification" HorizontalAlignment="Center" VerticalAlignment="Center"  Name="AutoAnswerAfterNotificationCheckBox"/>
+
+        </Grid>
+
+    </Grid>
+</local:BaseUnifiedSettingsPanel>

@@ -8,13 +8,29 @@ namespace com.vtcsecure.ace.windows.Converters
 {
     public class DirectionToColumnConverter : IValueConverter
     {
+        public DirectionToColumnConverter()
+        {
+            FalseEquivalent = 1;
+            OppositeBooleanValue = false;
+        }
+        public bool OppositeBooleanValue { get; set; }
+
+        public int FalseEquivalent { get; set; }
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is MessageDirection && (MessageDirection)value == MessageDirection.Outgoing)
+            if (value is MessageDirection )
             {
-                return 1;
+                bool booleanValue = (MessageDirection)value == MessageDirection.Incoming;
+
+                if (OppositeBooleanValue)
+                {
+                    booleanValue = !booleanValue;
+                }
+
+                return booleanValue ? 2 : FalseEquivalent;
             }
-            return 0;
+            return FalseEquivalent;
             
         }
 

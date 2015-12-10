@@ -12,9 +12,9 @@ namespace com.vtcsecure.ace.windows.Converters
         {
             if (value is MessageDirection && (MessageDirection)value == MessageDirection.Outgoing)
             {
-                return new Thickness(40.0, 5.0, 10.0, 5.0);
+                return new Thickness(20, 10, 5, 10);
             }
-            return new Thickness(10.0, 5.0, 40.0, 5.0);
+            return new Thickness(5, 10, 20, 10);
             
         }
 

@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using VATRP.Core.Enums;
+using VATRP.Core.Extensions;
 using VATRP.Core.Model.Utils;
 using VATRP.LinphoneWrapper.Enums;
 
@@ -18,24 +19,27 @@ namespace VATRP.Core.Model
         protected string _fileName;
         protected bool _isHeadingMessage;
         protected bool _isIncompleteMessage;
-        protected string _receiver;
-        protected string _sender;
         protected LinphoneChatMessageState _status;
         protected DateTime _time;
         private MessageDirection _direction;
         private bool _isRead;
         private bool _isRTTMessage;
-
+        private bool _isRTTStartMarker;
+        private bool _isRTTEndMarker;
+        private bool _isRTTMarker;
         public VATRPChatMessage()
         {
-            this.ID = Tools.GenerateMessageId();
-            this.ContentType = MessageContentType.Text;
+            ID = Tools.GenerateMessageId();
+            ContentType = MessageContentType.Text;
             this.MessageTime = DateTime.Now;
-            this._sender = string.Empty;
-            this._receiver = string.Empty;
-            this._isIncompleteMessage = true;
-            this.NativePtr = IntPtr.Zero;
-            this._isSeparator = false;
+            _isIncompleteMessage = false;
+            NativePtr = IntPtr.Zero;
+            _isSeparator = false;
+            _isRTTStartMarker = false;
+            _isRTTEndMarker = false;
+            _isRTTMarker = false;
+            _isRTTMessage = false;
+            RttCallPtr = IntPtr.Zero;
         }
 
         public VATRPChatMessage(MessageContentType contentType) :this()
@@ -82,34 +86,20 @@ namespace VATRP.Core.Model
             }
         }
 
-        public string Receiver
-        {
-            get { return _receiver; }
-            set
-            {
-                _receiver = value;
-                this.OnPropertyChanged("Receiver");
-            }
-        }
-
-        public string Sender
-        {
-            get { return _sender; }
-            set
-            {
-                _sender = value;
-                this.OnPropertyChanged("Sender");
-            }
-        }
-
         public bool ShowInList
         {
-            get { return (this.Direction == MessageDirection.Incoming || !this.IsIncompleteMessage) && !IsSeparator; }
+            get
+            {
+                return (this.Direction == MessageDirection.Incoming || !this.IsIncompleteMessage ) && !IsSeparator &&
+                       !IsRTTStartMarker && !IsRTTEndMarker;
+            }
         }
 
         public IntPtr NativePtr { get; set; }
 
         public MessageContentType ContentType { get; set; }
+		
+        public IntPtr RttCallPtr { get; set; }
 
         public MessageDirection Direction
         {
@@ -185,6 +175,53 @@ namespace VATRP.Core.Model
             {
                 this._isRTTMessage = value;
                 OnPropertyChanged("IsRTTMessage");
+            }
+        }
+
+        public bool IsRTTStartMarker
+        {
+            get
+            {
+                return this._isRTTStartMarker;
+            }
+            set
+            {
+                this._isRTTStartMarker = value;
+                OnPropertyChanged("IsRTTStartMarker");
+            }
+        }
+
+        public bool IsRTTEndMarker
+        {
+            get
+            {
+                return this._isRTTEndMarker;
+            }
+            set
+            {
+                this._isRTTEndMarker = value;
+                OnPropertyChanged("IsRTTEndMarker");
+            }
+        }
+
+        public bool IsRTTMarker
+        {
+            get
+            {
+                return this._isRTTMarker || _isRTTMessage;
+            }
+            set
+            {
+                this._isRTTMarker = value;
+                OnPropertyChanged("IsRTTMarker");
+            }
+        }
+
+        public bool ShowRTTMarker
+        {
+            get
+            {
+                return IsRTTMarker && IsRTTMessage && Content.NotBlank();
             }
         }
         public LinphoneChatMessageState Status

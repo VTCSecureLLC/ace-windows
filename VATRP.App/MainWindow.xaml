@@ -6,6 +6,7 @@
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:customControls="clr-namespace:com.vtcsecure.ace.windows.CustomControls"
+		xmlns:unifiedSettings="clr-namespace:com.vtcsecure.ace.windows.CustomControls.UnifiedSettings"
 		mc:Ignorable="d"
 		d:DataContext="{d:DesignData Source=SampleData/MainViewSampleData.xaml}"
 
@@ -40,11 +41,11 @@
 			<MenuItem x:Name="VATRPItem" Header="_ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
 
 				<MenuItem Header="_Preferences" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Provide ACE Feedback" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Provide ACE Feedback" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnProvideFeedback"/>
 				<MenuItem Header="_Check for Updates" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 				<MenuItem Header="_Hide ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 				<MenuItem Header="_Show All" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Quit ACE" Click="MenuItem_Click" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Quit ACE" Click="MQuit_Click" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 			</MenuItem>
 			<MenuItem x:Name="ViewItem" Header="_View" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
 				<MenuItem Header="_Minimize" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
@@ -70,11 +71,14 @@
 				<MenuItem Header="_Volume" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 				<MenuItem Header="_Enter Full" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 			</MenuItem>
-			<MenuItem x:Name="AudioItem" Header="_Audio" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
-				<MenuItem Header="_Mute Microphone" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Increase Volume" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+			<MenuItem x:Name="AudioItem" Header="_Audio" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" SubmenuOpened="OnAudioMenuItemOpened">
+				<MenuItem Header="_Mute Microphone" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"
+                          Click="OnMuteMicrophone" Name="MuteMicrophoneCheckbox" IsCheckable="True"/>
+				<!-- Commenting these out instead of removing in case we put them back  in
+                <MenuItem Header="_Increase Volume" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 				<MenuItem Header="_Decrease Volume" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 				<MenuItem Header="_Speaker" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+                -->
 			</MenuItem>
 			<MenuItem x:Name="EditItem" Header="_Edit"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
 				<MenuItem Header="_New"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
@@ -130,7 +134,7 @@
 			</Border>
             <Border x:Name="SettingsPaneHolder" Grid.Row="1"  Visibility="{Binding IsSettingsDocked, Converter={StaticResource bvc}}" 
                     VerticalAlignment="Stretch" >
-                <customControls:MainSettingsCtrl x:Name="ctrlSettings"  Margin="0" VerticalAlignment="Stretch"/>
+                <unifiedSettings:UnifiedSettingsCtrl x:Name="ctrlSettings"  Margin="0" VerticalAlignment="Stretch"/>
             </Border>
 
             <Grid x:Name="DialpadHolder" Grid.Row="2" Grid.Column="0" Background="{StaticResource AppMainWindowBrush}"

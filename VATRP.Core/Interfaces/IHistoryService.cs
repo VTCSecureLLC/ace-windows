@@ -10,16 +10,11 @@ namespace VATRP.Core.Interfaces
         #region Calls
         bool IsLoadingCalls { get; }
         
-        int AddCallEvent(VATRPCallEvent callEvent);
-
         event EventHandler<VATRPCallEventArgs> OnCallHistoryEvent;
-
-        int DeleteCallEvent(VATRPCallEvent callEvent);
-
+        
         void ClearCallsItems();
 
         List<VATRPCallEvent> AllCallsEvents { get; }
-        void LoadCallEvents();
 
         #endregion
     }

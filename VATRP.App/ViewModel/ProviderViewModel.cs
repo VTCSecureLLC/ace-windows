@@ -14,6 +14,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private SolidColorBrush backColor;
         private ImageSource _image;
         private string _label;
+        private string _proxyHost;
 
         public SolidColorBrush ProviderBackBrush
         {
@@ -41,6 +42,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 _label = value; 
                 OnPropertyChanged("Label");
+            }
+        }
+
+        public string ProxyHost
+        {
+            get { return _proxyHost; }
+            set
+            {
+                _proxyHost = value;
+                OnPropertyChanged("ProxyHost");
             }
         }
 
@@ -73,6 +84,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 logoUri = "pack://application:,,,/ACE;component/Resources/purplevrs.png";
             }
+            else if (Label == "CAAG")
+            {
+                logoUri = "pack://application:,,,/ACE;component/Resources/caag.png";
+            }
+            else if (Label == "Global VRS")
+            {
+                logoUri = "pack://application:,,,/ACE;component/Resources/globalvrs.png";
+            }
+
             try
             {
                 Logo = new BitmapImage(new Uri(logoUri));

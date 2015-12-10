@@ -28,6 +28,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             _activeTab = 0; // All tab is active by default
             _callsListView = CollectionViewSource.GetDefaultView(this.Calls);
+            _callsListView.SortDescriptions.Add(new SortDescription("SortDate", ListSortDirection.Descending));
             _callsListView.Filter = new Predicate<object>(this.FilterEventsList);
             _historyPaneHeight = 150;
         }
@@ -156,9 +157,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
                 if (callModel.CallEvent != null && ActiveTab == 1 && callModel.CallEvent.Status != VATRPHistoryEvent.StatusType.Missed)
                     return false;
-                if ( callModel.Contact != null )
-                    return callModel.Contact.Fullname.Contains(EventSearchCriteria);
-                return callModel.PhoneNumber.Contains(EventSearchCriteria);
+                if (callModel.Contact != null)
+                {
+                    if (callModel.DisplayName.ToLower().Contains(EventSearchCriteria.ToLower()))
+                        return true;
+                }
+                return callModel.CallEvent != null && callModel.CallEvent.RemoteParty.ToLower().Contains(EventSearchCriteria.ToLower());
             }
             return true;
         }

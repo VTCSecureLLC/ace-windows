@@ -145,6 +145,7 @@ namespace com.vtcsecure.ace.windows.Services
             this.ProviderService.ServiceStarted += OnProviderServiceStarted;
             this.HistoryService.ServiceStarted += OnHistoryServiceStarted;
             this.LinphoneService.ServiceStarted += OnLinphoneServiceStarted;
+            this.ContactService.ServiceStarted += OnContactserviecStarted;
 
             this.ConfigurationService.ServiceStopped += OnConfigurationServiceStopped;
             this.AccountService.ServiceStarted += OnAccountsServiceStopped;
@@ -173,6 +174,11 @@ namespace com.vtcsecure.ace.windows.Services
             LinphoneCoreStopped = false;
             HistoryService.Start();
             ContactService.Start();
+        }
+        
+        private void OnContactserviecStarted(object sender, EventArgs e)
+        {
+            ChatService.Start();
         }
 
         private void OnHistoryServiceStarted(object sender, EventArgs args)
@@ -214,6 +220,7 @@ namespace com.vtcsecure.ace.windows.Services
             }
             return false;
         }
+
         internal bool Start()
         {
             LOG.Info("Starting services...");
@@ -365,13 +372,14 @@ namespace com.vtcsecure.ace.windows.Services
         {
             // this list may be filled later
 
-            string[] labels = { "Sorenson VRS", "Purple VRS", "ZVRS", "Convo Relay" };
+            string[] labels = { "Sorenson VRS", "Purple VRS", "ZVRS", "Convo Relay", "CAAG", "Global VRS" };
             foreach (var label in labels)
             {
                 if (ProviderService.FindProvider(label) == null)
                     ProviderService.AddProvider(new VATRPServiceProvider()
                     {
-                        Label = label
+                        Label = label,
+                        Address = "bc1.vatrp.net"
                     });
             }
         }
@@ -492,10 +500,16 @@ namespace com.vtcsecure.ace.windows.Services
             VATRPContact contact = this.ContactService.FindLoggedInContact();
             if (contact == null)
             {
-                contact = new VATRPContact(new ContactID(App.CurrentAccount.Username, IntPtr.Zero));
-                contact.IsLoggedIn = true;
-                contact.Fullname = App.CurrentAccount.Username;
-                contact.DisplayName = App.CurrentAccount.DisplayName;
+                var contactAddress = string.Format("{0}@{1}", App.CurrentAccount.Username,
+                    App.CurrentAccount.ProxyHostname);
+                var contactID = new ContactID(contactAddress, IntPtr.Zero);
+                contact = new VATRPContact(contactID)
+                {
+                    IsLoggedIn = true,
+                    Fullname = App.CurrentAccount.Username,
+                    DisplayName = App.CurrentAccount.DisplayName,
+                    RegistrationName = string.Format("sip:{0}@{1}", App.CurrentAccount.Username, App.CurrentAccount.ProxyHostname)
+                };
                 contact.Initials = contact.Fullname.Substring(0, 1).ToUpper();
                 this.ContactService.AddContact(contact, string.Empty);
             }

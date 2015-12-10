@@ -16,13 +16,21 @@ namespace VATRP.Linphone.VideoWrapper
         private VATRPTranslucentWindow commandBarWindow;
         private VATRPTranslucentWindow numpadWindow;
         private VATRPTranslucentWindow callInfoWindow;
+        private VATRPTranslucentWindow callsSwitchWindow;
+        private VATRPTranslucentWindow newCallAcceptWindow;
+
         private System.Timers.Timer _timerCall;
-        private int _duration = 0;
+        private int _foregroundCallDuration = 0;
+        private int _backgroundCallDuration = 0;
+
         public VATRPOverlay()
         {
             commandBarWindow = new VATRPTranslucentWindow(this);
             numpadWindow = new VATRPTranslucentWindow(this);
             callInfoWindow = new VATRPTranslucentWindow(this);
+            callsSwitchWindow = new VATRPTranslucentWindow(this);
+            newCallAcceptWindow = new VATRPTranslucentWindow(this);
+
             _timerCall = new System.Timers.Timer
             {
                 Interval = 1000,
@@ -213,7 +221,7 @@ namespace VATRP.Linphone.VideoWrapper
 
         #endregion
 
-        #region CalInfo window
+        #region CallInfo window
         public double CallInfoWindowLeftMargin
         {
             get
@@ -272,6 +280,14 @@ namespace VATRP.Linphone.VideoWrapper
                     callInfoWindow.OverlayHeight = value;
             }
         }
+        public int ForegroundCallDuration
+        {
+            get { return _foregroundCallDuration; }
+            set
+            {
+                _foregroundCallDuration = value; 
+            }
+        }
 
         public void SetCallerInfo(string callerInfo)
         {
@@ -291,15 +307,15 @@ namespace VATRP.Linphone.VideoWrapper
 
         public void StartCallTimer(int duration)
         {
-            _duration = duration;
-            if (_timerCall != null) 
+            _foregroundCallDuration = duration;
+            if (_timerCall != null && !_timerCall.Enabled)
                 _timerCall.Start();
             UpdateCallDuration();
         }
 
         public void StopCallTimer()
         {
-            _duration = 0;
+            _foregroundCallDuration = 0;
             if (_timerCall != null && _timerCall.Enabled)
                 _timerCall.Stop();
         }
@@ -311,12 +327,18 @@ namespace VATRP.Linphone.VideoWrapper
                 if (callInfoWindow.TransparentWindow.Dispatcher.Thread != Thread.CurrentThread)
                 {
                     callInfoWindow.TransparentWindow.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
-                        new EventHandler<ElapsedEventArgs>(OnUpdatecallTimer), sender, new object[] {e});
+                        new EventHandler<ElapsedEventArgs>(OnUpdatecallTimer), sender, new object[] { e });
                     return;
                 }
-                
-                _duration++;
+
+                _foregroundCallDuration++;
                 UpdateCallDuration();
+
+                if (callsSwitchWindow.ShowWindow)
+                {
+                    _backgroundCallDuration++;
+                    UpdatebackgroundCallDuration();
+                }
                 _timerCall.Start();
             }
         }
@@ -325,10 +347,10 @@ namespace VATRP.Linphone.VideoWrapper
         {
             var str = string.Empty;
 
-            if (_duration > 3599)
-                str = string.Format("{0:D2}:{1:D2}:{2:D2}", _duration/3600, (_duration/60)%60, _duration%60);
+            if (_foregroundCallDuration > 3599)
+                str = string.Format("{0:D2}:{1:D2}:{2:D2}", _foregroundCallDuration / 3600, (_foregroundCallDuration / 60) % 60, _foregroundCallDuration % 60);
             else
-                str = string.Format("{0:D2}:{1:D2}", _duration/60, _duration%60);
+                str = string.Format("{0:D2}:{1:D2}", _foregroundCallDuration / 60, _foregroundCallDuration % 60);
             var textBlock =
                 FindChild<TextBlock>(callInfoWindow.TransparentWindow, "CallDurationLabel");
             if (textBlock != null)
@@ -336,7 +358,7 @@ namespace VATRP.Linphone.VideoWrapper
                 textBlock.Text = str;
             }
         }
-
+        
         public void ShowCallInfoWindow(bool bshow)
         {
             callInfoWindow.ShowWindow = bshow;
@@ -368,12 +390,255 @@ namespace VATRP.Linphone.VideoWrapper
 
         #endregion
 
+        #region CallsSwitch window
+        public double CallsSwitchWindowLeftMargin
+        {
+            get
+            {
+                if (callsSwitchWindow != null)
+                    return callsSwitchWindow.WindowLeftMargin;
+                return 0;
+            }
+            set
+            {
+                if (callsSwitchWindow != null)
+                    callsSwitchWindow.WindowLeftMargin = value;
+            }
+        }
+        public double CallsSwitchWindowTopMargin
+        {
+            get
+            {
+                if (callsSwitchWindow != null)
+                    return callsSwitchWindow.WindowTopMargin;
+                return 0;
+            }
+            set
+            {
+                if (callsSwitchWindow != null)
+                    callsSwitchWindow.WindowTopMargin = value;
+            }
+        }
+
+        public int CallsSwitchOverlayWidth
+        {
+            get
+            {
+                if (callsSwitchWindow != null)
+                    return callsSwitchWindow.OverlayWidth;
+                return 0;
+            }
+            set
+            {
+                if (callsSwitchWindow != null)
+                    callsSwitchWindow.OverlayWidth = value;
+            }
+        }
+
+        public int CallsSwitchOverlayHeight
+        {
+            get
+            {
+                if (callsSwitchWindow != null)
+                    return callsSwitchWindow.OverlayHeight;
+                return 0;
+            }
+            set
+            {
+                if (callsSwitchWindow != null)
+                    callsSwitchWindow.OverlayHeight = value;
+            }
+        }
+        public int BackgroundCallDuration
+        {
+            get { return _backgroundCallDuration; }
+            set
+            {
+                _backgroundCallDuration = value;
+            }
+        }
+
+        private void UpdatebackgroundCallDuration()
+        {
+            var textBlock =
+                FindChild<TextBlock>(callsSwitchWindow.TransparentWindow, "PausedCallDurationLabel");
+            if (textBlock != null)
+            {
+                var str = string.Empty;
+
+                if (_backgroundCallDuration > 3599)
+                    str = string.Format("{0:D2}:{1:D2}:{2:D2}", _backgroundCallDuration / 3600, (_backgroundCallDuration / 60) % 60, _backgroundCallDuration % 60);
+                else
+                    str = string.Format("{0:D2}:{1:D2}", _backgroundCallDuration / 60, _backgroundCallDuration % 60);
+                textBlock.Text = str;
+            }
+        }
+
+        public void SetPausedCallerInfo(string callerInfo)
+        {
+            var textBlock =
+                FindChild<TextBlock>(callsSwitchWindow.TransparentWindow, "PausedCallerInfoLabel");
+            if (textBlock != null)
+                textBlock.Text = callerInfo;
+        }
+
+        public void SetPausedCallState(string callState)
+        {
+            var textBlock =
+                FindChild<TextBlock>(callsSwitchWindow.TransparentWindow, "PausedCallStateLabel");
+            if (textBlock != null)
+                textBlock.Text = callState;
+        }
+
+        public void StartPausedCallTimer(int duration)
+        {
+            _backgroundCallDuration = duration;
+            UpdatebackgroundCallDuration();
+        }
+
+        public void StopPausedCallTimer()
+        {
+            _backgroundCallDuration = 0;
+        }
+
+        public void ShowCallsSwitchWindow(bool bshow)
+        {
+            callsSwitchWindow.ShowWindow = bshow;
+            callsSwitchWindow.Refresh();
+            callsSwitchWindow.UpdateWindow();
+        }
+
+        public object OverlayCallsSwitchChild
+        {
+            get
+            {
+                if (callsSwitchWindow != null && callsSwitchWindow.TransparentWindow != null)
+                {
+                    return callsSwitchWindow.TransparentWindow.Content;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                if (callsSwitchWindow != null && callsSwitchWindow.TransparentWindow != null)
+                {
+                    callsSwitchWindow.TransparentWindow.Content = value;
+                }
+            }
+        }
+
+        #endregion
+
+        #region New Call window
+        public double NewCallAcceptWindowLeftMargin
+        {
+            get
+            {
+                if (newCallAcceptWindow != null)
+                    return newCallAcceptWindow.WindowLeftMargin;
+                return 0;
+            }
+            set
+            {
+                if (newCallAcceptWindow != null)
+                    newCallAcceptWindow.WindowLeftMargin = value;
+            }
+        }
+        public double NewCallAcceptWindowTopMargin
+        {
+            get
+            {
+                if (newCallAcceptWindow != null)
+                    return newCallAcceptWindow.WindowTopMargin;
+                return 0;
+            }
+            set
+            {
+                if (newCallAcceptWindow != null)
+                    newCallAcceptWindow.WindowTopMargin = value;
+            }
+        }
+
+        public int NewCallAcceptOverlayWidth
+        {
+            get
+            {
+                if (newCallAcceptWindow != null)
+                    return newCallAcceptWindow.OverlayWidth;
+                return 0;
+            }
+            set
+            {
+                if (newCallAcceptWindow != null)
+                    newCallAcceptWindow.OverlayWidth = value;
+            }
+        }
+
+        public int NewCallAcceptOverlayHeight
+        {
+            get
+            {
+                if (newCallAcceptWindow != null)
+                    return newCallAcceptWindow.OverlayHeight;
+                return 0;
+            }
+            set
+            {
+                if (newCallAcceptWindow != null)
+                    newCallAcceptWindow.OverlayHeight = value;
+            }
+        }
+
+        public void SetNewCallerInfo(string callerInfo)
+        {
+            var textBlock =
+                FindChild<TextBlock>(newCallAcceptWindow.TransparentWindow, "NewCallerInfoLabel");
+            if (textBlock != null)
+                textBlock.Text = callerInfo;
+        }
+
+        public void ShowNewCallAcceptWindow(bool bshow)
+        {
+            newCallAcceptWindow.ShowWindow = bshow;
+            newCallAcceptWindow.Refresh();
+            newCallAcceptWindow.UpdateWindow();
+        }
+
+        public object OverlayNewCallAcceptChild
+        {
+            get
+            {
+                if (newCallAcceptWindow != null && newCallAcceptWindow.TransparentWindow != null)
+                {
+                    return newCallAcceptWindow.TransparentWindow.Content;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                if (newCallAcceptWindow != null && newCallAcceptWindow.TransparentWindow != null)
+                {
+                    newCallAcceptWindow.TransparentWindow.Content = value;
+                }
+            }
+        }
+
+        #endregion
+
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);
             commandBarWindow.UpdateWindow();
             numpadWindow.UpdateWindow();
             callInfoWindow.UpdateWindow();
+            callsSwitchWindow.UpdateWindow();
+            newCallAcceptWindow.UpdateWindow();
         }
 
         protected override void OnRender(DrawingContext drawingContext)
@@ -387,6 +652,8 @@ namespace VATRP.Linphone.VideoWrapper
             commandBarWindow.Refresh();
             numpadWindow.Refresh();
             callInfoWindow.Refresh();
+            callsSwitchWindow.Refresh();
+            newCallAcceptWindow.Refresh();
         }
 
         private static T FindChild<T>(DependencyObject parent, string childName)

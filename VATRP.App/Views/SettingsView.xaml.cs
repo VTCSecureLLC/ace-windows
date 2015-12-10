@@ -109,9 +109,6 @@ namespace com.vtcsecure.ace.windows.Views
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             this.CallSettingsPage.ResetToDefaultEvent += OnResetToDefaultConfiguration;
-#if !DEBUG
-            TestingTabItem.Visibility = Visibility.Collapsed;
-#endif
         }
 
         private void OnResetToDefaultConfiguration()
