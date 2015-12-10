@@ -274,8 +274,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
             if (_viewModel != null)
             {
                 LoadStates();
-
-                _viewModel.IsMuteOn = false;
+                // do not force this to false. make sure that the call is muted if this setting is 
+//                _viewModel.IsMuteOn = false;
                 BtnMuteOn.IsChecked = _viewModel.IsMuteOn;
                 BtnVideoOn.IsChecked = _viewModel.IsVideoOn;
                 BtnSpeaker.IsChecked = _viewModel.IsSpeakerOn;
