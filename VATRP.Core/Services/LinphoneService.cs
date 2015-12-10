@@ -279,7 +279,8 @@ namespace VATRP.Core.Services
 			{
                 LinphoneAPI.linphone_core_set_log_level_mask(OrtpLogLevel.ORTP_TRACE);
                 LinphoneAPI.libmsopenh264_init();
-                LinphoneAPI.linphone_core_set_video_preset(linphoneCore, "high-fps");
+                // Liz E. - this is set in the account settings now
+                //LinphoneAPI.linphone_core_set_video_preset(linphoneCore, "high-fps");
 				LinphoneAPI.linphone_core_enable_video_capture(linphoneCore, true);
 				LinphoneAPI.linphone_core_enable_video_display(linphoneCore, true);
 				LinphoneAPI.linphone_core_enable_video_preview(linphoneCore, false);
@@ -994,6 +995,46 @@ namespace VATRP.Core.Services
 			}
 		}
 
+        // Liz E: needed for unified settings
+        public bool IsEchoCancellationEnabled()
+        {
+            if (linphoneCore == IntPtr.Zero)
+                throw new Exception("Linphone not initialized");
+
+            bool isEchoCancellationEnabled = LinphoneAPI.linphone_core_echo_cancellation_enabled(linphoneCore);
+
+            return isEchoCancellationEnabled;
+        }
+
+        // Liz E: needed for unified settings
+        public void EnableEchoCancellation(bool enable)
+        {
+            if (linphoneCore == IntPtr.Zero)
+                throw new Exception("Linphone not initialized");
+
+            LinphoneAPI.linphone_core_enable_echo_cancellation(linphoneCore, enable);
+        }
+
+        // Liz E: needed for unified settings
+        public bool IsSelfViewEnabled()
+        {
+            if (linphoneCore == IntPtr.Zero)
+                throw new Exception("Linphone not initialized");
+
+            bool isSelfViewEnabled = LinphoneAPI.linphone_core_self_view_enabled(linphoneCore);
+
+            return isSelfViewEnabled;
+        }
+
+        // Liz E: needed for unified settings
+        public void EnableSelfView(bool enable)
+        {
+            if (linphoneCore == IntPtr.Zero)
+                throw new Exception("Linphone not initialized");
+
+            LinphoneAPI.linphone_core_enable_self_view(linphoneCore, enable);
+        }
+
 		public void SwitchSelfVideo()
 		{
 			if (linphoneCore == IntPtr.Zero)
@@ -1063,6 +1104,20 @@ namespace VATRP.Core.Services
                 LOG.Error("Account is null");
 	            return;
 	        }
+
+            bool isMicMuted = IsCallMuted();
+            if (isMicMuted != account.MuteMicrophone)
+            {
+                ToggleMute();
+            }
+
+            EnableEchoCancellation(account.EchoCancel);
+
+            EnableSelfView(account.ShowSelfView);
+            // Liz E. - note: get_video_preset is not available in liphoneAPI. Null is an accepted value 
+            //    for Linphone API as default.
+            LOG.Info("Set preferred video size by name: " + account.VideoPreset);
+            LinphoneAPI.linphone_core_set_video_preset(linphoneCore, account.VideoPreset);
 
             IntPtr namePtr = LinphoneAPI.linphone_core_get_preferred_video_size_name(linphoneCore);
             if (namePtr != IntPtr.Zero)

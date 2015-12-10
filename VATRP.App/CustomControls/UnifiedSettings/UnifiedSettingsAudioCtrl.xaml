@@ -26,13 +26,13 @@
             <Label Grid.Column="0" Grid.Row="1" Content="Mute Microphone" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="MuteMicrophoneLabel">
             </Label>
-            <CheckBox Grid.Column="2" Grid.Row="1" Checked="OnMuteMicrophone" HorizontalAlignment="Center" VerticalAlignment="Center" Name="MuteMicrophoneCheckBox"/>
+            <CheckBox Grid.Column="2" Grid.Row="1" Checked="OnMuteMicrophone" Unchecked="OnMuteMicrophone" HorizontalAlignment="Center" VerticalAlignment="Center" Name="MuteMicrophoneCheckBox"/>
 
             <!-- Row 2: Mute Speaker checkbox -->
             <Label Grid.Column="0" Grid.Row="2" Content="Mute Speaker" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="MuteSpeakerLabel">
             </Label>
-            <CheckBox Grid.Column="2" Grid.Row="2" Checked="OnMuteSpeaker" HorizontalAlignment="Center" VerticalAlignment="Center" Name="MuteSpeakerCheckBox"/>
+            <CheckBox Grid.Column="2" Grid.Row="2" Checked="OnMuteSpeaker" Unchecked="OnMuteSpeaker" HorizontalAlignment="Center" VerticalAlignment="Center" Name="MuteSpeakerCheckBox"/>
 
             <!-- Row 3: Audio Codecs Label -->
             <Label Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3"  Content="Audio Codecs" VerticalContentAlignment="Center"  Background="Gray">

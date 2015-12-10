@@ -9,9 +9,11 @@ namespace VATRP.Core.Model
     {
         #region Members
 
+        private string _videoPreset;
         private string _preferredVideoId;
         private string _transport;
         private string _mediaEncryption;
+
 		
         #endregion
 
@@ -89,12 +91,41 @@ namespace VATRP.Core.Model
         public bool EnableAVPF { get; set; }
 
         [Column]
+        public bool MuteMicrophone { get; set; }
+
+        [Column]
+        public bool MuteSpeaker { get; set; }
+
+        [Column]
+        public bool EchoCancel { get; set; }
+
+        [Column]
+        public bool VideoAutomaticallyStart { get; set; }
+
+        [Column]
+        public bool VideoAutomaticallyAccept { get; set; }
+
+        [Column]
+        public bool ShowSelfView { get; set; }
+
+        [Column]
         public string PreferredVideoId
         {
             get { return _preferredVideoId; }
             set
             {
                 _preferredVideoId = !string.IsNullOrWhiteSpace(value) ? value : "cif";
+            }
+        }
+
+        [Column]
+        public string VideoPreset
+        {
+            get { return _videoPreset; }
+            set
+            {
+                // Liz E. - linphone uses null to get the default preset. Allow null here.
+                _videoPreset = value;
             }
         }
 
@@ -122,7 +153,14 @@ namespace VATRP.Core.Model
             RegistrationUser = string.Empty;
             RegistrationPassword = string.Empty;
             DisplayName = string.Empty;
+            VideoAutomaticallyStart = true;
+            VideoAutomaticallyAccept = true;
+            ShowSelfView = true;
             PreferredVideoId = string.Empty;
+            VideoPreset = null;
+            MuteMicrophone = false;
+            MuteSpeaker = false;
+            EchoCancel = false;
         }
 
         #endregion
