@@ -201,6 +201,25 @@ namespace com.vtcsecure.ace.windows
 
         }
 
+        private void UpdateMenuSettingsForRegistrationState()
+        {
+            if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk)
+            {
+                MuteMicrophoneCheckbox.IsChecked = false;
+                MuteMicrophoneCheckbox.IsEnabled = false;
+            }
+            else
+            {
+                MuteMicrophoneCheckbox.IsEnabled = true;
+                if (App.CurrentAccount != null)
+                {
+                    MuteMicrophoneCheckbox.IsEnabled = App.CurrentAccount.MuteMicrophone;
+                }
+            }
+
+        }
+
+
         private void MQuit_Click(object sender, RoutedEventArgs e)
         {
             Close();
@@ -403,6 +422,36 @@ namespace com.vtcsecure.ace.windows
         {
             var feedbackView = new FeedbackView();
             feedbackView.Show();
+        }
+
+        
+        private void OnAudioMenuItemOpened(object sender, RoutedEventArgs e)
+        {
+            if (App.CurrentAccount != null)
+            {
+                MuteMicrophoneCheckbox.IsEnabled = true;
+                MuteMicrophoneCheckbox.IsChecked = App.CurrentAccount.MuteMicrophone;
+            }
+            else
+            {
+                MuteMicrophoneCheckbox.IsEnabled = false;
+                MuteMicrophoneCheckbox.IsChecked = false;
+            }
+
+        }
+
+        // Video
+        private void OnMuteMicrophone(object sender, RoutedEventArgs e)
+        {
+            bool enabled = MuteMicrophoneCheckbox.IsChecked;
+            if (enabled != App.CurrentAccount.MuteMicrophone)
+            {
+                App.CurrentAccount.MuteMicrophone = enabled;
+                ServiceManager.Instance.ApplyMediaSettingsChanges();
+                ServiceManager.Instance.SaveAccountSettings();
+
+                ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettings.MuteMicrophoneMenu);
+            }
         }
         #endregion
     }
