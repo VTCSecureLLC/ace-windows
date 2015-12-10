@@ -68,6 +68,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _infoTextSize = 20;
             subscribedForStats = false;
             Declined = false;
+            // initialize based on stored settings:
+            if (App.CurrentAccount != null)
+            {
+                _savedIsVideoOn = App.CurrentAccount.ShowSelfView;
+                _isVideoOn = App.CurrentAccount.ShowSelfView;
+                _savedIsMuteOn = App.CurrentAccount.MuteMicrophone;
+                _isMuteOn = App.CurrentAccount.MuteMicrophone;
+                _isSpeakerOn = App.CurrentAccount.MuteSpeaker;
+                _savedIsSpeakerOn = App.CurrentAccount.MuteSpeaker;
+            }
 
             timerCall = new System.Timers.Timer
             {

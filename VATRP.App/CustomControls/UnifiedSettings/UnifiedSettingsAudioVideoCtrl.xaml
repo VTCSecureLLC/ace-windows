@@ -23,25 +23,25 @@
             <Label Grid.Column="0" Grid.Row="0" Content="Mute Speaker" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="MuteSpeakerLabel">
             </Label>
-            <CheckBox Grid.Column="1" Grid.Row="0" Checked="OnMuteSpeaker" HorizontalAlignment="Center" VerticalAlignment="Center" Name="MuteSpeakerCheckBox"/>
+            <CheckBox Grid.Column="1" Grid.Row="0" Checked="OnMuteSpeaker" Unchecked="OnMuteSpeaker" HorizontalAlignment="Center" VerticalAlignment="Center" Name="MuteSpeakerCheckBox"/>
 
             <!-- Row 1: Mute Microphone -->
             <Label Grid.Column="0" Grid.Row="1" Content="Mute Microphone" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="MuteMicrophoneLabel">
             </Label>
-            <CheckBox Grid.Column="1" Grid.Row="1" Checked="OnMuteMicrophone" HorizontalAlignment="Center" VerticalAlignment="Center" Name="MuteMicrophoneCheckBox"/>
+            <CheckBox Grid.Column="1" Grid.Row="1" Checked="OnMuteMicrophone" Unchecked="OnMuteMicrophone" HorizontalAlignment="Center" VerticalAlignment="Center" Name="MuteMicrophoneCheckBox"/>
 
             <!-- Row 2: Echo Cancel -->
             <Label Grid.Column="0" Grid.Row="2" Content="Echo Cancel" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="EchoCancelLabel">
             </Label>
-            <CheckBox Grid.Column="1" Grid.Row="2" Checked="OnEchoCancel" HorizontalAlignment="Center" VerticalAlignment="Center"  Name="EchoCancelCheckBox"/>
+            <CheckBox Grid.Column="1" Grid.Row="2" Checked="OnEchoCancel"  Unchecked="OnEchoCancel" HorizontalAlignment="Center" VerticalAlignment="Center"  Name="EchoCancelCheckBox"/>
 
             <!-- Row 3: Show Self View -->
             <Label Grid.Column="0" Grid.Row="3" Content="Show Self View" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left"  Name="ShowSelfViewLabel">
             </Label>
-            <CheckBox Grid.Column="1" Grid.Row="3" Checked="OnShowSelfView" HorizontalAlignment="Center" VerticalAlignment="Center"  Name="ShowSelfViewCheckBox"/>
+            <CheckBox Grid.Column="1" Grid.Row="3" Checked="OnShowSelfView" Unchecked="OnShowSelfView" HorizontalAlignment="Center" VerticalAlignment="Center"  Name="ShowSelfViewCheckBox"/>
         </Grid>
 
     </Grid>

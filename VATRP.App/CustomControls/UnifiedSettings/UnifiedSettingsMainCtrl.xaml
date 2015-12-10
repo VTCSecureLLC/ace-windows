@@ -154,13 +154,13 @@
                 <Label Grid.Column="0" Grid.Row="15" Grid.ColumnSpan="2" Content="Outbound Proxy" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Visibility="Collapsed" Name="OutboundProxyLabel">
                 </Label>
-                <CheckBox Grid.Column="2" Grid.Row="15" Checked="OnOutboundProxy" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" Name="OutboundProxyCheckbox"/>
+                <CheckBox Grid.Column="2" Grid.Row="15" Checked="OnOutboundProxy" Unchecked="OnOutboundProxy" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" Name="OutboundProxyCheckbox"/>
 
                 <!-- Row 16: AVPF -->
                 <Label Grid.Column="0" Grid.Row="16" Grid.ColumnSpan="2" Content="AVPF" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Visibility="Collapsed" Name="AvpfLabel">
                 </Label>
-                <CheckBox Grid.Column="2" Grid.Row="16" Checked="OnAvpf" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" Name="AvpfCheckbox"/>
+                <CheckBox Grid.Column="2" Grid.Row="16" Checked="OnAvpf" Unchecked="OnAvpf" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" Name="AvpfCheckbox"/>
 
                 <!-- Row 17: More Options -->
                 <Label Grid.Column="0" Grid.Row="17" Grid.ColumnSpan="2" Content="More Options" VerticalContentAlignment="Center" 
@@ -176,7 +176,7 @@
                 <Label Grid.Column="0" Grid.Row="19" Grid.ColumnSpan="2" Content="Enable Video" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" >
                 </Label>
-                <CheckBox Grid.Column="2" Grid.Row="19" Checked="OnEnableVideo" HorizontalAlignment="Center" VerticalAlignment="Center" Name="EnableVideoCheckBox"/>
+                <CheckBox Grid.Column="2" Grid.Row="19" Checked="OnEnableVideo" Unchecked="OnEnableVideo" HorizontalAlignment="Center" VerticalAlignment="Center" Name="EnableVideoCheckBox"/>
 
                 <!-- Row 20: Text Preferences button -->
                 <Button Grid.Column="0" Grid.Row="20" Grid.ColumnSpan="2" Content="Text" Margin="0,2" 
@@ -253,7 +253,7 @@
                 <Label Grid.Column="0" Grid.Row="30" Grid.ColumnSpan="2" Content="Auto Answer Call Immediately" 
                    VerticalContentAlignment="Center" HorizontalAlignment="Left" Visibility="Collapsed" Name="AutoAnswerLabel">
                 </Label>
-                <CheckBox Grid.Column="2" Grid.Row="30" Checked="OnAutoAnswerCall" HorizontalAlignment="Center" 
+                <CheckBox Grid.Column="2" Grid.Row="30" Checked="OnAutoAnswerCall" Unchecked="OnAutoAnswerCall" HorizontalAlignment="Center" 
                       VerticalAlignment="Center" Visibility="Collapsed" Name="AutoAnswerCheckBox"/>
 
             </Grid>

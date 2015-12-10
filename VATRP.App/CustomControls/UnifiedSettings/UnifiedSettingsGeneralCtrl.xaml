@@ -22,25 +22,25 @@
             <Label Grid.Column="0" Grid.Row="0" Content="Start at boot" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="StartAtBootLabel">
             </Label>
-            <CheckBox Grid.Column="1" Grid.Row="0" Checked="OnStartOnBoot" HorizontalAlignment="Center" VerticalAlignment="Center" Name="StartAtBootCheckbox"/>
+            <CheckBox Grid.Column="1" Grid.Row="0" Checked="OnStartOnBoot" Unchecked="OnStartOnBoot" HorizontalAlignment="Center" VerticalAlignment="Center" Name="StartAtBootCheckbox"/>
 
             <!-- Row 1: SIP Encryption -->
             <Label Grid.Column="0" Grid.Row="1" Content="SIP Encryption" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="SipEncrptionLabel">
             </Label>
-            <CheckBox Grid.Column="1" Grid.Row="1" Checked="OnSipEncryption" HorizontalAlignment="Center" VerticalAlignment="Center" Name="SipEncryptionCheckbox"/>
+            <CheckBox Grid.Column="1" Grid.Row="1" Checked="OnSipEncryption" Unchecked="OnSipEncryption" HorizontalAlignment="Center" VerticalAlignment="Center" Name="SipEncryptionCheckbox"/>
 
             <!-- Row 2: Wifi Only -->
             <Label Grid.Column="0" Grid.Row="2" Content="Wifi Only" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="WifiOnlyLabel">
             </Label>
-            <CheckBox Grid.Column="1" Grid.Row="2" Checked="OnWifiOnly" HorizontalAlignment="Center" VerticalAlignment="Center"  Name="WifiOnlyCheckBox"/>
+            <CheckBox Grid.Column="1" Grid.Row="2" Checked="OnWifiOnly" Unchecked="OnWifiOnly" HorizontalAlignment="Center" VerticalAlignment="Center"  Name="WifiOnlyCheckBox"/>
 
             <!-- Row 3: Auto-answer after notification -->
             <Label Grid.Column="0" Grid.Row="3" Content="Auto-answer After Notification" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left"  Name="AutoAnswerAfterNotificationLabel">
             </Label>
-            <CheckBox Grid.Column="1" Grid.Row="3" Checked="OnAutoAnswerAfterNotification" HorizontalAlignment="Center" VerticalAlignment="Center"  Name="AutoAnswerAfterNotificationCheckBox"/>
+            <CheckBox Grid.Column="1" Grid.Row="3" Checked="OnAutoAnswerAfterNotification" Unchecked="OnAutoAnswerAfterNotification" HorizontalAlignment="Center" VerticalAlignment="Center"  Name="AutoAnswerAfterNotificationCheckBox"/>
 
         </Grid>
 
