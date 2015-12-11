@@ -33,12 +33,15 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         void UnifiedSettingsMainCtrl_Loaded(object sender, RoutedEventArgs e)
         {
-            UserIdTextBox.Text = App.CurrentAccount.AuthID;
-            UserNameTextBox.Text = App.CurrentAccount.Username;
-            PasswordTextBox.Password = App.CurrentAccount.Password;
-            DomainTextBox.Text = App.CurrentAccount.ProxyHostname;
-            ProxyTextBox.Text = Convert.ToString(App.CurrentAccount.ProxyPort);
-            TransportValueLabel.Content = App.CurrentAccount.Transport;
+            if (App.CurrentAccount != null)
+            {
+                UserIdTextBox.Text = App.CurrentAccount.AuthID;
+                UserNameTextBox.Text = App.CurrentAccount.Username;
+                PasswordTextBox.Password = App.CurrentAccount.Password;
+                DomainTextBox.Text = App.CurrentAccount.ProxyHostname;
+                ProxyTextBox.Text = Convert.ToString(App.CurrentAccount.ProxyPort);
+                TransportValueLabel.Content = App.CurrentAccount.Transport;
+            }
 
             this.AutoAnswerCheckBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.AUTO_ANSWER, false);
@@ -84,14 +87,17 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             {
                 MessageBox.Show("Incorrect SIP Server Port", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            App.CurrentAccount.ProxyPort = port;
-            App.CurrentAccount.AuthID = UserIdTextBox.Text;
-            App.CurrentAccount.Username = UserNameTextBox.Text;
-            App.CurrentAccount.Password = PasswordTextBox.Password;
-            App.CurrentAccount.ProxyHostname = DomainTextBox.Text;
-            App.CurrentAccount.RegistrationUser = UserNameTextBox.Text;
-            App.CurrentAccount.RegistrationPassword = PasswordTextBox.Password;
-            App.CurrentAccount.Transport = (string)TransportValueLabel.Content;
+            if (App.CurrentAccount != null)
+            {
+                App.CurrentAccount.ProxyPort = port;
+                App.CurrentAccount.AuthID = UserIdTextBox.Text;
+                App.CurrentAccount.Username = UserNameTextBox.Text;
+                App.CurrentAccount.Password = PasswordTextBox.Password;
+                App.CurrentAccount.ProxyHostname = DomainTextBox.Text;
+                App.CurrentAccount.RegistrationUser = UserNameTextBox.Text;
+                App.CurrentAccount.RegistrationPassword = PasswordTextBox.Password;
+                App.CurrentAccount.Transport = (string)TransportValueLabel.Content;
+            }
 
         }
 
