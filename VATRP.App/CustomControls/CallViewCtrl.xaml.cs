@@ -19,6 +19,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
     /// </summary>
     public partial class CallViewCtrl
     {
+        public UnifiedSettings.UnifiedSettingsCtrl SettingsControl;
         #region Members
         private static readonly ILog LOG = LogManager.GetLogger(typeof(CallViewCtrl));
         private CallViewModel _viewModel;
@@ -104,10 +105,15 @@ namespace com.vtcsecure.ace.windows.CustomControls
             }
         }
 
-        internal void MuteCall()
+        internal void MuteCall(bool isMuted)
         {
             if (_viewModel.ActiveCall != null )
-                _viewModel.MuteCall();
+                _viewModel.MuteCall(isMuted);
+            if (SettingsControl != null)
+            {
+                SettingsControl.RespondToMenuUpdate(Enums.ACEMenuSettings.MuteMicrophoneMenu);
+            }
+
         }
 
         private void OnEndCall(object sender, RoutedEventArgs e)
@@ -201,7 +207,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             if (MuteOnToggled != null)
                 MuteOnToggled(BtnMuteOn.IsChecked ?? false);
             SaveStates();
-            MuteCall();
+            MuteCall(BtnMuteOn.IsChecked ?? false);
         }
 
         private void buttonKeyPad(object sender, RoutedEventArgs e)
@@ -338,6 +344,15 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 }
             }
         }
+
+        public void UpdateMuteSettingsIfOpen()
+        {
+            if (App.CurrentAccount != null)
+            {
+                this.BtnMuteOn.IsChecked = App.CurrentAccount.MuteMicrophone;
+            }
+        }
+
     }
     
 }

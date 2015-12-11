@@ -77,6 +77,9 @@ namespace com.vtcsecure.ace.windows
             ctrlCall.ParentViewModel =_mainViewModel;
             _settingsView.SetSettingsModel(_mainViewModel.SettingsModel);
             EnterFullScreenCheckBox.IsEnabled = false;
+
+            ctrlSettings.SetCallControl(ctrlCall);
+            ctrlCall.SettingsControl = ctrlSettings;
         }
 
         private void btnRecents_Click(object sender, RoutedEventArgs e)
@@ -477,7 +480,14 @@ namespace com.vtcsecure.ace.windows
                 ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
 
-                ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettings.MuteMicrophoneMenu);
+                if (ctrlSettings != null)
+                {
+                    ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettings.MuteMicrophoneMenu);
+                }
+                if ((ctrlCall != null) && ctrlCall.IsLoaded)
+                {
+                    ctrlCall.UpdateMuteSettingsIfOpen();
+                }
             }
         }
 
