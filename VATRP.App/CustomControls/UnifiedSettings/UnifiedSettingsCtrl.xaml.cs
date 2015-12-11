@@ -1,5 +1,4 @@
-﻿using com.vtcsecure.ace.windows.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,9 +20,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
     /// </summary>
     public partial class UnifiedSettingsCtrl : UserControl
     {
-
-        private CallViewCtrl _callControl;
-
         private UnifiedSettingsMainCtrl _mainPanel;
         private UnifiedSettingsGeneralCtrl _generalPanel;
         private UnifiedSettingsAudioVideoCtrl _audioVideoPanel;
@@ -69,13 +65,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             _currentContent = _mainPanel;
 
             UpdateContentInUI();
-        }
-
-        public void SetCallControl(CallViewCtrl callControl)
-        {
-            _callControl = callControl;
-            _audioSettingsPanel.CallControl = _callControl;
-            _audioVideoPanel.CallControl = _callControl;
         }
 
         private void UpdateContentInUI()
@@ -131,7 +120,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             UpdateContentInUI();
         }
 
-        #region panel navigation
         private void HandleContentChanging(UnifiedSettingsContentType newContentType)
         {
             switch (newContentType)
@@ -179,33 +167,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             _currentContent = newPanel;
             UpdateContentInUI();
         }
-        #endregion
-
-        #region respondToMenuChange
-        public void RespondToMenuUpdate(ACEMenuSettings menuSetting)
-        {
-           
-            switch (menuSetting)
-            {
-                case ACEMenuSettings.MuteMicrophoneMenu: UpdateAudioSettingsIfOpen(menuSetting);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        private void UpdateAudioSettingsIfOpen(ACEMenuSettings menuSetting)
-        {
-            if (_audioSettingsPanel.IsLoaded)
-            {
-                _audioSettingsPanel.UpdateForMenuSettingChange(menuSetting);
-            }
-            else if (_audioVideoPanel.IsLoaded)
-            {
-                _audioVideoPanel.UpdateForMenuSettingChange(menuSetting);
-            }
-        }
-        #endregion
+        
 
     }
 }

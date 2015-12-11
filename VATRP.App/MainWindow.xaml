@@ -20,120 +20,115 @@
 				   Unloaded="Window_Unloaded" Icon="Resources/vatrp.ico"
 				   Background="White"
 				   >
-    <model:VATRPWindow.Resources>
-        <conv:BoolToVisibilityConverter x:Key="bvc"/>
-        <conv:BoolToVisibilityConverter x:Key="ibvc" OppositeBooleanValue="True"/>
-    </model:VATRPWindow.Resources>
-    <Grid x:Name="LayoutGrid" Background="{DynamicResource AppMainWindowBrush}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="1"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-        </Grid.RowDefinitions>
-        <Menu IsMainMenu="True" Height="27" HorizontalAlignment="Left" x:Name="WndMenu" VerticalAlignment="Top" Width="Auto" 
+	<model:VATRPWindow.Resources>
+		<conv:BoolToVisibilityConverter x:Key="bvc"/>
+		<conv:BoolToVisibilityConverter x:Key="ibvc" OppositeBooleanValue="True"/>
+	</model:VATRPWindow.Resources>
+	<Grid x:Name="LayoutGrid" Background="{DynamicResource AppMainWindowBrush}">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition Width="Auto"/>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"></RowDefinition>
+			<RowDefinition Height="1"></RowDefinition>
+			<RowDefinition Height="Auto"></RowDefinition>
+		</Grid.RowDefinitions>
+		<Menu IsMainMenu="True" Height="27" HorizontalAlignment="Left" x:Name="WndMenu" VerticalAlignment="Top" Width="Auto" 
 			  Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Grid.Column="0">
-            <MenuItem x:Name="VATRPItem" Header="_ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
+			<MenuItem x:Name="VATRPItem" Header="_ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
 
-                <MenuItem Header="_Preferences" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Provide ACE Feedback" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnProvideFeedback"/>
-                <MenuItem Header="_Check for Updates" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Hide ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Show All" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Quit ACE" Click="MQuit_Click" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-            </MenuItem>
-            <MenuItem x:Name="ViewItem" Header="_View" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
-                <MenuItem Header="_Minimize" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Zoom" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Bring All Front" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Viewspace" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
-                    <!--new items will go here-->
-                </MenuItem>
-                <MenuItem Header="_Next Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Previews Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Go To Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem x:Name="MediaWindowItem" Header="_Media Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem x:Name="SelfViewItem" Header="_Media Self-View" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Media Text Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem x:Name="DialpadItem" Header="_DialPad Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem x:Name="RegistrationStatusItem" Header="_Registration Status" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Media Dock Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem x:Name="ContactsWindowItem" Header="_Contact Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-            </MenuItem>
-            <MenuItem x:Name="VideoItem" Header="_Video" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
-                <MenuItem Header="_Hide Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnHideWindow"/>
-                <!-- removing for VATRP-1062
+				<MenuItem Header="_Preferences" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Provide ACE Feedback" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnProvideFeedback"/>
+				<MenuItem Header="_Check for Updates" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Hide ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Show All" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Quit ACE" Click="MenuItem_Click" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+			</MenuItem>
+			<MenuItem x:Name="ViewItem" Header="_View" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
+				<MenuItem Header="_Minimize" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Zoom" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Bring All Front" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Viewspace" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
+					<!--new items will go here-->
+				</MenuItem>
+				<MenuItem Header="_Next Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Previews Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Go To Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem x:Name="MediaWindowItem" Header="_Media Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem x:Name="SelfViewItem" Header="_Media Self-View" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Media Text Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem x:Name="DialpadItem" Header="_DialPad Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem x:Name="RegistrationStatusItem" Header="_Registration Status" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Media Dock Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem x:Name="ContactsWindowItem" Header="_Contact Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+			</MenuItem>
+			<MenuItem x:Name="VideoItem" Header="_Video" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
+				<MenuItem Header="_Hide Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 				<MenuItem Header="_Volume" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                -->
-                <MenuItem Header="_Enter Full" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnEnterFullScreen" Name="EnterFullScreenCheckBox" IsCheckable="True"/>
-            </MenuItem>
-            <MenuItem x:Name="AudioItem" Header="_Audio" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" SubmenuOpened="OnAudioMenuItemOpened">
-                <MenuItem Header="_Mute Microphone" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"
-                          Click="OnMuteMicrophone" Name="MuteMicrophoneCheckbox" IsCheckable="True"/>
-                <!-- Commenting these out instead of removing in case we put them back  in
-                <MenuItem Header="_Increase Volume" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Enter Full" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+			</MenuItem>
+			<MenuItem x:Name="AudioItem" Header="_Audio" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
+				<MenuItem Header="_Mute Microphone" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Increase Volume" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 				<MenuItem Header="_Decrease Volume" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 				<MenuItem Header="_Speaker" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                -->
-            </MenuItem>
-            <MenuItem x:Name="EditItem" Header="_Edit"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
-                <MenuItem Header="_New"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Edit Profile" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Close Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Change" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_My Account" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Sign Out" Click="OnSignOutRequested" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+			</MenuItem>
+			<MenuItem x:Name="EditItem" Header="_Edit"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
+				<MenuItem Header="_New"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Edit Profile" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Close Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Change" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_My Account" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Sign Out" Click="OnSignOutRequested" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 
-            </MenuItem>
-            <MenuItem x:Name="HelpItem" Header="_Help"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
-                <MenuItem Header="_About ACE" Click="OnAboutClicked" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Search" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Learn about" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Go to Support" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Welcome Tour" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Privacy Policy" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-            </MenuItem>
-        </Menu>
+			</MenuItem>
+			<MenuItem x:Name="HelpItem" Header="_Help"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
+				<MenuItem Header="_About ACE" Click="OnAboutClicked" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Search" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Learn about" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Go to Support" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Welcome Tour" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Privacy Policy" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+			</MenuItem>
+		</Menu>
 
-        <Grid x:Name="AccountServiceHolder" Grid.Row="1" 
+		<Grid x:Name="AccountServiceHolder" Grid.Row="1" 
 			  Visibility="{Binding IsAccountLogged, Converter={StaticResource ibvc}}"
 			  Grid.Column="0"
 			  >
-            <DockPanel x:Name="WizardPagepanel" Dock="Top" Visibility="Collapsed" Grid.Row="0"/>
-            <StackPanel x:Name="ServiceSelector" Visibility="Visible" Grid.Row="0">
-                <Label Content="ACE" FontSize="28" FontWeight="Bold"  HorizontalAlignment="Center" Margin="0, 30,0, 0"/>
-                <Label Content="Let's Get Started..." FontSize="16"  HorizontalAlignment="Center" Margin="0, 10,0, 0"/>
-                <Label Content="Which Service you use the most?" FontSize="16"  HorizontalAlignment="Center" Margin="0, 5,0, 0"/>
-                <Button Margin="20,5" Height="40" FontSize="18" Content="Video Relay Service" FontWeight="SemiBold" Click="OnVideoRelaySelect"/>
-                <Button Margin="20,5" Height="40" FontSize="18" Content="IP-Relay" FontWeight="SemiBold" Click="onIPRelaySelect"/>
-                <Button Margin="20,5, 20, 30" Height="40" FontSize="18" Content="IP-CTS" FontWeight="SemiBold" Click="onIPCTSSelect"/>
-            </StackPanel>
-        </Grid>
+			<DockPanel x:Name="WizardPagepanel" Dock="Top" Visibility="Collapsed" Grid.Row="0"/>
+			<StackPanel x:Name="ServiceSelector" Visibility="Visible" Grid.Row="0">
+				<Label Content="ACE" FontSize="28" FontWeight="Bold"  HorizontalAlignment="Center" Margin="0, 30,0, 0"/>
+				<Label Content="Let's Get Started..." FontSize="16"  HorizontalAlignment="Center" Margin="0, 10,0, 0"/>
+				<Label Content="Which Service you use the most?" FontSize="16"  HorizontalAlignment="Center" Margin="0, 5,0, 0"/>
+				<Button Margin="20,5" Height="40" FontSize="18" Content="Video Relay Service" FontWeight="SemiBold" Click="OnVideoRelaySelect"/>
+				<Button Margin="20,5" Height="40" FontSize="18" Content="IP-Relay" FontWeight="SemiBold" Click="onIPRelaySelect"/>
+				<Button Margin="20,5, 20, 30" Height="40" FontSize="18" Content="IP-CTS" FontWeight="SemiBold" Click="onIPCTSSelect"/>
+			</StackPanel>
+		</Grid>
 
-        <Grid x:Name="ActivityViewHolder" Grid.Row="1" Grid.Column="0" Visibility="{Binding IsAccountLogged, Converter={StaticResource bvc}}" >
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Border x:Name="LocalContactPanel" Grid.Row="0" Background="{DynamicResource AppMainWindowBrush}">
-                <customControls:LocalContactPanel x:Name="ctrlLocalContact" Height="Auto" Width="Auto" Margin="0"/>
-            </Border>
+		<Grid x:Name="ActivityViewHolder" Grid.Row="1" Grid.Column="0" Visibility="{Binding IsAccountLogged, Converter={StaticResource bvc}}" >
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="*"/>
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+			<Border x:Name="LocalContactPanel" Grid.Row="0" Background="{DynamicResource AppMainWindowBrush}">
+				<customControls:LocalContactPanel x:Name="ctrlLocalContact" Height="Auto" Width="Auto" Margin="0"/>
+			</Border>
 
-            <Border x:Name="ContactsPaneHolder" Grid.Row="1" Visibility="{Binding IsContactDocked, Converter={StaticResource bvc}}"
+			<Border x:Name="ContactsPaneHolder" Grid.Row="1" Visibility="{Binding IsContactDocked, Converter={StaticResource bvc}}"
                     VerticalAlignment="Stretch">
                 <customControls:ContactListCtrl x:Name="ctrlContacts"  Margin="0" VerticalAlignment="Stretch"/>
             </Border>
             <Border x:Name="HistoryPaneHolder" Grid.Row="1"  Visibility="{Binding IsCallHistoryDocked, Converter={StaticResource bvc}}" 
                     VerticalAlignment="Stretch" >
                 <customControls:CallLogCtrl x:Name="ctrlHistory"  Margin="0" VerticalAlignment="Stretch"/>
-            </Border>
+			</Border>
             <Border x:Name="SettingsPaneHolder" Grid.Row="1"  Visibility="{Binding IsSettingsDocked, Converter={StaticResource bvc}}" 
                     VerticalAlignment="Stretch" >
                 <unifiedSettings:UnifiedSettingsCtrl x:Name="ctrlSettings"  Margin="0" VerticalAlignment="Stretch"/>
@@ -144,21 +139,21 @@
                 <customControls:DialPadScreen x:Name="ctrlDialpad" Margin="0"/>
             </Grid>
         </Grid>
-
+        
         <!--Navigation panel-->
-        <Grid x:Name="NavPanel" Margin="0" Grid.Row="3" Grid.Column="0" Visibility="{Binding IsAccountLogged, Converter={StaticResource bvc}}" Height="50" Background="{StaticResource AppMainWindowBrush}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="60" />
-                <ColumnDefinition Width="60" />
-                <ColumnDefinition Width="60" />
-                <ColumnDefinition Width="60" />
-                <ColumnDefinition Width="60" />
-            </Grid.ColumnDefinitions>
+		<Grid x:Name="NavPanel" Margin="0" Grid.Row="3" Grid.Column="0" Visibility="{Binding IsAccountLogged, Converter={StaticResource bvc}}" Height="50" Background="{StaticResource AppMainWindowBrush}">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="60" />
+				<ColumnDefinition Width="60" />
+				<ColumnDefinition Width="60" />
+				<ColumnDefinition Width="60" />
+				<ColumnDefinition Width="60" />
+			</Grid.ColumnDefinitions>
             <ToggleButton x:Name="BtnRecents" Grid.Column="0" IsChecked="{Binding IsCallHistoryDocked}"
 						  Click="btnRecents_Click" Height="60" Width="60" 
 						  HorizontalAlignment="Stretch" VerticalAlignment="Center">
-                <ToggleButton.Resources>
-                    <Grid x:Key="RecentsHover" >
+				<ToggleButton.Resources>
+					<Grid x:Key="RecentsHover" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
@@ -195,65 +190,65 @@
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
+                        
+						<Rectangle  Fill="{StaticResource NavigationBarNormalButtonBg}" Grid.Row="0" Grid.RowSpan="2">
 
-                        <Rectangle  Fill="{StaticResource NavigationBarNormalButtonBg}" Grid.Row="0" Grid.RowSpan="2">
-
-                        </Rectangle>
+						</Rectangle>
                         <Rectangle Width="28" Height="28" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
-                            <Rectangle.OpacityMask>
-                                <ImageBrush ImageSource="Resources\recents.png" />
-                            </Rectangle.OpacityMask>
-                        </Rectangle>
+							<Rectangle.OpacityMask>
+								<ImageBrush ImageSource="Resources\recents.png" />
+							</Rectangle.OpacityMask>
+						</Rectangle>
                         <TextBlock HorizontalAlignment="Center" Text="Call History" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarNormalButtonFont}"></TextBlock>
-                    </Grid>
-                </ToggleButton.Resources>
-                <ToggleButton.Style>
-                    <Style TargetType="{x:Type ToggleButton}">
-                        <Setter Property="Opacity" Value="1" />
-                        <Setter Property="BorderThickness" Value="0" />
-                        <Setter Property="Padding" Value="0" />
-                        <Setter Property="Margin" Value="0" />
-                        <Setter Property="SnapsToDevicePixels" Value="True"/>
-                        <Setter Property="VerticalAlignment" Value="Center"/>
-                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                        <Setter Property="Content" Value="{StaticResource RecentsNormal}" />
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="{x:Type ToggleButton}">
-                                    <Grid Background="Transparent">
+					</Grid>
+				</ToggleButton.Resources>
+				<ToggleButton.Style>
+					<Style TargetType="{x:Type ToggleButton}">
+						<Setter Property="Opacity" Value="1" />
+						<Setter Property="BorderThickness" Value="0" />
+						<Setter Property="Padding" Value="0" />
+						<Setter Property="Margin" Value="0" />
+						<Setter Property="SnapsToDevicePixels" Value="True"/>
+						<Setter Property="VerticalAlignment" Value="Center"/>
+						<Setter Property="HorizontalAlignment" Value="Center"/>
+						<Setter Property="Content" Value="{StaticResource RecentsNormal}" />
+						<Setter Property="Template">
+							<Setter.Value>
+								<ControlTemplate TargetType="{x:Type ToggleButton}">
+									<Grid Background="Transparent">
 
-                                        <Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
-                                            <ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                                        </Border>
-                                    </Grid>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Content" Value="{StaticResource RecentsHover}" />
-                            </Trigger>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter Property="Content" Value="{StaticResource RecentsPressed}" />
-                            </Trigger>
+										<Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
+											<ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+										</Border>
+									</Grid>
+								</ControlTemplate>
+							</Setter.Value>
+						</Setter>
+						<Style.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter Property="Content" Value="{StaticResource RecentsHover}" />
+							</Trigger>
+							<Trigger Property="IsChecked" Value="True">
+								<Setter Property="Content" Value="{StaticResource RecentsPressed}" />
+							</Trigger>
 
-                            <MultiDataTrigger>
-                                <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
-                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True"/>
-                                </MultiDataTrigger.Conditions>
+							<MultiDataTrigger>
+								<MultiDataTrigger.Conditions>
+									<Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+									<Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True"/>
+								</MultiDataTrigger.Conditions>
 
-                                <Setter Property="Opacity" Value="0.7"/>
-                                <Setter Property="Content" Value="{StaticResource RecentsPressed}"/>
-                            </MultiDataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ToggleButton.Style>
-            </ToggleButton>
+								<Setter Property="Opacity" Value="0.7"/>
+								<Setter Property="Content" Value="{StaticResource RecentsPressed}"/>
+							</MultiDataTrigger>
+						</Style.Triggers>
+					</Style>
+				</ToggleButton.Style>
+			</ToggleButton>
 
             <ToggleButton x:Name="BtnContacts" Grid.Column="1" Click="btnContacts_Click" Height="60" Width="60" HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding IsContactDocked}">
-                <ToggleButton.Resources>
-                    <Grid x:Key="ContactsHover" >
+				<ToggleButton.Resources>
+					<Grid x:Key="ContactsHover" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
@@ -269,7 +264,7 @@
                         </Rectangle>
                         <TextBlock Text="Phonebook" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
                     </Grid>
-                    <Grid x:Key="ContactsPressed">
+					<Grid x:Key="ContactsPressed">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
@@ -286,7 +281,7 @@
                         <TextBlock Text="Phonebook" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
 
                     </Grid>
-                    <Grid x:Key="ContactsNormal">
+					<Grid x:Key="ContactsNormal">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
@@ -303,54 +298,54 @@
                         <TextBlock Text="Phonebook" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
 
                     </Grid>
-                </ToggleButton.Resources>
-                <ToggleButton.Style>
-                    <Style TargetType="{x:Type ToggleButton}">
-                        <Setter Property="Opacity" Value="1" />
-                        <Setter Property="BorderThickness" Value="0" />
-                        <Setter Property="Padding" Value="0" />
-                        <Setter Property="Margin" Value="0" />
-                        <Setter Property="SnapsToDevicePixels" Value="True"/>
-                        <Setter Property="VerticalAlignment" Value="Center"/>
-                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                        <Setter Property="Content" Value="{StaticResource ContactsNormal}" />
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="{x:Type ToggleButton}">
-                                    <Grid Background="Transparent">
+				</ToggleButton.Resources>
+				<ToggleButton.Style>
+					<Style TargetType="{x:Type ToggleButton}">
+						<Setter Property="Opacity" Value="1" />
+						<Setter Property="BorderThickness" Value="0" />
+						<Setter Property="Padding" Value="0" />
+						<Setter Property="Margin" Value="0" />
+						<Setter Property="SnapsToDevicePixels" Value="True"/>
+						<Setter Property="VerticalAlignment" Value="Center"/>
+						<Setter Property="HorizontalAlignment" Value="Center"/>
+						<Setter Property="Content" Value="{StaticResource ContactsNormal}" />
+						<Setter Property="Template">
+							<Setter.Value>
+								<ControlTemplate TargetType="{x:Type ToggleButton}">
+									<Grid Background="Transparent">
 
-                                        <Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
-                                            <ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                                        </Border>
-                                    </Grid>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Content" Value="{StaticResource ContactsHover}" />
-                            </Trigger>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter Property="Content" Value="{StaticResource ContactsPressed}" />
-                            </Trigger>
+										<Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
+											<ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+										</Border>
+									</Grid>
+								</ControlTemplate>
+							</Setter.Value>
+						</Setter>
+						<Style.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter Property="Content" Value="{StaticResource ContactsHover}" />
+							</Trigger>
+							<Trigger Property="IsChecked" Value="True">
+								<Setter Property="Content" Value="{StaticResource ContactsPressed}" />
+							</Trigger>
 
-                            <MultiDataTrigger>
-                                <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
-                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True"/>
-                                </MultiDataTrigger.Conditions>
+							<MultiDataTrigger>
+								<MultiDataTrigger.Conditions>
+									<Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+									<Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True"/>
+								</MultiDataTrigger.Conditions>
 
-                                <Setter Property="Opacity" Value="0.7"/>
-                                <Setter Property="Content" Value="{StaticResource ContactsPressed}"/>
-                            </MultiDataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ToggleButton.Style>
-            </ToggleButton>
-
+								<Setter Property="Opacity" Value="0.7"/>
+								<Setter Property="Content" Value="{StaticResource ContactsPressed}"/>
+							</MultiDataTrigger>
+						</Style.Triggers>
+					</Style>
+				</ToggleButton.Style>
+			</ToggleButton>
+            
             <ToggleButton x:Name="BtnDialpad" Grid.Column="2" Click="btnDialpad_Click" Height="60" Width="60" HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding IsDialpadDocked}">
-                <ToggleButton.Resources>
-                    <Grid x:Key="DialpadHover" >
+				<ToggleButton.Resources>
+					<Grid x:Key="DialpadHover" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
@@ -366,7 +361,7 @@
                         </Rectangle>
                         <TextBlock Text="Dialpad" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
                     </Grid>
-                    <Grid x:Key="DialpadPressed">
+					<Grid x:Key="DialpadPressed">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
@@ -383,7 +378,7 @@
                         <TextBlock Text="Dialpad" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
 
                     </Grid>
-                    <Grid x:Key="DialpadNormal">
+					<Grid x:Key="DialpadNormal">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
@@ -399,55 +394,55 @@
                         </Rectangle>
                         <TextBlock Text="Dialpad" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
                     </Grid>
-                </ToggleButton.Resources>
+				</ToggleButton.Resources>
 
-                <ToggleButton.Style>
-                    <Style TargetType="{x:Type ToggleButton}">
-                        <Setter Property="Opacity" Value="1" />
-                        <Setter Property="BorderThickness" Value="0" />
-                        <Setter Property="Padding" Value="0" />
-                        <Setter Property="Margin" Value="0" />
-                        <Setter Property="SnapsToDevicePixels" Value="True"/>
-                        <Setter Property="VerticalAlignment" Value="Center"/>
-                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                        <Setter Property="Content" Value="{StaticResource DialpadNormal}" />
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="{x:Type ToggleButton}">
-                                    <Grid Background="Transparent">
+				<ToggleButton.Style>
+					<Style TargetType="{x:Type ToggleButton}">
+						<Setter Property="Opacity" Value="1" />
+						<Setter Property="BorderThickness" Value="0" />
+						<Setter Property="Padding" Value="0" />
+						<Setter Property="Margin" Value="0" />
+						<Setter Property="SnapsToDevicePixels" Value="True"/>
+						<Setter Property="VerticalAlignment" Value="Center"/>
+						<Setter Property="HorizontalAlignment" Value="Center"/>
+						<Setter Property="Content" Value="{StaticResource DialpadNormal}" />
+						<Setter Property="Template">
+							<Setter.Value>
+								<ControlTemplate TargetType="{x:Type ToggleButton}">
+									<Grid Background="Transparent">
 
-                                        <Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
-                                            <ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                                        </Border>
-                                    </Grid>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Content" Value="{StaticResource DialpadHover}" />
-                            </Trigger>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter Property="Content" Value="{StaticResource DialpadPressed}" />
-                            </Trigger>
+										<Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
+											<ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+										</Border>
+									</Grid>
+								</ControlTemplate>
+							</Setter.Value>
+						</Setter>
+						<Style.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter Property="Content" Value="{StaticResource DialpadHover}" />
+							</Trigger>
+							<Trigger Property="IsChecked" Value="True">
+								<Setter Property="Content" Value="{StaticResource DialpadPressed}" />
+							</Trigger>
 
-                            <MultiDataTrigger>
-                                <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
-                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True"/>
-                                </MultiDataTrigger.Conditions>
+							<MultiDataTrigger>
+								<MultiDataTrigger.Conditions>
+									<Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+									<Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True"/>
+								</MultiDataTrigger.Conditions>
 
-                                <Setter Property="Opacity" Value="0.7"/>
-                                <Setter Property="Content" Value="{StaticResource DialpadPressed}"/>
-                            </MultiDataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ToggleButton.Style>
+								<Setter Property="Opacity" Value="0.7"/>
+								<Setter Property="Content" Value="{StaticResource DialpadPressed}"/>
+							</MultiDataTrigger>
+						</Style.Triggers>
+					</Style>
+				</ToggleButton.Style>
 
-            </ToggleButton>
-            <ToggleButton x:Name="BtnResourcesView" Grid.Column="3" Click="btnShowResources" Height="60" Width="60" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <ToggleButton.Resources>
-                    <Grid x:Key="ResourcesViewHover" >
+			</ToggleButton>
+			<ToggleButton x:Name="BtnResourcesView" Grid.Column="3" Click="btnShowResources" Height="60" Width="60" HorizontalAlignment="Center" VerticalAlignment="Center">
+				<ToggleButton.Resources>
+					<Grid x:Key="ResourcesViewHover" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
@@ -464,7 +459,7 @@
                         <TextBlock Text="Messages" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
 
                     </Grid>
-                    <Grid x:Key="ResourcesViewPressed">
+					<Grid x:Key="ResourcesViewPressed">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
@@ -480,8 +475,8 @@
                         </Rectangle>
                         <TextBlock Text="Messages" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
                     </Grid>
-                    <Grid x:Key="ResourcesViewNormal">
-                        <Grid.RowDefinitions>
+					<Grid x:Key="ResourcesViewNormal">
+						<Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
@@ -497,55 +492,55 @@
                         <TextBlock Text="Messages" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
 
                     </Grid>
-                </ToggleButton.Resources>
+				</ToggleButton.Resources>
 
-                <ToggleButton.Style>
-                    <Style TargetType="{x:Type ToggleButton}">
-                        <Setter Property="Opacity" Value="1" />
-                        <Setter Property="BorderThickness" Value="0" />
-                        <Setter Property="Padding" Value="0" />
-                        <Setter Property="Margin" Value="0" />
-                        <Setter Property="SnapsToDevicePixels" Value="True"/>
-                        <Setter Property="VerticalAlignment" Value="Center"/>
-                        <Setter Property="HorizontalAlignment" Value="Center"/>
+				<ToggleButton.Style>
+					<Style TargetType="{x:Type ToggleButton}">
+						<Setter Property="Opacity" Value="1" />
+						<Setter Property="BorderThickness" Value="0" />
+						<Setter Property="Padding" Value="0" />
+						<Setter Property="Margin" Value="0" />
+						<Setter Property="SnapsToDevicePixels" Value="True"/>
+						<Setter Property="VerticalAlignment" Value="Center"/>
+						<Setter Property="HorizontalAlignment" Value="Center"/>
                         <Setter Property="Content" Value="{StaticResource ResourcesViewNormal}" />
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="{x:Type ToggleButton}">
-                                    <Grid Background="Transparent">
+						<Setter Property="Template">
+							<Setter.Value>
+								<ControlTemplate TargetType="{x:Type ToggleButton}">
+									<Grid Background="Transparent">
 
-                                        <Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
-                                            <ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                                        </Border>
-                                    </Grid>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Content" Value="{StaticResource ResourcesViewHover}" />
-                            </Trigger>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter Property="Content" Value="{StaticResource ResourcesViewPressed}" />
-                            </Trigger>
+										<Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
+											<ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+										</Border>
+									</Grid>
+								</ControlTemplate>
+							</Setter.Value>
+						</Setter>
+						<Style.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter Property="Content" Value="{StaticResource ResourcesViewHover}" />
+							</Trigger>
+							<Trigger Property="IsChecked" Value="True">
+								<Setter Property="Content" Value="{StaticResource ResourcesViewPressed}" />
+							</Trigger>
 
-                            <MultiDataTrigger>
-                                <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
-                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True"/>
-                                </MultiDataTrigger.Conditions>
+							<MultiDataTrigger>
+								<MultiDataTrigger.Conditions>
+									<Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+									<Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True"/>
+								</MultiDataTrigger.Conditions>
 
-                                <Setter Property="Opacity" Value="0.7"/>
-                                <Setter Property="Content" Value="{StaticResource ResourcesViewPressed}"/>
-                            </MultiDataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ToggleButton.Style>
-            </ToggleButton>
+								<Setter Property="Opacity" Value="0.7"/>
+								<Setter Property="Content" Value="{StaticResource ResourcesViewPressed}"/>
+							</MultiDataTrigger>
+						</Style.Triggers>
+					</Style>
+				</ToggleButton.Style>
+			</ToggleButton>
 
             <ToggleButton x:Name="BtnSettings" Grid.Column="4" Click="btnSettings_Click" Height="60" Width="60" HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding IsSettingsDocked}">
-                <ToggleButton.Resources>
-                    <Grid x:Key="SettingsHover" >
+				<ToggleButton.Resources>
+					<Grid x:Key="SettingsHover" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
@@ -559,7 +554,7 @@
                         </Rectangle>
                         <TextBlock Text="Settings" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
                     </Grid>
-                    <Grid x:Key="SettingsPressed">
+					<Grid x:Key="SettingsPressed">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
@@ -573,7 +568,7 @@
                         </Rectangle>
                         <TextBlock Text="Settings" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
                     </Grid>
-                    <Grid x:Key="SettingsNormal">
+					<Grid x:Key="SettingsNormal">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
@@ -590,67 +585,67 @@
                         <TextBlock Text="Settings" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
 
                     </Grid>
-                </ToggleButton.Resources>
+				</ToggleButton.Resources>
 
-                <ToggleButton.Style>
-                    <Style TargetType="{x:Type ToggleButton}">
-                        <Setter Property="Opacity" Value="1" />
-                        <Setter Property="BorderThickness" Value="0" />
-                        <Setter Property="Padding" Value="0" />
-                        <Setter Property="Margin" Value="0" />
-                        <Setter Property="SnapsToDevicePixels" Value="True"/>
-                        <Setter Property="VerticalAlignment" Value="Center"/>
-                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                        <Setter Property="Content" Value="{StaticResource SettingsNormal}" />
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="{x:Type ToggleButton}">
-                                    <Grid Background="Transparent">
+				<ToggleButton.Style>
+					<Style TargetType="{x:Type ToggleButton}">
+						<Setter Property="Opacity" Value="1" />
+						<Setter Property="BorderThickness" Value="0" />
+						<Setter Property="Padding" Value="0" />
+						<Setter Property="Margin" Value="0" />
+						<Setter Property="SnapsToDevicePixels" Value="True"/>
+						<Setter Property="VerticalAlignment" Value="Center"/>
+						<Setter Property="HorizontalAlignment" Value="Center"/>
+						<Setter Property="Content" Value="{StaticResource SettingsNormal}" />
+						<Setter Property="Template">
+							<Setter.Value>
+								<ControlTemplate TargetType="{x:Type ToggleButton}">
+									<Grid Background="Transparent">
 
-                                        <Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
-                                            <ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                                        </Border>
-                                    </Grid>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Content" Value="{StaticResource SettingsHover}" />
-                            </Trigger>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter Property="Content" Value="{StaticResource SettingsPressed}" />
-                            </Trigger>
+										<Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
+											<ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+										</Border>
+									</Grid>
+								</ControlTemplate>
+							</Setter.Value>
+						</Setter>
+						<Style.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter Property="Content" Value="{StaticResource SettingsHover}" />
+							</Trigger>
+							<Trigger Property="IsChecked" Value="True">
+								<Setter Property="Content" Value="{StaticResource SettingsPressed}" />
+							</Trigger>
 
-                            <MultiDataTrigger>
-                                <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
-                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True"/>
-                                </MultiDataTrigger.Conditions>
+							<MultiDataTrigger>
+								<MultiDataTrigger.Conditions>
+									<Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+									<Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True"/>
+								</MultiDataTrigger.Conditions>
 
-                                <Setter Property="Opacity" Value="0.7"/>
-                                <Setter Property="Content" Value="{StaticResource SettingsPressed}"/>
-                            </MultiDataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ToggleButton.Style>
-            </ToggleButton>
+								<Setter Property="Opacity" Value="0.7"/>
+								<Setter Property="Content" Value="{StaticResource SettingsPressed}"/>
+							</MultiDataTrigger>
+						</Style.Triggers>
+					</Style>
+				</ToggleButton.Style>
+			</ToggleButton>
 
-        </Grid>
+		</Grid>
 
         <Border Grid.Column="1" Grid.Row="0" Grid.RowSpan="4" BorderThickness="1,0,1,0" Margin="0" BorderBrush="{StaticResource AppMainBorderBrush}" 
                 Background="{StaticResource AppMainBorderBrush}" 
                 MinWidth="700" MaxWidth="700" 
                 Visibility="{Binding IsCallPanelDocked, Converter={StaticResource bvc}}">
-            <DockPanel Dock="Top"  Background="{DynamicResource AppMainWindowBrush}" >
+        <DockPanel Dock="Top"  Background="{DynamicResource AppMainWindowBrush}" >
                 <customControls:CallViewCtrl x:Name="ctrlCall" Margin="0"/>
             </DockPanel>
         </Border>
         <Border Grid.Column="2" Grid.Row="0" Grid.RowSpan="4" BorderThickness="1,0,1,0" Margin="0" BorderBrush="{StaticResource AppMainBorderBrush}" Background="{StaticResource AppMainBorderBrush}" Visibility="{Binding IsMessagingDocked, Converter={StaticResource bvc}}">
             <DockPanel Dock="Top" Background="{DynamicResource AppMainWindowBrush}" >
-                <customControls:RTTCtrl x:Name="ctrlRTT" Margin="0"/>
-            </DockPanel>
-        </Border>
+            <customControls:RTTCtrl x:Name="ctrlRTT" Margin="0"/>
+        </DockPanel>
+            </Border>
 
-    </Grid>
+	</Grid>
 </model:VATRPWindow>

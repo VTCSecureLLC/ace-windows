@@ -47,7 +47,7 @@ namespace com.vtcsecure.ace.windows
         private readonly ILinphoneService _linphoneService;
         private FlashWindowHelper _flashWindowHelper = new FlashWindowHelper();
         private readonly MainControllerViewModel _mainViewModel;
-        private int CombinedUICallViewSize = 700;
+        private const int CombinedUICallViewSize = 700;
         #endregion
 
         #region Properties
@@ -76,10 +76,6 @@ namespace com.vtcsecure.ace.windows
             ctrlLocalContact.SetDataContext(_mainViewModel.ContactModel);
             ctrlCall.ParentViewModel =_mainViewModel;
             _settingsView.SetSettingsModel(_mainViewModel.SettingsModel);
-            EnterFullScreenCheckBox.IsEnabled = false;
-
-            ctrlSettings.SetCallControl(ctrlCall);
-            ctrlCall.SettingsControl = ctrlSettings;
         }
 
         private void btnRecents_Click(object sender, RoutedEventArgs e)
@@ -205,28 +201,9 @@ namespace com.vtcsecure.ace.windows
 
         }
 
-        private void UpdateMenuSettingsForRegistrationState()
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk)
-            {
-                MuteMicrophoneCheckbox.IsChecked = false;
-                MuteMicrophoneCheckbox.IsEnabled = false;
-            }
-            else
-            {
-                MuteMicrophoneCheckbox.IsEnabled = true;
-                if (App.CurrentAccount != null)
-                {
-                    MuteMicrophoneCheckbox.IsEnabled = App.CurrentAccount.MuteMicrophone;
-                }
-            }
-
-        }
-
-
-        private void MQuit_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
+            
         }
 
         private void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -427,70 +404,6 @@ namespace com.vtcsecure.ace.windows
             var feedbackView = new FeedbackView();
             feedbackView.Show();
         }
-
-        // Video Menu
-        private void OnHideWindow(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState.Minimized;
-        }
-
-        private void OnEnterFullScreen(object sender, RoutedEventArgs e)
-        {
-            // I think what we want to do here is to resize the video to full screen
-            if (EnterFullScreenCheckBox.IsChecked)
-            {
-                this.ResizeMode = System.Windows.ResizeMode.CanResize;
-                this.MaxHeight = SystemParameters.WorkArea.Height;
-                CombinedUICallViewSize = (int)SystemParameters.WorkArea.Width;
-                WindowState = WindowState.Maximized;
-            }
-            else
-            {
-                this.MaxHeight = 700;
-                CombinedUICallViewSize = 700;
-                WindowState = System.Windows.WindowState.Normal;
-//                this.Height = 700;
-//                this.Width = 316;
-                this.ResizeMode = System.Windows.ResizeMode.NoResize;
-            }
-        }
-
-        // Audio Menu
-        private void OnAudioMenuItemOpened(object sender, RoutedEventArgs e)
-        {
-            if (App.CurrentAccount != null)
-            {
-                MuteMicrophoneCheckbox.IsEnabled = true;
-                MuteMicrophoneCheckbox.IsChecked = App.CurrentAccount.MuteMicrophone;
-            }
-            else
-            {
-                MuteMicrophoneCheckbox.IsEnabled = false;
-                MuteMicrophoneCheckbox.IsChecked = false;
-            }
-
-        }
-
-        private void OnMuteMicrophone(object sender, RoutedEventArgs e)
-        {
-            bool enabled = MuteMicrophoneCheckbox.IsChecked;
-            if (enabled != App.CurrentAccount.MuteMicrophone)
-            {
-                App.CurrentAccount.MuteMicrophone = enabled;
-                ServiceManager.Instance.ApplyMediaSettingsChanges();
-                ServiceManager.Instance.SaveAccountSettings();
-
-                if (ctrlSettings != null)
-                {
-                    ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettings.MuteMicrophoneMenu);
-                }
-                if ((ctrlCall != null) && ctrlCall.IsLoaded)
-                {
-                    ctrlCall.UpdateMuteSettingsIfOpen();
-                }
-            }
-        }
-
         #endregion
     }
 }

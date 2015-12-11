@@ -1110,7 +1110,11 @@ namespace VATRP.Core.Services
 	            return;
 	        }
 
-            MuteCall(account.MuteMicrophone);
+            bool isMicMuted = IsCallMuted();
+            if (isMicMuted != account.MuteMicrophone)
+            {
+                ToggleMute();
+            }
 
             EnableEchoCancellation(account.EchoCancel);
 
