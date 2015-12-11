@@ -541,14 +541,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 _linphoneService.TerminateCall(_currentCall.NativeCallPtr);
         }
 
-        internal void MuteCall()
+        internal void MuteCall(bool isMuted)
         {
-            _linphoneService.ToggleMute();
-            IsMuteOn = _linphoneService.IsCallMuted();
+            _linphoneService.MuteCall(isMuted);
+//            _linphoneService.ToggleMute();
+//            IsMuteOn = _linphoneService.IsCallMuted();
             if (App.CurrentAccount != null)
             {
-                App.CurrentAccount.MuteMicrophone = IsMuteOn;
+                App.CurrentAccount.MuteMicrophone = isMuted;
                 // this now needs to be able to update the unified settings control as well.
+                ServiceManager.Instance.SaveAccountSettings();
             }
         }
 

@@ -47,7 +47,7 @@ namespace com.vtcsecure.ace.windows
         private readonly ILinphoneService _linphoneService;
         private FlashWindowHelper _flashWindowHelper = new FlashWindowHelper();
         private readonly MainControllerViewModel _mainViewModel;
-        private const int CombinedUICallViewSize = 700;
+        private int CombinedUICallViewSize = 700;
         #endregion
 
         #region Properties
@@ -76,6 +76,10 @@ namespace com.vtcsecure.ace.windows
             ctrlLocalContact.SetDataContext(_mainViewModel.ContactModel);
             ctrlCall.ParentViewModel =_mainViewModel;
             _settingsView.SetSettingsModel(_mainViewModel.SettingsModel);
+            EnterFullScreenCheckBox.IsEnabled = false;
+
+            ctrlSettings.SetCallControl(ctrlCall);
+            ctrlCall.SettingsControl = ctrlSettings;
         }
 
         private void btnRecents_Click(object sender, RoutedEventArgs e)
@@ -424,7 +428,34 @@ namespace com.vtcsecure.ace.windows
             feedbackView.Show();
         }
 
-        
+        // Video Menu
+        private void OnHideWindow(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void OnEnterFullScreen(object sender, RoutedEventArgs e)
+        {
+            // I think what we want to do here is to resize the video to full screen
+            if (EnterFullScreenCheckBox.IsChecked)
+            {
+                this.ResizeMode = System.Windows.ResizeMode.CanResize;
+                this.MaxHeight = SystemParameters.WorkArea.Height;
+                CombinedUICallViewSize = (int)SystemParameters.WorkArea.Width;
+                WindowState = WindowState.Maximized;
+            }
+            else
+            {
+                this.MaxHeight = 700;
+                CombinedUICallViewSize = 700;
+                WindowState = System.Windows.WindowState.Normal;
+//                this.Height = 700;
+//                this.Width = 316;
+                this.ResizeMode = System.Windows.ResizeMode.NoResize;
+            }
+        }
+
+        // Audio Menu
         private void OnAudioMenuItemOpened(object sender, RoutedEventArgs e)
         {
             if (App.CurrentAccount != null)
@@ -440,7 +471,6 @@ namespace com.vtcsecure.ace.windows
 
         }
 
-        // Video
         private void OnMuteMicrophone(object sender, RoutedEventArgs e)
         {
             bool enabled = MuteMicrophoneCheckbox.IsChecked;
@@ -450,9 +480,17 @@ namespace com.vtcsecure.ace.windows
                 ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
 
-                ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettings.MuteMicrophoneMenu);
+                if (ctrlSettings != null)
+                {
+                    ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettings.MuteMicrophoneMenu);
+                }
+                if ((ctrlCall != null) && ctrlCall.IsLoaded)
+                {
+                    ctrlCall.UpdateMuteSettingsIfOpen();
+                }
             }
         }
+
         #endregion
     }
 }
