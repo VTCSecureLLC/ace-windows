@@ -113,6 +113,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         #region Audio Settings (in call)
         private void OnMuteMicrophone(object sender, RoutedEventArgs e)
         {
+            if (App.CurrentAccount == null)
+                return;
             Console.WriteLine("Mute Microphone Clicked");
             bool enabled = MuteMicrophoneCheckBox.IsChecked ?? false;
             if (enabled != App.CurrentAccount.MuteMicrophone)
@@ -129,6 +131,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         }
         private void OnMuteSpeaker(object sender, RoutedEventArgs e)
         {
+            if (App.CurrentAccount == null)
+                return;
             Console.WriteLine("Mute Speaker Clicked");
             bool enabled = MuteSpeakerCheckBox.IsChecked ?? false;
             if (enabled != App.CurrentAccount.MuteSpeaker)
