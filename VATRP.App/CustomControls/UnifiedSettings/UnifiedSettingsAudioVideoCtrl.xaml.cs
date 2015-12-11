@@ -21,6 +21,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
     /// </summary>
     public partial class UnifiedSettingsAudioVideoCtrl : BaseUnifiedSettingsPanel
     {
+        public CallViewCtrl CallControl;
 
         public UnifiedSettingsAudioVideoCtrl()
         {
@@ -67,6 +68,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 App.CurrentAccount.MuteMicrophone = enabled;
                 ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
+
+                if ((CallControl != null) && CallControl.IsLoaded)
+                {
+                    CallControl.UpdateMuteSettingsIfOpen();
+                }
             }
         }
         private void OnMuteSpeaker(object sender, RoutedEventArgs e)

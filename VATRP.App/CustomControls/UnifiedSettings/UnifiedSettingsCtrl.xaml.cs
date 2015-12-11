@@ -21,6 +21,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
     /// </summary>
     public partial class UnifiedSettingsCtrl : UserControl
     {
+
+        private CallViewCtrl _callControl;
+
         private UnifiedSettingsMainCtrl _mainPanel;
         private UnifiedSettingsGeneralCtrl _generalPanel;
         private UnifiedSettingsAudioVideoCtrl _audioVideoPanel;
@@ -66,6 +69,13 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             _currentContent = _mainPanel;
 
             UpdateContentInUI();
+        }
+
+        public void SetCallControl(CallViewCtrl callControl)
+        {
+            _callControl = callControl;
+            _audioSettingsPanel.CallControl = _callControl;
+            _audioVideoPanel.CallControl = _callControl;
         }
 
         private void UpdateContentInUI()
@@ -188,6 +198,10 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             if (_audioSettingsPanel.IsLoaded)
             {
                 _audioSettingsPanel.UpdateForMenuSettingChange(menuSetting);
+            }
+            if (_audioVideoPanel.IsLoaded)
+            {
+                _audioVideoPanel.UpdateForMenuSettingChange(menuSetting);
             }
         }
         #endregion
