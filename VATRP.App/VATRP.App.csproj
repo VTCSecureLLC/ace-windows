@@ -175,6 +175,7 @@
     </Compile>
     <Compile Include="Enums\ACEMenuSettings.cs" />
     <Compile Include="Enums\VATRPSettings.cs" />
+    <Compile Include="Model\ActionCommand.cs" />
     <Compile Include="ViewModel\FeedbackViewModel.cs" />
     <Compile Include="ViewModel\ContactEditViewModel.cs" />
     <Compile Include="ViewModel\ContactsViewModel.cs" />
@@ -610,6 +611,12 @@
   <ItemGroup>
     <Resource Include="Resources\hold_off.png" />
     <Resource Include="Resources\hold_on.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\import_vcards.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\export_vcards.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
