@@ -13,8 +13,8 @@
     <Property Id="ARPPRODUCTICON" Value="APP_ICON" />
     <Property Id="MSIFASTINSTALL" Value="1"/>
     <!-- The '.NET Framework' launch condition. -->
-    <PropertyRef Id='NETFRAMEWORK40FULL' />
-    <Condition Message='This setup requires the .NET Framework version v4.0.  Please install the .NET Framework and run this setup again.'><![CDATA[Installed OR NETFRAMEWORK40FULL]]></Condition>
+    <PropertyRef Id='NETFRAMEWORK45' />
+    <Condition Message='This setup requires the .NET Framework version v4.5.  Please install the .NET Framework and run this setup again.'><![CDATA[Installed OR NETFRAMEWORK45]]></Condition>
     <Icon Id='APP_ICON' SourceFile='Setup\Resources\ACE.ico' />
     <!-- Initialize the '' directory property. -->
     <!-- The directory tree of the installation package. -->
@@ -45,14 +45,8 @@
           <Component Id='com_ORTP.DLL' Guid='D9CD42E9-B55E-4988-BA4A-CB30F7BCC02A' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='ORTP.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='ortp.dll' Source='ThirdParties\liblinphone\ortp.dll' KeyPath='yes' />
           </Component>
-          <Component Id='com_SQLITE.DLL' Guid='91B5B389-2180-43F8-8B42-B09900BB71E2' Permanent='no' SharedDllRefCount='no' Transitive='no'>
-            <File Id='SQLITE.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='System.Data.SQLite.dll' Source='VATRP.Core\bin\$(var.Configuration)\System.Data.SQLite.dll' KeyPath='yes' />
-          </Component>
           <Component Id='com_SPEEXDSP.DLL' Guid='F5A55162-665E-40AA-AA89-D54D37BCDFC7' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='_SPEEXDSP.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='speexdsp.dll' Source='ThirdParties\liblinphone\speexdsp.dll' KeyPath='yes' />
-          </Component>
-          <Component Id='com_TASK.EXTENSIONS.DLL' Guid='11D9DC0E-4696-45DB-BD47-84B0AC93FE93' Permanent='no' SharedDllRefCount='no' Transitive='no'>
-            <File Id='TASK.EXTENSIONS.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='Microsoft.Threading.Tasks.Extensions.dll' Source='packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.Extensions.dll' KeyPath='yes' />
           </Component>
           <Component Id='com_ACE.CORE.DLL' Guid='E6F92888-794A-490F-AB9D-CEB1ADB86203' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='ACE.CORE.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='ACE.Core.dll' Source='VATRP.Core\bin\$(var.Configuration)\ACE.Core.dll' KeyPath='yes' />
@@ -60,17 +54,8 @@
           <Component Id='com_SWRESAMPLE.DLL' Guid='1B81247E-7E0D-4B69-8CC0-DA82E9D077C7' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='SWRESAMPLE.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='swresample-0.dll' Source='ThirdParties\liblinphone\swresample-0.dll' KeyPath='yes' />
           </Component>
-          <Component Id='com_SQLITE.INTEROP.DLL' Guid='8FDE5DFC-1F52-4A45-9099-6B0AFFAEF5FA' Permanent='no' SharedDllRefCount='no' Transitive='no'>
-            <File Id='SQLITE.INTEROP.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='SQLite.Interop.dll' Source='VATRP.Core\bin\$(var.Configuration)\x86\SQLite.Interop.dll' KeyPath='yes' />
-          </Component>
-          <Component Id='com_TASKS.DLL' Guid='398F0C2E-D7F6-4D70-9B92-5A4704F0D2CD' Permanent='no' SharedDllRefCount='no' Transitive='no'>
-            <File Id='TASKS.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='System.Threading.Tasks.dll' Source='packages\Microsoft.Bcl.1.1.8\lib\net40\System.Threading.Tasks.dll' KeyPath='yes' />
-          </Component>
           <Component Id='com_AVCODEC.DLL' Guid='201CC043-0495-470A-814D-E72CAA24A35B' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='AVCODEC.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='avcodec-53.dll' Source='ThirdParties\liblinphone\avcodec-53.dll' KeyPath='yes' />
-          </Component>
-          <Component Id='com_RUNTIME.DLL' Guid='73BE1D92-CBA0-4A95-A193-CD348A3A9DA8' Permanent='no' SharedDllRefCount='no' Transitive='no'>
-            <File Id='RUNTIME.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='System.Runtime.dll' Source='packages\Microsoft.Bcl.1.1.8\lib\net40\System.Runtime.dll' KeyPath='yes' />
           </Component>
           <Component Id='com_INTL.DLL' Guid='253AD8D3-9BC3-450D-A799-F1127A587100' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='INTL.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='intl.dll' Source='ThirdParties\liblinphone\intl.dll' KeyPath='yes' />
@@ -84,9 +69,6 @@
           <Component Id='com_ZLIB1.DLL' Guid='394E8FFF-7338-4328-95DF-AA5A5CDD44ED' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='ZLIB1.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='zlib1.dll' Source='ThirdParties\liblinphone\zlib1.dll' KeyPath='yes' />
           </Component>
-          <Component Id='com_MS.THREADING.TASKS.DLL' Guid='2E9BFA9C-9523-4B6E-878F-5AB23FFDAF73' Permanent='no' SharedDllRefCount='no' Transitive='no'>
-            <File Id='MS.THREADING.TASKS.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='Microsoft.Threading.Tasks.dll' Source='packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.dll' KeyPath='yes' />
-          </Component>
           <Component Id='com_BELLESIP.DLL' Guid='F2AD22BC-8A70-4A34-AC0D-D71D734E5C57' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='BELLESIP.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='bellesip.dll' Source='ThirdParties\liblinphone\bellesip.dll' KeyPath='yes' />
           </Component>
@@ -97,16 +79,13 @@
             <File Id='OPUS.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='opus.dll' Source='ThirdParties\liblinphone\opus.dll' KeyPath='yes' />
           </Component>
           <Component Id='com_HOCKEYAPP.DLL' Guid='5FF6A520-9088-40B1-9BA5-4E6181686F00' Permanent='no' SharedDllRefCount='no' Transitive='no'>
-            <File Id='HOCKEYAPP.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='HockeyApp.dll' Source='packages\HockeySDK.WPF.2.2.2\lib\net40\HockeyApp.dll' KeyPath='yes' />
+            <File Id='HOCKEYAPP.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='HockeyApp.dll' Source='packages\HockeySDK.WPF.2.2.2\lib\net45\HockeyApp.dll' KeyPath='yes' />
           </Component>
           <Component Id='com_MEDIASTREAMER_BASE.DLL' Guid='6DC64234-6871-4258-9733-EDBA90FAB624' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='MEDIASTREAMER_BASE.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='mediastreamer_base.dll' Source='ThirdParties\liblinphone\mediastreamer_base.dll' KeyPath='yes' />
           </Component>
           <Component Id='com_POLARSSL.DLL' Guid='2571986E-0CC4-4A59-A113-B4509D85B301' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='POLARSSL.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='polarssl.dll' Source='ThirdParties\liblinphone\polarssl.dll' KeyPath='yes' />
-          </Component>
-          <Component Id='com_IO.DLL' Guid='BE01467B-743B-435F-8354-80DEAAF78737' Permanent='no' SharedDllRefCount='no' Transitive='no'>
-            <File Id='IO.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='System.IO.dll' Source='packages\Microsoft.Bcl.1.1.8\lib\net40\System.IO.dll' KeyPath='yes' />
           </Component>
           <Component Id='com_ZLIBD.DLL' Guid='10988F21-D17D-472E-837B-4332AB3B9D82' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='ZLIBD.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='zlibd.dll' Source='ThirdParties\liblinphone\zlibd.dll' KeyPath='yes' />
@@ -127,13 +106,10 @@
             <File Id='BZRTP.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='bzrtp.dll' Source='ThirdParties\liblinphone\bzrtp.dll' KeyPath='yes' />
           </Component>
           <Component Id='com_HOCKEYAPPPCL.DLL' Guid='4FB69A04-A9A4-476D-8C96-F3D279E5B18E' Permanent='no' SharedDllRefCount='no' Transitive='no'>
-            <File Id='HOCKEYAPPPCL.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='HockeyAppPCL.dll' Source='packages\HockeySDK.Core.2.2.2\lib\portable-net40+sl5\HockeyAppPCL.dll' KeyPath='yes' />
+            <File Id='HOCKEYAPPPCL.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='HockeyAppPCL.dll' Source='packages\HockeySDK.Core.2.2.2\lib\portable-net45+win8+wp8+wpa81+win81\HockeyAppPCL.dll' KeyPath='yes' />
           </Component>
           <Component Id='com_AVUTIL.DLL' Guid='6AF4EF2A-DD37-4B95-9C21-4C270502235E' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='AVUTIL.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='avutil-51.dll' Source='ThirdParties\liblinphone\avutil-51.dll' KeyPath='yes' />
-          </Component>
-          <Component Id='com_EXTENSIONS.DESKTOP.DLL' Guid='34776B2D-295C-4792-B2D6-29D7A5A81972' Permanent='no' SharedDllRefCount='no' Transitive='no'>
-            <File Id='EXTENSIONS.DESKTOP.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='Microsoft.Threading.Tasks.Extensions.Desktop.dll' Source='packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.Extensions.Desktop.dll' KeyPath='yes' />
           </Component>
           <Component Id='com_ANTLR.DLL' Guid='9C2063F5-8259-47E2-B1E4-82C9CB2DEDA2' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='ANTLR.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='antlr3c.dll' Source='ThirdParties\liblinphone\antlr3c.dll' KeyPath='yes' />
@@ -198,27 +174,20 @@
       <ComponentRef Id='com_dir_62334284_40B3_EB41_B67E_25F4BFE4EE98' />
       <ComponentRef Id='com_ACE.EXE' />
       <ComponentRef Id='com_ORTP.DLL' />
-      <ComponentRef Id='com_SQLITE.DLL' />
       <ComponentRef Id='com_SPEEXDSP.DLL' />
-      <ComponentRef Id='com_TASK.EXTENSIONS.DLL' />
       <ComponentRef Id='com_ACE.CORE.DLL' />
       <ComponentRef Id='com_SWRESAMPLE.DLL' />
-      <ComponentRef Id='com_SQLITE.INTEROP.DLL' />
-      <ComponentRef Id='com_TASKS.DLL' />
       <ComponentRef Id='com_AVCODEC.DLL' />
-      <ComponentRef Id='com_RUNTIME.DLL' />
       <ComponentRef Id='com_INTL.DLL' />
       <ComponentRef Id='com_LINPHONE.DLL' />
       <ComponentRef Id='com_XML2.DLL' />
       <ComponentRef Id='com_ZLIB1.DLL' />
-      <ComponentRef Id='com_MS.THREADING.TASKS.DLL' />
       <ComponentRef Id='com_BELLESIP.DLL' />
       <ComponentRef Id='com_LINPHONEWRAPPER.DLL' />
       <ComponentRef Id='com_OPUS.DLL' />
       <ComponentRef Id='com_HOCKEYAPP.DLL' />
       <ComponentRef Id='com_MEDIASTREAMER_BASE.DLL' />
       <ComponentRef Id='com_POLARSSL.DLL' />
-      <ComponentRef Id='com_IO.DLL' />
       <ComponentRef Id='com_ZLIBD.DLL' />
       <ComponentRef Id='com_SWSCALE.DLL' />
       <ComponentRef Id='com_LOG4NET.CONFIG' />
@@ -227,7 +196,6 @@
       <ComponentRef Id='com_BZRTP.DLL' />
       <ComponentRef Id='com_HOCKEYAPPPCL.DLL' />
       <ComponentRef Id='com_AVUTIL.DLL' />
-      <ComponentRef Id='com_EXTENSIONS.DESKTOP.DLL' />
       <ComponentRef Id='com_ANTLR.DLL' />
       <ComponentRef Id='com_LOG4NET.DLL' />
       <ComponentRef Id='com_MEDIASTREAMER_VOIP.DLL' />
