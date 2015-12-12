@@ -95,9 +95,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         private void _contact_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "Status")
+            if (e.PropertyName == "ContactName_ForUI")
             {
-                OnPropertyChanged("StatusUI");
+                OnPropertyChanged("ContactUI");
             }
         }
         
@@ -117,11 +117,14 @@ namespace com.vtcsecure.ace.windows.ViewModel
             set { this._contact = value; }
         }
 
-        public string StatusUI
+        public string ContactUI
         {
             get
             {
-                return this.Contact.Status.ToString();
+                var vatrpContact = this.Contact;
+                if (vatrpContact != null) 
+                    return vatrpContact.ContactName_ForUI;
+                return string.Empty;
             }
         }
 
@@ -147,11 +150,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
                 handler(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public bool IsOnline
-        {
-            get { return _contact != null && _contact.Status != UserStatus.Offline; }
         }
     }
 }
