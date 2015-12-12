@@ -61,6 +61,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         private void OnMuteMicrophone(object sender, RoutedEventArgs e)
         {
+            if (App.CurrentAccount == null)
+                return;
             Console.WriteLine("Mute Microphone Clicked");
             bool enabled = MuteMicrophoneCheckBox.IsChecked ?? false;
             if (enabled != App.CurrentAccount.MuteMicrophone)
@@ -77,6 +79,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         }
         private void OnMuteSpeaker(object sender, RoutedEventArgs e)
         {
+            if (App.CurrentAccount == null)
+                return;
             Console.WriteLine("Mute Speaker Clicked");
             bool enabled = MuteSpeakerCheckBox.IsChecked ?? false;
             if (enabled != App.CurrentAccount.MuteSpeaker)
@@ -88,6 +92,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         }
         private void OnEchoCancel(object sender, RoutedEventArgs e)
         {
+            if (App.CurrentAccount == null)
+                return;
             Console.WriteLine("Echo Cancel Call Clicked");
             bool enabled = this.EchoCancelCheckBox.IsChecked ?? false;
             if (enabled != App.CurrentAccount.EchoCancel)
@@ -99,6 +105,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         }
         private void OnShowSelfView(object sender, RoutedEventArgs e)
         {
+            if (App.CurrentAccount == null)
+                return;
             Console.WriteLine("Show Self View Clicked");
             if (App.CurrentAccount == null)
                 return;
