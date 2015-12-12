@@ -134,6 +134,7 @@
     <Compile Include="Model\VATRPAccountType.cs" />
     <Compile Include="Model\VATRPCall.cs" />
     <Compile Include="Model\VATRPCallState.cs" />
+    <Compile Include="Model\vCard.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
@@ -186,7 +187,6 @@
   <ItemGroup>
     <None Include="Resources\connevent.wav" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.98.1\build\net40\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.98.1\build\net40\System.Data.SQLite.Core.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
