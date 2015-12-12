@@ -106,6 +106,9 @@ namespace VATRP.LinphoneWrapper
         public static extern IntPtr linphone_core_create_default_call_parameters(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_call_params_add_custom_header(IntPtr cp, string header_name, string header_value);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_call_params_enable_video(IntPtr cp, bool enabled);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
