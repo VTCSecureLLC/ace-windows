@@ -525,7 +525,6 @@ namespace com.vtcsecure.ace.windows
 						_mainViewModel.IsMessagingDocked = false;
 						ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
 				Configuration.ConfEntry.ACCOUNT_IN_USE, string.Empty);
-						ServiceManager.Instance.AccountService.DeleteAccount(App.CurrentAccount);
 						if (defaultConfigRequest)
 						{
 							ResetConfiguration();
