@@ -82,6 +82,9 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_core_add_auth_info(IntPtr lc, IntPtr info);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_clear_all_auth_info(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_proxy_config_set_identity(IntPtr obj, string identity);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -104,9 +107,6 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_core_create_default_call_parameters(IntPtr lc);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_call_params_add_custom_header(IntPtr cp, string header_name, string header_value);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_call_params_enable_video(IntPtr cp, bool enabled);

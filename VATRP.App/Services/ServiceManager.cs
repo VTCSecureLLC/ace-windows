@@ -5,10 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Timers;
 using System.Web.Script.Serialization;
 using System.Windows;
-using Windows.Devices.Geolocation;
 using log4net;
 using VATRP.Core.Extensions;
 using VATRP.Core.Model;
@@ -32,12 +30,8 @@ namespace com.vtcsecure.ace.windows.Services
         private IAccountService _accountService;
         private ILinphoneService _linphoneService;
         private IProviderService _providerService;
-        private Timer _locationRequestTimer;
-        private WebClient _webClient;
-        private bool _geoLocationFailure = false;
-        private bool _geoLocaionUnauthorized = false;
-        private string _locationString;
 
+        private WebClient _webClient;
         #endregion
 
         #region Event
@@ -130,20 +124,6 @@ namespace com.vtcsecure.ace.windows.Services
 
         internal bool AccountServiceStopped { get; set; }
         internal bool ProviderServiceStopped { get; set; }
-
-        public bool AllowGeoLocationRequest { get; set; }
-
-        public string LocationString
-        {
-            get
-            {
-                if (AllowGeoLocationRequest && !_geoLocationFailure && !_geoLocaionUnauthorized)
-                    return _locationString;
-                return string.Empty;
-            }
-            set { _locationString = value; }
-        }
-
         #endregion
 
         private ServiceManager()
@@ -153,8 +133,6 @@ namespace com.vtcsecure.ace.windows.Services
             HistoryServiceStopped = true;
             AccountServiceStopped = true;
             ProviderServiceStopped = true;
-            LocationString = string.Empty;
-            AllowGeoLocationRequest = true;
         }
 
         public bool Initialize()
@@ -193,17 +171,6 @@ namespace com.vtcsecure.ace.windows.Services
         }
         private void OnLinphoneServiceStarted(object sender, EventArgs args)
         {
-            var os = Environment.OSVersion;
-            LOG.Info(string.Format( "OS: {0} Platform: {1}", os.VersionString, os.Platform));
-
-            if (os.Version.Major > 6 || (os.Version.Major == 6 && os.Version.Minor == 2))
-            {
-                GetGeolocation();
-            }
-            else
-            {
-                LOG.Warn("GeoLocation is not supported");
-            }
             LinphoneCoreStopped = false;
             HistoryService.Start();
             ContactService.Start();
@@ -269,7 +236,7 @@ namespace com.vtcsecure.ace.windows.Services
         {
             if (App.CurrentAccount == null)
             {
-                LOG.Warn("Can't update linphone config. Account is no configured");
+                LOG.Warn("Can't update linphone config. Account is not configured");
                 return false;
             }
 
@@ -313,15 +280,6 @@ namespace com.vtcsecure.ace.windows.Services
             LinphoneService.Stop();
             AccountService.Stop();
             ProviderService.Stop();
-            try
-            {
-                if (_locationRequestTimer != null)
-                    _locationRequestTimer.Dispose();
-            }
-            catch
-            {
-                
-            }
         }
 
         internal bool RequestLinphoneCredentials(string username, string passwd)
@@ -571,61 +529,14 @@ namespace com.vtcsecure.ace.windows.Services
             } 
         }
 
-        internal void StartLocationRequestTimer()
+        public void ClearProxyInformation()
         {
-            if (_locationRequestTimer == null)
-            {
-                _locationRequestTimer = new Timer(120000) {AutoReset = false};
-                _locationRequestTimer.Elapsed += LocatioTimerElapsed; 
-            }
-
-            if (!_locationRequestTimer.Enabled && !_geoLocationFailure && !_geoLocaionUnauthorized)
-            {
-                _locationRequestTimer.Start();
-            }
+            LinphoneService.ClearProxyInformation();
         }
 
-        private void LocatioTimerElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
+        public void ClearAccountInformation()
         {
-            GetGeolocation();
-        }
-
-        internal async void GetGeolocation()
-        {
-            try
-            {
-                Geolocator loc = new Geolocator();
-
-                try
-                {
-                    loc.DesiredAccuracy = PositionAccuracy.High;
-                    Geoposition pos = await loc.GetGeopositionAsync();
-                    var lat = pos.Coordinate.Latitude;
-                    var lang = pos.Coordinate.Longitude;
-                    LocationString = string.Format("{0},{1}", lat, lang);
-                    StartLocationRequestTimer();
-                }
-                catch (System.UnauthorizedAccessException ex)
-                {
-                    // handle error
-                    _geoLocaionUnauthorized = true;
-                }
-            }
-            catch (TypeLoadException ex)
-            {
-                _geoLocationFailure = true;
-                LogError("GetGeolocation", ex);
-            }
-            catch (PlatformNotSupportedException ex)
-            {
-                _geoLocationFailure = true;
-                LogError("GetGeolocation", ex);
-            }
-            catch (Exception ex)
-            {
-                LogError("GetGeolocation", ex);
-                _geoLocationFailure = true;
-            }
+            LinphoneService.ClearAccountInformation();
         }
     }
 }

@@ -11,7 +11,6 @@ using log4net;
 using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Model;
 using HockeyApp;
-using System.Threading;
 
 namespace com.vtcsecure.ace.windows
 {
@@ -24,7 +23,6 @@ namespace com.vtcsecure.ace.windows
 
         private static readonly log4net.ILog _log = LogManager.GetLogger(typeof (App));
         private static bool _allowDestroyWindows = false;
-        private Mutex mutex;
         #endregion
 
         #region Properties
@@ -39,20 +37,6 @@ namespace com.vtcsecure.ace.windows
         internal static bool AppClosing { get; set; }
         #endregion
 
-        public App()
-        {
-            try
-            {
-                Mutex.OpenExisting("Global\\84D29A79-09A3-4CBF-A12A-B15CEF971672");
-                MessageBox.Show("Instance already running");
-                Environment.Exit(0);
-            }
-            catch
-            {
-                mutex=new Mutex ( true, "Global\\84D29A79-09A3-4CBF-A12A-B15CEF971672");
-            }
-      
-        }
         protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -134,7 +118,7 @@ namespace com.vtcsecure.ace.windows
 
         private void App_OnExit(object sender, ExitEventArgs e)
         {
-            mutex.Dispose();
+            
         }
 
         private void App_OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)

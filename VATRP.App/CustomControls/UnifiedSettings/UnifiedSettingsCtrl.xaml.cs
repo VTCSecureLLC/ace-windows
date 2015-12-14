@@ -21,6 +21,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
     /// </summary>
     public partial class UnifiedSettingsCtrl : UserControl
     {
+        public UnifiedSettings_AccountChange AccountChangeRequested;
 
         private CallViewCtrl _callControl;
 
@@ -43,6 +44,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             _mainPanel = new UnifiedSettingsMainCtrl();
             _mainPanel.ContentChanging += HandleContentChanging;
+            _mainPanel.AccountChangeRequested += HandleAccountChangeRequested;
 
             _generalPanel = new UnifiedSettingsGeneralCtrl();
             _generalPanel.ContentChanging += HandleContentChanging;
@@ -182,18 +184,18 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         #endregion
 
         #region respondToMenuChange
-        public void RespondToMenuUpdate(ACEMenuSettings menuSetting)
+        public void RespondToMenuUpdate(ACEMenuSettingsUpdateType menuSetting)
         {
             switch (menuSetting)
             {
-                case ACEMenuSettings.MuteMicrophoneMenu: UpdateAudioSettingsIfOpen(menuSetting);
+                case ACEMenuSettingsUpdateType.MuteMicrophoneMenu: UpdateAudioSettingsIfOpen(menuSetting);
                     break;
                 default:
                     break;
             }
         }
 
-        private void UpdateAudioSettingsIfOpen(ACEMenuSettings menuSetting)
+        private void UpdateAudioSettingsIfOpen(ACEMenuSettingsUpdateType menuSetting)
         {
             if (_audioSettingsPanel.IsLoaded)
             {
@@ -206,5 +208,16 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         }
         #endregion
 
+        #region respondToAccuntChange
+        private void HandleAccountChangeRequested(ACEMenuSettingsUpdateType changeType)
+        {
+            if (AccountChangeRequested != null)
+            {
+                AccountChangeRequested(changeType);
+            }
+            // ToDo - this handle updates in the UI of the settings, if needed
+        }
+
+        #endregion
     }
 }
