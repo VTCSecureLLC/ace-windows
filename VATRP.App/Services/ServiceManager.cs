@@ -497,25 +497,32 @@ namespace com.vtcsecure.ace.windows.Services
         {
             if (App.CurrentAccount == null || !App.CurrentAccount.Username.NotBlank())
                 return;
+            var contactAddress = string.Format("{0}@{1}", App.CurrentAccount.Username,
+                App.CurrentAccount.ProxyHostname);
             VATRPContact contact = this.ContactService.FindLoggedInContact();
-            if (contact == null)
+            bool addLogedInContact = true;
+            if (contact != null)
             {
-                var contactAddress = string.Format("{0}@{1}", App.CurrentAccount.Username,
-                    App.CurrentAccount.ProxyHostname);
+                if (contact.SipUsername == contactAddress)
+                {
+                    contact.IsLoggedIn = false;
+                    addLogedInContact = false;
+                }
+            }
+
+            if (addLogedInContact)
+            {
                 var contactID = new ContactID(contactAddress, IntPtr.Zero);
                 contact = new VATRPContact(contactID)
                 {
                     IsLoggedIn = true,
                     Fullname = App.CurrentAccount.Username,
                     DisplayName = App.CurrentAccount.DisplayName,
-                    RegistrationName = string.Format("sip:{0}@{1}", App.CurrentAccount.Username, App.CurrentAccount.ProxyHostname)
+                    RegistrationName =
+                        string.Format("sip:{0}@{1}", App.CurrentAccount.Username, App.CurrentAccount.ProxyHostname)
                 };
                 contact.Initials = contact.Fullname.Substring(0, 1).ToUpper();
                 this.ContactService.AddContact(contact, string.Empty);
-            }
-            else
-            {
-                contact.IsLoggedIn = false;
             }
         }
 
