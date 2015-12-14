@@ -111,7 +111,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 _viewModel.MuteCall(isMuted);
             if (SettingsControl != null)
             {
-                SettingsControl.RespondToMenuUpdate(Enums.ACEMenuSettings.MuteMicrophoneMenu);
+                SettingsControl.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.MuteMicrophoneMenu);
             }
 
         }

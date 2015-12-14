@@ -82,6 +82,9 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_core_add_auth_info(IntPtr lc, IntPtr info);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_clear_all_auth_info(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_proxy_config_set_identity(IntPtr obj, string identity);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]

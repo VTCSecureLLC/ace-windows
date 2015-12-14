@@ -236,7 +236,7 @@ namespace com.vtcsecure.ace.windows.Services
         {
             if (App.CurrentAccount == null)
             {
-                LOG.Warn("Can't update linphone config. Account is no configured");
+                LOG.Warn("Can't update linphone config. Account is not configured");
                 return false;
             }
 
@@ -527,6 +527,16 @@ namespace com.vtcsecure.ace.windows.Services
                         (ActiveCallPtr != IntPtr.Zero && ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                             Configuration.ConfEntry.USE_RTT, true)));
             } 
+        }
+
+        public void ClearProxyInformation()
+        {
+            LinphoneService.ClearProxyInformation();
+        }
+
+        public void ClearAccountInformation()
+        {
+            LinphoneService.ClearAccountInformation();
         }
     }
 }

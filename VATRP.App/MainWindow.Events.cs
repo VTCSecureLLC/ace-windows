@@ -512,6 +512,9 @@ namespace com.vtcsecure.ace.windows
 					}
 					else if (signOutRequest || defaultConfigRequest)
 					{
+                        // Liz E. note: we want to perfomr different actions for logout and default configuration request.
+                        // If we are just logging out, then we need to not clear the account, just the password, 
+                        // and jump to the second page of the wizard.
 						isRegistering = false;
 						WizardPagepanel.Children.Clear();
 						ServiceSelector.Visibility = Visibility.Visible;
@@ -525,12 +528,16 @@ namespace com.vtcsecure.ace.windows
 						_mainViewModel.IsMessagingDocked = false;
 						ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
 				Configuration.ConfEntry.ACCOUNT_IN_USE, string.Empty);
-						ServiceManager.Instance.AccountService.DeleteAccount(App.CurrentAccount);
 						if (defaultConfigRequest)
 						{
-							ResetConfiguration();
-						}
-						App.CurrentAccount = null;
+                            ServiceManager.Instance.AccountService.DeleteAccount(App.CurrentAccount);
+                            ResetConfiguration();
+                            App.CurrentAccount = null;
+                        }
+                        else
+                        {
+                            this.Wizard_HandleLogout();
+                        }
 					}
 					break;
 				default:

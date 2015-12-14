@@ -173,7 +173,7 @@
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsVideoCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsVideoCtrl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Enums\ACEMenuSettings.cs" />
+    <Compile Include="Enums\ACEMenuSettingsUpdateType.cs" />
     <Compile Include="Enums\VATRPSettings.cs" />
     <Compile Include="ViewModel\FeedbackViewModel.cs" />
     <Compile Include="ViewModel\ContactEditViewModel.cs" />

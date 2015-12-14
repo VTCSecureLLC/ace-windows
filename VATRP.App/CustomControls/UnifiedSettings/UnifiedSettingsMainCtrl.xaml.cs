@@ -137,25 +137,26 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnRunAssistant(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Run Assistant Clicked");
-//            if (MessageBox.Show("Launching the Wizard will delete any existing proxy configuration. Are you sure you want to proceed?", "Run Wizard", MessageBoxButton.YesNo,
-//                    MessageBoxImage.Question) == MessageBoxResult.Yes)
-//            {
+            if (MessageBox.Show("Launching the Wizard will delete any existing proxy configuration. Are you sure you want to proceed?", "Run Wizard", MessageBoxButton.YesNo,
+                    MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
                 // run the wizard
-//            }
-
-            //            if (SipSettingsChangeClicked != null)
-            //                SipSettingsChangeClicked(VATRPSettings.VATRPSettings_SIP);
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.RunWizard);
+            }
         }
 
         private void OnClearAccount(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Clear Account Clicked");
-//            if (MessageBox.Show("Clearing the account will delete any existing proxy configuration. Are you sure you want to proceed?", "Clear Account", MessageBoxButton.YesNo,
-//                    MessageBoxImage.Question) == MessageBoxResult.Yes)
-//            {
-                // clear the account
-//            }
+            OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.ClearAccount);
         }
+
+        public void OnUserNameChanged(Object sender, RoutedEventArgs args)
+        {
+            if (App.CurrentAccount == null)
+                return;
+            OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.UserNameChanged);
+        } 
 
         private void OnTransport(object sender, RoutedEventArgs e)
         {

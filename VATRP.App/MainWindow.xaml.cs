@@ -134,6 +134,7 @@ namespace com.vtcsecure.ace.windows
             ToggleWindow(_messagingWindow);
         }
 
+       
         private void btnSettings_Click(object sender, RoutedEventArgs e)
         {
             bool isChecked = BtnSettings.IsChecked ?? false;
@@ -144,6 +145,40 @@ namespace com.vtcsecure.ace.windows
                 _mainViewModel.IsContactDocked = false;
             }
             _mainViewModel.IsSettingsDocked = BtnSettings.IsChecked ?? false;
+        }
+
+        private void OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType changeType)
+        {
+            switch (changeType)
+            {
+                case Enums.ACEMenuSettingsUpdateType.ClearAccount: ClearAccountAndUpdateUI();
+                    break;
+                case Enums.ACEMenuSettingsUpdateType.Logout :
+                    break;
+                case Enums.ACEMenuSettingsUpdateType.RunWizard: RunWizard();
+                    break;
+                case Enums.ACEMenuSettingsUpdateType.UserNameChanged: UserNameChanged();
+                    break;
+                default :
+                    break;
+            }
+        }
+
+        private void UserNameChanged()
+        {
+            
+        }
+        private void RunWizard()
+        {
+//            ctrlSettings.Visibility = System.Windows.Visibility.Hidden;            
+//            ServiceSelector.Visibility = System.Windows.Visibility.Visible;
+            signOutRequest = true;
+            ServiceManager.Instance.ClearAccountInformation();
+        }
+
+        private void ClearAccountAndUpdateUI()
+        {
+            OnResetToDefaultConfiguration();
         }
 
         private void OnSettingsSaved()
@@ -250,6 +285,19 @@ namespace com.vtcsecure.ace.windows
             Application.Current.Shutdown();
         }
 
+        private void Wizard_HandleLogout()
+        {
+            // in this case we want to show the login page of the wizard without clearing the account
+            VATRPAccount currentAccount = App.CurrentAccount;
+            if (currentAccount != null)
+            {
+                ProviderLoginScreen wizardPage = new ProviderLoginScreen(this);
+                currentAccount.Password = ""; // clear password for logout
+                wizardPage.InitializeToAccount(currentAccount);
+                ChangeWizardPage(wizardPage);
+            } // else let it go to the front by default to set up a new account with new service selection
+        }
+
         private void OnVideoRelaySelect(object sender, RoutedEventArgs e)
         {
             var wizardPage = new ProviderLoginScreen(this);
@@ -269,7 +317,7 @@ namespace com.vtcsecure.ace.windows
                 return;
             }
             WizardPagepanel.Children.Clear();
-
+            
             DockPanel.SetDock(wizardPage, Dock.Top);
             wizardPage.Height = double.NaN;
             wizardPage.Width = double.NaN;
@@ -342,6 +390,7 @@ namespace com.vtcsecure.ace.windows
             ctrlDialpad.KeypadPressed += OnDialpadClicked;
 
             // Liz E. - ToDo unified Settings
+            ctrlSettings.AccountChangeRequested += OnAccountChangeRequested;
 //            ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
 //            ctrlSettings.CodecSettingsChangeClicked += OnSettingsChangeRequired;
 //            ctrlSettings.MultimediaSettingsChangeClicked += OnSettingsChangeRequired;
@@ -482,7 +531,7 @@ namespace com.vtcsecure.ace.windows
 
                 if (ctrlSettings != null)
                 {
-                    ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettings.MuteMicrophoneMenu);
+                    ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.MuteMicrophoneMenu);
                 }
                 if ((ctrlCall != null) && ctrlCall.IsLoaded)
                 {
