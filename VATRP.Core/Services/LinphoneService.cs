@@ -591,18 +591,15 @@ namespace VATRP.Core.Services
 
 	    private void DoUnregister()
 	    {
-            if (proxy_cfg != IntPtr.Zero && LinphoneAPI.linphone_proxy_config_is_registered(proxy_cfg))
+            IntPtr proxyCfg = IntPtr.Zero;
+            LinphoneAPI.linphone_core_get_default_proxy(LinphoneCore, ref proxyCfg);
+            if (proxyCfg != IntPtr.Zero && LinphoneAPI.linphone_proxy_config_is_registered(proxyCfg))
             {
                 try
                 {
-                    if (proxy_cfg != IntPtr.Zero)
-                        LinphoneAPI.linphone_proxy_config_edit(proxy_cfg);
-
-                    if (proxy_cfg != IntPtr.Zero)
-                        LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, false);
-                    if (proxy_cfg != IntPtr.Zero)
-                    LinphoneAPI.linphone_proxy_config_done(proxy_cfg);
-                    proxy_cfg = IntPtr.Zero;
+                    LinphoneAPI.linphone_proxy_config_edit(proxyCfg);
+                    LinphoneAPI.linphone_proxy_config_enable_register(proxyCfg, false);
+                    LinphoneAPI.linphone_proxy_config_done(proxyCfg);
                 }
                 catch (Exception ex)
                 {
