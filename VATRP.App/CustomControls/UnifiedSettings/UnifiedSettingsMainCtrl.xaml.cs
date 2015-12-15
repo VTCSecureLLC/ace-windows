@@ -45,7 +45,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 PasswordTextBox.Password = App.CurrentAccount.Password;
                 DomainTextBox.Text = App.CurrentAccount.ProxyHostname;
                 ProxyTextBox.Text = Convert.ToString(App.CurrentAccount.ProxyPort);
-                string transport = App.CurrentAccount.VideoPreset;
+                string transport = App.CurrentAccount.Transport;
                 if (string.IsNullOrWhiteSpace(transport))
                 {
                     transport = "TCP";
@@ -202,7 +202,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 !newUserName.Equals(oldUserName))
             {
                 App.CurrentAccount.Username = newUserName;
-                ServiceManager.Instance.SaveAccountSettings();
                 isChanged = true;
             }
             if (isChanged)
@@ -214,8 +213,12 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnTransportChanged(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Transport Clicked");
-            if (IsTransportChanged())
+            //if (IsTransportChanged())
             {
+                var transportText = TransportComboBox.SelectedItem as TextBlock;
+                string transportString = transportText.Text;
+                App.CurrentAccount.Transport = transportString;
+                
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.RegistrationChanged);
             }
         }

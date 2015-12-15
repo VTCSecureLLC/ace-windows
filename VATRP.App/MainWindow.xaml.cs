@@ -160,19 +160,20 @@ namespace com.vtcsecure.ace.windows
                     break;
                 case Enums.ACEMenuSettingsUpdateType.RunWizard: RunWizard();
                     break;
-                case Enums.ACEMenuSettingsUpdateType.UserNameChanged: UserNameChanged();
-                    break;
-                case Enums.ACEMenuSettingsUpdateType.RegistrationChanged: ApplyRegistrationChanges();
+                case Enums.ACEMenuSettingsUpdateType.UserNameChanged: 
+                case Enums.ACEMenuSettingsUpdateType.RegistrationChanged: HandleRegistrationSettingsChange();
                     break;
                 default:
                     break;
             }
         }
 
-        private void UserNameChanged()
+        private void HandleRegistrationSettingsChange()
         {
+            ServiceManager.Instance.SaveAccountSettings();
             ApplyRegistrationChanges();
         }
+
         private void RunWizard()
         {
             //            ctrlSettings.Visibility = System.Windows.Visibility.Hidden;            
