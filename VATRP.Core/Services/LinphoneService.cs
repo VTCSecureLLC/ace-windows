@@ -615,7 +615,7 @@ namespace VATRP.Core.Services
 		#endregion
 
 		#region Call
-		public void MakeCall(string destination, bool videoOn, bool rttEnabled, bool muteMicrophone)
+		public void MakeCall(string destination, bool videoOn, bool rttEnabled, bool muteMicrophone, string geolocation)
 		{
 		    if (callsList.Count > 0)
 		    {
@@ -634,6 +634,16 @@ namespace VATRP.Core.Services
 					ErrorEvent (null, "Cannot make when Linphone Core is not working.");
 				return;
 			}
+
+            if (geolocation.NotBlank())
+		    {
+                string un, host;
+                int port;
+		        VATRPCall.ParseSipAddress(destination, out un, out host, out port);
+
+                if (un == "911")
+                    LinphoneAPI.linphone_call_params_add_custom_header(callsDefaultParams, "userLocation", geolocation);
+		    }
 
 		    var cmd = new CreateCallCommand(callsDefaultParams, destination, rttEnabled, muteMicrophone);
 
