@@ -105,6 +105,17 @@ namespace com.vtcsecure.ace.windows.CustomControls
             }
         }
 
+        internal void MuteSpeaker(bool isMuted)
+        {
+            if (_viewModel.ActiveCall != null)
+                _viewModel.MuteSpeaker(isMuted);
+            if (SettingsControl != null)
+            {
+                SettingsControl.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.MuteSpeakerMenu);
+            }
+
+        }
+
         internal void MuteCall(bool isMuted)
         {
             if (_viewModel.ActiveCall != null )
@@ -185,6 +196,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             if (SpeakerOnToggled != null)
                 SpeakerOnToggled(BtnSpeaker.IsChecked ?? false);
             SaveStates();
+            MuteSpeaker(BtnSpeaker.IsChecked ?? false);
         }
 
         private void OnToggleRTT(object sender, RoutedEventArgs e)

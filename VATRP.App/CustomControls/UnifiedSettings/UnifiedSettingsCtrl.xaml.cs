@@ -196,6 +196,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             {
                 case ACEMenuSettingsUpdateType.MuteMicrophoneMenu: UpdateAudioSettingsIfOpen(menuSetting);
                     break;
+                case ACEMenuSettingsUpdateType.MuteSpeakerMenu: UpdateAudioSettingsIfOpen(menuSetting);
+                    break;
                 default:
                     break;
             }

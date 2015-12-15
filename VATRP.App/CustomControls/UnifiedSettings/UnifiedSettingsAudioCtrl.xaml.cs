@@ -42,7 +42,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
             MuteSpeakerCheckBox.IsChecked = App.CurrentAccount.MuteSpeaker;
-            MuteSpeakerCheckBox.IsEnabled = false;
 
             AudioCodecsListView.Items.Clear();
             foreach (var item in App.CurrentAccount.AudioCodecsList)
@@ -59,6 +58,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             switch (menuSetting)
             {
                 case ACEMenuSettingsUpdateType.MuteMicrophoneMenu: MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
+                    break;
+                case ACEMenuSettingsUpdateType.MuteSpeakerMenu: MuteSpeakerCheckBox.IsChecked = App.CurrentAccount.MuteSpeaker;
                     break;
                 default:
                     break;

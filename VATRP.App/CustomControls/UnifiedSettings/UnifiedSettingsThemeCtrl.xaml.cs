@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -25,14 +26,25 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             Title = "Theme";
         }
         // ToDo VATRP-988 - implement color picker, connect Force  508
-        //   Sample color picker: http://www.codeproject.com/Articles/33001/WPF-A-Simple-Color-Picker-With-Preview
         private void OnForegroundColor(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("Foreground Color Clicked");
+            ColorDialog dlg = new ColorDialog();
+
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                int colorInt = dlg.Color.ToArgb();
+
+            }
         }
         private void OnBackgroundColor(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("Background Color Clicked");
+            ColorDialog dlg = new ColorDialog();
+
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                int colorInt = dlg.Color.ToArgb();
+
+            }
         }
         private void OnForce508(object sender, RoutedEventArgs e)
         {

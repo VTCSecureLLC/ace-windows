@@ -213,7 +213,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnTransportChanged(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Transport Clicked");
-            //if (IsTransportChanged())
+            if (IsTransportChanged())
             {
                 var transportText = TransportComboBox.SelectedItem as TextBlock;
                 string transportString = transportText.Text;
@@ -277,6 +277,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnTextPreferences(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Text Preferences Clicked");
+            OnContentChanging(UnifiedSettingsContentType.TextContent);
         }
 
         private void OnAudioPreferences(object sender, RoutedEventArgs e)
