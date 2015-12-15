@@ -73,6 +73,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             UpdateContentInUI();
         }
 
+        public void Initialize()
+        {
+            _mainPanel.Initialize();
+        }
+
         public void SetCallControl(CallViewCtrl callControl)
         {
             _callControl = callControl;
@@ -90,6 +95,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 _previousContent.Clear();
                 this.ContentPanel.Content = _mainPanel;
             }
+            _currentContent.Initialize();
             this.ContentPanel.Content = _currentContent;
             this.TitleLabel.Content = _currentContent.Title;
 

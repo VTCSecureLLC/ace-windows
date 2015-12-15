@@ -33,6 +33,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         // ToDo VATRP987 - Liz E. these need to be hooked into acutal settings. not sure where they live.
         private void UnifiedSettingsAudioVideoCtrl_Loaded(object sender, RoutedEventArgs e)
         {
+            Initialize();
+        }
+
+        public void Initialize()
+        {
             if (App.CurrentAccount == null)
                 return;
 

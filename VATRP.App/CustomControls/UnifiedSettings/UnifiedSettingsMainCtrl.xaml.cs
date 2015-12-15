@@ -33,6 +33,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         void UnifiedSettingsMainCtrl_Loaded(object sender, RoutedEventArgs e)
         {
+            Initialize();
+        }
+
+        public void Initialize()
+        {
             if (App.CurrentAccount != null)
             {
                 UserIdTextBox.Text = App.CurrentAccount.AuthID;
@@ -190,7 +195,20 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         {
             if (App.CurrentAccount == null)
                 return;
-            OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.UserNameChanged);
+            string oldUserName = App.CurrentAccount.Username;
+            string newUserName = UserNameTextBox.Text;
+            bool isChanged = false;
+            if ((!string.IsNullOrEmpty(newUserName) && !string.IsNullOrEmpty(oldUserName)) &&
+                !newUserName.Equals(oldUserName))
+            {
+                App.CurrentAccount.Username = newUserName;
+                ServiceManager.Instance.SaveAccountSettings();
+                isChanged = true;
+            }
+            if (isChanged)
+            {
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.UserNameChanged);
+            }
         }
 
         private void OnTransportChanged(object sender, RoutedEventArgs e)

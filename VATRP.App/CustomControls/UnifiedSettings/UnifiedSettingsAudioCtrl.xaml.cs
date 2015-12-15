@@ -32,6 +32,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         void UnifiedSettingsAudioCtrl_Loaded(object sender, RoutedEventArgs e)
         {
+            Initialize();
+        }
+
+        public void Initialize()
+        {
             if (App.CurrentAccount == null)
                 return;
 

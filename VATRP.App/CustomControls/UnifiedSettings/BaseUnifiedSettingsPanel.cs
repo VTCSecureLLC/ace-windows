@@ -40,6 +40,10 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
         }
 
+        public virtual void Initialize()
+        {
+
+        }
         public virtual void SaveData()
         {
           

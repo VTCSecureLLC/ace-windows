@@ -144,6 +144,10 @@ namespace com.vtcsecure.ace.windows
                 _mainViewModel.IsContactDocked = false;
             }
             _mainViewModel.IsSettingsDocked = BtnSettings.IsChecked ?? false;
+            if (_mainViewModel.IsSettingsDocked)
+            {
+                ctrlSettings.Initialize();
+            }
         }
 
         private void OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType changeType)
@@ -167,7 +171,7 @@ namespace com.vtcsecure.ace.windows
 
         private void UserNameChanged()
         {
-
+            ApplyRegistrationChanges();
         }
         private void RunWizard()
         {
