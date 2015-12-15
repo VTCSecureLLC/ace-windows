@@ -47,7 +47,7 @@ namespace com.vtcsecure.ace.windows
         private readonly ILinphoneService _linphoneService;
         private FlashWindowHelper _flashWindowHelper = new FlashWindowHelper();
         private readonly MainControllerViewModel _mainViewModel;
-        private const int CombinedUICallViewSize = 700;
+        private int CombinedUICallViewSize = 700;
         #endregion
 
         #region Properties
@@ -76,6 +76,10 @@ namespace com.vtcsecure.ace.windows
             ctrlLocalContact.SetDataContext(_mainViewModel.ContactModel);
             ctrlCall.ParentViewModel =_mainViewModel;
             _settingsView.SetSettingsModel(_mainViewModel.SettingsModel);
+            EnterFullScreenCheckBox.IsEnabled = false;
+
+            ctrlSettings.SetCallControl(ctrlCall);
+            ctrlCall.SettingsControl = ctrlSettings;
         }
 
         private void btnRecents_Click(object sender, RoutedEventArgs e)
@@ -140,6 +144,51 @@ namespace com.vtcsecure.ace.windows
                 _mainViewModel.IsContactDocked = false;
             }
             _mainViewModel.IsSettingsDocked = BtnSettings.IsChecked ?? false;
+            if (_mainViewModel.IsSettingsDocked)
+            {
+                ctrlSettings.Initialize();
+            }
+        }
+
+        private void OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType changeType)
+        {
+            switch (changeType)
+            {
+                case Enums.ACEMenuSettingsUpdateType.ClearAccount: ClearAccountAndUpdateUI();
+                    break;
+                case Enums.ACEMenuSettingsUpdateType.Logout:
+                    break;
+                case Enums.ACEMenuSettingsUpdateType.RunWizard: RunWizard();
+                    break;
+                case Enums.ACEMenuSettingsUpdateType.UserNameChanged: UpdateUIForUserNameChange();
+                    break;
+                case Enums.ACEMenuSettingsUpdateType.RegistrationChanged: HandleRegistrationSettingsChange();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void UpdateUIForUserNameChange()
+        {
+        }
+        private void HandleRegistrationSettingsChange()
+        {
+            ServiceManager.Instance.SaveAccountSettings();
+            ApplyRegistrationChanges();
+        }
+
+        private void RunWizard()
+        {
+            //            ctrlSettings.Visibility = System.Windows.Visibility.Hidden;            
+            //            ServiceSelector.Visibility = System.Windows.Visibility.Visible;
+            signOutRequest = true;
+            ServiceManager.Instance.ClearAccountInformation();
+        }
+
+        private void ClearAccountAndUpdateUI()
+        {
+            OnResetToDefaultConfiguration();
         }
 
         private void OnSettingsSaved()
@@ -194,11 +243,7 @@ namespace com.vtcsecure.ace.windows
             {
                 _linphoneService.Unregister(false);
             }
-            else
-            {
-                _linphoneService.Register();
-            }
-
+            _linphoneService.Register();
         }
 
         private void UpdateMenuSettingsForRegistrationState()
@@ -246,14 +291,25 @@ namespace com.vtcsecure.ace.windows
             Application.Current.Shutdown();
         }
 
+        private void Wizard_HandleLogout()
+        {
+            // in this case we want to show the login page of the wizard without clearing the account
+            VATRPAccount currentAccount = App.CurrentAccount;
+            if (currentAccount != null)
+            {
+                ProviderLoginScreen wizardPage = new ProviderLoginScreen(this);
+                currentAccount.Password = ""; // clear password for logout
+                wizardPage.InitializeToAccount(currentAccount);
+                ChangeWizardPage(wizardPage);
+            } // else let it go to the front by default to set up a new account with new service selection
+        }
+
         private void OnVideoRelaySelect(object sender, RoutedEventArgs e)
         {
             var wizardPage = new ProviderLoginScreen(this);
             var newAccount = new VATRPAccount {AccountType = VATRPAccountType.VideoRelayService};
             App.CurrentAccount = newAccount;
-            ServiceManager.Instance.AccountService.AddAccount(newAccount);
-            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);
+            
             ChangeWizardPage(wizardPage);
         }
 
@@ -282,9 +338,7 @@ namespace com.vtcsecure.ace.windows
             var wizardPage = new ProviderLoginScreen(this);
             var newAccount = new VATRPAccount { AccountType = VATRPAccountType.IP_Relay };
             App.CurrentAccount = newAccount;
-            ServiceManager.Instance.AccountService.AddAccount(newAccount);
-            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);
+            
             ChangeWizardPage(wizardPage);
         }
 
@@ -293,9 +347,6 @@ namespace com.vtcsecure.ace.windows
             var wizardPage = new ProviderLoginScreen(this);
             var newAccount = new VATRPAccount { AccountType = VATRPAccountType.IP_CTS };
             App.CurrentAccount = newAccount;
-            ServiceManager.Instance.AccountService.AddAccount(newAccount);
-            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);
             ChangeWizardPage(wizardPage);
         }
 
@@ -338,11 +389,12 @@ namespace com.vtcsecure.ace.windows
             ctrlDialpad.KeypadPressed += OnDialpadClicked;
 
             // Liz E. - ToDo unified Settings
-//            ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
-//            ctrlSettings.CodecSettingsChangeClicked += OnSettingsChangeRequired;
-//            ctrlSettings.MultimediaSettingsChangeClicked += OnSettingsChangeRequired;
-//            ctrlSettings.NetworkSettingsChangeClicked += OnSettingsChangeRequired;
-//            ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
+            ctrlSettings.AccountChangeRequested += OnAccountChangeRequested;
+            //ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
+            //ctrlSettings.CodecSettingsChangeClicked += OnSettingsChangeRequired;
+            //ctrlSettings.MultimediaSettingsChangeClicked += OnSettingsChangeRequired;
+            //ctrlSettings.NetworkSettingsChangeClicked += OnSettingsChangeRequired;
+            //ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
 
             if (App.CurrentAccount != null)
             {
@@ -424,7 +476,34 @@ namespace com.vtcsecure.ace.windows
             feedbackView.Show();
         }
 
-        
+        // Video Menu
+        private void OnHideWindow(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void OnEnterFullScreen(object sender, RoutedEventArgs e)
+        {
+            // I think what we want to do here is to resize the video to full screen
+            if (EnterFullScreenCheckBox.IsChecked)
+            {
+                this.ResizeMode = System.Windows.ResizeMode.CanResize;
+                this.MaxHeight = SystemParameters.WorkArea.Height;
+                CombinedUICallViewSize = (int)SystemParameters.WorkArea.Width;
+                WindowState = WindowState.Maximized;
+            }
+            else
+            {
+                this.MaxHeight = 700;
+                CombinedUICallViewSize = 700;
+                WindowState = System.Windows.WindowState.Normal;
+//                this.Height = 700;
+//                this.Width = 316;
+                this.ResizeMode = System.Windows.ResizeMode.NoResize;
+            }
+        }
+
+        // Audio Menu
         private void OnAudioMenuItemOpened(object sender, RoutedEventArgs e)
         {
             if (App.CurrentAccount != null)
@@ -440,7 +519,6 @@ namespace com.vtcsecure.ace.windows
 
         }
 
-        // Video
         private void OnMuteMicrophone(object sender, RoutedEventArgs e)
         {
             bool enabled = MuteMicrophoneCheckbox.IsChecked;
@@ -450,9 +528,17 @@ namespace com.vtcsecure.ace.windows
                 ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
 
-                ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettings.MuteMicrophoneMenu);
+                if (ctrlSettings != null)
+                {
+                    ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.MuteMicrophoneMenu);
+                }
+                if ((ctrlCall != null) && ctrlCall.IsLoaded)
+                {
+                    ctrlCall.UpdateMuteSettingsIfOpen();
+                }
             }
         }
+
         #endregion
     }
 }

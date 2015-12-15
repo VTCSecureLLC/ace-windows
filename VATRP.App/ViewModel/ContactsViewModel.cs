@@ -1,15 +1,20 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 using com.vtcsecure.ace.windows.CustomControls;
 using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Events;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using System.Windows.Data;
+using com.vtcsecure.ace.windows.Model;
+using com.vtcsecure.ace.windows.Views;
+using Microsoft.Win32;
 using VATRP.Core.Extensions;
 
 namespace com.vtcsecure.ace.windows.ViewModel
@@ -24,11 +29,29 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private double _contactPaneHeight;
         private ContactViewModel _selectedContact;
         private int _activeTab;
+
+        public ActionCommand TabPanelImportContactsCommand
+        {
+            get { return new ActionCommand(ExecuteImportCommand, CanExecuteImport); } 
+            
+        }
+
+        public ActionCommand TabPanelExportContactsCommand
+        {
+            get { return new ActionCommand(ExecuteExportCommand, CanExecuteExport); }
+        }
+
+        public ActionCommand TabPanelAddContactCommand
+        {
+            get { return new ActionCommand(ExecuteAddCommand, CanExecuteAdd); }
+        }
+
         public ContactsViewModel()
         {
             _activeTab = 0; // All tab is active by default
             _contactsListView = CollectionViewSource.GetDefaultView(this.Contacts);
             _contactsListView.Filter = new Predicate<object>(this.FilterContactsList);
+            _contactsListView.SortDescriptions.Add(new SortDescription("ContactUI", ListSortDirection.Ascending));
             _contactPaneHeight = 150;
         }
         public ContactsViewModel(IContactsService contactService, DialpadViewModel dialpadViewModel) :
@@ -54,6 +77,106 @@ namespace com.vtcsecure.ace.windows.ViewModel
             OnPropertyChanged("Contacts");
         }
 
+        private void ExecuteImportCommand(object obj)
+        {
+            var openDlg = new OpenFileDialog()
+            {
+                CheckFileExists = true,
+                CheckPathExists = true,
+                Filter = "vCard Files (*.VCF, *.vcard)|*.VCF;*vcard",
+                FilterIndex = 0,
+
+                ShowReadOnly = false,
+            };
+
+            if (openDlg.ShowDialog() != true)
+                return;
+
+            var cardReader = new vCardReader(openDlg.FileName);
+
+            string un, host;
+            int port;
+
+            foreach (var card in cardReader.vCards)
+            {
+                var remoteParty = card.Title.TrimSipPrefix();
+                var contact = ServiceManager.Instance.ContactService.FindContact(new ContactID(remoteParty, IntPtr.Zero));
+                if (contact != null && contact.Fullname == card.FormattedName)
+                {
+                    continue;
+                }
+                VATRPCall.ParseSipAddress(remoteParty, out un, out host, out port);
+                if ((App.CurrentAccount != null && App.CurrentAccount.ProxyHostname != host) || App.CurrentAccount == null)
+                {
+                    un = remoteParty;
+                }
+                ServiceManager.Instance.ContactService.AddLinphoneContact(card.FormattedName, un,
+                    remoteParty);
+            }
+        }
+
+        private bool CanExecuteImport(object arg)
+        {
+            return true;
+        }
+
+        private void ExecuteExportCommand(object obj)
+        {
+            var saveDlg = new SaveFileDialog()
+            {
+                CheckPathExists = true,
+                OverwritePrompt = true,
+                FileName = "ace_contacts",
+                Filter = "vCard Files (*.vcard) | *.vcard",
+                FilterIndex = 0,
+            };
+
+            if (saveDlg.ShowDialog() != true)
+                return;
+
+            var cardWriter = new vCardWriter();
+            var vCards = new List<vCard>();
+
+            foreach (var contactVM in this.Contacts)
+            {
+                var card = new vCard()
+                {
+                    GivenName = contactVM.Contact.Fullname,
+                    FormattedName = contactVM.Contact.Fullname,
+                    Title = contactVM.Contact.RegistrationName
+                };
+                vCards.Add(card);
+            }
+            cardWriter.WriteCards(saveDlg.FileName, vCards);
+        }
+
+        private bool CanExecuteExport(object arg)
+        {
+            return true;
+        }
+
+        private void ExecuteAddCommand(object obj)
+        {
+            ContactEditViewModel model = new ContactEditViewModel(true);
+            var contactEditView = new ContactEditView(model);
+            var dialogResult = contactEditView.ShowDialog();
+            if (dialogResult != null && dialogResult.Value)
+            {
+                var contact = ServiceManager.Instance.ContactService.FindContact(new ContactID(model.ContactSipAddress, IntPtr.Zero));
+                if (contact != null && contact.Fullname == model.ContactName)
+                    return;
+
+                ServiceManager.Instance.ContactService.AddLinphoneContact(model.ContactName, model.ContactSipUsername,
+                    model.ContactSipAddress);
+            }
+        }
+
+        private bool CanExecuteAdd(object arg)
+        {
+            return true;
+        }
+
+        
         private void OnDialpadPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "RemotePartyNumber")

@@ -21,6 +21,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
     /// </summary>
     public partial class UnifiedSettingsAudioVideoCtrl : BaseUnifiedSettingsPanel
     {
+        public CallViewCtrl CallControl;
 
         public UnifiedSettingsAudioVideoCtrl()
         {
@@ -32,24 +33,30 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         // ToDo VATRP987 - Liz E. these need to be hooked into acutal settings. not sure where they live.
         private void UnifiedSettingsAudioVideoCtrl_Loaded(object sender, RoutedEventArgs e)
         {
+            Initialize();
+        }
+
+        public void Initialize()
+        {
             if (App.CurrentAccount == null)
                 return;
 
             MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
             MuteSpeakerCheckBox.IsChecked = App.CurrentAccount.MuteSpeaker;
-            MuteSpeakerCheckBox.IsEnabled = false;
             EchoCancelCheckBox.IsChecked = App.CurrentAccount.EchoCancel;
             ShowSelfViewCheckBox.IsChecked = App.CurrentAccount.ShowSelfView;
         }
 
-        public override void UpdateForMenuSettingChange(ACEMenuSettings menuSetting)
+        public override void UpdateForMenuSettingChange(ACEMenuSettingsUpdateType menuSetting)
         {
             if (App.CurrentAccount == null)
                 return;
 
             switch (menuSetting)
             {
-                case ACEMenuSettings.MuteMicrophoneMenu: MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
+                case ACEMenuSettingsUpdateType.MuteMicrophoneMenu: MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
+                    break;
+                case ACEMenuSettingsUpdateType.MuteSpeakerMenu: MuteSpeakerCheckBox.IsChecked = App.CurrentAccount.MuteSpeaker;
                     break;
                 default:
                     break;
@@ -60,6 +67,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         private void OnMuteMicrophone(object sender, RoutedEventArgs e)
         {
+            if (App.CurrentAccount == null)
+                return;
             Console.WriteLine("Mute Microphone Clicked");
             bool enabled = MuteMicrophoneCheckBox.IsChecked ?? false;
             if (enabled != App.CurrentAccount.MuteMicrophone)
@@ -67,10 +76,17 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 App.CurrentAccount.MuteMicrophone = enabled;
                 ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
+
+                if ((CallControl != null) && CallControl.IsLoaded)
+                {
+                    CallControl.UpdateMuteSettingsIfOpen();
+                }
             }
         }
         private void OnMuteSpeaker(object sender, RoutedEventArgs e)
         {
+            if (App.CurrentAccount == null)
+                return;
             Console.WriteLine("Mute Speaker Clicked");
             bool enabled = MuteSpeakerCheckBox.IsChecked ?? false;
             if (enabled != App.CurrentAccount.MuteSpeaker)
@@ -82,6 +98,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         }
         private void OnEchoCancel(object sender, RoutedEventArgs e)
         {
+            if (App.CurrentAccount == null)
+                return;
             Console.WriteLine("Echo Cancel Call Clicked");
             bool enabled = this.EchoCancelCheckBox.IsChecked ?? false;
             if (enabled != App.CurrentAccount.EchoCancel)
@@ -93,6 +111,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         }
         private void OnShowSelfView(object sender, RoutedEventArgs e)
         {
+            if (App.CurrentAccount == null)
+                return;
             Console.WriteLine("Show Self View Clicked");
             if (App.CurrentAccount == null)
                 return;

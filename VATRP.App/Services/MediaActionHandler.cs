@@ -28,12 +28,14 @@ namespace com.vtcsecure.ace.windows.Services
                 return;
             }
             bool muteMicrophone = false;
+            bool muteSpeaker = false;
             if (App.CurrentAccount != null)
             {
                 muteMicrophone = App.CurrentAccount.MuteMicrophone;
+                muteSpeaker = App.CurrentAccount.MuteSpeaker;
             }
             _linphoneService.MakeCall(remoteUri, false, ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.USE_RTT, true), muteMicrophone);
+                Configuration.ConfEntry.USE_RTT, true), muteMicrophone, muteSpeaker, ServiceManager.Instance.LocationString);
         }
 
         internal static bool MakeVideoCall(string remoteUri)
@@ -54,12 +56,14 @@ namespace com.vtcsecure.ace.windows.Services
                 return false;
             }
             bool muteMicrophone = false;
+            bool muteSpeaker = false;
             if (App.CurrentAccount != null)
             {
                 muteMicrophone = App.CurrentAccount.MuteMicrophone;
+                muteSpeaker = App.CurrentAccount.MuteSpeaker;
             }
             _linphoneService.MakeCall(remoteUri, true, ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.USE_RTT, true), muteMicrophone);
+                Configuration.ConfEntry.USE_RTT, true), muteMicrophone, muteSpeaker, ServiceManager.Instance.LocationString);
             return true;
         }
 

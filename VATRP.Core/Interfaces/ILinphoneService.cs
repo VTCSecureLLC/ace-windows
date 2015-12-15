@@ -31,8 +31,10 @@ namespace VATRP.Core.Interfaces
         void PlayDtmf(char dtmf, int duration);
         bool Register();
         bool Unregister(bool deferred);
-        void MakeCall(string destination, bool videoOn, bool rttEnabled, bool muteMicrophone);
-        void AcceptCall(IntPtr callPtr, bool rttEnabled, bool muteMicrophone);
+        void ClearProxyInformation();
+        void ClearAccountInformation();
+        void MakeCall(string destination, bool videoOn, bool rttEnabled, bool muteMicrophone, bool muteSpeaker, string geolocation);
+        void AcceptCall(IntPtr callPtr, bool rttEnabled, bool muteMicrophone, bool muteSpaker);
         void DeclineCall(IntPtr callPtr);
         bool TerminateCall(IntPtr callPtr);
         void ResumeCall(IntPtr callPtr);
@@ -41,8 +43,11 @@ namespace VATRP.Core.Interfaces
         void SendRTTProposition(IntPtr callPtr);
 
         bool SendChar(uint charCode, IntPtr callPtr, ref IntPtr chatRoomPtr, ref IntPtr chatMsgPtr);
+        void MuteCall(bool isMuted);
         bool IsCallMuted();
         void ToggleMute();
+        void MuteSpeaker(bool isMuted);
+        bool IsSpeakerMuted();
         void ToggleVideo(bool enableVideo, IntPtr callPtr);
         void SendDtmf(VATRPCall call, char dtmf);
         void EnableVideo(bool enable);

@@ -35,6 +35,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         void UnifiedSettingsVideoCtrl_Loaded(object sender, RoutedEventArgs e)
         {
+            Initialize();
+        }
+
+        public void Initialize()
+        {
 
             if (App.CurrentAccount == null)
                 return;
@@ -117,6 +122,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         private bool IsVideoPresetChanged()
         {
+            if (App.CurrentAccount == null)
+                return false;
+
             var videoPresetText = VideoPresetComboBox.SelectedItem as TextBlock;
             string videoPresetString = GetVideoPresetId(videoPresetText);
             if ((string.IsNullOrWhiteSpace(videoPresetString) && !string.IsNullOrWhiteSpace(App.CurrentAccount.VideoPreset)) ||
@@ -131,6 +139,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         private bool IsPreferredVideoSizeChanged()
         {
+            if (App.CurrentAccount == null)
+                return false;
+
             var tb = PreferredVideoSizeComboBox.SelectedItem as TextBlock;
             string str = GetPreferredVideoSizeId(tb);
             if ((string.IsNullOrWhiteSpace(str) && !string.IsNullOrWhiteSpace(App.CurrentAccount.PreferredVideoId)) ||

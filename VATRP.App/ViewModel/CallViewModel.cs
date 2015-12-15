@@ -513,14 +513,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     {
                         autoAnswerTimer.Stop();
                         bool muteMicrophone = false;
+                        bool muteSpeaker = false;
                         if (App.CurrentAccount != null)
                         {
                             muteMicrophone = App.CurrentAccount.MuteMicrophone;
+                            muteSpeaker = App.CurrentAccount.MuteSpeaker;
                         }
                         //Hide();
                         _linphoneService.AcceptCall(_currentCall.NativeCallPtr,
                             ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                                Configuration.ConfEntry.USE_RTT, true), muteMicrophone);
+                                Configuration.ConfEntry.USE_RTT, true), muteMicrophone, muteSpeaker);
                     }
                 }
             }
@@ -541,14 +543,29 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 _linphoneService.TerminateCall(_currentCall.NativeCallPtr);
         }
 
-        internal void MuteCall()
+        internal void MuteSpeaker(bool isMuted)
         {
-            _linphoneService.ToggleMute();
-            IsMuteOn = _linphoneService.IsCallMuted();
+            _linphoneService.MuteSpeaker(isMuted);
+            //            _linphoneService.ToggleMute();
+            //            IsMuteOn = _linphoneService.IsCallMuted();
             if (App.CurrentAccount != null)
             {
-                App.CurrentAccount.MuteMicrophone = IsMuteOn;
+                App.CurrentAccount.MuteSpeaker = isMuted;
                 // this now needs to be able to update the unified settings control as well.
+                ServiceManager.Instance.SaveAccountSettings();
+            }
+        }
+
+        internal void MuteCall(bool isMuted)
+        {
+            _linphoneService.MuteCall(isMuted);
+//            _linphoneService.ToggleMute();
+//            IsMuteOn = _linphoneService.IsCallMuted();
+            if (App.CurrentAccount != null)
+            {
+                App.CurrentAccount.MuteMicrophone = isMuted;
+                // this now needs to be able to update the unified settings control as well.
+                ServiceManager.Instance.SaveAccountSettings();
             }
         }
 
@@ -842,13 +859,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 try
                 {
                     bool muteMicrophone = false;
+                    bool muteSpeaker = false;
                     if (App.CurrentAccount != null)
                     {
                         muteMicrophone = App.CurrentAccount.MuteMicrophone;
+                        muteSpeaker = App.CurrentAccount.MuteSpeaker;
                     }
                     _linphoneService.AcceptCall(_currentCall.NativeCallPtr,
                         ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                            Configuration.ConfEntry.USE_RTT, true), muteMicrophone);
+                            Configuration.ConfEntry.USE_RTT, true), muteMicrophone, muteSpeaker);
                 }
                 catch (Exception ex)
                 {
