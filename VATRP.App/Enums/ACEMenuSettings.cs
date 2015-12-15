@@ -14,6 +14,7 @@ namespace com.vtcsecure.ace.windows.Enums
         UserNameChanged,
         RegistrationChanged,
         // Audio
-        MuteMicrophoneMenu
+        MuteMicrophoneMenu,
+        MuteSpeakerMenu
     }
 }

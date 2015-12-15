@@ -33,8 +33,8 @@ namespace VATRP.Core.Interfaces
         bool Unregister(bool deferred);
         void ClearProxyInformation();
         void ClearAccountInformation();
-        void MakeCall(string destination, bool videoOn, bool rttEnabled, bool muteMicrophone, string geolocation);
-        void AcceptCall(IntPtr callPtr, bool rttEnabled, bool muteMicrophone);
+        void MakeCall(string destination, bool videoOn, bool rttEnabled, bool muteMicrophone, bool muteSpeaker, string geolocation);
+        void AcceptCall(IntPtr callPtr, bool rttEnabled, bool muteMicrophone, bool muteSpaker);
         void DeclineCall(IntPtr callPtr);
         bool TerminateCall(IntPtr callPtr);
         void ResumeCall(IntPtr callPtr);
@@ -46,6 +46,8 @@ namespace VATRP.Core.Interfaces
         void MuteCall(bool isMuted);
         bool IsCallMuted();
         void ToggleMute();
+        void MuteSpeaker(bool isMuted);
+        bool IsSpeakerMuted();
         void ToggleVideo(bool enableVideo, IntPtr callPtr);
         void SendDtmf(VATRPCall call, char dtmf);
         void EnableVideo(bool enable);

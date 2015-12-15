@@ -43,7 +43,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
             MuteSpeakerCheckBox.IsChecked = App.CurrentAccount.MuteSpeaker;
-            MuteSpeakerCheckBox.IsEnabled = false;
             EchoCancelCheckBox.IsChecked = App.CurrentAccount.EchoCancel;
             ShowSelfViewCheckBox.IsChecked = App.CurrentAccount.ShowSelfView;
         }
@@ -56,6 +55,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             switch (menuSetting)
             {
                 case ACEMenuSettingsUpdateType.MuteMicrophoneMenu: MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
+                    break;
+                case ACEMenuSettingsUpdateType.MuteSpeakerMenu: MuteSpeakerCheckBox.IsChecked = App.CurrentAccount.MuteSpeaker;
                     break;
                 default:
                     break;
