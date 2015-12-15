@@ -33,6 +33,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         void UnifiedSettingsMainCtrl_Loaded(object sender, RoutedEventArgs e)
         {
+            Initialize();
+        }
+
+        public void Initialize()
+        {
             if (App.CurrentAccount != null)
             {
                 UserIdTextBox.Text = App.CurrentAccount.AuthID;
@@ -40,7 +45,23 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 PasswordTextBox.Password = App.CurrentAccount.Password;
                 DomainTextBox.Text = App.CurrentAccount.ProxyHostname;
                 ProxyTextBox.Text = Convert.ToString(App.CurrentAccount.ProxyPort);
-                TransportValueLabel.Content = App.CurrentAccount.Transport;
+                string transport = App.CurrentAccount.Transport;
+                if (string.IsNullOrWhiteSpace(transport))
+                {
+                    transport = "TCP";
+                }
+                foreach (var item in TransportComboBox.Items)
+                {
+                    var tb = item as TextBlock;
+                    string itemString = tb.Text;
+                    if (itemString.Equals(transport))
+                    {
+                        TransportComboBox.SelectedItem = item;
+                        TextBlock selectedItem = TransportComboBox.SelectedItem as TextBlock;
+                        string test = selectedItem.Text;
+                        break;
+                    }
+                }
             }
 
             this.AutoAnswerCheckBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
@@ -62,7 +83,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         public override void SaveData()
         {
-            if (App.CurrentAccount == null)
+            // we are saving as we go here
+/*            if (App.CurrentAccount == null)
                 return;
             
             if (string.IsNullOrWhiteSpace(UserNameTextBox.Text))
@@ -96,9 +118,26 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 App.CurrentAccount.ProxyHostname = DomainTextBox.Text;
                 App.CurrentAccount.RegistrationUser = UserNameTextBox.Text;
                 App.CurrentAccount.RegistrationPassword = PasswordTextBox.Password;
-                App.CurrentAccount.Transport = (string)TransportValueLabel.Content;
+                //App.CurrentAccount.Transport = (string)TransportValueLabel.Content; // saved when changed
             }
+*/
+        }
 
+        private bool IsTransportChanged()
+        {
+            if (App.CurrentAccount == null)
+                return false;
+
+            var transportText = TransportComboBox.SelectedItem as TextBlock;
+            string transportString = transportText.Text;
+            if ((string.IsNullOrWhiteSpace(transportString) && !string.IsNullOrWhiteSpace(App.CurrentAccount.Transport)) ||
+                (!string.IsNullOrWhiteSpace(transportString) && string.IsNullOrWhiteSpace(App.CurrentAccount.Transport)))
+                return true;
+            if ((!string.IsNullOrWhiteSpace(transportString) && !string.IsNullOrWhiteSpace(App.CurrentAccount.Transport)) &&
+                (!transportString.Equals(App.CurrentAccount.Transport)))
+                return true;
+
+            return false;
         }
 
         #region Settings Menu
@@ -137,29 +176,176 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnRunAssistant(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Run Assistant Clicked");
-//            if (MessageBox.Show("Launching the Wizard will delete any existing proxy configuration. Are you sure you want to proceed?", "Run Wizard", MessageBoxButton.YesNo,
-//                    MessageBoxImage.Question) == MessageBoxResult.Yes)
-//            {
+            if (MessageBox.Show("Launching the Wizard will delete any existing proxy configuration. Are you sure you want to proceed?", "Run Wizard", MessageBoxButton.YesNo,
+                    MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
                 // run the wizard
-//            }
-
-            //            if (SipSettingsChangeClicked != null)
-            //                SipSettingsChangeClicked(VATRPSettings.VATRPSettings_SIP);
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.RunWizard);
+            }
         }
 
         private void OnClearAccount(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Clear Account Clicked");
-//            if (MessageBox.Show("Clearing the account will delete any existing proxy configuration. Are you sure you want to proceed?", "Clear Account", MessageBoxButton.YesNo,
-//                    MessageBoxImage.Question) == MessageBoxResult.Yes)
-//            {
-                // clear the account
-//            }
+            if (MessageBox.Show("Launching the Wizard will delete any existing proxy configuration. Are you sure you want to proceed?", "Clear Account", MessageBoxButton.YesNo,
+                    MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.ClearAccount);
+            }
         }
 
-        private void OnTransport(object sender, RoutedEventArgs e)
+        private void OnSaveAccount(object sender, RoutedEventArgs e)
+        {
+            if (App.CurrentAccount == null)
+                return;
+            StringBuilder errorMessage = new StringBuilder("");
+
+            if (string.IsNullOrWhiteSpace(UserNameTextBox.Text))
+            {
+                errorMessage.Append("Please enter a user name.");
+//                MessageBox.Show("Incorrect login", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            if (string.IsNullOrWhiteSpace(PasswordTextBox.Password))
+            {
+                errorMessage.Append("Please enter a password.");
+//                MessageBox.Show("Empty password is not allowed", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            if (string.IsNullOrWhiteSpace(DomainTextBox.Text))
+            {
+                errorMessage.Append("Please enter a SIP Server Address.");
+//                MessageBox.Show("Incorrect SIP Server Address", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+
+            ushort port = 0;
+
+            ushort.TryParse(ProxyTextBox.Text, out port);
+            if (port < 1 || port > 65535)
+            {
+                errorMessage.Append("Please enter a valid SIP Server Port.");
+//                MessageBox.Show("Incorrect SIP Server Port", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            if (!string.IsNullOrEmpty(errorMessage.ToString()))
+            {
+                MessageBox.Show(errorMessage.ToString(), "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            if (App.CurrentAccount != null)
+            {
+                bool isChanged = false;
+                
+                App.CurrentAccount.ProxyPort = port;
+                if (ValueChanged(App.CurrentAccount.AuthID, UserIdTextBox.Text))
+                {
+                    App.CurrentAccount.AuthID = UserIdTextBox.Text;
+                    isChanged = true;
+                }
+                if (ValueChanged(App.CurrentAccount.Username, UserNameTextBox.Text))
+                { 
+                    App.CurrentAccount.Username = UserNameTextBox.Text;
+                    // let the UI reflect the change.
+                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.UserNameChanged);
+                    isChanged = true;
+                }
+                if (ValueChanged(App.CurrentAccount.Password, PasswordTextBox.Password))
+                { 
+                    App.CurrentAccount.Password = PasswordTextBox.Password;
+                    isChanged = true;
+                }
+                if (ValueChanged(App.CurrentAccount.ProxyHostname, DomainTextBox.Text))
+                { 
+                    App.CurrentAccount.ProxyHostname = DomainTextBox.Text;
+                    isChanged = true;
+                }
+                if (ValueChanged(App.CurrentAccount.RegistrationUser, UserNameTextBox.Text))
+                { 
+                    App.CurrentAccount.RegistrationUser = UserNameTextBox.Text;
+                    isChanged = true;
+                }
+                if (ValueChanged(App.CurrentAccount.RegistrationPassword, PasswordTextBox.Password))
+                { 
+                    App.CurrentAccount.RegistrationPassword = PasswordTextBox.Password;
+                    isChanged = true;
+                }
+                //App.CurrentAccount.Transport = (string)TransportValueLabel.Content; // saved when changed
+                if (isChanged)
+                {
+                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.RegistrationChanged);
+                }
+            }
+        }
+
+        private bool ValueChanged(string oldString, string newString)
+        {
+            if ((!string.IsNullOrEmpty(newString) && !string.IsNullOrEmpty(oldString)) &&
+                !newString.Equals(oldString))
+            {
+                return true;
+            }
+            return false;
+        }
+        public void OnUserNameChanged(Object sender, RoutedEventArgs args)
+        {
+            if ((App.CurrentAccount == null) || !this.IsVisible)
+                return;
+            string newUserName = UserNameTextBox.Text;
+            if (string.IsNullOrEmpty(newUserName))
+            {
+                string oldUserName = App.CurrentAccount.Username;
+                UserNameTextBox.Text = oldUserName;
+            }
+        }
+
+        public void OnPasswordChanged(Object sender, RoutedEventArgs args)
+        {
+            if ((App.CurrentAccount == null) || !this.IsVisible)
+                return;
+            string newPassword = PasswordTextBox.Password;
+            if (string.IsNullOrEmpty(newPassword))
+            {
+                string oldPassword = App.CurrentAccount.Password;
+                PasswordTextBox.Password = oldPassword;
+            }
+        }
+        public void OnDomainChanged(Object sender, RoutedEventArgs args)
+        {
+            if ((App.CurrentAccount == null) || !this.IsVisible)
+                return;
+            string newDomain = this.DomainTextBox.Text;
+            if (string.IsNullOrEmpty(newDomain))
+            {
+                string oldDomain = App.CurrentAccount.ProxyHostname;
+                this.DomainTextBox.Text = oldDomain;
+            }
+        }
+
+        public void OnProxyPortChanged(Object sender, RoutedEventArgs args)
+        {
+            if ((App.CurrentAccount == null) || !this.IsVisible)
+                return;
+            string newProxyPort = ProxyTextBox.Text;
+            if (string.IsNullOrEmpty(newProxyPort))
+            {
+                int oldProxyPort = App.CurrentAccount.ProxyPort;
+                ProxyTextBox.Text = Convert.ToString(oldProxyPort);
+            }
+        }
+
+        private void OnTransportChanged(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Transport Clicked");
+            if (App.CurrentAccount == null)
+                return;
+            if (IsTransportChanged())
+            {
+                var transportText = TransportComboBox.SelectedItem as TextBlock;
+                string transportString = transportText.Text;
+                App.CurrentAccount.Transport = transportString;
+                
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.RegistrationChanged);
+            }
         }
 
 
@@ -216,6 +402,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnTextPreferences(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Text Preferences Clicked");
+            OnContentChanging(UnifiedSettingsContentType.TextContent);
         }
 
         private void OnAudioPreferences(object sender, RoutedEventArgs e)

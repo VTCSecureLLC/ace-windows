@@ -161,6 +161,7 @@ namespace VATRP.Core.Model
             MuteMicrophone = false;
             MuteSpeaker = false;
             EchoCancel = false;
+            VideoPreset = "high-fps";
         }
 
         #endregion

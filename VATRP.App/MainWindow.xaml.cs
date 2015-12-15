@@ -144,6 +144,51 @@ namespace com.vtcsecure.ace.windows
                 _mainViewModel.IsContactDocked = false;
             }
             _mainViewModel.IsSettingsDocked = BtnSettings.IsChecked ?? false;
+            if (_mainViewModel.IsSettingsDocked)
+            {
+                ctrlSettings.Initialize();
+            }
+        }
+
+        private void OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType changeType)
+        {
+            switch (changeType)
+            {
+                case Enums.ACEMenuSettingsUpdateType.ClearAccount: ClearAccountAndUpdateUI();
+                    break;
+                case Enums.ACEMenuSettingsUpdateType.Logout:
+                    break;
+                case Enums.ACEMenuSettingsUpdateType.RunWizard: RunWizard();
+                    break;
+                case Enums.ACEMenuSettingsUpdateType.UserNameChanged: UpdateUIForUserNameChange();
+                    break;
+                case Enums.ACEMenuSettingsUpdateType.RegistrationChanged: HandleRegistrationSettingsChange();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void UpdateUIForUserNameChange()
+        {
+        }
+        private void HandleRegistrationSettingsChange()
+        {
+            ServiceManager.Instance.SaveAccountSettings();
+            ApplyRegistrationChanges();
+        }
+
+        private void RunWizard()
+        {
+            //            ctrlSettings.Visibility = System.Windows.Visibility.Hidden;            
+            //            ServiceSelector.Visibility = System.Windows.Visibility.Visible;
+            signOutRequest = true;
+            ServiceManager.Instance.ClearAccountInformation();
+        }
+
+        private void ClearAccountAndUpdateUI()
+        {
+            OnResetToDefaultConfiguration();
         }
 
         private void OnSettingsSaved()
@@ -198,11 +243,7 @@ namespace com.vtcsecure.ace.windows
             {
                 _linphoneService.Unregister(false);
             }
-            else
-            {
-                _linphoneService.Register();
-            }
-
+            _linphoneService.Register();
         }
 
         private void UpdateMenuSettingsForRegistrationState()
@@ -248,6 +289,19 @@ namespace com.vtcsecure.ace.windows
             ServiceManager.Instance.NewAccountRegisteredEvent -= OnNewAccountRegistered;
             
             Application.Current.Shutdown();
+        }
+
+        private void Wizard_HandleLogout()
+        {
+            // in this case we want to show the login page of the wizard without clearing the account
+            VATRPAccount currentAccount = App.CurrentAccount;
+            if (currentAccount != null)
+            {
+                ProviderLoginScreen wizardPage = new ProviderLoginScreen(this);
+                currentAccount.Password = ""; // clear password for logout
+                wizardPage.InitializeToAccount(currentAccount);
+                ChangeWizardPage(wizardPage);
+            } // else let it go to the front by default to set up a new account with new service selection
         }
 
         private void OnVideoRelaySelect(object sender, RoutedEventArgs e)
@@ -342,11 +396,12 @@ namespace com.vtcsecure.ace.windows
             ctrlDialpad.KeypadPressed += OnDialpadClicked;
 
             // Liz E. - ToDo unified Settings
-//            ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
-//            ctrlSettings.CodecSettingsChangeClicked += OnSettingsChangeRequired;
-//            ctrlSettings.MultimediaSettingsChangeClicked += OnSettingsChangeRequired;
-//            ctrlSettings.NetworkSettingsChangeClicked += OnSettingsChangeRequired;
-//            ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
+            ctrlSettings.AccountChangeRequested += OnAccountChangeRequested;
+            //ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
+            //ctrlSettings.CodecSettingsChangeClicked += OnSettingsChangeRequired;
+            //ctrlSettings.MultimediaSettingsChangeClicked += OnSettingsChangeRequired;
+            //ctrlSettings.NetworkSettingsChangeClicked += OnSettingsChangeRequired;
+            //ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
 
             if (App.CurrentAccount != null)
             {
@@ -482,7 +537,7 @@ namespace com.vtcsecure.ace.windows
 
                 if (ctrlSettings != null)
                 {
-                    ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettings.MuteMicrophoneMenu);
+                    ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.MuteMicrophoneMenu);
                 }
                 if ((ctrlCall != null) && ctrlCall.IsLoaded)
                 {

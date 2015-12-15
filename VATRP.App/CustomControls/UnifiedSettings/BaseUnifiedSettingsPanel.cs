@@ -10,6 +10,7 @@ using System.Windows.Controls;
 namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 {
     public delegate void UnifiedSettings_ContentChanging(UnifiedSettingsContentType contentType);
+    public delegate void UnifiedSettings_AccountChange(ACEMenuSettingsUpdateType changeType);
 
 
     public class BaseUnifiedSettingsPanel : UserControl
@@ -19,6 +20,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         public string Title { get; set; }
         // Call When Panel Content needs to change
         public event UnifiedSettings_ContentChanging ContentChanging;
+        public event UnifiedSettings_AccountChange AccountChangeRequested;
 
         // Invoke the Content Changed event
         public virtual void OnContentChanging(UnifiedSettingsContentType contentType)
@@ -29,12 +31,25 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
         }
 
+        // Invoke the Account Change Requested event
+        public virtual void OnAccountChangeRequested(ACEMenuSettingsUpdateType changeType)
+        {
+            if (AccountChangeRequested != null)
+            {
+                AccountChangeRequested(changeType);
+            }
+        }
+
+        public virtual void Initialize()
+        {
+
+        }
         public virtual void SaveData()
         {
           
         }
 
-        public virtual void UpdateForMenuSettingChange(ACEMenuSettings menuSetting)
+        public virtual void UpdateForMenuSettingChange(ACEMenuSettingsUpdateType menuSetting)
         {
 
         }

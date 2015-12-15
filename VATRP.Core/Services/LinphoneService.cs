@@ -357,6 +357,7 @@ namespace VATRP.Core.Services
                                         // enable rtt
                                         LinphoneAPI.linphone_call_params_enable_realtime_text(createCmd.CallParamsPtr, createCmd.EnableRtt);
                                         MuteCall(createCmd.MuteMicrophone);
+                                        MuteSpeaker(createCmd.MuteSpeaker);
 
                                         IntPtr callPtr = LinphoneAPI.linphone_core_invite_with_params(linphoneCore,
                                             createCmd.Callee, createCmd.CallParamsPtr);
@@ -603,6 +604,9 @@ namespace VATRP.Core.Services
                     if (proxy_cfg != IntPtr.Zero)
                     LinphoneAPI.linphone_proxy_config_done(proxy_cfg);
                     proxy_cfg = IntPtr.Zero;
+
+                    if (RegistrationStateChangedEvent != null)
+                        RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationCleared);
                 }
                 catch (Exception ex)
                 {
@@ -615,10 +619,32 @@ namespace VATRP.Core.Services
                 }
             }
 	    }
+
+        public void ClearProxyInformation()
+        {
+            // remove all proxy entries from linphone configuration file
+            LinphoneAPI.linphone_core_clear_proxy_config(linphoneCore);
+            // remove all authorization information
+            LinphoneAPI.linphone_core_clear_all_auth_info(linphoneCore);
+        }
+        public void ClearAccountInformation()
+        {
+            ClearProxyInformation();
+            // clear pushnotification preference
+            // clear ice_preference
+            // clear stun_preference
+
+            LinphoneAPI.linphone_core_set_stun_server(linphoneCore, null);
+            LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyNoFirewall);
+
+            if (RegistrationStateChangedEvent != null)
+                RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationCleared);
+
+        }
 		#endregion
 
 		#region Call
-		public void MakeCall(string destination, bool videoOn, bool rttEnabled, bool muteMicrophone)
+		public void MakeCall(string destination, bool videoOn, bool rttEnabled, bool muteMicrophone, bool muteSpeaker, string geolocation)
 		{
 		    if (callsList.Count > 0)
 		    {
@@ -638,7 +664,17 @@ namespace VATRP.Core.Services
 				return;
 			}
 
-		    var cmd = new CreateCallCommand(callsDefaultParams, destination, rttEnabled, muteMicrophone);
+            if (geolocation.NotBlank())
+		    {
+                string un, host;
+                int port;
+		        VATRPCall.ParseSipAddress(destination, out un, out host, out port);
+
+                if (un == "911")
+                    LinphoneAPI.linphone_call_params_add_custom_header(callsDefaultParams, "userLocation", geolocation);
+		    }
+
+		    var cmd = new CreateCallCommand(callsDefaultParams, destination, rttEnabled, muteMicrophone, muteSpeaker);
 
 		    lock (commandQueue)
 		    {
@@ -646,7 +682,7 @@ namespace VATRP.Core.Services
 		    }
 		}
 
-		public void AcceptCall(IntPtr callPtr, bool rttEnabled, bool muteMicrophone)
+		public void AcceptCall(IntPtr callPtr, bool rttEnabled, bool muteMicrophone, bool muteSpeaker)
 		{
             if (linphoneCore == IntPtr.Zero)
             {
@@ -681,6 +717,7 @@ namespace VATRP.Core.Services
 		            LinphoneAPI.linphone_call_params_enable_realtime_text(callParamsPtr, remoteRttEnabled);
 		        }
                 MuteCall(muteMicrophone);
+                MuteSpeaker(muteSpeaker);
 
 		        var cmd = new AcceptCallCommand(call.NativeCallPtr, callParamsPtr);
 		        //	LinphoneAPI.linphone_call_params_set_record_file(callsDefaultParams, null);
@@ -817,6 +854,26 @@ namespace VATRP.Core.Services
 
 			LinphoneAPI.linphone_core_enable_mic(linphoneCore, !LinphoneAPI.linphone_core_mic_enabled(linphoneCore));
 		}
+        public bool IsSpeakerMuted()
+        {
+            if (linphoneCore == IntPtr.Zero)
+                return false;
+            float gainLevel = LinphoneAPI.linphone_core_get_playback_gain_db(linphoneCore);
+            if (gainLevel < 0)
+            {
+                return true;
+            }
+            return false;
+        }
+        public void MuteSpeaker(bool muteSpeaker)
+        {
+            float gainLevel = 0f;
+            if (muteSpeaker)
+            {
+                gainLevel = -1000.0f;
+            }
+            LinphoneAPI.linphone_core_set_playback_gain_db(linphoneCore, gainLevel);
+        }
 
         public void ToggleVideo(bool enableVideo, IntPtr callPtr)
         {
@@ -1118,6 +1175,7 @@ namespace VATRP.Core.Services
 	        }
 
             MuteCall(account.MuteMicrophone);
+            MuteSpeaker(account.MuteSpeaker);
 
             EnableEchoCancellation(account.EchoCancel);
 
