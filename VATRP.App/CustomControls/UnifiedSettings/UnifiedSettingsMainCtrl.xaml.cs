@@ -40,7 +40,21 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 PasswordTextBox.Password = App.CurrentAccount.Password;
                 DomainTextBox.Text = App.CurrentAccount.ProxyHostname;
                 ProxyTextBox.Text = Convert.ToString(App.CurrentAccount.ProxyPort);
-                TransportValueLabel.Content = App.CurrentAccount.Transport;
+                string transport = App.CurrentAccount.VideoPreset;
+                if (string.IsNullOrWhiteSpace(transport))
+                {
+                    transport = "TCP";
+                }
+                foreach (var item in TransportComboBox.Items)
+                {
+                    var tb = item as TextBlock;
+                    string itemString = tb.Text;
+                    if (itemString.Equals(transport))
+                    {
+                        TransportComboBox.SelectedItem = item;
+                        break;
+                    }
+                }
             }
 
             this.AutoAnswerCheckBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
@@ -96,9 +110,26 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 App.CurrentAccount.ProxyHostname = DomainTextBox.Text;
                 App.CurrentAccount.RegistrationUser = UserNameTextBox.Text;
                 App.CurrentAccount.RegistrationPassword = PasswordTextBox.Password;
-                App.CurrentAccount.Transport = (string)TransportValueLabel.Content;
+                //App.CurrentAccount.Transport = (string)TransportValueLabel.Content; // saved when changed
             }
 
+        }
+
+        private bool IsTransportChanged()
+        {
+            if (App.CurrentAccount == null)
+                return false;
+
+            var transportText = TransportComboBox.SelectedItem as TextBlock;
+            string transportString = transportText.Text;
+            if ((string.IsNullOrWhiteSpace(transportString) && !string.IsNullOrWhiteSpace(App.CurrentAccount.Transport)) ||
+                (!string.IsNullOrWhiteSpace(transportString) && string.IsNullOrWhiteSpace(App.CurrentAccount.Transport)))
+                return true;
+            if ((!string.IsNullOrWhiteSpace(transportString) && !string.IsNullOrWhiteSpace(App.CurrentAccount.Transport)) &&
+                (!transportString.Equals(App.CurrentAccount.Transport)))
+                return true;
+
+            return false;
         }
 
         #region Settings Menu
@@ -137,29 +168,38 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnRunAssistant(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Run Assistant Clicked");
-//            if (MessageBox.Show("Launching the Wizard will delete any existing proxy configuration. Are you sure you want to proceed?", "Run Wizard", MessageBoxButton.YesNo,
-//                    MessageBoxImage.Question) == MessageBoxResult.Yes)
-//            {
+            if (MessageBox.Show("Launching the Wizard will delete any existing proxy configuration. Are you sure you want to proceed?", "Run Wizard", MessageBoxButton.YesNo,
+                    MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
                 // run the wizard
-//            }
-
-            //            if (SipSettingsChangeClicked != null)
-            //                SipSettingsChangeClicked(VATRPSettings.VATRPSettings_SIP);
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.RunWizard);
+            }
         }
 
         private void OnClearAccount(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Clear Account Clicked");
-//            if (MessageBox.Show("Clearing the account will delete any existing proxy configuration. Are you sure you want to proceed?", "Clear Account", MessageBoxButton.YesNo,
-//                    MessageBoxImage.Question) == MessageBoxResult.Yes)
-//            {
-                // clear the account
-//            }
+            if (MessageBox.Show("Launching the Wizard will delete any existing proxy configuration. Are you sure you want to proceed?", "Clear Account", MessageBoxButton.YesNo,
+                    MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.ClearAccount);
+            }
         }
 
-        private void OnTransport(object sender, RoutedEventArgs e)
+        public void OnUserNameChanged(Object sender, RoutedEventArgs args)
+        {
+            if (App.CurrentAccount == null)
+                return;
+            OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.UserNameChanged);
+        }
+
+        private void OnTransportChanged(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Transport Clicked");
+            if (IsTransportChanged())
+            {
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.RegistrationChanged);
+            }
         }
 
 

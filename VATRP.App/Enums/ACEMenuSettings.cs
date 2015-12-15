@@ -5,8 +5,14 @@ using System.Text;
 
 namespace com.vtcsecure.ace.windows.Enums
 {
-    public enum ACEMenuSettings
+    public enum ACEMenuSettingsUpdateType
     {
+        // Registration/Account
+        Logout,
+        ClearAccount,
+        RunWizard,
+        UserNameChanged,
+        RegistrationChanged,
         // Audio
         MuteMicrophoneMenu
     }
