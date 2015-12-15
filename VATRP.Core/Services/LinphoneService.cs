@@ -603,6 +603,9 @@ namespace VATRP.Core.Services
                     if (proxy_cfg != IntPtr.Zero)
                     LinphoneAPI.linphone_proxy_config_done(proxy_cfg);
                     proxy_cfg = IntPtr.Zero;
+
+                    if (RegistrationStateChangedEvent != null)
+                        RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationCleared);
                 }
                 catch (Exception ex)
                 {
@@ -615,6 +618,28 @@ namespace VATRP.Core.Services
                 }
             }
 	    }
+
+        public void ClearProxyInformation()
+        {
+            // remove all proxy entries from linphone configuration file
+            LinphoneAPI.linphone_core_clear_proxy_config(linphoneCore);
+            // remove all authorization information
+            LinphoneAPI.linphone_core_clear_all_auth_info(linphoneCore);
+        }
+        public void ClearAccountInformation()
+        {
+            ClearProxyInformation();
+            // clear pushnotification preference
+            // clear ice_preference
+            // clear stun_preference
+
+            LinphoneAPI.linphone_core_set_stun_server(linphoneCore, null);
+            LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyNoFirewall);
+
+            if (RegistrationStateChangedEvent != null)
+                RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationCleared);
+
+        }
 		#endregion
 
 		#region Call

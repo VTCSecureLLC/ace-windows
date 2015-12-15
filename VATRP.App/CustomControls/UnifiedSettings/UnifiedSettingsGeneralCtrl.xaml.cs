@@ -29,6 +29,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         // ToDo - VATRP98populate when we know where the settings are stored
         private void UnifiedSettingsGeneralCtrl_Loaded(object sender, RoutedEventArgs e)
         {
+            Initialize();
+        }
+
+        public void Initialize()
+        {
         }
 
         //
