@@ -66,8 +66,8 @@
           <Component Id='com_XML2.DLL' Guid='32DD57D7-8E08-41CD-BBE7-FBD8FC97E0C1' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='XML2.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='xml2.dll' Source='ThirdParties\liblinphone\xml2.dll' KeyPath='yes' />
           </Component>
-          <Component Id='com_ZLIB1.DLL' Guid='394E8FFF-7338-4328-95DF-AA5A5CDD44ED' Permanent='no' SharedDllRefCount='no' Transitive='no'>
-            <File Id='ZLIB1.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='zlib1.dll' Source='ThirdParties\liblinphone\zlib1.dll' KeyPath='yes' />
+          <Component Id='com_ZLIB.DLL' Guid='394E8FFF-7338-4328-95DF-AA5A5CDD44ED' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+            <File Id='ZLIB.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='zlib.dll' Source='ThirdParties\liblinphone\zlib.dll' KeyPath='yes' />
           </Component>
           <Component Id='com_BELLESIP.DLL' Guid='F2AD22BC-8A70-4A34-AC0D-D71D734E5C57' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='BELLESIP.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='bellesip.dll' Source='ThirdParties\liblinphone\bellesip.dll' KeyPath='yes' />
@@ -181,7 +181,7 @@
       <ComponentRef Id='com_INTL.DLL' />
       <ComponentRef Id='com_LINPHONE.DLL' />
       <ComponentRef Id='com_XML2.DLL' />
-      <ComponentRef Id='com_ZLIB1.DLL' />
+      <ComponentRef Id='com_ZLIB.DLL' />
       <ComponentRef Id='com_BELLESIP.DLL' />
       <ComponentRef Id='com_LINPHONEWRAPPER.DLL' />
       <ComponentRef Id='com_OPUS.DLL' />
