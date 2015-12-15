@@ -273,6 +273,19 @@ namespace VATRP.Core.Services
             return allAccounts.FirstOrDefault();
         }
 
+        public VATRPAccount FindAccount(string username, string password, string hostname)
+        {
+            var vatrpAccounts = this.accountsList;
+            if (vatrpAccounts == null)
+                return null;
+            IEnumerable<VATRPAccount> allAccounts = (from c in vatrpAccounts
+                                                     where (c.Username == username) &&
+                                                     (c.Password == password) &&
+                                                     (c.ProxyHostname == hostname)
+                                                     select c).ToList();
+            return allAccounts.FirstOrDefault();
+        }
+
         public void Save()
         {
             this.DeferredSave();
