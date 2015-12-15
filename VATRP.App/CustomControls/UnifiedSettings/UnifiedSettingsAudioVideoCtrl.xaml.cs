@@ -33,6 +33,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         // ToDo VATRP987 - Liz E. these need to be hooked into acutal settings. not sure where they live.
         private void UnifiedSettingsAudioVideoCtrl_Loaded(object sender, RoutedEventArgs e)
         {
+            Initialize();
+        }
+
+        public void Initialize()
+        {
             if (App.CurrentAccount == null)
                 return;
 
@@ -43,14 +48,14 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             ShowSelfViewCheckBox.IsChecked = App.CurrentAccount.ShowSelfView;
         }
 
-        public override void UpdateForMenuSettingChange(ACEMenuSettings menuSetting)
+        public override void UpdateForMenuSettingChange(ACEMenuSettingsUpdateType menuSetting)
         {
             if (App.CurrentAccount == null)
                 return;
 
             switch (menuSetting)
             {
-                case ACEMenuSettings.MuteMicrophoneMenu: MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
+                case ACEMenuSettingsUpdateType.MuteMicrophoneMenu: MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
                     break;
                 default:
                     break;

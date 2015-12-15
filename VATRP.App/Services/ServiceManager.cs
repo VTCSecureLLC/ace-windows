@@ -634,5 +634,15 @@ namespace com.vtcsecure.ace.windows.Services
                 _geoLocationFailure = true;
             }
         }
+
+        public void ClearProxyInformation()
+        {
+            LinphoneService.ClearProxyInformation();
+        }
+
+        public void ClearAccountInformation()
+        {
+            LinphoneService.ClearAccountInformation();
+        }
     }
 }
