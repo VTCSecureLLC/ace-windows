@@ -114,6 +114,7 @@
     <Compile Include="Model\VATRPAccountType.cs" />
     <Compile Include="Model\VATRPCall.cs" />
     <Compile Include="Model\VATRPCallState.cs" />
+    <Compile Include="Model\vCard.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
