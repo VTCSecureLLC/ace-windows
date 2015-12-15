@@ -160,7 +160,8 @@ namespace com.vtcsecure.ace.windows
                     break;
                 case Enums.ACEMenuSettingsUpdateType.RunWizard: RunWizard();
                     break;
-                case Enums.ACEMenuSettingsUpdateType.UserNameChanged: 
+                case Enums.ACEMenuSettingsUpdateType.UserNameChanged: UpdateUIForUserNameChange();
+                    break;
                 case Enums.ACEMenuSettingsUpdateType.RegistrationChanged: HandleRegistrationSettingsChange();
                     break;
                 default:
@@ -168,6 +169,9 @@ namespace com.vtcsecure.ace.windows
             }
         }
 
+        private void UpdateUIForUserNameChange()
+        {
+        }
         private void HandleRegistrationSettingsChange()
         {
             ServiceManager.Instance.SaveAccountSettings();
