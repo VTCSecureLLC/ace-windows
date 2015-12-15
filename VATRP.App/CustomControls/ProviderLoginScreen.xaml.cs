@@ -90,6 +90,17 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 MessageBox.Show("Invalid SIP server port", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+
+            var account = ServiceManager.Instance.AccountService.FindAccount(LoginBox.Text, PasswdBox.Password,
+                HostnameBox.Text);
+            if (account != null)
+            {
+                App.CurrentAccount = account;
+            }
+            else
+            {
+                ServiceManager.Instance.AccountService.AddAccount(App.CurrentAccount);
+            }
             App.CurrentAccount.AuthID = AuthIDBox.Text;
             App.CurrentAccount.Username = LoginBox.Text;
             App.CurrentAccount.Password = PasswdBox.Password;
@@ -101,6 +112,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
             App.CurrentAccount.RegistrationUser = LoginBox.Text;
             App.CurrentAccount.AutoLogin = AutoLoginBox.IsChecked ?? false;
 
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+    Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);
             ServiceManager.Instance.AccountService.Save();
             ServiceManager.Instance.RegisterNewAccount(App.CurrentAccount.AccountID);
         }

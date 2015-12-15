@@ -309,9 +309,7 @@ namespace com.vtcsecure.ace.windows
             var wizardPage = new ProviderLoginScreen(this);
             var newAccount = new VATRPAccount {AccountType = VATRPAccountType.VideoRelayService};
             App.CurrentAccount = newAccount;
-            ServiceManager.Instance.AccountService.AddAccount(newAccount);
-            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);
+            
             ChangeWizardPage(wizardPage);
         }
 
@@ -340,9 +338,7 @@ namespace com.vtcsecure.ace.windows
             var wizardPage = new ProviderLoginScreen(this);
             var newAccount = new VATRPAccount { AccountType = VATRPAccountType.IP_Relay };
             App.CurrentAccount = newAccount;
-            ServiceManager.Instance.AccountService.AddAccount(newAccount);
-            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);
+            
             ChangeWizardPage(wizardPage);
         }
 
@@ -351,9 +347,6 @@ namespace com.vtcsecure.ace.windows
             var wizardPage = new ProviderLoginScreen(this);
             var newAccount = new VATRPAccount { AccountType = VATRPAccountType.IP_CTS };
             App.CurrentAccount = newAccount;
-            ServiceManager.Instance.AccountService.AddAccount(newAccount);
-            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);
             ChangeWizardPage(wizardPage);
         }
 
