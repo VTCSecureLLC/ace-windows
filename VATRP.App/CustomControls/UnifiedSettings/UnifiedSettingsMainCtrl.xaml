@@ -110,150 +110,157 @@
                    HorizontalAlignment="Left">
                 </Label>
                 <TextBox Grid.Column="1" Grid.Row="9" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Name="UserNameTextBox" />
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Name="UserNameTextBox"  LostFocus="OnUserNameChanged"/>
 
                 <!-- Row 10: User Id text box -->
                 <Label Grid.Column="0" Grid.Row="10" Content="User Id" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Visibility="Collapsed" Name="UserIdLabel">
                 </Label>
                 <TextBox Grid.Column="1" Grid.Row="10" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Visibility="Collapsed" Name="UserIdTextBox"/>
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Visibility="Collapsed" Name="UserIdTextBox" />
 
 
-                <!-- Row 11: Password text box -->
+            <!-- Row 11: Password text box -->
                 <Label Grid.Column="0" Grid.Row="11" Content="Password" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left">
                 </Label>
                 <PasswordBox Grid.Column="1" Grid.Row="11" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" VerticalAlignment="Top" Foreground="Blue" Name="PasswordTextBox"/>
+                     Height="23" Margin="0,0,0,0" VerticalAlignment="Top" Foreground="Blue" Name="PasswordTextBox" LostFocus="OnPasswordChanged"/>
 
                 <!-- Row 12: Domain button -->
                 <Label Grid.Column="0" Grid.Row="12" Content="Domain" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left">
                 </Label>
                 <TextBox Grid.Column="1" Grid.Row="12" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Name="DomainTextBox"/>
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Name="DomainTextBox" LostFocus="OnDomainChanged"/>
 
                 <!-- Row 13: Proxy button -->
                 <Label Grid.Column="0" Grid.Row="13" Content="Proxy" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Visibility="Collapsed" Name="ProxyLabel">
                 </Label>
                 <TextBox Grid.Column="1" Grid.Row="13" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Visibility="Collapsed" Name="ProxyTextBox"/>
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Visibility="Collapsed" Name="ProxyTextBox" LostFocus="OnProxyPortChanged"/>
 
-                <!-- Row 14: Transport -->
-                <Label Grid.Column="0" Grid.Row="14" Content="Transport" VerticalContentAlignment="Center" 
+                <!-- Row 14: Save Account -->
+                <Button Grid.Column="1" Grid.Row="14" Grid.ColumnSpan="1" Content="Save Account" Margin="0,2" 
+                        BorderThickness="0"  Click="OnSaveAccount"
+                        VerticalContentAlignment="Center">
+                </Button>
+
+                <!-- Row 15: Transport -->
+                <Label Grid.Column="0" Grid.Row="15" Content="Transport" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="TransportLabel">
                 </Label>
-                <Label Grid.Column="1" Grid.Row="14" HorizontalAlignment="Stretch"  MouseDown="OnTransport" TouchDown="OnTransport"
-                     Height="23" Margin="0,0,0,0" Content=""  HorizontalContentAlignment="Right"  VerticalAlignment="Top" Foreground="Blue" Name="TransportValueLabel"/>
-                <Label Grid.Column="2" Grid.Row="14" Content=">" MouseDown="OnTransport" TouchDown="OnTransport"
-                   VerticalContentAlignment="Center" Name="TransportLabel2"/>
+                <ComboBox Grid.Row="15" Grid.Column="1" Grid.ColumnSpan="2" x:Name="TransportComboBox" FontSize="14" Margin="0,3,0,3" Width="120" Height="24" 
+                           VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="OnTransportChanged">
+                    <TextBlock >TCP</TextBlock>
+                    <TextBlock >TLS</TextBlock>
+                </ComboBox>
 
-                <!-- Row 15: Outbound Proxy -->
-                <Label Grid.Column="0" Grid.Row="15" Grid.ColumnSpan="2" Content="Outbound Proxy" VerticalContentAlignment="Center" 
+            <!-- Row 16: Outbound Proxy -->
+                <Label Grid.Column="0" Grid.Row="16" Grid.ColumnSpan="2" Content="Outbound Proxy" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Visibility="Collapsed" Name="OutboundProxyLabel">
                 </Label>
-                <CheckBox Grid.Column="2" Grid.Row="15" Checked="OnOutboundProxy" Unchecked="OnOutboundProxy" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" Name="OutboundProxyCheckbox"/>
+                <CheckBox Grid.Column="2" Grid.Row="16" Checked="OnOutboundProxy" Unchecked="OnOutboundProxy" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" Name="OutboundProxyCheckbox"/>
 
-                <!-- Row 16: AVPF -->
-                <Label Grid.Column="0" Grid.Row="16" Grid.ColumnSpan="2" Content="AVPF" VerticalContentAlignment="Center" 
+                <!-- Row 17: AVPF -->
+                <Label Grid.Column="0" Grid.Row="17" Grid.ColumnSpan="2" Content="AVPF" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Visibility="Collapsed" Name="AvpfLabel">
                 </Label>
-                <CheckBox Grid.Column="2" Grid.Row="16" Checked="OnAvpf" Unchecked="OnAvpf" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" Name="AvpfCheckbox"/>
+                <CheckBox Grid.Column="2" Grid.Row="17" Checked="OnAvpf" Unchecked="OnAvpf" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" Name="AvpfCheckbox"/>
 
-                <!-- Row 17: More Options -->
-                <Label Grid.Column="0" Grid.Row="17" Grid.ColumnSpan="2" Content="More Options" VerticalContentAlignment="Center" 
+                <!-- Row 18: More Options -->
+                <Label Grid.Column="0" Grid.Row="18" Grid.ColumnSpan="2" Content="More Options" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" >
                 </Label>
-                <CheckBox Grid.Column="2" Grid.Row="17" Checked="OnMoreOptions" Unchecked="OnMoreOptions" HorizontalAlignment="Center" VerticalAlignment="Center" Name="MoreOptionsCheckbox"/>
+                <CheckBox Grid.Column="2" Grid.Row="18" Checked="OnMoreOptions" Unchecked="OnMoreOptions" HorizontalAlignment="Center" VerticalAlignment="Center" Name="MoreOptionsCheckbox"/>
 
-                <!-- Row 18: Preferences Label -->
-                <Label Grid.Column="0" Grid.Row="18"  Grid.ColumnSpan="3" Content="Preferences" VerticalContentAlignment="Center" Background="Gray" >
+                <!-- Row 19: Preferences Label -->
+                <Label Grid.Column="0" Grid.Row="19"  Grid.ColumnSpan="3" Content="Preferences" VerticalContentAlignment="Center" Background="Gray" >
                 </Label>
 
-                <!-- Row 19: Enable Video -->
-                <Label Grid.Column="0" Grid.Row="19" Grid.ColumnSpan="2" Content="Enable Video" VerticalContentAlignment="Center" 
+                <!-- Row 20: Enable Video -->
+                <Label Grid.Column="0" Grid.Row="20" Grid.ColumnSpan="2" Content="Enable Video" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" >
                 </Label>
-                <CheckBox Grid.Column="2" Grid.Row="19" Checked="OnEnableVideo" Unchecked="OnEnableVideo" HorizontalAlignment="Center" VerticalAlignment="Center" Name="EnableVideoCheckBox"/>
+                <CheckBox Grid.Column="2" Grid.Row="20" Checked="OnEnableVideo" Unchecked="OnEnableVideo" HorizontalAlignment="Center" VerticalAlignment="Center" Name="EnableVideoCheckBox"/>
 
-                <!-- Row 20: Text Preferences button -->
-                <Button Grid.Column="0" Grid.Row="20" Grid.ColumnSpan="2" Content="Text" Margin="0,2" 
+                <!-- Row 21: Text Preferences button -->
+                <Button Grid.Column="0" Grid.Row="21" Grid.ColumnSpan="2" Content="Text" Margin="0,2" 
                     BorderThickness="0"  Click="OnTextPreferences"
                     VerticalContentAlignment="Center">
                 </Button>
-                <Label Grid.Column="2" Grid.Row="20" Content=">" MouseDown="OnTextPreferences" TouchDown="OnTextPreferences"
+                <Label Grid.Column="2" Grid.Row="21" Content=">" MouseDown="OnTextPreferences" TouchDown="OnTextPreferences"
                    VerticalContentAlignment="Center"/>
 
-                <!-- Row 21: Audio Preferences button -->
-                <Button Grid.Column="0" Grid.Row="21" Grid.ColumnSpan="2" Content="Audio" Margin="0,2" 
+                <!-- Row 22: Audio Preferences button -->
+                <Button Grid.Column="0" Grid.Row="22" Grid.ColumnSpan="2" Content="Audio" Margin="0,2" 
                     BorderThickness="0"  Click="OnAudioPreferences"
                     VerticalContentAlignment="Center">
                 </Button>
-                <Label Grid.Column="2" Grid.Row="21" Content=">" MouseDown="OnAudioPreferences" TouchDown="OnAudioPreferences"
+                <Label Grid.Column="2" Grid.Row="22" Content=">" MouseDown="OnAudioPreferences" TouchDown="OnAudioPreferences"
                    VerticalContentAlignment="Center"/>
 
-                <!-- Row 22: Video button -->
-                <Button Grid.Column="0" Grid.Row="22" Grid.ColumnSpan="2" Content="Video" Margin="0,2" 
+                <!-- Row 23: Video button -->
+                <Button Grid.Column="0" Grid.Row="23" Grid.ColumnSpan="2" Content="Video" Margin="0,2" 
                     BorderThickness="0"  Click="OnVideoPreferences"
                     VerticalContentAlignment="Center">
                 </Button>
-                <Label Grid.Column="2" Grid.Row="22" Content=">" MouseDown="OnVideoPreferences" TouchDown="OnVideoPreferences"
+                <Label Grid.Column="2" Grid.Row="23" Content=">" MouseDown="OnVideoPreferences" TouchDown="OnVideoPreferences"
                    VerticalContentAlignment="Center"/>
 
-                <!-- Row 23: Call button -->
-                <Button Grid.Column="0" Grid.Row="23" Grid.ColumnSpan="2" Content="Call" Margin="0,2" 
+                <!-- Row 24: Call button -->
+                <Button Grid.Column="0" Grid.Row="24" Grid.ColumnSpan="2" Content="Call" Margin="0,2" 
                     BorderThickness="0"  Click="OnCallPreferences"
                     VerticalContentAlignment="Center">
                 </Button>
-                <Label Grid.Column="2" Grid.Row="23" Content=">" MouseDown="OnCallPreferences" TouchDown="OnCallPreferences"
+                <Label Grid.Column="2" Grid.Row="24" Content=">" MouseDown="OnCallPreferences" TouchDown="OnCallPreferences"
                    VerticalContentAlignment="Center"/>
 
-                <!-- Row 24: Network button -->
-                <Button Grid.Column="0" Grid.Row="24" Grid.ColumnSpan="2" Content="Network" Margin="0,2" 
+                <!-- Row 25: Network button -->
+                <Button Grid.Column="0" Grid.Row="25" Grid.ColumnSpan="2" Content="Network" Margin="0,2" 
                     BorderThickness="0"  Click="OnNetworkPreferences"
                     VerticalContentAlignment="Center">
                 </Button>
-                <Label Grid.Column="2" Grid.Row="24" Content=">" MouseDown="OnNetworkPreferences" TouchDown="OnNetworkPreferences"
+                <Label Grid.Column="2" Grid.Row="25" Content=">" MouseDown="OnNetworkPreferences" TouchDown="OnNetworkPreferences"
                    VerticalContentAlignment="Center"/>
 
-                <!-- Row 25: Advanced button -->
-                <Button Grid.Column="0" Grid.Row="25" Grid.ColumnSpan="2" Content="Advanced" Margin="0,2" 
+                <!-- Row 26: Advanced button -->
+                <Button Grid.Column="0" Grid.Row="26" Grid.ColumnSpan="2" Content="Advanced" Margin="0,2" 
                     BorderThickness="0"  Click="OnAdvancedPreferences"
                     VerticalContentAlignment="Center">
                 </Button>
-                <Label Grid.Column="2" Grid.Row="25" Content=">" MouseDown="OnAdvancedPreferences" TouchDown="OnAdvancedPreferences"
+                <Label Grid.Column="2" Grid.Row="26" Content=">" MouseDown="OnAdvancedPreferences" TouchDown="OnAdvancedPreferences"
                    VerticalContentAlignment="Center"/>
 
-                <!-- Row 26: Development Debug Actions Label -->
-                <Label Grid.Column="0" Grid.Row="26"  Grid.ColumnSpan="3" Content="Development Debug Actions" VerticalContentAlignment="Center"
+                <!-- Row 27: Development Debug Actions Label -->
+                <Label Grid.Column="0" Grid.Row="27"  Grid.ColumnSpan="3" Content="Development Debug Actions" VerticalContentAlignment="Center"
                    Visibility="Collapsed" Name="DebugMenuLabel" Background="Gray">
                 </Label>
 
-                <!-- Row 27: Release Core button -->
-                <Button Grid.Column="0" Grid.Row="27" Grid.ColumnSpan="3" Content="Release Core" Margin="0,2" 
+                <!-- Row 28: Release Core button -->
+                <Button Grid.Column="0" Grid.Row="28" Grid.ColumnSpan="3" Content="Release Core" Margin="0,2" 
                     BorderThickness="0"  Click="OnReleaseCore"
                     VerticalContentAlignment="Center" Visibility="Collapsed" Name="ReleaseCoreButton">
                 </Button>
 
-                <!-- Row 28: Clear Cache button -->
-                <Button Grid.Column="0" Grid.Row="28" Grid.ColumnSpan="3" Content="Clear Cache" Margin="0,2" 
+                <!-- Row 29: Clear Cache button -->
+                <Button Grid.Column="0" Grid.Row="29" Grid.ColumnSpan="3" Content="Clear Cache" Margin="0,2" 
                     BorderThickness="0"  Click="OnClearCache"
                     VerticalContentAlignment="Center" Visibility="Collapsed" Name="ClearCacheButton">
                 </Button>
 
-                <!-- Row 29: Battery Alert button -->
-                <Button Grid.Column="0" Grid.Row="29" Grid.ColumnSpan="3" Content="Battery Alert" Margin="0,2" 
+                <!-- Row 30: Battery Alert button -->
+                <Button Grid.Column="0" Grid.Row="30" Grid.ColumnSpan="3" Content="Battery Alert" Margin="0,2" 
                     BorderThickness="0"  Click="OnBatteryAlert"
                     VerticalContentAlignment="Center" Visibility="Collapsed" Name="BatteryAlertButton">
                 </Button>
 
-                <!-- Row 30: AutoAnswerCall -->
-                <Label Grid.Column="0" Grid.Row="30" Grid.ColumnSpan="2" Content="Auto Answer Call Immediately" 
+                <!-- Row 31: AutoAnswerCall -->
+                <Label Grid.Column="0" Grid.Row="31" Grid.ColumnSpan="2" Content="Auto Answer Call Immediately" 
                    VerticalContentAlignment="Center" HorizontalAlignment="Left" Visibility="Collapsed" Name="AutoAnswerLabel">
                 </Label>
-                <CheckBox Grid.Column="2" Grid.Row="30" Checked="OnAutoAnswerCall" Unchecked="OnAutoAnswerCall" HorizontalAlignment="Center" 
+                <CheckBox Grid.Column="2" Grid.Row="31" Checked="OnAutoAnswerCall" Unchecked="OnAutoAnswerCall" HorizontalAlignment="Center" 
                       VerticalAlignment="Center" Visibility="Collapsed" Name="AutoAnswerCheckBox"/>
 
             </Grid>
