@@ -102,7 +102,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             _currentContent = _mainPanel;
 #if DEBUG
-            HandleShowSettingsUpdate(UnifiedSettings_LevelToShow.Normal, true);
+            HandleShowSettingsUpdate(UnifiedSettings_LevelToShow.Super, true);
 #else
             HandleShowSettingsUpdate(UnifiedSettings_LevelToShow.Normal, true);
 #endif
