@@ -13,8 +13,11 @@ namespace com.vtcsecure.ace.windows.Enums
         RunWizard,
         UserNameChanged,
         RegistrationChanged,
+        VideoPolicyChanged,
         // Audio
         MuteMicrophoneMenu,
-        MuteSpeakerMenu
+        MuteSpeakerMenu,
+        // Preferences
+        NetworkSettingsChanged
     }
 }

@@ -137,11 +137,17 @@
       <DependentUpon>MainSettingsCtrl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\UnifiedSettings\BaseUnifiedSettingsPanel.cs" />
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsAdvancedCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsAdvancedCtrl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsAudioCtrl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioVideoCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsAudioVideoCtrl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsCallCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsCallCtrl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsContentType.cs" />
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsCtrl.xaml.cs">
@@ -152,6 +158,9 @@
     </Compile>
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsMainCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsMainCtrl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsNetworkCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsNetworkCtrl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsSummaryCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsSummaryCtrl.xaml</DependentUpon>
@@ -302,11 +311,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsAdvancedCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioCtrl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioVideoCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsCallCtrl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -319,6 +336,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsMainCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsNetworkCtrl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
