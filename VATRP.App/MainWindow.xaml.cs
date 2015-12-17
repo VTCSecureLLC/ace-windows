@@ -20,6 +20,7 @@ using com.vtcsecure.ace.windows.CustomControls;
 using com.vtcsecure.ace.windows.Model;
 using com.vtcsecure.ace.windows.Services;
 using com.vtcsecure.ace.windows.Views;
+using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using VATRP.LinphoneWrapper.Enums;
@@ -59,6 +60,8 @@ namespace com.vtcsecure.ace.windows
         public MainWindow() : base(VATRPWindowType.MAIN_VIEW)
         {
             _mainViewModel = new MainControllerViewModel();
+            _mainViewModel.ActivateWizardPage = true;
+            _mainViewModel.OfferServiceSelection = false;
 
             ServiceManager.Instance.Start();
             _linphoneService = ServiceManager.Instance.LinphoneService;
@@ -196,8 +199,6 @@ namespace com.vtcsecure.ace.windows
         }
         private void RunWizard()
         {
-            //            ctrlSettings.Visibility = System.Windows.Visibility.Hidden;            
-            //            ServiceSelector.Visibility = System.Windows.Visibility.Visible;
             signOutRequest = true;
             ServiceManager.Instance.ClearAccountInformation();
         }
@@ -333,7 +334,8 @@ namespace com.vtcsecure.ace.windows
         {
             if (wizardPage == null)
             {
-                WizardPagepanel.Visibility = Visibility.Collapsed;
+                _mainViewModel.ActivateWizardPage = false;
+                _mainViewModel.OfferServiceSelection = true;
                 return;
             }
             WizardPagepanel.Children.Clear();
@@ -345,8 +347,8 @@ namespace com.vtcsecure.ace.windows
             WizardPagepanel.Children.Add(wizardPage);
             WizardPagepanel.LastChildFill = true;
 
-            ServiceSelector.Visibility = Visibility.Collapsed;
-            WizardPagepanel.Visibility = Visibility.Visible;
+            _mainViewModel.ActivateWizardPage = true;
+            _mainViewModel.OfferServiceSelection = false;
         }
 
         private void onIPRelaySelect(object sender, RoutedEventArgs e)
@@ -369,14 +371,16 @@ namespace com.vtcsecure.ace.windows
         private void OnSourceInitialized(object sender, EventArgs e)
         {
             base.Window_Initialized(sender, e);
-            if (ServiceManager.Instance.UpdateLinphoneConfig())
+            ServiceManager.Instance.StartupLinphoneCore();
+
+            if (App.CurrentAccount == null ||!App.CurrentAccount.Username.NotBlank())
             {
-                if (ServiceManager.Instance.StartLinphoneService())
-                    ServiceManager.Instance.Register();
+                if (_mainViewModel.ActivateWizardPage)
+                    OnVideoRelaySelect(this, null);
             }
         }
 
-       private void OnGlobalStateChanged(LinphoneGlobalState state)
+        private void OnGlobalStateChanged(LinphoneGlobalState state)
         {
             Console.WriteLine("Global State changed: " + state);
         }
@@ -419,7 +423,7 @@ namespace com.vtcsecure.ace.windows
                     !string.IsNullOrEmpty(App.CurrentAccount.RegistrationUser) &&
                     App.CurrentAccount.ProxyPort != 0)
                 {
-                    ServiceSelector.Visibility = Visibility.Collapsed;
+                    _mainViewModel.OfferServiceSelection = false;
                     _mainViewModel.IsAccountLogged = true;
                     _mainViewModel.IsDialpadDocked = true;
                     _mainViewModel.IsCallHistoryDocked = true;

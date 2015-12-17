@@ -12,6 +12,6 @@ namespace VATRP.Core.Interfaces
         int GetAccountsCount();
         void ClearAccounts();
         VATRPAccount FindAccount(string accountUID);
-        VATRPAccount FindAccount(string username, string password, string hostname);
+        VATRPAccount FindAccount(string username, string hostname);
     }
 }

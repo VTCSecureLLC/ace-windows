@@ -517,9 +517,10 @@ namespace com.vtcsecure.ace.windows
                         // and jump to the second page of the wizard.
                         isRegistering = false;
 						WizardPagepanel.Children.Clear();
-						ServiceSelector.Visibility = Visibility.Visible;
-						WizardPagepanel.Visibility = Visibility.Visible;
-						NavPanel.Visibility = Visibility.Collapsed;
+                        // VATRP - 1325, Go directly to VRS page
+					    _mainViewModel.OfferServiceSelection = false;
+                        _mainViewModel.ActivateWizardPage = true;
+						
 						signOutRequest = false;
 						_mainViewModel.IsAccountLogged = false;
 						_mainViewModel.IsDialpadDocked = false;
@@ -534,6 +535,8 @@ namespace com.vtcsecure.ace.windows
                             ServiceManager.Instance.AccountService.DeleteAccount(App.CurrentAccount);
                             ResetConfiguration();
                             App.CurrentAccount = null;
+                            // VATRP - 1325, Go directly to VRS page
+                            OnVideoRelaySelect(this, null);
                         }
                         else
                         {
@@ -557,24 +560,18 @@ namespace com.vtcsecure.ace.windows
 
 		private void OnNewAccountRegistered(string accountId)
 		{
-			ServiceSelector.Visibility = Visibility.Collapsed;
-			WizardPagepanel.Visibility = Visibility.Collapsed;
+		    _mainViewModel.OfferServiceSelection = false;
+		    _mainViewModel.ActivateWizardPage = false;
 			LOG.Info(string.Format( "New account registered. Useaname -{0}. Host - {1} Port - {2}",
 				App.CurrentAccount.RegistrationUser,
 				App.CurrentAccount.ProxyHostname,
 				App.CurrentAccount.ProxyPort));
-			NavPanel.Visibility = Visibility.Visible;
 
 			_mainViewModel.IsDialpadDocked = true;
 			_mainViewModel.IsCallHistoryDocked = true;
 			_mainViewModel.IsAccountLogged = true;
 			ServiceManager.Instance.UpdateLoggedinContact();
-			
-			if (ServiceManager.Instance.UpdateLinphoneConfig())
-			{
-				if (ServiceManager.Instance.StartLinphoneService())
-					ServiceManager.Instance.Register();
-			}
+		    ServiceManager.Instance.StartupLinphoneCore();
 		}
 
 		private void OnChildVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e)

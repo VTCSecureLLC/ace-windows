@@ -91,8 +91,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 return;
             }
 
-            var account = ServiceManager.Instance.AccountService.FindAccount(LoginBox.Text, PasswdBox.Password,
-                HostnameBox.Text);
+            var account = ServiceManager.Instance.AccountService.FindAccount(LoginBox.Text, HostnameBox.Text);
             if (account != null)
             {
                 App.CurrentAccount = account;
