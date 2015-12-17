@@ -34,48 +34,85 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         private UnifiedSettingsAudioCtrl _audioSettingsPanel;
         private UnifiedSettingsVideoCtrl _videoSettingsPanel;
+        private UnifiedSettingsCallCtrl _callSettingsPanel;
+        private UnifiedSettingsNetworkCtrl _networkSettingsPanel;
+        private UnifiedSettingsAdvancedCtrl _advancedSettingsPanel;
 
         private BaseUnifiedSettingsPanel _currentContent;
         private List<BaseUnifiedSettingsPanel> _previousContent;
 
+        private List<BaseUnifiedSettingsPanel> _allPanels;
+
         public UnifiedSettingsCtrl()
         {
             InitializeComponent();
+            _previousContent = new List<BaseUnifiedSettingsPanel>();
+            _allPanels = new List<BaseUnifiedSettingsPanel>();
+
+            BaseUnifiedSettingsPanel.EnableAdvancedSettings = false;
+            BaseUnifiedSettingsPanel.EnabledDebugSettings = false;
+            BaseUnifiedSettingsPanel.EnableSuperSettings = false;
 
             _mainPanel = new UnifiedSettingsMainCtrl();
+            _allPanels.Add(_mainPanel);
             _mainPanel.ContentChanging += HandleContentChanging;
             _mainPanel.AccountChangeRequested += HandleAccountChangeRequested;
+            _mainPanel.ShowSettingsUpdate += HandleShowSettingsUpdate;
 
             _generalPanel = new UnifiedSettingsGeneralCtrl();
+            _allPanels.Add(_generalPanel);
             _generalPanel.ContentChanging += HandleContentChanging;
 
             _audioVideoPanel = new UnifiedSettingsAudioVideoCtrl();
+            _allPanels.Add(_audioVideoPanel);
             _audioVideoPanel.ContentChanging += HandleContentChanging;
 
             _themePanel = new UnifiedSettingsThemeCtrl();
+            _allPanels.Add(_themePanel);
             _themePanel.ContentChanging += HandleContentChanging;
 
             _textPanel = new UnifiedSettingsTextCtrl();
+            _allPanels.Add(_textPanel);
             _textPanel.ContentChanging += HandleContentChanging;
 
             _summaryPanel = new UnifiedSettingsSummaryCtrl();
+            _allPanels.Add(_summaryPanel);
             _summaryPanel.ContentChanging += HandleContentChanging;
+            _summaryPanel.ShowSettingsUpdate += HandleShowSettingsUpdate;
 
             _audioSettingsPanel = new UnifiedSettingsAudioCtrl();
+            _allPanels.Add(_audioSettingsPanel);
             _audioSettingsPanel.ContentChanging += HandleContentChanging;
 
             _videoSettingsPanel = new UnifiedSettingsVideoCtrl();
+            _allPanels.Add(_videoSettingsPanel);
             _videoSettingsPanel.ContentChanging += HandleContentChanging;
 
-            _previousContent = new List<BaseUnifiedSettingsPanel>();
-            _currentContent = _mainPanel;
+            _callSettingsPanel = new UnifiedSettingsCallCtrl();
+            _allPanels.Add(_callSettingsPanel);
+            _callSettingsPanel.ContentChanging += HandleContentChanging;
 
+            _networkSettingsPanel = new UnifiedSettingsNetworkCtrl();
+            _allPanels.Add(_networkSettingsPanel);
+            _networkSettingsPanel.ContentChanging += HandleContentChanging;
+
+            _advancedSettingsPanel = new UnifiedSettingsAdvancedCtrl();
+            _allPanels.Add(_advancedSettingsPanel);
+            _advancedSettingsPanel.ContentChanging += HandleContentChanging;
+
+            _currentContent = _mainPanel;
+#if DEBUG
+            HandleShowSettingsUpdate(UnifiedSettings_LevelToShow.Super, true);
+#else
+            HandleShowSettingsUpdate(UnifiedSettings_LevelToShow.Normal, true);
+#endif
             UpdateContentInUI();
         }
 
         public void Initialize()
         {
             _mainPanel.Initialize();
+            // the other panels are initialized when they are shown
         }
 
         public void SetCallControl(CallViewCtrl callControl)
@@ -139,6 +176,30 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             UpdateContentInUI();
         }
 
+        #region ShowSettingsLevel
+        public void HandleShowSettingsUpdate(UnifiedSettings_LevelToShow settingsType, bool show)
+        {
+            switch (settingsType)
+            {
+                case UnifiedSettings_LevelToShow.Advanced: BaseUnifiedSettingsPanel.EnableAdvancedSettings = show;
+                    break;
+                case UnifiedSettings_LevelToShow.Debug: BaseUnifiedSettingsPanel.EnabledDebugSettings = show;
+                    break;
+                case UnifiedSettings_LevelToShow.Normal: BaseUnifiedSettingsPanel.EnableAdvancedSettings = false;
+                    BaseUnifiedSettingsPanel.EnabledDebugSettings = false;
+                    break;
+                case UnifiedSettings_LevelToShow.Super: BaseUnifiedSettingsPanel.EnableSuperSettings = show;
+                    break;
+                default:
+                    break;
+            }
+            foreach (BaseUnifiedSettingsPanel panel in _allPanels)
+            {
+                panel.ShowSettings(settingsType, show);
+            }
+        }
+        #endregion
+
         #region panel navigation
         private void HandleContentChanging(UnifiedSettingsContentType newContentType)
         {
@@ -160,20 +221,16 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                     break;
                 case UnifiedSettingsContentType.SummaryContent: MoveToContentPanel(_summaryPanel);
                     break;
-//                case UnifiedSettingsContentType.TransportContent: MoveToContentPanel(_transportPanel);
-//                    break;
-//                case UnifiedSettingsContentType.TextSettingsContent: MoveToContentPanel(_textSettingsPanel);
-//                    break;
                 case UnifiedSettingsContentType.AudioSettingsContent: MoveToContentPanel(_audioSettingsPanel);
                     break;
                 case UnifiedSettingsContentType.VideoSettingsContent: MoveToContentPanel(_videoSettingsPanel);
                     break;
-//                case UnifiedSettingsContentType.CallSettingsContent: MoveToContentPanel(_callSettingsPanel);
-//                    break;
-//                case UnifiedSettingsContentType.NetworkSettingsContent: MoveToContentPanel(_networkSettingsPanel);
-//                    break;
-//                case UnifiedSettingsContentType.AdvancedSettingsContent: MoveToContentPanel(_advancedSettingsPanel);
-//                    break;
+                case UnifiedSettingsContentType.CallSettingsContent: MoveToContentPanel(_callSettingsPanel);
+                    break;
+                case UnifiedSettingsContentType.NetworkSettingsContent: MoveToContentPanel(_networkSettingsPanel);
+                    break;
+                case UnifiedSettingsContentType.AdvancedSettingsContent: MoveToContentPanel(_advancedSettingsPanel);
+                    break;
 
                 default: break;
             }
