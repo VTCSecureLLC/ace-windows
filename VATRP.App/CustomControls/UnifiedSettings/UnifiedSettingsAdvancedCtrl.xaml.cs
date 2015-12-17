@@ -27,36 +27,45 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         private void OnDebugMode(object sender, RoutedEventArgs e)
         {
+            // Placeholder - not yet indicated for Windows
         }
 
         private void OnClearLogs(object sender, RoutedEventArgs e)
         {
+            // Placeholder - not yet indicated for Windows
         }
         private void OnSendLogs(object sender, RoutedEventArgs e)
         {
+            // Placeholder - not yet indicated for Windows
         }
 
         private void OnPersistentNotifier(object sender, RoutedEventArgs e)
         {
+            // Placeholder - not yet indicated for Windows
         }
         private void OnEnableAnimations(object sender, RoutedEventArgs e)
         {
+            // Placeholder - not yet indicated for Windows
         }
 
         public void OnSharingServerURLChanged(Object sender, RoutedEventArgs args)
         {
+            // Placeholder - not yet indicated for Windows
         }
 
         public void OnRemoteProvisioningChanged(Object sender, RoutedEventArgs args)
         {
+            // Placeholder - not yet indicated for Windows
         }
 
         public void OnSIPExpireChanged(Object sender, RoutedEventArgs args)
         {
+            // Placeholder - not yet indicated for Windows
         }
 
         public void OnFileSharingServerURLChanged(Object sender, RoutedEventArgs args)
         {
+            // Placeholder - not yet indicated for Windows
         }
 
     }

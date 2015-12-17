@@ -102,7 +102,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             _currentContent = _mainPanel;
 #if DEBUG
-            HandleShowSettingsUpdate(UnifiedSettings_LevelToShow.Super, true);
+            HandleShowSettingsUpdate(UnifiedSettings_LevelToShow.Normal, true);
 #else
             HandleShowSettingsUpdate(UnifiedSettings_LevelToShow.Normal, true);
 #endif
@@ -186,7 +186,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 case UnifiedSettings_LevelToShow.Debug: BaseUnifiedSettingsPanel.EnabledDebugSettings = show;
                     break;
                 case UnifiedSettings_LevelToShow.Normal: BaseUnifiedSettingsPanel.EnableAdvancedSettings = false;
-                    BaseUnifiedSettingsPanel.EnabledDebugSettings = false;
+                                                         BaseUnifiedSettingsPanel.EnabledDebugSettings = false;
+                                                         BaseUnifiedSettingsPanel.EnableSuperSettings = false;
                     break;
                 case UnifiedSettings_LevelToShow.Super: BaseUnifiedSettingsPanel.EnableSuperSettings = show;
                     break;

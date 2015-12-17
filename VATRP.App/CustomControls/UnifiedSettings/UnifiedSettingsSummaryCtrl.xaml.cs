@@ -27,6 +27,21 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             Title = "Summary";
         }
 
+        public override void ShowAdvancedOptions(bool show)
+        {
+            base.ShowAdvancedOptions(show);
+            System.Windows.Visibility visibleSetting = System.Windows.Visibility.Collapsed;
+            if (show)
+            {
+                visibleSetting = System.Windows.Visibility.Visible;
+            }
+            DebugSettingsPasswordBox.Visibility = visibleSetting;
+            ShowDebugSettingsButton.Visibility = visibleSetting;
+
+            SuperSettingsPasswordBox.Visibility = visibleSetting;
+            ShowAllSettingsButton.Visibility = visibleSetting;
+        }
+
         // ToDo VATRP-990 - connect these to the correct actions
 
         private void OnViewTss(object sender, RoutedEventArgs e)
@@ -69,6 +84,14 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             string password = this.SuperSettingsPasswordBox.Password;
             if (!string.IsNullOrEmpty(password) && password.Equals("1234"))
             {
+                if (ShowSettingsUpdate != null)
+                {
+                    ShowSettingsUpdate(UnifiedSettings_LevelToShow.Super, true);
+                }
+            }
+            else if (!string.IsNullOrEmpty(password) && password.Equals("1170"))
+            {
+                BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview = System.Windows.Visibility.Visible;
                 if (ShowSettingsUpdate != null)
                 {
                     ShowSettingsUpdate(UnifiedSettings_LevelToShow.Super, true);

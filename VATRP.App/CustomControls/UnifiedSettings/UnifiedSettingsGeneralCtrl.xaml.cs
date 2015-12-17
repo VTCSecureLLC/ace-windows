@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using com.vtcsecure.ace.windows.Services;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using VATRP.Core.Model;
 
 namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 {
@@ -48,6 +50,47 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 // the application is set to run at startup
                 StartAtBootCheckbox.IsChecked = true;
             }
+
+            if (App.CurrentAccount == null)
+                return;
+            string transport = App.CurrentAccount.Transport;
+            if (!string.IsNullOrEmpty(transport) && transport.Equals("TCP"))  // unencrypted, tls = encrypted
+            {
+                SipEncryptionCheckbox.IsChecked = false;
+            }
+            else
+            {
+                SipEncryptionCheckbox.IsChecked = true;
+            }
+        }
+
+        public override void ShowAdvancedOptions(bool show)
+        {
+            base.ShowAdvancedOptions(show);
+            System.Windows.Visibility visibleSetting = System.Windows.Visibility.Collapsed;
+            if (show)
+            {
+                visibleSetting = System.Windows.Visibility.Visible;
+            }
+//            VideoMailUriLabel.Visibility = visibleSetting;
+//            VideoMailUriTextBox.Visibility = visibleSetting;
+        }
+        public override void ShowSuperOptions(bool show)
+        {
+            base.ShowSuperOptions(show);
+
+            // 1170-ready: this is specified as android only. is implemented for windows.
+            StartAtBootLabel.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
+            StartAtBootCheckbox.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
+
+            // this is specified as android only.
+            WifiOnlyLabel.Visibility = System.Windows.Visibility.Collapsed;
+            WifiOnlyCheckBox.Visibility = System.Windows.Visibility.Collapsed;
+
+            // this is specified for android and ios. Implemented.
+            AutoAnswerAfterNotificationCheckBox.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
+            AutoAnswerAfterNotificationLabel.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
+                
         }
 
         //
@@ -78,23 +121,67 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         {
             Console.WriteLine("Auto Answer Call Clicked");
             bool enabled = WifiOnlyCheckBox.IsChecked ?? false;
-         //   ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-           //     Configuration.ConfEntry.AUTO_ANSWER, enabled);
+            // placeholder - not yet indicated for windows
         }
         private void OnSipEncryption(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("SIP Encryption Clicked");
+            if (App.CurrentAccount == null)
+                return;
             bool enabled = SipEncryptionCheckbox.IsChecked ?? false;
-//            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-  //              Configuration.ConfEntry.AUTO_ANSWER, enabled);
+            bool changed = false;
+            if (!enabled)  // unencrypted = "TCP", tls = encrypted
+            {
+                if (!App.CurrentAccount.Transport.Equals("TCP"))
+                {
+                    App.CurrentAccount.Transport = "TCP";
+                    changed = true;
+                }
+            }
+            else
+            {
+                if (!App.CurrentAccount.Transport.Equals("TLS"))
+                {
+                    App.CurrentAccount.Transport = "TLS"; 
+                    changed = true;
+                }
+            }
+            if (changed)
+            {
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.RegistrationChanged);
+            }
         }
+
         private void OnAutoAnswerAfterNotification(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Auto Answer After Notification Clicked");
             bool enabled = AutoAnswerAfterNotificationCheckBox.IsChecked ?? false;
-            //ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-              //  Configuration.ConfEntry.AUTO_ANSWER, enabled);
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                 Configuration.ConfEntry.AUTO_ANSWER, enabled);
+            ServiceManager.Instance.ConfigurationService.SaveConfig();
         }
+
+        private void OnVideoMailUriChanged(Object sender, RoutedEventArgs args)
+        {
+            Console.WriteLine("VideoMail URI Changed");
+            if (App.CurrentAccount == null)
+                return;
+            string oldVideoMailUri = App.CurrentAccount.VideoMailUri;
+            string newVideoMailUri = VideoMailUriTextBox.Text;
+            if (string.IsNullOrEmpty(newVideoMailUri))
+            {
+                VideoMailUriTextBox.Text = oldVideoMailUri;
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(oldVideoMailUri) || oldVideoMailUri.Equals(newVideoMailUri))
+                {
+                    App.CurrentAccount.VideoMailUri = newVideoMailUri;
+                    ServiceManager.Instance.SaveAccountSettings();
+                }
+            }
+        }
+
 
     }
 }

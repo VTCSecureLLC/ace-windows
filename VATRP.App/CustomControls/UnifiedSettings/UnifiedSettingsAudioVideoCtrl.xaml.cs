@@ -63,6 +63,17 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
         }
 
+        public override void ShowSuperOptions(bool show)
+        {
+            base.ShowSuperOptions(show);
+            // 1170-ready: specified for android. is implemented here if we want to enable it.
+            EchoCancelCheckBox.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
+            EchoCancelLabel.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
+
+            // 1170-ready: specified for ios. Is connected and implemented for windows.
+            ShowSelfViewLabel.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
+            ShowSelfViewCheckBox.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
+        }
 
 
         private void OnMuteMicrophone(object sender, RoutedEventArgs e)
