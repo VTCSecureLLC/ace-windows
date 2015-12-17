@@ -461,9 +461,16 @@ namespace com.vtcsecure.ace.windows
 
         private void OnSignOutRequested(object sender, RoutedEventArgs e)
         {
-            if (App.CurrentAccount == null || signOutRequest)
+            if (signOutRequest)
+            {
+                MessageBox.Show("Account registration is in progress. Please wait.", "ACE",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
-            this.signOutRequest = true;
+            }
+
+            if (App.CurrentAccount == null)
+                return;
+
             if (_mainViewModel.ActiveCallModel != null && _mainViewModel.ActiveCallModel.ActiveCall != null)
             {
                 var r = MessageBox.Show("The active call will be terminated. Continue?", "ACE",
@@ -473,15 +480,42 @@ namespace com.vtcsecure.ace.windows
                 {
                     _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr);
                 }
-                return;
             }
 
-            if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk)
+            signOutRequest = true;
+
+            switch (RegistrationState)
             {
-                _linphoneService.Unregister(false);
+                case LinphoneRegistrationState.LinphoneRegistrationProgress:
+                    MessageBox.Show("Account registration is in progress. Please wait.", "ACE", MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                    break;
+                case LinphoneRegistrationState.LinphoneRegistrationOk:
+                {
+                    _linphoneService.Unregister(false);
+                }
+                    break;
+                case LinphoneRegistrationState.LinphoneRegistrationCleared:
+                case LinphoneRegistrationState.LinphoneRegistrationFailed:
+                {
+                    signOutRequest = false;
+                    WizardPagepanel.Children.Clear();
+                    _mainViewModel.OfferServiceSelection = false;
+                    _mainViewModel.ActivateWizardPage = true;
+
+                    _mainViewModel.IsAccountLogged = false;
+                    _mainViewModel.IsDialpadDocked = false;
+                    _mainViewModel.IsCallHistoryDocked = false;
+                    _mainViewModel.IsContactDocked = false;
+                    _mainViewModel.IsMessagingDocked = false;
+                    ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                        Configuration.ConfEntry.ACCOUNT_IN_USE, string.Empty);
+
+                    this.Wizard_HandleLogout();
+                }
+                    break;
             }
-            
-		}
+        }
 
         #region Menu Handlers
         private void OnAboutClicked(object sender, RoutedEventArgs e)
