@@ -10,6 +10,7 @@ namespace VATRP.Core.Model
         #region Members
 
         private string _videoPreset;
+        private string _videoMailUri;
         private string _preferredVideoId;
         private string _transport;
         private string _mediaEncryption;
@@ -132,6 +133,17 @@ namespace VATRP.Core.Model
             {
                 // Liz E. - linphone uses null to get the default preset. Allow null here.
                 _videoPreset = value;
+            }
+        }
+
+        [Column]
+        public string VideoMailUri
+        {
+            get { return _videoMailUri; }
+            set
+            {
+                // Liz E. - linphone uses null to get the default preset. Allow null here.
+                _videoMailUri = value;
             }
         }
 

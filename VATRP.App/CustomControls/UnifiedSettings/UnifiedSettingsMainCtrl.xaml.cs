@@ -71,6 +71,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 Configuration.ConfEntry.AVPF_ON, true);
         }
 
+        #region SettingsLevel
         public override void ShowDebugOptions(bool show)
         {
             System.Windows.Visibility visibleSetting = System.Windows.Visibility.Collapsed;
@@ -144,7 +145,10 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             PasswordLabel.Visibility = visibleSetting;
             PasswordTextBox.Visibility = visibleSetting;
+
+           
         }
+        #endregion
 
         private bool IsTransportChanged()
         {
@@ -390,7 +394,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.AVPF_ON, enabled);
             ServiceManager.Instance.ConfigurationService.SaveConfig();
-
+            ServiceManager.Instance.ApplyAVPFChanges();
         }
         #endregion
 

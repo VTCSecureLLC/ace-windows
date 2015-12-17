@@ -41,7 +41,7 @@
                      Height="23" Margin="5,0,5,0" VerticalAlignment="Center" Foreground="Blue" Name="DebugSettingsPasswordBox"/>
             <Button Grid.Column="0" Grid.Row="3" Content="Show Debug" Margin="0,2" 
                     BorderThickness="0"  Click="OnShowDebug"
-                    VerticalContentAlignment="Center">
+                    VerticalContentAlignment="Center" Name="ShowDebugSettingsButton">
             </Button>
             <!-- Row 4: ShowSuper -->
             <PasswordBox Grid.Column="1" Grid.Row="4" HorizontalAlignment="Stretch" 

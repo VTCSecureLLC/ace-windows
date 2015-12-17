@@ -66,6 +66,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             _audioVideoPanel = new UnifiedSettingsAudioVideoCtrl();
             _allPanels.Add(_audioVideoPanel);
             _audioVideoPanel.ContentChanging += HandleContentChanging;
+            _audioVideoPanel.AccountChangeRequested += HandleAccountChangeRequested;
 
             _themePanel = new UnifiedSettingsThemeCtrl();
             _allPanels.Add(_themePanel);
@@ -86,6 +87,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             _videoSettingsPanel = new UnifiedSettingsVideoCtrl();
             _allPanels.Add(_videoSettingsPanel);
+            _videoSettingsPanel.AccountChangeRequested += HandleAccountChangeRequested;
             _videoSettingsPanel.ContentChanging += HandleContentChanging;
 
             _callSettingsPanel = new UnifiedSettingsCallCtrl();
@@ -102,7 +104,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             _currentContent = _mainPanel;
 #if DEBUG
-            HandleShowSettingsUpdate(UnifiedSettings_LevelToShow.Super, true);
+            HandleShowSettingsUpdate(UnifiedSettings_LevelToShow.Normal, true);
 #else
             HandleShowSettingsUpdate(UnifiedSettings_LevelToShow.Normal, true);
 #endif
@@ -186,7 +188,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 case UnifiedSettings_LevelToShow.Debug: BaseUnifiedSettingsPanel.EnabledDebugSettings = show;
                     break;
                 case UnifiedSettings_LevelToShow.Normal: BaseUnifiedSettingsPanel.EnableAdvancedSettings = false;
-                    BaseUnifiedSettingsPanel.EnabledDebugSettings = false;
+                                                         BaseUnifiedSettingsPanel.EnabledDebugSettings = false;
+                                                         BaseUnifiedSettingsPanel.EnableSuperSettings = false;
                     break;
                 case UnifiedSettings_LevelToShow.Super: BaseUnifiedSettingsPanel.EnableSuperSettings = show;
                     break;
@@ -255,11 +258,24 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                     break;
                 case ACEMenuSettingsUpdateType.MuteSpeakerMenu: UpdateAudioSettingsIfOpen(menuSetting);
                     break;
+                case ACEMenuSettingsUpdateType.ShowSelfViewMenu: UpdateVideoSettingsIfOpen(menuSetting);
+                    break;
                 default:
                     break;
             }
         }
 
+        private void UpdateVideoSettingsIfOpen(ACEMenuSettingsUpdateType menuSetting)
+        {
+            if (_videoSettingsPanel.IsLoaded)
+            {
+                _videoSettingsPanel.UpdateForMenuSettingChange(menuSetting);
+            }
+            if (_audioVideoPanel.IsLoaded)
+            {
+                _audioVideoPanel.UpdateForMenuSettingChange(menuSetting);
+            }
+        }
         private void UpdateAudioSettingsIfOpen(ACEMenuSettingsUpdateType menuSetting)
         {
             if (_audioSettingsPanel.IsLoaded)

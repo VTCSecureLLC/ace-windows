@@ -39,32 +39,24 @@
 		<Menu IsMainMenu="True" Height="27" HorizontalAlignment="Left" x:Name="WndMenu" VerticalAlignment="Top" Width="Auto" 
 			  Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Grid.Column="0">
 			<MenuItem x:Name="VATRPItem" Header="_ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
-
-				<MenuItem Header="_Preferences" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Provide ACE Feedback" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnProvideFeedback"/>
+                <MenuItem Header="_My Account" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnMyAccount"/>
+                <MenuItem Header="_Preferences" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+                <MenuItem Header="_Provide ACE Feedback" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnProvideFeedback"/>
 				<MenuItem Header="_Check for Updates" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Hide ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+                <MenuItem Header="_Sign Out" Click="OnSignOutRequested" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+                <MenuItem Header="_Hide ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 				<MenuItem Header="_Show All" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 				<MenuItem Header="_Quit ACE" Click="MQuit_Click" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 			</MenuItem>
 			<MenuItem x:Name="ViewItem" Header="_View" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
-				<MenuItem Header="_Minimize" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Zoom" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Bring All Front" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Viewspace" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
-					<!--new items will go here-->
-				</MenuItem>
-				<MenuItem Header="_Next Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Previews Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Go To Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem x:Name="MediaWindowItem" Header="_Media Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem x:Name="SelfViewItem" Header="_Media Self-View" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Media Text Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem x:Name="DialpadItem" Header="_DialPad Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem x:Name="RegistrationStatusItem" Header="_Registration Status" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Media Dock Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem x:Name="ContactsWindowItem" Header="_Contact Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Minimize" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnMinimize"/>
+				<MenuItem x:Name="SelfViewItem" Header="_Media Self-View" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" 
+                          Foreground="White" Click="OnShowSelfView" />
+                <MenuItem Header="_Media Text Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Name="ShowRTTView" Click="OnShowRTTView" IsCheckable="True"/>
+				<!--<MenuItem Header="_" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
+				<!--<MenuItem x:Name="DialpadItem" Header="_DialPad Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
+				<!--<MenuItem x:Name="RegistrationStatusItem" Header="_Registration Status" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
+				<!--<MenuItem x:Name="ContactsWindowItem" Header="_Contact Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
 			</MenuItem>
 			<MenuItem x:Name="VideoItem" Header="_Video" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
 				<MenuItem Header="_Hide Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnHideWindow"/>
@@ -82,13 +74,11 @@
 				<MenuItem Header="_Speaker" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
                 -->
 			</MenuItem>
-			<MenuItem x:Name="EditItem" Header="_Edit"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
-				<MenuItem Header="_New"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Edit Profile" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Close Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Change" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_My Account" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Sign Out" Click="OnSignOutRequested" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+			<MenuItem x:Name="EditItem" Header="_Edit"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Visibility="Collapsed">
+                <MenuItem Header="_New"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Visibility="Collapsed"/>
+                <MenuItem Header="_Edit Profile" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Visibility="Collapsed"/>
+                <MenuItem Header="_Close Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Visibility="Collapsed"/>
+                <MenuItem Header="_Change" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Visibility="Collapsed"/>
 
 			</MenuItem>
 			<MenuItem x:Name="HelpItem" Header="_Help"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
@@ -105,8 +95,8 @@
 			  Visibility="{Binding IsAccountLogged, Converter={StaticResource ibvc}}"
 			  Grid.Column="0"
 			  >
-			<DockPanel x:Name="WizardPagepanel" Dock="Top" Visibility="Collapsed" Grid.Row="0"/>
-			<StackPanel x:Name="ServiceSelector" Visibility="Visible" Grid.Row="0">
+            <DockPanel x:Name="WizardPagepanel" Dock="Top" Visibility="{Binding ActivateWizardPage, Converter={StaticResource bvc}}" Grid.Row="0"/>
+			<StackPanel x:Name="ServiceSelector" Visibility="{Binding OfferServiceSelection, Converter={StaticResource bvc}}" Grid.Row="0">
 				<Label Content="ACE" FontSize="28" FontWeight="Bold"  HorizontalAlignment="Center" Margin="0, 30,0, 0"/>
 				<Label Content="Let's Get Started..." FontSize="16"  HorizontalAlignment="Center" Margin="0, 10,0, 0"/>
 				<Label Content="Which Service you use the most?" FontSize="16"  HorizontalAlignment="Center" Margin="0, 5,0, 0"/>

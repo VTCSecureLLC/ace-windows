@@ -85,24 +85,28 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnEdgeOptimization(object sender, RoutedEventArgs e)
         {
             bool enabled = EdgeOptimizationCheckbox.IsChecked ?? false;
+            // Placeholder - not yet indicated for Windows
 
         }
 
         private void OnWifiOnly(object sender, RoutedEventArgs e)
         {
             bool enabled = WifiOnlyCheckbox.IsChecked ?? false;
+            // Placeholder - not yet indicated for Windows
 
         }
 
         private void OnRandomPort(object sender, RoutedEventArgs e)
         {
             bool enabled = RandomPortCheckbox.IsChecked ?? false;
+            // Placeholder - not yet indicated for Windows
 
         }
 
         public void OnAudioPortsChanged(Object sender, RoutedEventArgs args)
         {
             string newAudioPorts = AudioPortsTextBox.Text;
+            // Placeholder - not yet indicated for Windows
             //            if (string.IsNullOrEmpty(newAudioPorts))
             //            {
             //                string oldAudioPorts = App.CurrentAccount.Username;
@@ -113,6 +117,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         public void OnVideoPortsChanged(Object sender, RoutedEventArgs args)
         {
             string newVideoPorts = VideoPortsTextBox.Text;
+            // Placeholder - not yet indicated for Windows
+
             //            if (string.IsNullOrEmpty(newVideoPorts))
             //            {
             //                string oldVideoPorts = App.CurrentAccount.Username;
@@ -123,14 +129,18 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnIPv6(object sender, RoutedEventArgs e)
         {
             bool enabled = IPv6Checkbox.IsChecked ?? false;
+            // Placeholder - not yet indicated for Windows
 
         }
         private void OnMediaEncryptionChanged(object sender, RoutedEventArgs e)
         {
+            // Placeholder - not yet indicated for Windows
+
         }
         private void OnPushNotifications(object sender, RoutedEventArgs e)
         {
             bool enabled = PushNotificationsCheckbox.IsChecked ?? false;
+            // Placeholder - not yet indicated for Windows
 
         }
         #endregion

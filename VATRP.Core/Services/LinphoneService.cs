@@ -1293,6 +1293,14 @@ namespace VATRP.Core.Services
                 Marshal.StructureToPtr(payload, ptPtr, false);
                 LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, ptPtr);
             }
+            ptPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, "H264", 90000, -1);
+            if (ptPtr != IntPtr.Zero)
+            {
+                var payload = (PayloadType)Marshal.PtrToStructure(ptPtr, typeof(PayloadType));
+                payload.recv_fmtp = "packetization-mode=1";
+                Marshal.StructureToPtr(payload, ptPtr, false);
+                LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, ptPtr);
+            }
             return retValue;
 	    }
 
@@ -1411,7 +1419,7 @@ namespace VATRP.Core.Services
 	    public void SetAVPFMode(LinphoneAVPFMode mode)
 	    {
 	        if (linphoneCore == IntPtr.Zero)
-                throw new Exception("Linphone not initialized");
+	            return;
 
 	        int linphoneAvpfMode = LinphoneAPI.linphone_core_get_avpf_mode(linphoneCore);
 	        if (linphoneAvpfMode != (int) mode)
@@ -1421,10 +1429,10 @@ namespace VATRP.Core.Services
 	        }
 	    }
 
-          public int GetAVPFMode()
+        public int GetAVPFMode()
         {
             if (linphoneCore == IntPtr.Zero)
-                throw new Exception("Linphone not initialized");
+                return (int) LinphoneAVPFMode.LinphoneAVPFDefault;
 
             return LinphoneAPI.linphone_core_get_avpf_mode(linphoneCore);
         }
