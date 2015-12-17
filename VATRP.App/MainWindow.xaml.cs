@@ -171,11 +171,20 @@ namespace com.vtcsecure.ace.windows
                     break;
                 case Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged: HandleNetworkSettingsChange();
                     break;
+                case Enums.ACEMenuSettingsUpdateType.ShowSelfViewChanged: HandleShowSelfViewChanged();
+                    break;
                 default:
                     break;
             }
         }
 
+        private void HandleShowSelfViewChanged()
+        {
+            if (App.CurrentAccount != null)
+            {
+                SelfViewItem.IsChecked = App.CurrentAccount.ShowSelfView;
+            }
+        }
         private void UpdateUIForUserNameChange()
         {
         }
@@ -436,6 +445,7 @@ namespace com.vtcsecure.ace.windows
         private void OnRttToggled(bool switch_on)
         {
             _mainViewModel.IsMessagingDocked = switch_on;
+            ShowRTTView.IsChecked = switch_on;
         }
 
         internal void ResetToggleButton(VATRPWindowType wndType)
@@ -501,10 +511,42 @@ namespace com.vtcsecure.ace.windows
             feedbackView.Show();
         }
 
+        // View Menu
+        private void OnMinimize(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
         // Video Menu
         private void OnHideWindow(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState.Minimized;
+        }
+
+        private void OnShowSelfView(object sender, RoutedEventArgs e)
+        {
+            bool enabled = this.SelfViewItem.IsChecked;
+            if (enabled != App.CurrentAccount.ShowSelfView)
+            {
+                App.CurrentAccount.ShowSelfView = enabled;
+                ServiceManager.Instance.ApplyMediaSettingsChanges();
+                ServiceManager.Instance.SaveAccountSettings();
+
+                if (ctrlSettings != null)
+                {
+                    ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.ShowSelfViewMenu);
+                }
+            }
+        }
+
+        private void OnShowRTTView(object sender, RoutedEventArgs e)
+        {
+            bool enabled = this.ShowRTTView.IsChecked;
+            if (enabled != ctrlCall.IsRTTViewShown())
+            {
+                ctrlCall.UpdateRTTToggle(enabled);
+                _mainViewModel.IsMessagingDocked = enabled;
+            }
         }
 
         private void OnEnterFullScreen(object sender, RoutedEventArgs e)
@@ -546,6 +588,8 @@ namespace com.vtcsecure.ace.windows
 
         private void OnMuteMicrophone(object sender, RoutedEventArgs e)
         {
+            if (App.CurrentAccount == null)
+                return;
             bool enabled = MuteMicrophoneCheckbox.IsChecked;
             if (enabled != App.CurrentAccount.MuteMicrophone)
             {

@@ -49,23 +49,14 @@
 				<MenuItem Header="_Quit ACE" Click="MQuit_Click" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 			</MenuItem>
 			<MenuItem x:Name="ViewItem" Header="_View" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
-				<MenuItem Header="_Minimize" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Zoom" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Bring All Front" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Viewspace" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
-					<!--new items will go here-->
-				</MenuItem>
-				<MenuItem Header="_Next Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Previews Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Go To Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem x:Name="MediaWindowItem" Header="_Media Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem x:Name="SelfViewItem" Header="_Media Self-View" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Media Text Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem x:Name="DialpadItem" Header="_DialPad Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem x:Name="RegistrationStatusItem" Header="_Registration Status" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Media Dock Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem x:Name="ContactsWindowItem" Header="_Contact Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Minimize" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnMinimize"/>
+				<MenuItem x:Name="SelfViewItem" Header="_Media Self-View" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" 
+                          Foreground="White" Click="OnShowSelfView" />
+                <MenuItem Header="_Media Text Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Name="ShowRTTView" Click="OnShowRTTView" IsCheckable="True"/>
+				<!--<MenuItem Header="_" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
+				<!--<MenuItem x:Name="DialpadItem" Header="_DialPad Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
+				<!--<MenuItem x:Name="RegistrationStatusItem" Header="_Registration Status" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
+				<!--<MenuItem x:Name="ContactsWindowItem" Header="_Contact Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
 			</MenuItem>
 			<MenuItem x:Name="VideoItem" Header="_Video" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
 				<MenuItem Header="_Hide Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnHideWindow"/>
