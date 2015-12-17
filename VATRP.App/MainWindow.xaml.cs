@@ -490,6 +490,11 @@ namespace com.vtcsecure.ace.windows
             aboutView.Show();
         }
 
+        private void OnMyAccount(object sender, RoutedEventArgs e)
+        {
+            _mainViewModel.IsDialpadDocked = false;
+            _mainViewModel.IsSettingsDocked = true;
+        }
         private void OnProvideFeedback(object sender, RoutedEventArgs e)
         {
             var feedbackView = new FeedbackView();
