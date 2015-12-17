@@ -357,11 +357,25 @@ namespace com.vtcsecure.ace.windows.CustomControls
             }
         }
 
+        public bool IsRTTViewShown()
+        {
+            return this.BtnRTT.IsChecked ?? false;
+        }
+
+        public void UpdateRTTToggle(bool enable)
+        {
+            if ((BtnRTT.IsChecked ?? false) != enable)
+            {
+                BtnRTT.IsChecked = enable;
+            }
+        }
+
         public void UpdateMuteSettingsIfOpen()
         {
             if (App.CurrentAccount != null)
             {
                 this.BtnMuteOn.IsChecked = App.CurrentAccount.MuteMicrophone;
+                this.BtnSpeaker.IsChecked = App.CurrentAccount.MuteSpeaker;
             }
         }
 

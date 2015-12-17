@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="270" d:DesignWidth="300">
     <Grid>
-            <Grid  Background="{StaticResource RecentsPageMainBg}">
+            <Grid  Background="{StaticResource RecentsPageMainBg}" Name="MainSettingsGrid">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>

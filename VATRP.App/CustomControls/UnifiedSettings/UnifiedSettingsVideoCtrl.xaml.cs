@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using VATRP.Core.Model;
 using com.vtcsecure.ace.windows.Services;
+using com.vtcsecure.ace.windows.Enums;
 
 namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 {
@@ -78,6 +79,20 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             foreach (var item in App.CurrentAccount.VideoCodecsList)
             {
                 VideoCodecsListView.Items.Add(item);
+            }
+        }
+
+        public override void UpdateForMenuSettingChange(ACEMenuSettingsUpdateType menuSetting)
+        {
+            if (App.CurrentAccount == null)
+                return;
+
+            switch (menuSetting)
+            {
+                case ACEMenuSettingsUpdateType.ShowSelfViewMenu: ShowSelfViewCheckBox.IsChecked = App.CurrentAccount.ShowSelfView;
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -215,6 +230,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 App.CurrentAccount.ShowSelfView = enable;
                 ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
+
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.ShowSelfViewChanged);
             }
         }
 
