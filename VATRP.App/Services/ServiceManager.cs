@@ -465,7 +465,8 @@ namespace com.vtcsecure.ace.windows.Services
 
         internal void Register()
         {
-            LinphoneService.Register();
+            if(App.CurrentAccount != null && !string.IsNullOrEmpty(App.CurrentAccount.Username) )
+                LinphoneService.Register();
         }
 
         internal void RegisterNewAccount(string id)
@@ -602,7 +603,6 @@ namespace com.vtcsecure.ace.windows.Services
             try
             {
                 Geolocator loc = new Geolocator();
-
                 try
                 {
                     loc.DesiredAccuracy = PositionAccuracy.High;
@@ -615,6 +615,7 @@ namespace com.vtcsecure.ace.windows.Services
                 catch (System.UnauthorizedAccessException ex)
                 {
                     // handle error
+                    LogError("GetGeolocation", ex);
                     _geoLocaionUnauthorized = true;
                 }
             }
@@ -643,6 +644,15 @@ namespace com.vtcsecure.ace.windows.Services
         public void ClearAccountInformation()
         {
             LinphoneService.ClearAccountInformation();
+        }
+
+        internal void StartupLinphoneCore()
+        {
+            if (UpdateLinphoneConfig())
+            {
+                if (StartLinphoneService())
+                    Register();
+            }
         }
     }
 }
