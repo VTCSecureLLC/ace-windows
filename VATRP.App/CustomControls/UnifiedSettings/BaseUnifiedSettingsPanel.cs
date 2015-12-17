@@ -28,6 +28,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         public static bool EnabledDebugSettings;
         public static bool EnableSuperSettings;
 
+        // VATRP-1170: Show items that have been implemented but are not specified for windows.
+        public static System.Windows.Visibility VisibilityForSuperSettingsAsPreview = System.Windows.Visibility.Visible;
+
         private MainControllerViewModel _parentViewModel;
 
         public string Title { get; set; }

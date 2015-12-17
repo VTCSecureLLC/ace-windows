@@ -145,6 +145,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             PasswordLabel.Visibility = visibleSetting;
             PasswordTextBox.Visibility = visibleSetting;
+
+           
         }
         #endregion
 
