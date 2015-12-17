@@ -162,7 +162,11 @@ namespace com.vtcsecure.ace.windows
                     break;
                 case Enums.ACEMenuSettingsUpdateType.UserNameChanged: UpdateUIForUserNameChange();
                     break;
+                case Enums.ACEMenuSettingsUpdateType.VideoPolicyChanged: UpdateVideoPolicy();
+                    break;
                 case Enums.ACEMenuSettingsUpdateType.RegistrationChanged: HandleRegistrationSettingsChange();
+                    break;
+                case Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged: HandleNetworkSettingsChange();
                     break;
                 default:
                     break;
@@ -172,12 +176,24 @@ namespace com.vtcsecure.ace.windows
         private void UpdateUIForUserNameChange()
         {
         }
+
+        private void HandleNetworkSettingsChange()
+        {
+            ServiceManager.Instance.SaveAccountSettings();
+            ServiceManager.Instance.ApplyNetworkingChanges();
+        }
         private void HandleRegistrationSettingsChange()
         {
             ServiceManager.Instance.SaveAccountSettings();
             ApplyRegistrationChanges();
         }
-
+        private void UpdateVideoPolicy()
+        {
+            if (App.CurrentAccount != null)
+            {
+                _linphoneService.EnableVideo(App.CurrentAccount.EnableVideo, App.CurrentAccount.VideoAutomaticallyStart, App.CurrentAccount.VideoAutomaticallyAccept);
+            }
+        }
         private void RunWizard()
         {
             //            ctrlSettings.Visibility = System.Windows.Visibility.Hidden;            

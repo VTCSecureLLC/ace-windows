@@ -19,12 +19,13 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
     /// </summary>
     public partial class UnifiedSettingsSummaryCtrl : BaseUnifiedSettingsPanel
     {
+        public event UnifiedSettings_EnableSettings ShowSettingsUpdate;
+
         public UnifiedSettingsSummaryCtrl()
         {
             InitializeComponent();
             Title = "Summary";
         }
-
 
         // ToDo VATRP-990 - connect these to the correct actions
 
@@ -39,11 +40,40 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnShowAdvanced(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Show Advanced Clicked");
+            string password = AdvancedSettingsPasswordBox.Password;
+            if (!string.IsNullOrEmpty(password) && password.Equals("1234"))
+            {
+                // show advanced settings
+                if (ShowSettingsUpdate != null)
+                {
+                    ShowSettingsUpdate(UnifiedSettings_LevelToShow.Advanced, true);
+                }
+            }
         }
         private void OnShowDebug(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Show Debug Clicked");
+            string password = DebugSettingsPasswordBox.Password;
+            if (!string.IsNullOrEmpty(password) && password.Equals("1234"))
+            {
+                if (ShowSettingsUpdate != null)
+                {
+                    ShowSettingsUpdate(UnifiedSettings_LevelToShow.Debug, true);
+                }
+            }
         }
 
+        private void OnShowAllSettings(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Show Super Clicked");
+            string password = this.SuperSettingsPasswordBox.Password;
+            if (!string.IsNullOrEmpty(password) && password.Equals("1234"))
+            {
+                if (ShowSettingsUpdate != null)
+                {
+                    ShowSettingsUpdate(UnifiedSettings_LevelToShow.Super, true);
+                }
+            }
+        }
     }
 }

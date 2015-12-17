@@ -53,6 +53,9 @@ namespace VATRP.Core.Model
         public string ProxyHostname { get; set; }
 
         [Column]
+        public bool UseOutboundProxy { get; set; }
+
+        [Column]
         public string DisplayName { get; set; }
 
         [Column]
@@ -106,6 +109,9 @@ namespace VATRP.Core.Model
         public bool VideoAutomaticallyAccept { get; set; }
 
         [Column]
+        public bool EnableVideo { get; set; }
+
+        [Column]
         public bool ShowSelfView { get; set; }
 
         [Column]
@@ -155,12 +161,14 @@ namespace VATRP.Core.Model
             DisplayName = string.Empty;
             VideoAutomaticallyStart = true;
             VideoAutomaticallyAccept = true;
+            EnableVideo = true;
             ShowSelfView = true;
             PreferredVideoId = string.Empty;
             VideoPreset = null;
             MuteMicrophone = false;
             MuteSpeaker = false;
             EchoCancel = false;
+            UseOutboundProxy = false;
             VideoPreset = "high-fps";
         }
 

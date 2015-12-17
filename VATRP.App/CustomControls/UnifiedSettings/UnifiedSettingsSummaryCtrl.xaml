@@ -13,7 +13,12 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="27*"/>
+            </Grid.ColumnDefinitions>
             <!-- Row 0: View TSS -->
             <Button Grid.Column="0" Grid.Row="0" Content="View TSS" Margin="0,2" 
                     BorderThickness="0"  Click="OnViewTss"
@@ -25,14 +30,25 @@
                     VerticalContentAlignment="Center">
             </Button>
             <!-- Row 2: Show Advanced -->
+            <PasswordBox Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" 
+                     Height="23" Margin="5,0,5,0" VerticalAlignment="Center" Foreground="Blue" Name="AdvancedSettingsPasswordBox"/>
             <Button Grid.Column="0" Grid.Row="2" Content="Show Advanced" Margin="0,2" 
                     BorderThickness="0"  Click="OnShowAdvanced"
                     VerticalContentAlignment="Center">
             </Button>
             <!-- Row 3: ShowDebug -->
+            <PasswordBox Grid.Column="1" Grid.Row="3" HorizontalAlignment="Stretch" 
+                     Height="23" Margin="5,0,5,0" VerticalAlignment="Center" Foreground="Blue" Name="DebugSettingsPasswordBox"/>
             <Button Grid.Column="0" Grid.Row="3" Content="Show Debug" Margin="0,2" 
                     BorderThickness="0"  Click="OnShowDebug"
                     VerticalContentAlignment="Center">
+            </Button>
+            <!-- Row 4: ShowSuper -->
+            <PasswordBox Grid.Column="1" Grid.Row="4" HorizontalAlignment="Stretch" 
+                     Height="23" Margin="5,0,5,0" VerticalAlignment="Center" Foreground="Blue" Name="SuperSettingsPasswordBox"/>
+            <Button Grid.Column="0" Grid.Row="4" Content="Show All Settings" Margin="0,2" 
+                    BorderThickness="0"  Click="OnShowAllSettings"
+                    VerticalContentAlignment="Center" Name="ShowAllSettingsButton">
             </Button>
 
         </Grid>

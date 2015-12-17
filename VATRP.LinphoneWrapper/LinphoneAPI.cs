@@ -2123,5 +2123,19 @@ namespace VATRP.LinphoneWrapper
         [DllImport("ortp.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void ortp_free(IntPtr p);
 
+        #region Configuration
+        /**void linphone_proxy_config_set_dial_prefix (LinphoneProxyConfig* cfg, const char* prefix)
+         * Sets a dialing prefix to be automatically prepended when inviting a number with linphone_core_invite(); This dialing prefix shall usually be the country code of the country where the user is living.
+         * */
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_proxy_config_set_dial_prefix(IntPtr cfg, string route);
+        /** void linphone_proxy_config_set_dial_escape_plus	(LinphoneProxyConfig * 	cfg, bool_t val)
+         * Sets whether liblinphone should replace "+" by international calling prefix in dialed numbers (passed to linphone_core_invite ).
+         * */
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_proxy_config_set_dial_escape_plus(IntPtr cfg, bool enable);
+
+        #endregion
+
     }
 }

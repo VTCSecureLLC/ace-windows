@@ -7,15 +7,16 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 {
     public enum UnifiedSettingsContentType
     {
+        // Main Panel
         MainContent,
+        // Top section of main
         GeneralContent,
         AudioVideoContent,
         ThemeContent,
         TextContent,
         SummaryContent,
 
-        TransportContent,
-        TextSettingsContent,
+        // Preferences
         AudioSettingsContent,
         VideoSettingsContent,
         CallSettingsContent,

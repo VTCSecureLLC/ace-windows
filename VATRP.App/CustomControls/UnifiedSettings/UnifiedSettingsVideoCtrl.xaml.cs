@@ -43,12 +43,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             if (App.CurrentAccount == null)
                 return;
-            // ToDo: VATRP-1170 enable video
             AutomaticallyStartCheckBox.IsChecked = App.CurrentAccount.VideoAutomaticallyStart;
-            AutomaticallyStartCheckBox.IsEnabled = false;
-            // ToDo: VATRP-1170 accept video
             AutomaticallyAcceptCheckBox.IsChecked = App.CurrentAccount.VideoAutomaticallyAccept;
-            AutomaticallyAcceptCheckBox.IsEnabled = false;
 
             ShowSelfViewCheckBox.IsChecked = App.CurrentAccount.ShowSelfView;
 

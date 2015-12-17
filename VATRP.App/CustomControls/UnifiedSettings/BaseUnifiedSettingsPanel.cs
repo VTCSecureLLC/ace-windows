@@ -9,18 +9,69 @@ using System.Windows.Controls;
 
 namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 {
+    public enum UnifiedSettings_LevelToShow
+    {
+        Normal, 
+        Advanced,
+        Debug,
+        Super
+    }
+
+    public delegate void UnifiedSettings_EnableSettings(UnifiedSettings_LevelToShow settingsType, bool show);
     public delegate void UnifiedSettings_ContentChanging(UnifiedSettingsContentType contentType);
     public delegate void UnifiedSettings_AccountChange(ACEMenuSettingsUpdateType changeType);
 
 
     public class BaseUnifiedSettingsPanel : UserControl
     {
+        public static bool EnableAdvancedSettings;
+        public static bool EnabledDebugSettings;
+        public static bool EnableSuperSettings;
+
         private MainControllerViewModel _parentViewModel;
 
         public string Title { get; set; }
         // Call When Panel Content needs to change
         public event UnifiedSettings_ContentChanging ContentChanging;
         public event UnifiedSettings_AccountChange AccountChangeRequested;
+
+
+        public void ShowSettings(UnifiedSettings_LevelToShow settingsType, bool show)
+        {
+            switch (settingsType)
+            {
+                case UnifiedSettings_LevelToShow.Advanced: ShowAdvancedOptions(show);
+                    break;
+                case UnifiedSettings_LevelToShow.Debug: ShowDebugOptions(show);
+                    break;
+                case UnifiedSettings_LevelToShow.Super: ShowSuperOptions(show);
+                    break;
+                default:   // show normal
+                    ShowNormalOptions();
+                    break;
+            }
+        }
+
+        public void ShowNormalOptions()
+        {
+            ShowAdvancedOptions(false);
+            ShowDebugOptions(false);
+            ShowSuperOptions(false);
+        }
+
+        public virtual void ShowDebugOptions(bool show)
+        {
+        }
+
+        public virtual void ShowAdvancedOptions(bool show)
+        {
+        }
+
+        public virtual void ShowSuperOptions(bool show)
+        {
+            ShowDebugOptions(show);
+            ShowAdvancedOptions(show);
+        }
 
         // Invoke the Content Changed event
         public virtual void OnContentChanging(UnifiedSettingsContentType contentType)
@@ -46,12 +97,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         }
         public virtual void SaveData()
         {
-          
         }
 
         public virtual void UpdateForMenuSettingChange(ACEMenuSettingsUpdateType menuSetting)
         {
-
         }
+
     }
 }
