@@ -53,7 +53,7 @@
             <Label Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Content="Use Stun Server" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left"  Name="UseStunServerLabel">
             </Label>
-            <CheckBox Grid.Column="2" Grid.Row="3" Checked="OnStunServerChecked" Unchecked="OnWifiOnly" HorizontalAlignment="Center" 
+            <CheckBox Grid.Column="2" Grid.Row="3" Checked="OnStunServerChecked" Unchecked="OnStunServerChecked" HorizontalAlignment="Center" 
                           VerticalAlignment="Center"  Name="UseStunServerCheckbox"/>
 
             <!-- Row 4: Stun Server text box -->
