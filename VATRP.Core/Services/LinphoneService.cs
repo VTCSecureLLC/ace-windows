@@ -1411,7 +1411,7 @@ namespace VATRP.Core.Services
 	    public void SetAVPFMode(LinphoneAVPFMode mode)
 	    {
 	        if (linphoneCore == IntPtr.Zero)
-                throw new Exception("Linphone not initialized");
+	            return;
 
 	        int linphoneAvpfMode = LinphoneAPI.linphone_core_get_avpf_mode(linphoneCore);
 	        if (linphoneAvpfMode != (int) mode)
@@ -1421,10 +1421,10 @@ namespace VATRP.Core.Services
 	        }
 	    }
 
-          public int GetAVPFMode()
+        public int GetAVPFMode()
         {
             if (linphoneCore == IntPtr.Zero)
-                throw new Exception("Linphone not initialized");
+                return (int) LinphoneAVPFMode.LinphoneAVPFDefault;
 
             return LinphoneAPI.linphone_core_get_avpf_mode(linphoneCore);
         }

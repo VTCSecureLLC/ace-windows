@@ -390,7 +390,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.AVPF_ON, enabled);
             ServiceManager.Instance.ConfigurationService.SaveConfig();
-
+            ServiceManager.Instance.ApplyAVPFChanges();
         }
         #endregion
 
