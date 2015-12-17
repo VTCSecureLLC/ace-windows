@@ -39,11 +39,12 @@
 		<Menu IsMainMenu="True" Height="27" HorizontalAlignment="Left" x:Name="WndMenu" VerticalAlignment="Top" Width="Auto" 
 			  Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Grid.Column="0">
 			<MenuItem x:Name="VATRPItem" Header="_ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
-
-				<MenuItem Header="_Preferences" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Provide ACE Feedback" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnProvideFeedback"/>
+                <MenuItem Header="_My Account" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnMyAccount"/>
+                <MenuItem Header="_Preferences" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+                <MenuItem Header="_Provide ACE Feedback" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnProvideFeedback"/>
 				<MenuItem Header="_Check for Updates" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Hide ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+                <MenuItem Header="_Sign Out" Click="OnSignOutRequested" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+                <MenuItem Header="_Hide ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 				<MenuItem Header="_Show All" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 				<MenuItem Header="_Quit ACE" Click="MQuit_Click" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 			</MenuItem>
@@ -82,13 +83,11 @@
 				<MenuItem Header="_Speaker" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
                 -->
 			</MenuItem>
-			<MenuItem x:Name="EditItem" Header="_Edit"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
-				<MenuItem Header="_New"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Edit Profile" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Close Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Change" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_My Account" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Sign Out" Click="OnSignOutRequested" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+			<MenuItem x:Name="EditItem" Header="_Edit"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Visibility="Collapsed">
+                <MenuItem Header="_New"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Visibility="Collapsed"/>
+                <MenuItem Header="_Edit Profile" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Visibility="Collapsed"/>
+                <MenuItem Header="_Close Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Visibility="Collapsed"/>
+                <MenuItem Header="_Change" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Visibility="Collapsed"/>
 
 			</MenuItem>
 			<MenuItem x:Name="HelpItem" Header="_Help"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
