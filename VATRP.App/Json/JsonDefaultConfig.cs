@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-namespace ConsoleApplication1
+namespace com.vtcsecure.ace.windows.Json
 {
     class JsonDefaultConfig
     {

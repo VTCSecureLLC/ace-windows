@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-namespace ConsoleApplication1
+namespace com.vtcsecure.ace.windows.Json
 {
     class Config
     {
@@ -14,17 +14,17 @@ namespace ConsoleApplication1
         public string sip_register_domain { get; set; }
         public int sip_register_port { get; set; }
         public string sip_register_transport { get; set; }
-        public string enable_echo_cancellation { get; set; }
-        public string enable_video { get; set; }
-        public string enable_rtt { get; set; }
-        public string enable_adaptive_rate { get; set; }
+        public bool  enable_echo_cancellation { get; set; }
+        public bool  enable_video { get; set; }
+        public bool  enable_rtt { get; set; }
+        public bool  enable_adaptive_rate { get; set; }
         public List<string> enabled_codecs { get; set; }
         public string bwLimit { get; set; }
         public int upload_bandwidth { get; set; }
         public int download_bandwidth { get; set; }
-        public string enable_stun { get; set; }
+        public bool  enable_stun { get; set; }
         public string stun_server { get; set; }
-        public string enable_ice { get; set; }
+        public bool  enable_ice { get; set; }
         public string logging { get; set; }
         public string sip_mwi_uri { get; set; }
         public string sip_videomail_uri { get; set; }
