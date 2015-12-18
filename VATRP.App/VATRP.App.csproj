@@ -635,6 +635,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /b "$(SolutionDir)thirdparties\liblinphone\*.dll" "$(TargetDir)"
+xcopy /b "$(SolutionDir)thirdparties\rootca.pem" "$(TargetDir)"
 mkdir "$(TargetDir)\lib"
 mkdir "$(TargetDir)\lib\mediastreamer"
 mkdir "$(TargetDir)\lib\mediastreamer\plugins"
