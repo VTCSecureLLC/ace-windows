@@ -270,7 +270,15 @@ namespace com.vtcsecure.ace.windows
             {
                 _linphoneService.Unregister(false);
             }
-            _linphoneService.Register();
+            else
+            {
+                // Liz E. - We do want this else here to prevent registration from being called twice. 
+                //  If we call unregister above, then after the app has finished unregistering, it will use the 
+                //  register requested flag to call Register. Otherwise, go on and call Register here. This
+                //  mechanism was previously put in place as a lock to make sure that we move through the states properly
+                //  befor calling register.
+                _linphoneService.Register();
+            }
         }
 
         private void UpdateMenuSettingsForRegistrationState()
