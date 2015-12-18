@@ -80,19 +80,23 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         private void OnSendButtonClicked(object sender, RoutedEventArgs e)
         {
-            if (!ServiceManager.Instance.IsRttAvailable)
+            if (_viewModel != null)
             {
-                _viewModel.SendMessage(_viewModel.MessageText);
-            }
-            else
-            {
-                _viewModel.EnqueueInput("\r");
+                if (!ServiceManager.Instance.IsRttAvailable)
+                {
+                    _viewModel.SendMessage(_viewModel.MessageText);
+                }
+                else
+                {
+                    _viewModel.EnqueueInput("\r");
+                }
             }
         }
 
         private void OnTextInput(object sender, TextCompositionEventArgs e)
         {
-            _viewModel.EnqueueInput(e.Text);
+            if (_viewModel != null) 
+                _viewModel.EnqueueInput(e.Text);
         }
 
         private void OnPreviewKeyDown(object sender, KeyEventArgs e)
@@ -124,7 +128,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
             }
             if (inputKey != Char.MinValue)
             {
-                _viewModel.EnqueueInput(inputKey.ToString());
+                if (_viewModel != null) 
+                    _viewModel.EnqueueInput(inputKey.ToString());
             }
         }
     }

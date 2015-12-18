@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -290,6 +292,18 @@ namespace VATRP.Core.Services
                 LinphoneAPI.linphone_call_params_enable_video(callsDefaultParams, true);
                 LinphoneAPI.linphone_call_params_enable_early_media_sending(callsDefaultParams, true);
 
+                string codeBase = Assembly.GetExecutingAssembly().CodeBase;
+                UriBuilder uri = new UriBuilder(codeBase);
+                string path = Uri.UnescapeDataString(uri.Path);
+			    if (!string.IsNullOrEmpty(path))
+			    {
+			        var rootCAPath = Path.Combine(Path.GetDirectoryName(path), "rootca.pem");
+			        LinphoneAPI.linphone_core_set_root_ca(linphoneCore, rootCAPath);
+			    }
+			    LinphoneAPI.linphone_core_verify_server_cn(linphoneCore, true);
+                LinphoneAPI.linphone_core_verify_server_certificates(linphoneCore, true);
+
+                
                 // load installed codecs
 			    LoadAudioCodecs();
                 LoadVideoCodecs();
