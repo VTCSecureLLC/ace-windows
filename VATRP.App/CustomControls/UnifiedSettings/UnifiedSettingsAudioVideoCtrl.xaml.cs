@@ -58,11 +58,24 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                     break;
                 case ACEMenuSettingsUpdateType.MuteSpeakerMenu: MuteSpeakerCheckBox.IsChecked = App.CurrentAccount.MuteSpeaker;
                     break;
+                case ACEMenuSettingsUpdateType.ShowSelfViewMenu: ShowSelfViewCheckBox.IsChecked = App.CurrentAccount.ShowSelfView;
+                    break;
                 default:
                     break;
             }
         }
 
+        public override void ShowSuperOptions(bool show)
+        {
+            base.ShowSuperOptions(show);
+            // 1170-ready: specified for android. is implemented here if we want to enable it.
+            EchoCancelCheckBox.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
+            EchoCancelLabel.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
+
+            // 1170-ready: specified for ios. Is connected and implemented for windows.
+            ShowSelfViewLabel.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
+            ShowSelfViewCheckBox.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
+        }
 
 
         private void OnMuteMicrophone(object sender, RoutedEventArgs e)
@@ -94,6 +107,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 App.CurrentAccount.MuteSpeaker = enabled;
                 ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
+
+                if ((CallControl != null) && CallControl.IsLoaded)
+                {
+                    CallControl.UpdateMuteSettingsIfOpen();
+                }
             }
         }
         private void OnEchoCancel(object sender, RoutedEventArgs e)
@@ -122,6 +140,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 App.CurrentAccount.ShowSelfView = enable;
                 ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
+
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.ShowSelfViewChanged);
+
             }
         }
 

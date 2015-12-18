@@ -10,6 +10,7 @@ namespace VATRP.Core.Model
         #region Members
 
         private string _videoPreset;
+        private string _videoMailUri;
         private string _preferredVideoId;
         private string _transport;
         private string _mediaEncryption;
@@ -51,6 +52,9 @@ namespace VATRP.Core.Model
 
         [Column]
         public string ProxyHostname { get; set; }
+
+        [Column]
+        public bool UseOutboundProxy { get; set; }
 
         [Column]
         public string DisplayName { get; set; }
@@ -106,6 +110,9 @@ namespace VATRP.Core.Model
         public bool VideoAutomaticallyAccept { get; set; }
 
         [Column]
+        public bool EnableVideo { get; set; }
+
+        [Column]
         public bool ShowSelfView { get; set; }
 
         [Column]
@@ -126,6 +133,17 @@ namespace VATRP.Core.Model
             {
                 // Liz E. - linphone uses null to get the default preset. Allow null here.
                 _videoPreset = value;
+            }
+        }
+
+        [Column]
+        public string VideoMailUri
+        {
+            get { return _videoMailUri; }
+            set
+            {
+                // Liz E. - linphone uses null to get the default preset. Allow null here.
+                _videoMailUri = value;
             }
         }
 
@@ -155,12 +173,14 @@ namespace VATRP.Core.Model
             DisplayName = string.Empty;
             VideoAutomaticallyStart = true;
             VideoAutomaticallyAccept = true;
+            EnableVideo = true;
             ShowSelfView = true;
             PreferredVideoId = string.Empty;
             VideoPreset = null;
             MuteMicrophone = false;
             MuteSpeaker = false;
             EchoCancel = false;
+            UseOutboundProxy = false;
             VideoPreset = "high-fps";
         }
 

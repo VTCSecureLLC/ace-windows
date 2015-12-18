@@ -19,6 +19,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _isSettingsDocked;
         private bool _isMessagingDocked;
         private bool _isCallPanelDocked;
+        private bool _offerServiceSelection;
+        private bool _activateWizardPage;
 
         private DialpadViewModel _dialPadViewModel;
         private CallHistoryViewModel _historyViewModel;
@@ -30,6 +32,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private ContactsViewModel _contactsViewModel;
         private ILinphoneService _linphoneService;
 
+
         public MainControllerViewModel()
         {
             _isAccountLogged = false;
@@ -39,6 +42,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _isMessagingDocked = false;
             _isCallPanelDocked = false;
             _isSettingsDocked = false;
+            _offerServiceSelection = false;
+            _activateWizardPage = false; 
             _dialPadViewModel = new DialpadViewModel();
             _historyViewModel = new CallHistoryViewModel(ServiceManager.Instance.HistoryService, _dialPadViewModel);
             _contactsViewModel = new ContactsViewModel(ServiceManager.Instance.ContactService, _dialPadViewModel);
@@ -129,6 +134,29 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 _isCallPanelDocked = value;
                 OnPropertyChanged("IsCallPanelDocked");
+            }
+        }
+
+        public bool OfferServiceSelection
+        {
+            get { return _offerServiceSelection; }
+            set
+            {
+                _offerServiceSelection = value;
+                OnPropertyChanged("OfferServiceSelection");
+            }
+        }
+
+        public bool ActivateWizardPage
+        {
+            get
+            {
+                return _activateWizardPage; 
+            }
+            set
+            {
+                _activateWizardPage = value;
+                OnPropertyChanged("ActivateWizardPage");
             }
         }
 
