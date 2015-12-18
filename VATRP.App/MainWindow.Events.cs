@@ -476,6 +476,7 @@ namespace com.vtcsecure.ace.windows
 
 		private void OnRegistrationChanged(LinphoneRegistrationState state)
 		{
+//            LOG.Debug("MainWindow.Event:OnRegistrationChanged: registrationState = " + state.ToString());
 			if (this.Dispatcher.Thread != Thread.CurrentThread)
 			{
 				this.Dispatcher.BeginInvoke((Action)(() => this.OnRegistrationChanged(state)));
