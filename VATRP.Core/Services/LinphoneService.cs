@@ -62,6 +62,7 @@ namespace VATRP.Core.Services
         private readonly string _chatLogPath;
         private readonly string _callLogPath;
 
+        private LinphoneRegistrationState currentRegistrationState;
         #endregion
 
 		#region Delegates
@@ -205,6 +206,7 @@ namespace VATRP.Core.Services
 		#region Methods
 		public LinphoneService(ServiceManagerBase manager)
 		{
+            this.currentRegistrationState = LinphoneRegistrationState.LinphoneRegistrationNone;
 			this.manager = manager;
             commandQueue = new Queue<LinphoneCommand>();
 			preferences = new Preferences();
@@ -537,6 +539,13 @@ namespace VATRP.Core.Services
 		#region Registration
 		public bool Register()
 		{
+            // make sure that we are not already registering
+            //if ((currentRegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk) ||
+            if (   (currentRegistrationState == LinphoneRegistrationState.LinphoneRegistrationProgress))
+            {
+                return false;
+            }
+
 			t_config = new LCSipTransports()
 			{
 				udp_port = preferences.Transport == "UDP" ? LinphoneAPI.LC_SIP_TRANSPORT_RANDOM : LinphoneAPI.LC_SIP_TRANSPORT_DISABLED,
@@ -559,9 +568,14 @@ namespace VATRP.Core.Services
 				identity = string.Format("\"{0}\" <sip:{1}@{2}>", preferences.DisplayName, preferences.Username,
 					preferences.ProxyHost);
 			}
-            
+
+            int port = preferences.ProxyPort;
+            if (preferences.Transport.ToLower().Equals("tls"))
+            {
+                port = 25061;
+            }
 			server_addr = string.Format("sip:{0}:{1};transport={2}", preferences.ProxyHost,
-                preferences.ProxyPort, preferences.Transport.ToLower());
+                port, preferences.Transport.ToLower());
 
             LOG.Debug(string.Format( "Register SIP account: {0} Server: {1}", identity, server_addr));
 
@@ -1457,13 +1471,13 @@ namespace VATRP.Core.Services
 		void OnRegistrationChanged (IntPtr lc, IntPtr cfg, LinphoneRegistrationState cstate, string message) 
 		{
 			if (linphoneCore == IntPtr.Zero) return;
-
 		    if (cfg == proxy_cfg)
 		    {
 		        if (RegistrationStateChangedEvent != null)
 		            RegistrationStateChangedEvent(cstate);
 		    }
-		}
+            currentRegistrationState = cstate;
+        }
 
 		void OnGlobalStateChanged(IntPtr lc, LinphoneGlobalState gstate, string message)
 		{
