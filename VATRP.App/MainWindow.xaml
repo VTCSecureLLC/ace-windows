@@ -40,11 +40,11 @@
 			  Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Grid.Column="0">
 			<MenuItem x:Name="VATRPItem" Header="_ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
                 <MenuItem Header="_My Account" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnMyAccount"/>
-                <MenuItem Header="_Preferences" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+                <MenuItem Header="_Preferences" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnMyAccount"/>
                 <MenuItem Header="_Provide ACE Feedback" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnProvideFeedback"/>
-				<MenuItem Header="_Check for Updates" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<MenuItem Header="_Check for Updates" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnCheckForUpdates"/>
                 <MenuItem Header="_Sign Out" Click="OnSignOutRequested" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-                <MenuItem Header="_Hide ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+                <MenuItem Header="_Hide ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnMinimize"/>
 				<MenuItem Header="_Show All" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 				<MenuItem Header="_Quit ACE" Click="MQuit_Click" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 			</MenuItem>

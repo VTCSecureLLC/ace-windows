@@ -24,6 +24,7 @@ using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using VATRP.LinphoneWrapper.Enums;
+using HockeyApp;
 
 namespace com.vtcsecure.ace.windows
 {
@@ -33,7 +34,7 @@ namespace com.vtcsecure.ace.windows
     public partial class MainWindow 
     {
         #region Members
-        private static readonly ILog LOG = LogManager.GetLogger(typeof(MainWindow));
+        private static readonly log4net.ILog LOG = LogManager.GetLogger(typeof(MainWindow));
         private readonly ContactBox _contactBox =  new ContactBox();
         private readonly Dialpad _dialpadBox;
         private readonly CallProcessingBox _callView = new CallProcessingBox();
@@ -509,6 +510,23 @@ namespace com.vtcsecure.ace.windows
         {
             var feedbackView = new FeedbackView();
             feedbackView.Show();
+        }
+        private async void OnCheckForUpdates(object sender, RoutedEventArgs e)
+        {
+            // Liz E. - not entirely certain this check works - putting it into the build to test it, but I believe it should already be being called
+            //   on launch. This gives us a place to manually click to check. If it is not working for Windows, then we can make use of this API to 
+            //   create out own check:
+            // http://support.hockeyapp.net/kb/api/api-versions
+            // ToDo VATRP-1057: When we have a publishable version, that is where we should be checking for updates, not hockeyapp.s
+            //check for updates on the HockeyApp server
+            await HockeyClient.Current.CheckForUpdatesAsync(true, () =>
+            {
+                if (Application.Current.MainWindow != null)
+                {
+                    Application.Current.MainWindow.Close();
+                }
+                return true;
+            }); 
         }
 
         // View Menu
