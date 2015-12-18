@@ -40,12 +40,12 @@
 			  Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Grid.Column="0">
 			<MenuItem x:Name="VATRPItem" Header="_ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
                 <MenuItem Header="_My Account" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnMyAccount"/>
-                <MenuItem Header="_Preferences" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnMyAccount"/>
+                <!--<MenuItem Header="_Preferences" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnMyAccount"/>-->
                 <MenuItem Header="_Provide ACE Feedback" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnProvideFeedback"/>
 				<MenuItem Header="_Check for Updates" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnCheckForUpdates"/>
                 <MenuItem Header="_Sign Out" Click="OnSignOutRequested" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
                 <MenuItem Header="_Hide ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnMinimize"/>
-				<MenuItem Header="_Show All" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<!--<MenuItem Header="_Show All" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/> -->
 				<MenuItem Header="_Quit ACE" Click="MQuit_Click" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 			</MenuItem>
 			<MenuItem x:Name="ViewItem" Header="_View" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
@@ -83,11 +83,10 @@
 			</MenuItem>
 			<MenuItem x:Name="HelpItem" Header="_Help"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
 				<MenuItem Header="_About ACE" Click="OnAboutClicked" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Search" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Learn about" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Go to Support" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Welcome Tour" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Privacy Policy" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<!-- Post Beta <MenuItem Header="_Learn about" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/> -->
+				<MenuItem Header="_Go to Support" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnGoToSupport"/>
+				<MenuItem Header="_Welcome Tour (Coming Soon)" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" IsEnabled="False"/>
+				<MenuItem Header="_Privacy Policy" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" IsEnabled="False"/>
 			</MenuItem>
 		</Menu>
 
@@ -99,7 +98,7 @@
 			<StackPanel x:Name="ServiceSelector" Visibility="{Binding OfferServiceSelection, Converter={StaticResource bvc}}" Grid.Row="0">
 				<Label Content="ACE" FontSize="28" FontWeight="Bold"  HorizontalAlignment="Center" Margin="0, 30,0, 0"/>
 				<Label Content="Let's Get Started..." FontSize="16"  HorizontalAlignment="Center" Margin="0, 10,0, 0"/>
-				<Label Content="Which Service you use the most?" FontSize="16"  HorizontalAlignment="Center" Margin="0, 5,0, 0"/>
+				<Label Content="Which Service do you use the most?" FontSize="16"  HorizontalAlignment="Center" Margin="0, 5,0, 0"/>
 				<Button Margin="20,5" Height="40" FontSize="18" Content="Video Relay Service" FontWeight="SemiBold" Click="OnVideoRelaySelect"/>
 				<Button Margin="20,5" Height="40" FontSize="18" Content="IP-Relay" FontWeight="SemiBold" Click="onIPRelaySelect"/>
 				<Button Margin="20,5, 20, 30" Height="40" FontSize="18" Content="IP-CTS" FontWeight="SemiBold" Click="onIPCTSSelect"/>
