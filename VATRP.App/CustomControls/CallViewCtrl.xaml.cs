@@ -302,12 +302,15 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 BtnInfo.IsChecked = _viewModel.IsCallInfoOn;
                 BtnHold.IsChecked = _viewModel.IsCallOnHold;
                 _viewModel.ToggleCallStatisticsInfo(BtnInfo.IsChecked ?? false);
-
             }
 
             if (RttToggled != null)
                 RttToggled(BtnRTT.IsChecked ?? false);
             ctrlOverlay.ShowNumpadWindow(BtnNumpad.IsChecked ?? false);
+
+            bool rttEnabled = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+    Configuration.ConfEntry.USE_RTT, true);
+            EnableRTTButton(rttEnabled);
         }
 
 
@@ -367,6 +370,18 @@ namespace com.vtcsecure.ace.windows.CustomControls
             if ((BtnRTT.IsChecked ?? false) != enable)
             {
                 BtnRTT.IsChecked = enable;
+            }
+        }
+
+        public void EnableRTTButton(bool enable)
+        {
+            BtnRTT.IsEnabled = enable;
+
+            if ((BtnRTT.IsChecked ?? false))
+            {
+                BtnRTT.IsChecked = false;
+                if (RttToggled != null)
+                    RttToggled(false);
             }
         }
 

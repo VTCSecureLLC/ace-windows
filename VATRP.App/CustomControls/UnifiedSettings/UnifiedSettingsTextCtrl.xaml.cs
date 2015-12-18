@@ -21,6 +21,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
     /// </summary>
     public partial class UnifiedSettingsTextCtrl : BaseUnifiedSettingsPanel
     {
+        public CallViewCtrl CallControl;
+
         public UnifiedSettingsTextCtrl()
         {
             InitializeComponent();
@@ -47,7 +49,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 Configuration.ConfEntry.USE_RTT, enabled);
             ServiceManager.Instance.ConfigurationService.SaveConfig();
 
+            if (CallControl != null && CallControl.IsLoaded)
+                CallControl.EnableRTTButton(enabled);
         }
-
     }
 }

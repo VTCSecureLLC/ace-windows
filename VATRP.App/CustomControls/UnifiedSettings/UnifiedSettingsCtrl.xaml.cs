@@ -120,6 +120,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         public void SetCallControl(CallViewCtrl callControl)
         {
             _callControl = callControl;
+            _textPanel.CallControl = _callControl;
             _audioSettingsPanel.CallControl = _callControl;
             _audioVideoPanel.CallControl = _callControl;
         }
