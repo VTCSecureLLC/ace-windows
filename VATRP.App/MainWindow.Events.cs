@@ -193,6 +193,8 @@ namespace com.vtcsecure.ace.windows
                     ctrlCall.ctrlOverlay.StartCallTimer(ctrlCall.ctrlOverlay.ForegroundCallDuration);
 					_callOverlayView.EndCallRequested = false;
 
+                    if (_selfView.IsVisible)
+                        _selfView.Hide();
 					ctrlCall.AddVideoControl();
 					break;
 				case VATRPCallState.StreamsRunning:
@@ -601,6 +603,9 @@ namespace com.vtcsecure.ace.windows
 					break;
 				case VATRPWindowType.SETTINGS_VIEW:
 					break;
+                case VATRPWindowType.SELF_VIEW:
+                    this.ShowSelfPreviewItem.IsChecked = bShow;
+			        break;
 			}
 		}
 

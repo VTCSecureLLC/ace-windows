@@ -411,6 +411,7 @@ namespace com.vtcsecure.ace.windows
             _dialpadBox.IsVisibleChanged += OnChildVisibilityChanged;
             _settingsView.IsVisibleChanged += OnChildVisibilityChanged;
             _messagingWindow.IsVisibleChanged += OnChildVisibilityChanged;
+            _selfView.IsVisibleChanged += OnChildVisibilityChanged;
             _settingsView.SettingsSavedEvent += OnSettingsSaved;
             _keypadCtrl.KeypadClicked += OnKeypadClicked;
             _dialpadBox.KeypadClicked += OnDialpadClicked;
@@ -568,6 +569,14 @@ namespace com.vtcsecure.ace.windows
                 {
                     ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.ShowSelfViewMenu);
                 }
+            }
+        }
+
+        private void OnShowPreviewWindow(object sender, RoutedEventArgs e)
+        {
+            if (_selfView != null)
+            {
+                ToggleWindow(_selfView);
             }
         }
 
