@@ -48,8 +48,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             {
                 visibleSetting = System.Windows.Visibility.Visible;
             }
-            VoiceMailUriLabel.Visibility = visibleSetting;
-            VoiceMailUriTextBox.Visibility = visibleSetting;
         }
         public override void ShowDebugOptions(bool show)
         {
@@ -59,8 +57,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             {
                 visibleSetting = System.Windows.Visibility.Visible;
             }
-            SendInbandDTMFLabel.Visibility = visibleSetting;
-            SendInbandDTMFCheckBox.Visibility = visibleSetting;
 
             SendSipInfoDTMFLabel.Visibility = visibleSetting;
             SendSipInfoDTMFCheckBox.Visibility = visibleSetting;
@@ -74,8 +70,21 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 visibleSetting = System.Windows.Visibility.Visible;
             }
 
-            CallPrefixLabel.Visibility = visibleSetting;
-            CallPrefixTextBox.Visibility = visibleSetting;
+            // 1170-ready: set for ios only currently, but implementation in place
+            CallPrefixLabel.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;// visibleSetting;
+            CallPrefixTextBox.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview; //visibleSetting;
+
+            // 1170-ready: set for ios only currently, but implementation in place
+            CallSubstituteLabel.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview; //visibleSetting;
+            CallSubstituteCheckBox.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview; //visibleSetting;
+
+            // set for ios only currently
+            RepeatCallNotificationCheckBox.Visibility = System.Windows.Visibility.Collapsed; //visibleSetting;
+            RepeatCallNotificationLabel.Visibility = System.Windows.Visibility.Collapsed; //visibleSetting;
+            // this was in the ios menu, but not listed in spreadsheet
+            SendInbandDTMFLabel.Visibility = System.Windows.Visibility.Collapsed; //visibleSetting;
+            SendInbandDTMFCheckBox.Visibility = System.Windows.Visibility.Collapsed; //visibleSetting;
+
         }
         #endregion
 
@@ -117,13 +126,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.DTMF_SIP_INFO, enabled);
             ServiceManager.Instance.ConfigurationService.SaveConfig();
-        }
-
-        private void OnVoiceMailUriChanged(Object sender, RoutedEventArgs args)
-        {
-            Console.WriteLine("VoiceMail URI Changed");
-            if ((App.CurrentAccount == null) || !this.IsVisible)
-                return;
         }
 
         private void OnRepeatCallNotification(object sender, RoutedEventArgs e)

@@ -71,6 +71,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 Configuration.ConfEntry.AVPF_ON, true);
         }
 
+        #region SettingsLevel
         public override void ShowDebugOptions(bool show)
         {
             System.Windows.Visibility visibleSetting = System.Windows.Visibility.Collapsed;
@@ -98,6 +99,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             ProxyLabel.Visibility = visibleSetting;
             ProxyTextBox.Visibility = visibleSetting;
+
+            TransportLabel.Visibility = visibleSetting;
+            TransportComboBox.Visibility = visibleSetting;
 
             OutboundProxyLabel.Visibility = visibleSetting;
             OutboundProxyCheckbox.Visibility = visibleSetting;
@@ -144,7 +148,10 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             PasswordLabel.Visibility = visibleSetting;
             PasswordTextBox.Visibility = visibleSetting;
+
+           
         }
+        #endregion
 
         private bool IsTransportChanged()
         {
@@ -258,8 +265,12 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             if (App.CurrentAccount != null)
             {
                 bool isChanged = false;
-                
-                App.CurrentAccount.ProxyPort = port;
+
+                if (App.CurrentAccount.ProxyPort != port)
+                {
+                    App.CurrentAccount.ProxyPort = port;
+                    isChanged = true;
+                }
                 if (ValueChanged(App.CurrentAccount.AuthID, UserIdTextBox.Text))
                 {
                     App.CurrentAccount.AuthID = UserIdTextBox.Text;

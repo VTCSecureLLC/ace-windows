@@ -24,6 +24,7 @@ using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using VATRP.LinphoneWrapper.Enums;
+using HockeyApp;
 
 namespace com.vtcsecure.ace.windows
 {
@@ -33,7 +34,7 @@ namespace com.vtcsecure.ace.windows
     public partial class MainWindow 
     {
         #region Members
-        private static readonly ILog LOG = LogManager.GetLogger(typeof(MainWindow));
+        private static readonly log4net.ILog LOG = LogManager.GetLogger(typeof(MainWindow));
         private readonly ContactBox _contactBox =  new ContactBox();
         private readonly Dialpad _dialpadBox;
         private readonly CallProcessingBox _callView = new CallProcessingBox();
@@ -171,11 +172,20 @@ namespace com.vtcsecure.ace.windows
                     break;
                 case Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged: HandleNetworkSettingsChange();
                     break;
+                case Enums.ACEMenuSettingsUpdateType.ShowSelfViewChanged: HandleShowSelfViewChanged();
+                    break;
                 default:
                     break;
             }
         }
 
+        private void HandleShowSelfViewChanged()
+        {
+            if (App.CurrentAccount != null)
+            {
+                SelfViewItem.IsChecked = App.CurrentAccount.ShowSelfView;
+            }
+        }
         private void UpdateUIForUserNameChange()
         {
         }
@@ -260,7 +270,15 @@ namespace com.vtcsecure.ace.windows
             {
                 _linphoneService.Unregister(false);
             }
-            _linphoneService.Register();
+            else
+            {
+                // Liz E. - We do want this else here to prevent registration from being called twice. 
+                //  If we call unregister above, then after the app has finished unregistering, it will use the 
+                //  register requested flag to call Register. Otherwise, go on and call Register here. This
+                //  mechanism was previously put in place as a lock to make sure that we move through the states properly
+                //  befor calling register.
+                _linphoneService.Register();
+            }
         }
 
         private void UpdateMenuSettingsForRegistrationState()
@@ -436,6 +454,7 @@ namespace com.vtcsecure.ace.windows
         private void OnRttToggled(bool switch_on)
         {
             _mainViewModel.IsMessagingDocked = switch_on;
+            ShowRTTView.IsChecked = switch_on;
         }
 
         internal void ResetToggleButton(VATRPWindowType wndType)
@@ -524,16 +543,76 @@ namespace com.vtcsecure.ace.windows
             aboutView.Show();
         }
 
+        private void OnMyAccount(object sender, RoutedEventArgs e)
+        {
+            _mainViewModel.IsDialpadDocked = false;
+            _mainViewModel.IsSettingsDocked = true;
+        }
+        private void OnGoToSupport(object sender, RoutedEventArgs e)
+        {
+            var feedbackView = new FeedbackView();
+            feedbackView.Show();
+        }
+
         private void OnProvideFeedback(object sender, RoutedEventArgs e)
         {
             var feedbackView = new FeedbackView();
             feedbackView.Show();
+        }
+        private async void OnCheckForUpdates(object sender, RoutedEventArgs e)
+        {
+            // Liz E. - not entirely certain this check works - putting it into the build to test it, but I believe it should already be being called
+            //   on launch. This gives us a place to manually click to check. If it is not working for Windows, then we can make use of this API to 
+            //   create out own check:
+            // http://support.hockeyapp.net/kb/api/api-versions
+            // ToDo VATRP-1057: When we have a publishable version, that is where we should be checking for updates, not hockeyapp.s
+            //check for updates on the HockeyApp server
+            await HockeyClient.Current.CheckForUpdatesAsync(true, () =>
+            {
+                if (Application.Current.MainWindow != null)
+                {
+                    Application.Current.MainWindow.Close();
+                }
+                return true;
+            }); 
+        }
+
+        // View Menu
+        private void OnMinimize(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
         }
 
         // Video Menu
         private void OnHideWindow(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState.Minimized;
+        }
+
+        private void OnShowSelfView(object sender, RoutedEventArgs e)
+        {
+            bool enabled = this.SelfViewItem.IsChecked;
+            if (enabled != App.CurrentAccount.ShowSelfView)
+            {
+                App.CurrentAccount.ShowSelfView = enabled;
+                ServiceManager.Instance.ApplyMediaSettingsChanges();
+                ServiceManager.Instance.SaveAccountSettings();
+
+                if (ctrlSettings != null)
+                {
+                    ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.ShowSelfViewMenu);
+                }
+            }
+        }
+
+        private void OnShowRTTView(object sender, RoutedEventArgs e)
+        {
+            bool enabled = this.ShowRTTView.IsChecked;
+            if (enabled != ctrlCall.IsRTTViewShown())
+            {
+                ctrlCall.UpdateRTTToggle(enabled);
+                _mainViewModel.IsMessagingDocked = enabled;
+            }
         }
 
         private void OnEnterFullScreen(object sender, RoutedEventArgs e)
@@ -575,6 +654,8 @@ namespace com.vtcsecure.ace.windows
 
         private void OnMuteMicrophone(object sender, RoutedEventArgs e)
         {
+            if (App.CurrentAccount == null)
+                return;
             bool enabled = MuteMicrophoneCheckbox.IsChecked;
             if (enabled != App.CurrentAccount.MuteMicrophone)
             {

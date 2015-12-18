@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -60,6 +62,7 @@ namespace VATRP.Core.Services
         private readonly string _chatLogPath;
         private readonly string _callLogPath;
 
+        private LinphoneRegistrationState currentRegistrationState;
         #endregion
 
 		#region Delegates
@@ -203,6 +206,7 @@ namespace VATRP.Core.Services
 		#region Methods
 		public LinphoneService(ServiceManagerBase manager)
 		{
+            this.currentRegistrationState = LinphoneRegistrationState.LinphoneRegistrationNone;
 			this.manager = manager;
             commandQueue = new Queue<LinphoneCommand>();
 			preferences = new Preferences();
@@ -290,6 +294,18 @@ namespace VATRP.Core.Services
                 LinphoneAPI.linphone_call_params_enable_video(callsDefaultParams, true);
                 LinphoneAPI.linphone_call_params_enable_early_media_sending(callsDefaultParams, true);
 
+                string codeBase = Assembly.GetExecutingAssembly().CodeBase;
+                UriBuilder uri = new UriBuilder(codeBase);
+                string path = Uri.UnescapeDataString(uri.Path);
+			    if (!string.IsNullOrEmpty(path))
+			    {
+			        var rootCAPath = Path.Combine(Path.GetDirectoryName(path), "rootca.pem");
+			        LinphoneAPI.linphone_core_set_root_ca(linphoneCore, rootCAPath);
+			    }
+			    LinphoneAPI.linphone_core_verify_server_cn(linphoneCore, true);
+                LinphoneAPI.linphone_core_verify_server_certificates(linphoneCore, true);
+
+                
                 // load installed codecs
 			    LoadAudioCodecs();
                 LoadVideoCodecs();
@@ -523,6 +539,13 @@ namespace VATRP.Core.Services
 		#region Registration
 		public bool Register()
 		{
+            // make sure that we are not already registering
+            //if ((currentRegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk) ||
+            if (   (currentRegistrationState == LinphoneRegistrationState.LinphoneRegistrationProgress))
+            {
+                return false;
+            }
+
 			t_config = new LCSipTransports()
 			{
 				udp_port = preferences.Transport == "UDP" ? LinphoneAPI.LC_SIP_TRANSPORT_RANDOM : LinphoneAPI.LC_SIP_TRANSPORT_DISABLED,
@@ -545,9 +568,14 @@ namespace VATRP.Core.Services
 				identity = string.Format("\"{0}\" <sip:{1}@{2}>", preferences.DisplayName, preferences.Username,
 					preferences.ProxyHost);
 			}
-            
+
+            int port = preferences.ProxyPort;
+            if (preferences.Transport.ToLower().Equals("tls"))
+            {
+                port = 25061;
+            }
 			server_addr = string.Format("sip:{0}:{1};transport={2}", preferences.ProxyHost,
-                preferences.ProxyPort, preferences.Transport.ToLower());
+                port, preferences.Transport.ToLower());
 
             Debug.WriteLine(string.Format( "Register SIP account: {0} Server: {1} Password: {2}", identity, server_addr, preferences.Password));
 
@@ -1306,6 +1334,14 @@ namespace VATRP.Core.Services
                 Marshal.StructureToPtr(payload, ptPtr, false);
                 LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, ptPtr);
             }
+            ptPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, "H264", 90000, -1);
+            if (ptPtr != IntPtr.Zero)
+            {
+                var payload = (PayloadType)Marshal.PtrToStructure(ptPtr, typeof(PayloadType));
+                payload.recv_fmtp = "packetization-mode=1";
+                Marshal.StructureToPtr(payload, ptPtr, false);
+                LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, ptPtr);
+            }
             return retValue;
 	    }
 
@@ -1448,13 +1484,13 @@ namespace VATRP.Core.Services
 		void OnRegistrationChanged (IntPtr lc, IntPtr cfg, LinphoneRegistrationState cstate, string message) 
 		{
 			if (linphoneCore == IntPtr.Zero) return;
-
 		    if (cfg == proxy_cfg)
 		    {
 		        if (RegistrationStateChangedEvent != null)
 		            RegistrationStateChangedEvent(cstate);
 		    }
-		}
+            currentRegistrationState = cstate;
+        }
 
 		void OnGlobalStateChanged(IntPtr lc, LinphoneGlobalState gstate, string message)
 		{
