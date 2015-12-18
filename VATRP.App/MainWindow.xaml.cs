@@ -365,16 +365,16 @@ namespace com.vtcsecure.ace.windows
         private VATRPAccount convertJsonToVATRPAccount(String url, VATRPAccountType account)
         {
             var newAccount = new VATRPAccount { AccountType = account };
-            var jsonAccount = JsonDefaultConfig.defaultConfig();
-            if (url != null)
+            var jsonAccount = JsonFactoryConfig.createConfigFromURL(url);
+            if (jsonAccount == null)
             {
-                throw new NotImplementedException();
+                jsonAccount = JsonFactoryConfig.defaultConfig();
             }
             newAccount.EchoCancel = jsonAccount.enable_echo_cancellation;
             newAccount.VideoAutomaticallyStart = jsonAccount.enable_video;
             newAccount.EnableAVPF = jsonAccount.enable_adaptive_rate;
             newAccount.EnubleSTUN = jsonAccount.enable_stun;
-            var stunServer = jsonAccount.stun_server.Split(',');
+            var stunServer = jsonAccount.stun_server.Split(':');
             if (stunServer.Length>1)
             {
                newAccount.STUNAddress= stunServer[0];
@@ -400,7 +400,13 @@ namespace com.vtcsecure.ace.windows
             if (valueInt>0)
             {
                 newAccount.ProxyPort = (UInt16)valueInt;
-            } 
+            }
+            value = jsonAccount.sip_register_transport;
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                newAccount.Transport = value;
+            }
+
             //implimment codec selection support
             
             /*

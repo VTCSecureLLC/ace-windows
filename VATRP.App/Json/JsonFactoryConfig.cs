@@ -1,10 +1,12 @@
 ﻿using Newtonsoft.Json;
+using System;
+using System.Net;
 namespace com.vtcsecure.ace.windows.Json
 {
-    class JsonDefaultConfig
+    class JsonFactoryConfig
     {
-       public  readonly static string  config = 
-@"{
+        public readonly static string config =
+ @"{
   'version': 1,
   'expiration_time': 3600,
   'configuration_auth_password': '',
@@ -32,10 +34,35 @@ namespace com.vtcsecure.ace.windows.Json
   'sip_videomail_uri': '',
   'video_resolution_maximum': 'cif'
 }";
-       public static Config defaultConfig() { 
-           return JsonConvert.DeserializeObject<Config>(config); 
-       }
+        public static Config defaultConfig()
+        {
+            return JsonConvert.DeserializeObject<Config>(config);
+        }
 
+
+        public static Config createConfigFromURL(string url)
+        {
+            if (url != null)
+            {
+
+                string s;
+                using (WebClient client = new WebClient())
+                {
+                    s = client.DownloadString(url);
+                }
+                try
+                {
+                    return JsonConvert.DeserializeObject<Config>(s);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.StackTrace);
+                    return null;
+                }
+
+            }
+            return null;
+        }
     }
 
 }
