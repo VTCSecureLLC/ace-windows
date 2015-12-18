@@ -23,6 +23,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <TextBlock Margin="3,2,3,2" Foreground="{StaticResource AppMainBorderBrush}" Text="Auth-ID" FontSize="13" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
 
@@ -45,6 +46,15 @@
                 <TextBlock Margin="3,2,3,2" Foreground="{StaticResource AppMainBorderBrush}" Text="Server Port" FontSize="13" Grid.Column="0" Grid.Row="4" VerticalAlignment="Center"/>
 
                 <TextBox  x:Name="HostPortBox" FontSize="14" Grid.Column="1" Grid.Row="4" VerticalAlignment="Center" Margin="3" Width="140" HorizontalAlignment="Left" Height="24"/>
+
+                <TextBlock Margin="3,2,3,2" Foreground="{StaticResource AppMainBorderBrush}" Text="Transport" FontSize="13" Grid.Row="5" Grid.Column="0" VerticalAlignment="Center"/>
+
+                <ComboBox Grid.Row="5" Grid.Column="1"  x:Name="TransportComboBox" FontSize="14"  Height="24" Margin="3" Width="140"
+                           VerticalAlignment="Center" HorizontalAlignment="Left" >
+                    <TextBlock >TCP</TextBlock>
+                    <TextBlock >TLS</TextBlock>
+                </ComboBox>
+
             </Grid>
             <Button Margin="20,10" x:Name="LoginCmd" FontSize="14" Height="25" Width="150" Content="Login" Click="LoginCmd_Click"/>
             <StackPanel Width="150" HorizontalAlignment="Center" Margin="20,5">
