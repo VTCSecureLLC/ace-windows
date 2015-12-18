@@ -83,11 +83,10 @@
 			</MenuItem>
 			<MenuItem x:Name="HelpItem" Header="_Help"  Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
 				<MenuItem Header="_About ACE" Click="OnAboutClicked" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Search" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Learn about" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Go to Support" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Welcome Tour" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
-				<MenuItem Header="_Privacy Policy" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
+				<!-- Post Beta <MenuItem Header="_Learn about" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/> -->
+				<MenuItem Header="_Go to Support" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnGoToSupport"/>
+				<MenuItem Header="_Welcome Tour (Coming Soon)" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" IsEnabled="False"/>
+				<MenuItem Header="_Privacy Policy" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" IsEnabled="False"/>
 			</MenuItem>
 		</Menu>
 
