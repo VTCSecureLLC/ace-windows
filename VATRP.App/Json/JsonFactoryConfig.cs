@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Net;
+using HockeyApp;
 namespace com.vtcsecure.ace.windows.Json
 {
     class JsonFactoryConfig

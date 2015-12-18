@@ -380,31 +380,31 @@ namespace com.vtcsecure.ace.windows
                newAccount.STUNAddress= stunServer[0];
                newAccount.STUNPort = Convert.ToUInt16(stunServer[1]);
             }
-            var value = jsonAccount.sip_auth_username;
-            if(!string.IsNullOrWhiteSpace(value)){
-              newAccount.RegistrationUser = newAccount.Username = value;
+            var username = jsonAccount.sip_auth_username;
+            if(!string.IsNullOrWhiteSpace(username)){
+              newAccount.RegistrationUser = newAccount.Username = username;
             }
 
-            value = jsonAccount.sip_auth_password;
-            if (!string.IsNullOrWhiteSpace(value))
+            var password = jsonAccount.sip_auth_password;
+            if (!string.IsNullOrWhiteSpace(password))
             {
-                newAccount.RegistrationPassword = newAccount.Password = value;
+                newAccount.RegistrationPassword = newAccount.Password = password;
             }
-            value = jsonAccount.sip_register_domain;
-            if (!string.IsNullOrWhiteSpace(value))
+            var domain = jsonAccount.sip_register_domain;
+            if (!string.IsNullOrWhiteSpace(domain))
             {
-                newAccount.ProxyHostname = value;
+                newAccount.ProxyHostname = domain;
             }
 
-            var valueInt = jsonAccount.sip_register_port;
-            if (valueInt>0)
+            var port = jsonAccount.sip_register_port;
+            if (port>0)
             {
-                newAccount.ProxyPort = (UInt16)valueInt;
+                newAccount.ProxyPort = (UInt16)port;
             }
-            value = jsonAccount.sip_register_transport;
-            if (!string.IsNullOrWhiteSpace(value))
+            var transport = jsonAccount.sip_register_transport;
+            if (!string.IsNullOrWhiteSpace(transport))
             {
-                newAccount.Transport = value;
+                newAccount.Transport = transport;
             }
 
             //implimment codec selection support
