@@ -549,7 +549,13 @@ namespace VATRP.Core.Services
 			server_addr = string.Format("sip:{0}:{1};transport={2}", preferences.ProxyHost,
                 preferences.ProxyPort, preferences.Transport.ToLower());
 
-            LOG.Debug(string.Format( "Register SIP account: {0} Server: {1}", identity, server_addr));
+            Debug.WriteLine(string.Format( "Register SIP account: {0} Server: {1} Password: {2}", identity, server_addr, preferences.Password));
+
+            if (auth_info != IntPtr.Zero)
+            {
+                LinphoneAPI.linphone_core_remove_auth_info(linphoneCore, auth_info);
+                auth_info = IntPtr.Zero;
+            }
 
 			auth_info = LinphoneAPI.linphone_auth_info_new(preferences.Username, string.IsNullOrEmpty(preferences.AuthID) ? null : preferences.AuthID, preferences.Password, null, null, null);
 			if (auth_info == IntPtr.Zero)
@@ -564,6 +570,10 @@ namespace VATRP.Core.Services
 			LinphoneAPI.linphone_proxy_config_set_identity(proxy_cfg, identity);
 
 			LinphoneAPI.linphone_proxy_config_set_server_addr(proxy_cfg, server_addr);
+            LinphoneAPI.linphone_proxy_config_set_avpf_mode(proxy_cfg,
+    preferences.EnableAVPF ? LinphoneAVPFMode.LinphoneAVPFEnabled : LinphoneAVPFMode.LinphoneAVPFDisabled);
+            LinphoneAPI.linphone_proxy_config_set_avpf_rr_interval(proxy_cfg, 3);
+
 			LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, true);
 			LinphoneAPI.linphone_core_add_proxy_config(linphoneCore, proxy_cfg);
 			LinphoneAPI.linphone_core_set_default_proxy_config(linphoneCore, proxy_cfg);
@@ -592,6 +602,9 @@ namespace VATRP.Core.Services
 
 	    private void DoUnregister()
 	    {
+            if (linphoneCore == IntPtr.Zero)
+                return;
+
             IntPtr proxyCfg = IntPtr.Zero;
             LinphoneAPI.linphone_core_get_default_proxy(LinphoneCore, ref proxyCfg);
             if (proxyCfg != IntPtr.Zero && LinphoneAPI.linphone_proxy_config_is_registered(proxyCfg))
