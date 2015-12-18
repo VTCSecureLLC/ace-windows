@@ -75,6 +75,9 @@ namespace VATRP.LinphoneWrapper
         public static extern IntPtr linphone_proxy_config_normalize_sip_uri(IntPtr proxy, string username);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_set_primary_contact(IntPtr proxy, string contact_params);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_auth_info_new(string username, string userid, string passwd,
             string ha1, string realm, string domain);
 
@@ -2113,7 +2116,22 @@ namespace VATRP.LinphoneWrapper
         public static extern IntPtr linphone_address_get_domain(IntPtr u);
         
         #endregion
+        
+        #region Security
+        
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern  void linphone_core_set_zrtp_secrets_file(IntPtr lc, string file);
+        
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern  IntPtr linphone_core_get_zrtp_secrets_file(IntPtr lc);
 
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern  void linphone_core_set_user_certificates_path(IntPtr lc, string path);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern  IntPtr linphone_core_get_user_certificates_path(IntPtr lc);
+        
+        #endregion
 
         #endregion
 
