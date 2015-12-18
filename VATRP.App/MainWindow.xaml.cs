@@ -506,6 +506,12 @@ namespace com.vtcsecure.ace.windows
             _mainViewModel.IsDialpadDocked = false;
             _mainViewModel.IsSettingsDocked = true;
         }
+        private void OnGoToSupport(object sender, RoutedEventArgs e)
+        {
+            var feedbackView = new FeedbackView();
+            feedbackView.Show();
+        }
+
         private void OnProvideFeedback(object sender, RoutedEventArgs e)
         {
             var feedbackView = new FeedbackView();
