@@ -1353,6 +1353,23 @@ namespace VATRP.Core.Services
             var linphoneCodecs = codecType == CodecType.Video ? _videoCodecs : _audioCodecs;
             cfgCodecs.Clear();
             cfgCodecs.AddRange(linphoneCodecs);
+             var ptPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, "H263", 90000, -1);
+            if (ptPtr != IntPtr.Zero)
+            {
+                var payload = (PayloadType)Marshal.PtrToStructure(ptPtr, typeof(PayloadType));
+                payload.send_fmtp = "CIF=1;QCIF=1";
+                payload.recv_fmtp = "CIF=1;QCIF=1";
+                Marshal.StructureToPtr(payload, ptPtr, false);
+                LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, ptPtr);
+            }
+            ptPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, "H264", 90000, -1);
+            if (ptPtr != IntPtr.Zero)
+            {
+                var payload = (PayloadType)Marshal.PtrToStructure(ptPtr, typeof(PayloadType));
+                payload.recv_fmtp = "packetization-mode=1";
+                Marshal.StructureToPtr(payload, ptPtr, false);
+                LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, ptPtr);
+            }
 	    }
 
 		private void LoadAudioCodecs()
