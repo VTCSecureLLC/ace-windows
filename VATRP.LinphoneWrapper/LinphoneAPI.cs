@@ -82,6 +82,9 @@ namespace VATRP.LinphoneWrapper
             string ha1, string realm, string domain);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_remove_auth_info(IntPtr lc, IntPtr auth_info);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_add_auth_info(IntPtr lc, IntPtr info);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -95,6 +98,12 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_proxy_config_enable_register(IntPtr obj, bool val);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_proxy_config_set_avpf_mode(IntPtr cfg, LinphoneAVPFMode mode);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_proxy_config_set_avpf_rr_interval(IntPtr cfg, byte interval);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_address_destroy(IntPtr u);
