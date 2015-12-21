@@ -1325,23 +1325,7 @@ namespace VATRP.Core.Services
                 LOG.Info(string.Format("Removing Codec from configuration: {0} , Channels: {1} ", codec.CodecName, codec.Channels));
                 cfgCodecs.Remove(codec);
             }
-            var ptPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, "H263", 90000, -1);
-            if (ptPtr != IntPtr.Zero)
-            {
-                var payload = (PayloadType)Marshal.PtrToStructure(ptPtr, typeof(PayloadType));
-                payload.send_fmtp = "CIF=1;QCIF=1";
-                payload.recv_fmtp = "CIF=1;QCIF=1";
-                Marshal.StructureToPtr(payload, ptPtr, false);
-                LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, ptPtr);
-            }
-            ptPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, "H264", 90000, -1);
-            if (ptPtr != IntPtr.Zero)
-            {
-                var payload = (PayloadType)Marshal.PtrToStructure(ptPtr, typeof(PayloadType));
-                payload.recv_fmtp = "packetization-mode=1";
-                Marshal.StructureToPtr(payload, ptPtr, false);
-                LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, ptPtr);
-            }
+
             return retValue;
 	    }
 
@@ -1355,6 +1339,27 @@ namespace VATRP.Core.Services
             cfgCodecs.AddRange(linphoneCodecs);
 	    }
 
+        public void configureFmtpCodec()
+        {
+            var h263PtPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, "H263", 90000, -1);
+            setFmtpSetting(h263PtPtr, "CIF=1;QCIF=1", "CIF=1;QCIF=1");
+            var h264PtPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, "H264", 90000, -1);
+            setFmtpSetting(h264PtPtr, null, "packetization-mode=1");
+        }
+        private void setFmtpSetting(IntPtr ptPtr, string sendFmtp, string recvFmtp)
+        {
+            if (ptPtr != IntPtr.Zero)
+            {
+                var payload = (PayloadType)Marshal.PtrToStructure(ptPtr, typeof(PayloadType));
+                if (recvFmtp != null)
+                     payload.recv_fmtp = recvFmtp;
+                if (sendFmtp != null)
+                    payload.send_fmtp = sendFmtp;
+                Marshal.StructureToPtr(payload, ptPtr, false);
+                LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, ptPtr);
+            }
+
+        }
 		private void LoadAudioCodecs()
 		{
             if (linphoneCore == IntPtr.Zero)

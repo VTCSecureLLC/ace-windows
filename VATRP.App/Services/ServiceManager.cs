@@ -457,6 +457,7 @@ namespace com.vtcsecure.ace.windows.Services
                 LinphoneService.FillCodecsList(App.CurrentAccount, CodecType.Video);
 
             LinphoneService.UpdateNetworkingParameters(App.CurrentAccount);
+            LinphoneService.configureFmtpCodec();
             ApplyAVPFChanges();
             ApplyDtmfOnSIPInfoChanges();
             ApplyMediaSettingsChanges();
