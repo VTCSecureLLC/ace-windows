@@ -9,12 +9,12 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>com.vtcsecure.ace.windows</RootNamespace>
     <AssemblyName>ACE</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <TargetFrameworkProfile />
-    <targetplatformversion>8.0</targetplatformversion>
+    <TargetPlatformVersion>8.0</TargetPlatformVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -85,6 +85,7 @@
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="Windows" />
+    <Reference Include="Windows.Devices" />
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -137,11 +138,17 @@
       <DependentUpon>MainSettingsCtrl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\UnifiedSettings\BaseUnifiedSettingsPanel.cs" />
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsAdvancedCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsAdvancedCtrl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsAudioCtrl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioVideoCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsAudioVideoCtrl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsCallCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsCallCtrl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsContentType.cs" />
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsCtrl.xaml.cs">
@@ -152,6 +159,9 @@
     </Compile>
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsMainCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsMainCtrl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsNetworkCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsNetworkCtrl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsSummaryCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsSummaryCtrl.xaml</DependentUpon>
@@ -302,11 +312,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsAdvancedCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioCtrl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioVideoCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsCallCtrl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -319,6 +337,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsMainCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsNetworkCtrl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -612,8 +634,18 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
+<<<<<<< HEAD
     <PostBuildEvent>copy /b "$(SolutionDir)\output\bin\*.dll" "$(TargetDir)"
 </PostBuildEvent>
+=======
+    <PostBuildEvent>copy /b "$(SolutionDir)thirdparties\liblinphone\*.dll" "$(TargetDir)"
+xcopy /b "$(SolutionDir)thirdparties\rootca.pem" "$(TargetDir)"
+mkdir "$(TargetDir)\lib"
+mkdir "$(TargetDir)\lib\mediastreamer"
+mkdir "$(TargetDir)\lib\mediastreamer\plugins"
+move  "$(TargetDir)\openh264.dll" "$(TargetDir)\lib\mediastreamer\plugins"
+move  "$(TargetDir)\libmsopenh264.dll" "$(TargetDir)\lib\mediastreamer\plugins"</PostBuildEvent>
+>>>>>>> 9cd0588c3bbabcfb80fd2d0f7fb91dfa51df67ad
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

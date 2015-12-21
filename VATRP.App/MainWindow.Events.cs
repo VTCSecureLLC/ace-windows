@@ -18,7 +18,6 @@ namespace com.vtcsecure.ace.windows
 	public partial class MainWindow
 	{
 		private bool registerRequested = false;
-		private bool isRegistering = true;
 		private bool signOutRequest = false;
 		private bool defaultConfigRequest;
 		private void OnCallStateChanged(VATRPCall call)
@@ -476,34 +475,35 @@ namespace com.vtcsecure.ace.windows
 
 		private void OnRegistrationChanged(LinphoneRegistrationState state)
 		{
+//            LOG.Debug("MainWindow.Event:OnRegistrationChanged: registrationState = " + state.ToString());
 			if (this.Dispatcher.Thread != Thread.CurrentThread)
 			{
 				this.Dispatcher.BeginInvoke((Action)(() => this.OnRegistrationChanged(state)));
 				return;
 			}
-
+		    var processSignOut = false;
 			RegistrationState = state;
-			var statusString = "Unregistered";
+
 			this.BtnSettings.IsEnabled = true;
 			LOG.Info(String.Format("Registration state changed. Current - {0}", state));
 			_mainViewModel.ContactModel.RegistrationState = state;
 			switch (state)
 			{
 				case LinphoneRegistrationState.LinphoneRegistrationProgress:
-					statusString = isRegistering ? "Registering..." : "Unregistering...";
 					this.BtnSettings.IsEnabled = false;
-					break;
+			        return;
 				case LinphoneRegistrationState.LinphoneRegistrationOk:
-					statusString = "Registered";
 					ServiceManager.Instance.SoundService.PlayConnectionChanged(true);
-					isRegistering = false;
 					break;
 				case LinphoneRegistrationState.LinphoneRegistrationFailed:
 					ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
+                    if (signOutRequest || defaultConfigRequest)
+                    {
+                        processSignOut = true;
+                    }
 					break;
 				case LinphoneRegistrationState.LinphoneRegistrationCleared:
-					statusString = "Unregistered";
-					isRegistering = true;
+					
 					ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
 					if (registerRequested)
 					{
@@ -512,38 +512,48 @@ namespace com.vtcsecure.ace.windows
 					}
 					else if (signOutRequest || defaultConfigRequest)
 					{
-                        // Liz E. note: we want to perfomr different actions for logout and default configuration request.
-                        // If we are just logging out, then we need to not clear the account, just the password, 
-                        // and jump to the second page of the wizard.
-                        isRegistering = false;
-						WizardPagepanel.Children.Clear();
-						ServiceSelector.Visibility = Visibility.Visible;
-						WizardPagepanel.Visibility = Visibility.Visible;
-						NavPanel.Visibility = Visibility.Collapsed;
-						signOutRequest = false;
-						_mainViewModel.IsAccountLogged = false;
-						_mainViewModel.IsDialpadDocked = false;
-						_mainViewModel.IsCallHistoryDocked = false;
-						_mainViewModel.IsContactDocked = false;
-						_mainViewModel.IsMessagingDocked = false;
-						ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-				Configuration.ConfEntry.ACCOUNT_IN_USE, string.Empty);
-                    
-                        if (defaultConfigRequest)
-                        {
-                            ServiceManager.Instance.AccountService.DeleteAccount(App.CurrentAccount);
-                            ResetConfiguration();
-                            App.CurrentAccount = null;
-                        }
-                        else
-                        {
-                            this.Wizard_HandleLogout();
-                        }
+					    processSignOut = true;
                     }
+			        
 					break;
 				default:
 					break;
 			}
+
+		    if (processSignOut)
+		    {
+                // Liz E. note: we want to perfomr different actions for logout and default configuration request.
+                // If we are just logging out, then we need to not clear the account, just the password, 
+                // and jump to the second page of the wizard.
+                WizardPagepanel.Children.Clear();
+                // VATRP - 1325, Go directly to VRS page
+                _mainViewModel.OfferServiceSelection = false;
+                _mainViewModel.ActivateWizardPage = true;
+
+                signOutRequest = false;
+                _mainViewModel.IsAccountLogged = false;
+                _mainViewModel.IsDialpadDocked = false;
+                _mainViewModel.IsCallHistoryDocked = false;
+                _mainViewModel.IsContactDocked = false;
+                _mainViewModel.IsMessagingDocked = false;
+                ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+        Configuration.ConfEntry.ACCOUNT_IN_USE, string.Empty);
+
+                if (defaultConfigRequest)
+                {
+                    defaultConfigRequest = false;
+                    ServiceManager.Instance.AccountService.DeleteAccount(App.CurrentAccount);
+                    ResetConfiguration();
+                    App.CurrentAccount = null;
+                    // VATRP - 1325, Go directly to VRS page
+                    OnVideoRelaySelect(this, null);
+                }
+                else
+                {
+                    this.Wizard_HandleLogout();
+                }
+                signOutRequest = false;
+		    }
 		}
 
 		private void ResetConfiguration()
@@ -557,24 +567,18 @@ namespace com.vtcsecure.ace.windows
 
 		private void OnNewAccountRegistered(string accountId)
 		{
-			ServiceSelector.Visibility = Visibility.Collapsed;
-			WizardPagepanel.Visibility = Visibility.Collapsed;
+		    _mainViewModel.OfferServiceSelection = false;
+		    _mainViewModel.ActivateWizardPage = false;
 			LOG.Info(string.Format( "New account registered. Useaname -{0}. Host - {1} Port - {2}",
 				App.CurrentAccount.RegistrationUser,
 				App.CurrentAccount.ProxyHostname,
 				App.CurrentAccount.ProxyPort));
-			NavPanel.Visibility = Visibility.Visible;
 
 			_mainViewModel.IsDialpadDocked = true;
 			_mainViewModel.IsCallHistoryDocked = true;
 			_mainViewModel.IsAccountLogged = true;
 			ServiceManager.Instance.UpdateLoggedinContact();
-			
-			if (ServiceManager.Instance.UpdateLinphoneConfig())
-			{
-				if (ServiceManager.Instance.StartLinphoneService())
-					ServiceManager.Instance.Register();
-			}
+		    ServiceManager.Instance.StartupLinphoneCore();
 		}
 
 		private void OnChildVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e)

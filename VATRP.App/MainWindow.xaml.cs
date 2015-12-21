@@ -20,9 +20,11 @@ using com.vtcsecure.ace.windows.CustomControls;
 using com.vtcsecure.ace.windows.Model;
 using com.vtcsecure.ace.windows.Services;
 using com.vtcsecure.ace.windows.Views;
+using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using VATRP.LinphoneWrapper.Enums;
+using HockeyApp;
 
 namespace com.vtcsecure.ace.windows
 {
@@ -32,7 +34,7 @@ namespace com.vtcsecure.ace.windows
     public partial class MainWindow 
     {
         #region Members
-        private static readonly ILog LOG = LogManager.GetLogger(typeof(MainWindow));
+        private static readonly log4net.ILog LOG = LogManager.GetLogger(typeof(MainWindow));
         private readonly ContactBox _contactBox =  new ContactBox();
         private readonly Dialpad _dialpadBox;
         private readonly CallProcessingBox _callView = new CallProcessingBox();
@@ -59,6 +61,8 @@ namespace com.vtcsecure.ace.windows
         public MainWindow() : base(VATRPWindowType.MAIN_VIEW)
         {
             _mainViewModel = new MainControllerViewModel();
+            _mainViewModel.ActivateWizardPage = true;
+            _mainViewModel.OfferServiceSelection = false;
 
             ServiceManager.Instance.Start();
             _linphoneService = ServiceManager.Instance.LinphoneService;
@@ -162,26 +166,49 @@ namespace com.vtcsecure.ace.windows
                     break;
                 case Enums.ACEMenuSettingsUpdateType.UserNameChanged: UpdateUIForUserNameChange();
                     break;
+                case Enums.ACEMenuSettingsUpdateType.VideoPolicyChanged: UpdateVideoPolicy();
+                    break;
                 case Enums.ACEMenuSettingsUpdateType.RegistrationChanged: HandleRegistrationSettingsChange();
+                    break;
+                case Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged: HandleNetworkSettingsChange();
+                    break;
+                case Enums.ACEMenuSettingsUpdateType.ShowSelfViewChanged: HandleShowSelfViewChanged();
                     break;
                 default:
                     break;
             }
         }
 
+        private void HandleShowSelfViewChanged()
+        {
+            if (App.CurrentAccount != null)
+            {
+                SelfViewItem.IsChecked = App.CurrentAccount.ShowSelfView;
+            }
+        }
         private void UpdateUIForUserNameChange()
         {
+        }
+
+        private void HandleNetworkSettingsChange()
+        {
+            ServiceManager.Instance.SaveAccountSettings();
+            ServiceManager.Instance.ApplyNetworkingChanges();
         }
         private void HandleRegistrationSettingsChange()
         {
             ServiceManager.Instance.SaveAccountSettings();
             ApplyRegistrationChanges();
         }
-
+        private void UpdateVideoPolicy()
+        {
+            if (App.CurrentAccount != null)
+            {
+                _linphoneService.EnableVideo(App.CurrentAccount.EnableVideo, App.CurrentAccount.VideoAutomaticallyStart, App.CurrentAccount.VideoAutomaticallyAccept);
+            }
+        }
         private void RunWizard()
         {
-            //            ctrlSettings.Visibility = System.Windows.Visibility.Hidden;            
-            //            ServiceSelector.Visibility = System.Windows.Visibility.Visible;
             signOutRequest = true;
             ServiceManager.Instance.ClearAccountInformation();
         }
@@ -243,7 +270,15 @@ namespace com.vtcsecure.ace.windows
             {
                 _linphoneService.Unregister(false);
             }
-            _linphoneService.Register();
+            else
+            {
+                // Liz E. - We do want this else here to prevent registration from being called twice. 
+                //  If we call unregister above, then after the app has finished unregistering, it will use the 
+                //  register requested flag to call Register. Otherwise, go on and call Register here. This
+                //  mechanism was previously put in place as a lock to make sure that we move through the states properly
+                //  befor calling register.
+                _linphoneService.Register();
+            }
         }
 
         private void UpdateMenuSettingsForRegistrationState()
@@ -317,7 +352,8 @@ namespace com.vtcsecure.ace.windows
         {
             if (wizardPage == null)
             {
-                WizardPagepanel.Visibility = Visibility.Collapsed;
+                _mainViewModel.ActivateWizardPage = false;
+                _mainViewModel.OfferServiceSelection = true;
                 return;
             }
             WizardPagepanel.Children.Clear();
@@ -329,8 +365,8 @@ namespace com.vtcsecure.ace.windows
             WizardPagepanel.Children.Add(wizardPage);
             WizardPagepanel.LastChildFill = true;
 
-            ServiceSelector.Visibility = Visibility.Collapsed;
-            WizardPagepanel.Visibility = Visibility.Visible;
+            _mainViewModel.ActivateWizardPage = true;
+            _mainViewModel.OfferServiceSelection = false;
         }
 
         private void onIPRelaySelect(object sender, RoutedEventArgs e)
@@ -353,14 +389,16 @@ namespace com.vtcsecure.ace.windows
         private void OnSourceInitialized(object sender, EventArgs e)
         {
             base.Window_Initialized(sender, e);
-            if (ServiceManager.Instance.UpdateLinphoneConfig())
+            ServiceManager.Instance.StartupLinphoneCore();
+
+            if (App.CurrentAccount == null ||!App.CurrentAccount.Username.NotBlank())
             {
-                if (ServiceManager.Instance.StartLinphoneService())
-                    ServiceManager.Instance.Register();
+                if (_mainViewModel.ActivateWizardPage)
+                    OnVideoRelaySelect(this, null);
             }
         }
 
-       private void OnGlobalStateChanged(LinphoneGlobalState state)
+        private void OnGlobalStateChanged(LinphoneGlobalState state)
         {
             Console.WriteLine("Global State changed: " + state);
         }
@@ -403,7 +441,7 @@ namespace com.vtcsecure.ace.windows
                     !string.IsNullOrEmpty(App.CurrentAccount.RegistrationUser) &&
                     App.CurrentAccount.ProxyPort != 0)
                 {
-                    ServiceSelector.Visibility = Visibility.Collapsed;
+                    _mainViewModel.OfferServiceSelection = false;
                     _mainViewModel.IsAccountLogged = true;
                     _mainViewModel.IsDialpadDocked = true;
                     _mainViewModel.IsCallHistoryDocked = true;
@@ -416,6 +454,7 @@ namespace com.vtcsecure.ace.windows
         private void OnRttToggled(bool switch_on)
         {
             _mainViewModel.IsMessagingDocked = switch_on;
+            ShowRTTView.IsChecked = switch_on;
         }
 
         internal void ResetToggleButton(VATRPWindowType wndType)
@@ -441,9 +480,16 @@ namespace com.vtcsecure.ace.windows
 
         private void OnSignOutRequested(object sender, RoutedEventArgs e)
         {
-            if (App.CurrentAccount == null || signOutRequest)
+            if (signOutRequest)
+            {
+                MessageBox.Show("Account registration is in progress. Please wait.", "ACE",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
-            this.signOutRequest = true;
+            }
+
+            if (App.CurrentAccount == null)
+                return;
+
             if (_mainViewModel.ActiveCallModel != null && _mainViewModel.ActiveCallModel.ActiveCall != null)
             {
                 var r = MessageBox.Show("The active call will be terminated. Continue?", "ACE",
@@ -453,15 +499,42 @@ namespace com.vtcsecure.ace.windows
                 {
                     _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr);
                 }
-                return;
             }
 
-            if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk)
+            signOutRequest = true;
+
+            switch (RegistrationState)
             {
-                _linphoneService.Unregister(false);
+                case LinphoneRegistrationState.LinphoneRegistrationProgress:
+                    MessageBox.Show("Account registration is in progress. Please wait.", "ACE", MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                    break;
+                case LinphoneRegistrationState.LinphoneRegistrationOk:
+                {
+                    _linphoneService.Unregister(false);
+                }
+                    break;
+                case LinphoneRegistrationState.LinphoneRegistrationCleared:
+                case LinphoneRegistrationState.LinphoneRegistrationFailed:
+                {
+                    signOutRequest = false;
+                    WizardPagepanel.Children.Clear();
+                    _mainViewModel.OfferServiceSelection = false;
+                    _mainViewModel.ActivateWizardPage = true;
+
+                    _mainViewModel.IsAccountLogged = false;
+                    _mainViewModel.IsDialpadDocked = false;
+                    _mainViewModel.IsCallHistoryDocked = false;
+                    _mainViewModel.IsContactDocked = false;
+                    _mainViewModel.IsMessagingDocked = false;
+                    ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                        Configuration.ConfEntry.ACCOUNT_IN_USE, string.Empty);
+
+                    this.Wizard_HandleLogout();
+                }
+                    break;
             }
-            
-		}
+        }
 
         #region Menu Handlers
         private void OnAboutClicked(object sender, RoutedEventArgs e)
@@ -470,16 +543,76 @@ namespace com.vtcsecure.ace.windows
             aboutView.Show();
         }
 
+        private void OnMyAccount(object sender, RoutedEventArgs e)
+        {
+            _mainViewModel.IsDialpadDocked = false;
+            _mainViewModel.IsSettingsDocked = true;
+        }
+        private void OnGoToSupport(object sender, RoutedEventArgs e)
+        {
+            var feedbackView = new FeedbackView();
+            feedbackView.Show();
+        }
+
         private void OnProvideFeedback(object sender, RoutedEventArgs e)
         {
             var feedbackView = new FeedbackView();
             feedbackView.Show();
+        }
+        private async void OnCheckForUpdates(object sender, RoutedEventArgs e)
+        {
+            // Liz E. - not entirely certain this check works - putting it into the build to test it, but I believe it should already be being called
+            //   on launch. This gives us a place to manually click to check. If it is not working for Windows, then we can make use of this API to 
+            //   create out own check:
+            // http://support.hockeyapp.net/kb/api/api-versions
+            // ToDo VATRP-1057: When we have a publishable version, that is where we should be checking for updates, not hockeyapp.s
+            //check for updates on the HockeyApp server
+            await HockeyClient.Current.CheckForUpdatesAsync(true, () =>
+            {
+                if (Application.Current.MainWindow != null)
+                {
+                    Application.Current.MainWindow.Close();
+                }
+                return true;
+            }); 
+        }
+
+        // View Menu
+        private void OnMinimize(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
         }
 
         // Video Menu
         private void OnHideWindow(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState.Minimized;
+        }
+
+        private void OnShowSelfView(object sender, RoutedEventArgs e)
+        {
+            bool enabled = this.SelfViewItem.IsChecked;
+            if (enabled != App.CurrentAccount.ShowSelfView)
+            {
+                App.CurrentAccount.ShowSelfView = enabled;
+                ServiceManager.Instance.ApplyMediaSettingsChanges();
+                ServiceManager.Instance.SaveAccountSettings();
+
+                if (ctrlSettings != null)
+                {
+                    ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.ShowSelfViewMenu);
+                }
+            }
+        }
+
+        private void OnShowRTTView(object sender, RoutedEventArgs e)
+        {
+            bool enabled = this.ShowRTTView.IsChecked;
+            if (enabled != ctrlCall.IsRTTViewShown())
+            {
+                ctrlCall.UpdateRTTToggle(enabled);
+                _mainViewModel.IsMessagingDocked = enabled;
+            }
         }
 
         private void OnEnterFullScreen(object sender, RoutedEventArgs e)
@@ -521,6 +654,8 @@ namespace com.vtcsecure.ace.windows
 
         private void OnMuteMicrophone(object sender, RoutedEventArgs e)
         {
+            if (App.CurrentAccount == null)
+                return;
             bool enabled = MuteMicrophoneCheckbox.IsChecked;
             if (enabled != App.CurrentAccount.MuteMicrophone)
             {
