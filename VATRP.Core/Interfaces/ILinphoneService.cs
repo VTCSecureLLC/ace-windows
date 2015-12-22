@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using VATRP.Core.Model;
 using VATRP.Core.Services;
 using VATRP.LinphoneWrapper.Enums;
@@ -65,7 +66,7 @@ namespace VATRP.Core.Interfaces
         void configureFmtpCodec();
         void FillCodecsList(VATRPAccount account, CodecType codecType);
         bool UpdateNetworkingParameters(VATRPAccount account);
-        void SetAVPFMode(LinphoneAVPFMode mode);
+        void SetAVPFMode(LinphoneAVPFMode mode, LinphoneRTCPMode rtcpMode);
         int GetAVPFMode();
         IntPtr GetCallParams(IntPtr callPtr);
         string GetUsedAudioCodec(IntPtr callParams);
@@ -84,5 +85,14 @@ namespace VATRP.Core.Interfaces
         void EnableAdaptiveRateControl(bool bEnable);
         IntPtr LinphoneCore { get; }
         int GetActiveCallsCount { get; }
+
+        List<string> GetAvailableCameras();
+        void SetCamera(string deviceName);
+        List<string> GetAvailableMicrophones();
+        void SetCaptureDevice(string deviceId);
+        List<string> GetAvailableSpeakers();
+        void SetMicrophone(string deviceId);
+
+
     }
 }

@@ -1462,7 +1462,7 @@ namespace VATRP.Core.Services
             return false;
         }
 
-	    public void SetAVPFMode(LinphoneAVPFMode mode)
+	    public void SetAVPFMode(LinphoneAVPFMode mode, LinphoneRTCPMode rtcpMode)
 	    {
 	        if (linphoneCore == IntPtr.Zero)
 	            return;
@@ -1473,7 +1473,13 @@ namespace VATRP.Core.Services
                 LOG.Info("AVPF mode changed to " + mode);
 	            LinphoneAPI.linphone_core_set_avpf_mode(linphoneCore, mode);
 	        }
-	    }
+            IntPtr coreConfig = LinphoneAPI.linphone_core_get_config(linphoneCore);
+            if (coreConfig != IntPtr.Zero)
+            {
+                LOG.Info("RTCP mode changing to " + rtcpMode);
+                LinphoneAPI.lp_config_set_int(coreConfig, "rtp", "rtcp_fb_implicit_rtcp_fb", (int)rtcpMode);
+            }
+        }
 
         public int GetAVPFMode()
         {
@@ -2001,6 +2007,59 @@ namespace VATRP.Core.Services
             }
             return true;
         }
+        #endregion
+
+        #region Devices
+        // VATRP-1200 TODO
+        public List<string> GetAvailableCameras()
+        {
+            //linphone_core_get_video_devices
+            List<string> cameraList = new List<string>();
+            return cameraList;
+        }
+
+        public void SetCamera(string deviceName)
+        {
+            if (!string.IsNullOrEmpty(deviceName))
+            {
+                LinphoneAPI.linphone_core_set_video_device(linphoneCore, deviceName);
+            }
+        }
+
+        // VATRP-1200 TODO
+        public List<string> GetAvailableMicrophones()
+        {
+            //linphone_core_get_sound_devices
+            // filter with linphone_core_sound_device_can_capture
+            List<string> microphoneList = new List<string>();
+            return microphoneList;
+        }
+
+        public void SetCaptureDevice(string deviceId)
+        {
+            if (!string.IsNullOrEmpty(deviceId))
+            {
+                LinphoneAPI.linphone_core_set_capture_device(linphoneCore, deviceId);
+            }
+        }
+
+        // VATRP-1200 TODO
+        public List<string> GetAvailableSpeakers()
+        {
+            //linphone_core_get_sound_devices
+            // filter with linphone_core_sound_device_can_playback
+            List<string> speakerList = new List<string>();
+            return speakerList;
+        }
+
+        public void SetMicrophone(string deviceId)
+        {
+            if (!string.IsNullOrEmpty(deviceId))
+            {
+                LinphoneAPI.linphone_core_set_playback_device(linphoneCore, deviceId);
+            }
+        }
+
         #endregion
     }
 }

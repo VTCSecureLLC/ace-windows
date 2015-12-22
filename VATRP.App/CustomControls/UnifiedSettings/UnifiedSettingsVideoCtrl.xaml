@@ -17,6 +17,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="120"/>
@@ -67,18 +68,22 @@
                 <TextBlock >svga (800x600 )</TextBlock>
             </ComboBox>
 
-            <!--
-            <Label Grid.Column="1" Grid.Row="5" HorizontalAlignment="Stretch" MouseDown="OnPreferredVideoSize" TouchDown="OnPreferredVideoSize"
-                     Height="23" Margin="0,0,0,0" Content=""  HorizontalContentAlignment="Right"  VerticalAlignment="Top" Foreground="Blue" Name="PreferredVideoSizeValueLabel"/>
-            <Label Grid.Column="2" Grid.Row="5" Content=">" MouseDown="OnPreferredVideoSize" TouchDown="OnPreferredVideoSize"
-                   VerticalContentAlignment="Center" Name="PreferredVideoSizeLabel2"/>
-            -->
-            
-            <!-- Row 6: Video Codecs Label -->
-            <Label Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="3"  Content="Video Codecs" VerticalContentAlignment="Center"  Background="Gray">
+            <!-- Row 6: RTCP Feedback -->
+            <Label Grid.Column="0" Grid.Row="6" Content="RTCP Feedback" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left" Name="RtcpFeedbackLabel">
+            </Label>
+            <ComboBox  Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" x:Name="RtcpFeedbackComboBox" FontSize="14" Margin="0,3,0,3" Width="120" Height="24" 
+                       VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="OnRtcpFeedback" >
+                <TextBlock >Off</TextBlock>
+                <TextBlock >Explicit</TextBlock>
+                <TextBlock >Implicit</TextBlock>
+            </ComboBox>
+
+            <!-- Row 7: Video Codecs Label -->
+            <Label Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="3"  Content="Video Codecs" VerticalContentAlignment="Center"  Background="Gray">
             </Label>
 
-            <ListView Background="{StaticResource RecentsPageMainBg}" Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="3" Height="200" Width="280" HorizontalAlignment="Left"
+            <ListView Background="{StaticResource RecentsPageMainBg}" Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="3" Height="200" Width="280" HorizontalAlignment="Left"
                       x:Name="VideoCodecsListView" SelectionMode="Single" SelectionChanged="VideoCodecsListView_SelectionChanged">
                 <ListView.View>
                     <GridView>

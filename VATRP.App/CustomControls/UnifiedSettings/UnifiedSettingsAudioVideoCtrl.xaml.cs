@@ -45,6 +45,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             MuteSpeakerCheckBox.IsChecked = App.CurrentAccount.MuteSpeaker;
             EchoCancelCheckBox.IsChecked = App.CurrentAccount.EchoCancel;
             ShowSelfViewCheckBox.IsChecked = App.CurrentAccount.ShowSelfView;
+            // VATRP-1200 TODO - populate device combo boxes from stored settings.
+
         }
 
         public override void UpdateForMenuSettingChange(ACEMenuSettingsUpdateType menuSetting)
@@ -146,7 +148,66 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
         }
 
+        // VATRP-1200 TODO - store settings, update Linphone
+        #region Device selection
+        private void OnSelectCamera(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Camera Selected");
+            if (App.CurrentAccount == null)
+                return;
+//            if (!IsCameraChanged())
+//            {
+//                return;
+//            }
 
+            var tb = SelectCameraComboBox.SelectedItem as TextBlock;
+            if (tb != null)
+            {
+                string str = tb.Text;
+                if (string.IsNullOrWhiteSpace(str))
+                    return;
+                // VATRP-1200 TODO - store setting, update Linphone
+            }
+        }
 
+        private void OnSelectMicrophone(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Microphone Selected");
+            if (App.CurrentAccount == null)
+                return;
+            //            if (!IsMicrophoneChanged())
+            //            {
+            //                return;
+            //            }
+
+            var tb = SelectMicrophoneComboBox.SelectedItem as TextBlock;
+            if (tb != null)
+            {
+                string str = tb.Text;
+                if (string.IsNullOrWhiteSpace(str))
+                    return;
+                // VATRP-1200 TODO - store setting, update Linphone
+            }
+        }
+        private void OnSelectSpeaker(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Speaker Selected");
+            if (App.CurrentAccount == null)
+                return;
+            //            if (!IsSpeakerChanged())
+            //            {
+            //                return;
+            //            }
+
+            var tb = SelectSpeakerComboBox.SelectedItem as TextBlock;
+            if (tb != null)
+            {
+                string str = tb.Text;
+                if (string.IsNullOrWhiteSpace(str))
+                    return;
+                // VATRP-1200 TODO - store setting, update Linphone
+            }
+        }
+        #endregion
     }
 }

@@ -61,6 +61,7 @@
     <Compile Include="Enums\LinphoneGlobalState.cs" />
     <Compile Include="Enums\LinphoneCallState.cs" />
     <Compile Include="Enums\LinphoneRegistrationState.cs" />
+    <Compile Include="Enums\LinphoneRTCPMode.cs" />
     <Compile Include="Enums\LinphoneTransportType.cs" />
     <Compile Include="Enums\MSVideoSize.cs" />
     <Compile Include="Enums\OrtpLogLevel.cs" />

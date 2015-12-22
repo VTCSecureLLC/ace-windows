@@ -183,9 +183,9 @@
 
                 <!-- Row 20: Text Preferences button -->
                 <Label Grid.Column="0" Grid.Row="20" Grid.ColumnSpan="2" Content="Enable Real Time Text" VerticalContentAlignment="Center" 
-                       HorizontalAlignment="Left" Name="EnableRTTLabel">
+                       HorizontalAlignment="Left" Name="EnableRTTLabel" Visibility="Collapsed">
                 </Label>
-                <CheckBox Grid.Column="2" Grid.Row="20" Checked="OnEnableRTT" Unchecked="OnEnableRTT" HorizontalAlignment="Center" VerticalAlignment="Center" Name="EnableRTTCheckBox"/>
+            <CheckBox Grid.Column="2" Grid.Row="20" Checked="OnEnableRTT" Unchecked="OnEnableRTT" HorizontalAlignment="Center" VerticalAlignment="Center" Name="EnableRTTCheckBox"  Visibility="Collapsed"/>
                 
                 <!-- Row 21: Audio Preferences button -->
                 <Button Grid.Column="0" Grid.Row="21" Grid.ColumnSpan="2" Content="Audio" Margin="0,2" 
