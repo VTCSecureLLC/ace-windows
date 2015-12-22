@@ -2,6 +2,7 @@
 using System;
 using System.Net;
 using HockeyApp;
+using System.Threading.Tasks;
 namespace com.vtcsecure.ace.windows.Json
 {
     class JsonFactoryConfig
@@ -46,24 +47,52 @@ namespace com.vtcsecure.ace.windows.Json
             if (url != null)
             {
 
-                string s;
+                string stacktrace = null;
+                string s="";
+
+                IFeedbackThread feedbackThread = HockeyClient.Current.CreateFeedbackThread();
                 using (WebClient client = new WebClient())
                 {
-                    s = client.DownloadString(url);
+                    try
+                    {
+                        s = client.DownloadString(url);
+
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.StackTrace);
+                        stacktrace = e.StackTrace;
+                    }
+                }
+
+                if (feedbackThread != null && stacktrace != null)
+                {
+
+                    feedbackThread.PostFeedbackMessageAsync(url + "\n\n" + stacktrace, "noreply@ace.com", "json failed to get information from  server", "Ace Logcat");
+
+                    return null;
                 }
                 try
                 {
                     return JsonConvert.DeserializeObject<Config>(s);
                 }
+
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.StackTrace);
-                    return null;
-                }
+                        
+                        Console.WriteLine(e.StackTrace);
+                        stacktrace = e.StackTrace;
+                 }
+                if (feedbackThread != null && stacktrace != null)
+                {
 
+                    feedbackThread.PostFeedbackMessageAsync(url + "\n\n" + stacktrace, "noreply@ace.com", "json failed to deseralized", "Ace Logcat");
+
+                    
+                }
             }
             return null;
         }
     }
-
 }
+
