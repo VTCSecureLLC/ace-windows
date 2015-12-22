@@ -9,6 +9,12 @@ namespace VATRP.Core.Services
     {
         public class Preferences
         {
+            public Preferences()
+            {
+                IsOutboundProxyOn = true;
+                Expires = 3600;
+            }
+
             public string DisplayName { get; set; }
             public string Username { get; set; }
             public string Password { get; set; }
@@ -35,6 +41,10 @@ namespace VATRP.Core.Services
             public LinphoneWrapper.Enums.LinphoneMediaEncryption MediaEncryption { get; set; }
 			
             public string AuthID { get; set; }
+
+            public bool IsOutboundProxyOn { get; set; }
+
+            public int Expires { get; set; }
         }
     }
 }
