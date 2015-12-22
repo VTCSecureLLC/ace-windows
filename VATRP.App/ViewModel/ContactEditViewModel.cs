@@ -123,7 +123,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool isValidLabel(string Label)
         {
 
-            if (Label== "@Sorenson.vatrp.net"||Label == "@convo.vatrp.net"||Label == "@purple.vatrp.net"||Label ==  "@caag.vatrp.net"||Label ==  "@bc1.vatrp.net")
+            if (Label == "@Sorenson.vatrp.net" || Label == "@convo.vatrp.net" || Label == "@purple.vatrp.net" || Label == "@caag.vatrp.net" || Label == "@bc1.vatrp.net" ||Label == "@zvrs.vatrp.net")
                 return true;
 
             return false;
@@ -131,7 +131,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         #endregion
         private string vrsLogoToAddress(string Label) {
 
-            string logoUri ="";
+            string logoUri = "@zvrs.vatrp.net";
             if (Label == "Sorenson VRS")
                 logoUri = "@Sorenson.vatrp.net";
             else if (Label == "Convo Relay")
@@ -145,6 +145,10 @@ namespace com.vtcsecure.ace.windows.ViewModel
             else if (Label == "CAAG")
             {
                 logoUri = "@caag.vatrp.net";
+            }
+            else if (Label == "Global VRS")
+            {
+                logoUri = "@bc1.vatrp.net";
             }
             else if (Label == "Global VRS")
             {
