@@ -4,6 +4,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Interop;
+using System.Windows.Threading;
 using com.vtcsecure.ace.windows.CustomControls;
 using com.vtcsecure.ace.windows.Model;
 using com.vtcsecure.ace.windows.Services;
@@ -20,7 +21,18 @@ namespace com.vtcsecure.ace.windows
 		private bool registerRequested = false;
 		private bool signOutRequest = false;
 		private bool defaultConfigRequest;
-		private void OnCallStateChanged(VATRPCall call)
+
+	    private void DefferedHideOnError(object sender, EventArgs e)
+	    {
+	        deferredHideTimer.Stop();
+
+	        if (_mainViewModel != null)
+	        {
+                _mainViewModel.IsCallPanelDocked = false;
+	        }
+	    }
+
+	    private void OnCallStateChanged(VATRPCall call)
 		{
 			if (this.Dispatcher.Thread != Thread.CurrentThread)
 			{
@@ -30,6 +42,9 @@ namespace com.vtcsecure.ace.windows
 
 		    if (call == null)
 		        return;
+
+            if (deferredHideTimer != null && deferredHideTimer.IsEnabled)
+                deferredHideTimer.Stop();
 
 			CallViewModel callViewModel = _mainViewModel.FindCallViewModel(call);
 
@@ -287,7 +302,7 @@ namespace com.vtcsecure.ace.windows
                     break;
                 case VATRPCallState.Closed:
 					_flashWindowHelper.StopFlashing();
-					callViewModel.OnClosed(false);
+					callViewModel.OnClosed(false, string.Empty);
 					stopPlayback = true;
 			        destroycall = true;
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
@@ -350,7 +365,7 @@ namespace com.vtcsecure.ace.windows
 			        destroycall = true;
 					_flashWindowHelper.StopFlashing();
                     ctrlCall.BackgroundCallViewModel = null;
-					callViewModel.OnClosed(true);
+					callViewModel.OnClosed(true, call.LinphoneMessage);
 					stopPlayback = true;
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                        Configuration.ConfEntry.USE_RTT, true))
@@ -364,10 +379,12 @@ namespace com.vtcsecure.ace.windows
 						_mainViewModel.RemoveCalViewModel(callViewModel);
 						_callInfoView.Hide();
 						ctrlCall.ctrlOverlay.StopCallTimer();
-						ShowCallOverlayWindow(false);
-						_mainViewModel.IsMessagingDocked = false;
-						_mainViewModel.IsCallPanelDocked = false;
-						_mainViewModel.ActiveCallModel = null;
+                        ShowCallOverlayWindow(false);
+                        _mainViewModel.IsMessagingDocked = false;
+
+                        if (deferredHideTimer != null)
+                            deferredHideTimer.Start();
+                        _mainViewModel.ActiveCallModel = null;
 					}
 					
 					break;
@@ -393,11 +410,14 @@ namespace com.vtcsecure.ace.windows
                             _remoteVideoView.DestroyOnClosing = true; // allow window to be closed
                             _remoteVideoView.Close();
                             _remoteVideoView = null;
-                            _callOverlayView.Hide();
                         }
-                        _mainViewModel.IsMessagingDocked = false;
-                        _mainViewModel.IsCallPanelDocked = false;
+                        if (deferredHideTimer != null && !deferredHideTimer.IsEnabled)
+                        {
+                            _mainViewModel.IsMessagingDocked = false;
+                            _mainViewModel.IsCallPanelDocked = false;
+                        }
                     }
+
                     _mainViewModel.ActiveCallModel = null;
                 }
 		    }

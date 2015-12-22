@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using com.vtcsecure.ace.windows.ViewModel;
 using log4net;
 using com.vtcsecure.ace.windows.CustomControls;
@@ -50,6 +51,10 @@ namespace com.vtcsecure.ace.windows
         private FlashWindowHelper _flashWindowHelper = new FlashWindowHelper();
         private readonly MainControllerViewModel _mainViewModel;
         private int CombinedUICallViewSize = 700;
+        private readonly DispatcherTimer deferredHideTimer = new DispatcherTimer()
+        {
+            Interval = TimeSpan.FromMilliseconds(2000),
+        };
         #endregion
 
         #region Properties
@@ -84,6 +89,7 @@ namespace com.vtcsecure.ace.windows
 
             ctrlSettings.SetCallControl(ctrlCall);
             ctrlCall.SettingsControl = ctrlSettings;
+            deferredHideTimer.Tick += DefferedHideOnError;
         }
 
         private void btnRecents_Click(object sender, RoutedEventArgs e)
