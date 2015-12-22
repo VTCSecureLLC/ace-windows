@@ -40,6 +40,7 @@ namespace VATRP.Core.Model
             AUTO_ANSWER,
             AUTO_ANSWER_AFTER,
             AVPF_ON,
+            RTCP_FEEDBACK,
             DTMF_SIP_INFO,
             USE_RTT,
             ENABLE_ADAPTIVE_RATE_CTRL,

@@ -1462,7 +1462,7 @@ namespace VATRP.Core.Services
             return false;
         }
 
-	    public void SetAVPFMode(LinphoneAVPFMode mode)
+	    public void SetAVPFMode(LinphoneAVPFMode mode, LinphoneRTCPMode rtcpMode)
 	    {
 	        if (linphoneCore == IntPtr.Zero)
 	            return;
@@ -1473,7 +1473,13 @@ namespace VATRP.Core.Services
                 LOG.Info("AVPF mode changed to " + mode);
 	            LinphoneAPI.linphone_core_set_avpf_mode(linphoneCore, mode);
 	        }
-	    }
+            IntPtr coreConfig = LinphoneAPI.linphone_core_get_config(linphoneCore);
+            if (coreConfig != IntPtr.Zero)
+            {
+                LOG.Info("RTCP mode changing to " + rtcpMode);
+                LinphoneAPI.lp_config_set_int(coreConfig, "rtp", "rtcp_fb_implicit_rtcp_fb", (int)rtcpMode);
+            }
+        }
 
         public int GetAVPFMode()
         {
