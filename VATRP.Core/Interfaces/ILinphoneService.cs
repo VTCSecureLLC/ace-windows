@@ -64,7 +64,7 @@ namespace VATRP.Core.Interfaces
         bool UpdateNativeCodecs(VATRPAccount account, CodecType codecType);
         void FillCodecsList(VATRPAccount account, CodecType codecType);
         bool UpdateNetworkingParameters(VATRPAccount account);
-        void SetAVPFMode(LinphoneAVPFMode mode);
+        void SetAVPFMode(LinphoneAVPFMode mode, LinphoneRTCPMode rtcpMode);
         int GetAVPFMode();
         IntPtr GetCallParams(IntPtr callPtr);
         string GetUsedAudioCodec(IntPtr callParams);

@@ -2162,6 +2162,12 @@ namespace VATRP.LinphoneWrapper
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_proxy_config_set_dial_escape_plus(IntPtr cfg, bool enable);
 
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_config(IntPtr linphoneCore);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr lp_config_set_int(IntPtr lpconfig, string section, string key, int value);
         #endregion
 
     }
