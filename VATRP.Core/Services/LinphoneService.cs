@@ -1325,23 +1325,7 @@ namespace VATRP.Core.Services
                 LOG.Info(string.Format("Removing Codec from configuration: {0} , Channels: {1} ", codec.CodecName, codec.Channels));
                 cfgCodecs.Remove(codec);
             }
-            var ptPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, "H263", 90000, -1);
-            if (ptPtr != IntPtr.Zero)
-            {
-                var payload = (PayloadType)Marshal.PtrToStructure(ptPtr, typeof(PayloadType));
-                payload.send_fmtp = "CIF=1;QCIF=1";
-                payload.recv_fmtp = "CIF=1;QCIF=1";
-                Marshal.StructureToPtr(payload, ptPtr, false);
-                LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, ptPtr);
-            }
-            ptPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, "H264", 90000, -1);
-            if (ptPtr != IntPtr.Zero)
-            {
-                var payload = (PayloadType)Marshal.PtrToStructure(ptPtr, typeof(PayloadType));
-                payload.recv_fmtp = "packetization-mode=1";
-                Marshal.StructureToPtr(payload, ptPtr, false);
-                LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, ptPtr);
-            }
+
             return retValue;
 	    }
 
@@ -1355,6 +1339,27 @@ namespace VATRP.Core.Services
             cfgCodecs.AddRange(linphoneCodecs);
 	    }
 
+        public void configureFmtpCodec()
+        {
+            var h263PtPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, "H263", 90000, -1);
+            setFmtpSetting(h263PtPtr, "CIF=1;QCIF=1", "CIF=1;QCIF=1");
+            var h264PtPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, "H264", 90000, -1);
+            setFmtpSetting(h264PtPtr, null, "packetization-mode=1");
+        }
+        private void setFmtpSetting(IntPtr ptPtr, string sendFmtp, string recvFmtp)
+        {
+            if (ptPtr != IntPtr.Zero)
+            {
+                var payload = (PayloadType)Marshal.PtrToStructure(ptPtr, typeof(PayloadType));
+                if (recvFmtp != null)
+                     payload.recv_fmtp = recvFmtp;
+                if (sendFmtp != null)
+                    payload.send_fmtp = sendFmtp;
+                Marshal.StructureToPtr(payload, ptPtr, false);
+                LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, ptPtr);
+            }
+
+        }
 		private void LoadAudioCodecs()
 		{
             if (linphoneCore == IntPtr.Zero)
@@ -1457,7 +1462,7 @@ namespace VATRP.Core.Services
             return false;
         }
 
-	    public void SetAVPFMode(LinphoneAVPFMode mode)
+	    public void SetAVPFMode(LinphoneAVPFMode mode, LinphoneRTCPMode rtcpMode)
 	    {
 	        if (linphoneCore == IntPtr.Zero)
 	            return;
@@ -1468,7 +1473,13 @@ namespace VATRP.Core.Services
                 LOG.Info("AVPF mode changed to " + mode);
 	            LinphoneAPI.linphone_core_set_avpf_mode(linphoneCore, mode);
 	        }
-	    }
+            IntPtr coreConfig = LinphoneAPI.linphone_core_get_config(linphoneCore);
+            if (coreConfig != IntPtr.Zero)
+            {
+                LOG.Info("RTCP mode changing to " + rtcpMode);
+                LinphoneAPI.lp_config_set_int(coreConfig, "rtp", "rtcp_fb_implicit_rtcp_fb", (int)rtcpMode);
+            }
+        }
 
         public int GetAVPFMode()
         {
@@ -1996,6 +2007,59 @@ namespace VATRP.Core.Services
             }
             return true;
         }
+        #endregion
+
+        #region Devices
+        // VATRP-1200 TODO
+        public List<string> GetAvailableCameras()
+        {
+            //linphone_core_get_video_devices
+            List<string> cameraList = new List<string>();
+            return cameraList;
+        }
+
+        public void SetCamera(string deviceName)
+        {
+            if (!string.IsNullOrEmpty(deviceName))
+            {
+                LinphoneAPI.linphone_core_set_video_device(linphoneCore, deviceName);
+            }
+        }
+
+        // VATRP-1200 TODO
+        public List<string> GetAvailableMicrophones()
+        {
+            //linphone_core_get_sound_devices
+            // filter with linphone_core_sound_device_can_capture
+            List<string> microphoneList = new List<string>();
+            return microphoneList;
+        }
+
+        public void SetCaptureDevice(string deviceId)
+        {
+            if (!string.IsNullOrEmpty(deviceId))
+            {
+                LinphoneAPI.linphone_core_set_capture_device(linphoneCore, deviceId);
+            }
+        }
+
+        // VATRP-1200 TODO
+        public List<string> GetAvailableSpeakers()
+        {
+            //linphone_core_get_sound_devices
+            // filter with linphone_core_sound_device_can_playback
+            List<string> speakerList = new List<string>();
+            return speakerList;
+        }
+
+        public void SetMicrophone(string deviceId)
+        {
+            if (!string.IsNullOrEmpty(deviceId))
+            {
+                LinphoneAPI.linphone_core_set_playback_device(linphoneCore, deviceId);
+            }
+        }
+
         #endregion
     }
 }

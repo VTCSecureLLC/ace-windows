@@ -457,6 +457,7 @@ namespace com.vtcsecure.ace.windows.Services
                 LinphoneService.FillCodecsList(App.CurrentAccount, CodecType.Video);
 
             LinphoneService.UpdateNetworkingParameters(App.CurrentAccount);
+            LinphoneService.configureFmtpCodec();
             ApplyAVPFChanges();
             ApplyDtmfOnSIPInfoChanges();
             ApplyMediaSettingsChanges();
@@ -493,15 +494,38 @@ namespace com.vtcsecure.ace.windows.Services
 
         internal void ApplyAVPFChanges()
         {
-            var mode = LinphoneAVPFMode.LinphoneAVPFEnabled;
-#if DEBUG
-            if (!this.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.AVPF_ON, true))
+            // VATRP-1507: Tie RTCP and AVPF together:
+            string rtcpFeedback = this.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.RTCP_FEEDBACK, "Off");
+            // if RTCPFeedback = Off then RTCP and AVPF are both off
+            // if RTCPFeedback = Implicit then RTCP is on, AVPF is off
+            // if RTCPFeedback = Explicit then RTCP is on, AVPF = on
+            //LinphoneAVPFMode avpfMode = LinphoneAVPFMode.LinphoneAVPFEnabled;
+            // Note: we could make the RTCP also be a bool, but using this method in case we need to handle something differently in the future.
+            //    eg - is there something that happens if we want rtcp off and avpf on?
+            if (rtcpFeedback.Equals("Off"))
             {
-                mode = LinphoneAVPFMode.LinphoneAVPFDisabled;
+                LinphoneService.SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFDisabled, LinphoneRTCPMode.LinphoneAVPFDisabled);
             }
-#endif
-            LinphoneService.SetAVPFMode(mode);
+            else if (rtcpFeedback.Equals("Implicit"))
+            {
+                LinphoneService.SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFDisabled, LinphoneRTCPMode.LinphoneAVPFEnabled);
+            }
+            else if (rtcpFeedback.Equals("Explicit"))
+            {
+                LinphoneService.SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFEnabled, LinphoneRTCPMode.LinphoneAVPFEnabled);
+            }
+            // commenting this in case we need somethinghere from the compiler debug statement
+
+//            var mode = LinphoneAVPFMode.LinphoneAVPFEnabled;
+//#if DEBUG
+//            if (!this.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+//                Configuration.ConfEntry.AVPF_ON, true))
+//            {
+//                mode = LinphoneAVPFMode.LinphoneAVPFDisabled;
+//            }
+//#endif
+//            LinphoneService.SetAVPFMode(mode);
         }
 
         internal void ApplyDtmfOnSIPInfoChanges()

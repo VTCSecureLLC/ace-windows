@@ -28,8 +28,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             var providersList = ServiceManager.Instance.ProviderService.GetProviderList();
 
-            var selectedprovider = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.CURRENT_PROVIDER, "");
+            var selectedprovider =  ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,  Configuration.ConfEntry.CURRENT_PROVIDER, "");
 
             foreach (var s in providersList)
             {
@@ -114,6 +113,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             set
             {
                 _selectedProvider = value;
+                ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL, Configuration.ConfEntry.CURRENT_PROVIDER, value.Label);
                 OnPropertyChanged("SelectedProvider");
             }
         }

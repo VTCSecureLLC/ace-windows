@@ -65,6 +65,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 }
             }
 
+            this.EnableRTTCheckBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.USE_RTT, true);
             this.AutoAnswerCheckBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.AUTO_ANSWER, false);
             this.AvpfCheckbox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
@@ -114,8 +116,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             EnableVideoLabel.Visibility = visibleSetting;
             EnableVideoCheckBox.Visibility = visibleSetting;
 
-            EnableRTTLabel.Visibility = visibleSetting;
-            EnableRTTCheckBox.Visibility = visibleSetting;
+//            EnableRTTLabel.Visibility = visibleSetting;
+//            EnableRTTCheckBox.Visibility = visibleSetting;
 
             AudioButton.Visibility = visibleSetting;
             AudioButtonLabel.Visibility = visibleSetting;
