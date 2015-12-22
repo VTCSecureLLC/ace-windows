@@ -157,7 +157,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private void LoadProviders()
         {
             var providersList = ServiceManager.Instance.ProviderService.GetProviderList();
-            var domain = ValidateAddress(_contactSipUsername) ? "@" + _contactSipUsername.Split('@')[1] : "";
+            var domain = ValidateAddress(_contactSipUsername) ? "@" + _contactSipUsername.Split('@')[1] : null;
             foreach (var s in providersList)
             {
                 var providerModel = new ProviderViewModel {Label = s};
