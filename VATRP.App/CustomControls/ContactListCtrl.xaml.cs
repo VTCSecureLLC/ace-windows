@@ -72,9 +72,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
             var contact = ((ToggleButton) sender).Tag as VATRPContact;
             if (contact != null)
             {
-                ContactEditViewModel model = new ContactEditViewModel(false);
+                ContactEditViewModel model = new ContactEditViewModel(false, contact.RegistrationName);
                 model.ContactName = contact.Fullname;
-                model.ContactSipUsername = contact.RegistrationName;
                 model.TrimSipUsername();
                 var contactEditView = new ContactEditView(model);
                 Nullable<bool> dialogResult = contactEditView.ShowDialog();
