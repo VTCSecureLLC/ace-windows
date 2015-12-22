@@ -2008,5 +2008,58 @@ namespace VATRP.Core.Services
             return true;
         }
         #endregion
+
+        #region Devices
+        // VATRP-1200 TODO
+        public List<string> GetAvailableCameras()
+        {
+            //linphone_core_get_video_devices
+            List<string> cameraList = new List<string>();
+            return cameraList;
+        }
+
+        public void SetCamera(string deviceName)
+        {
+            if (!string.IsNullOrEmpty(deviceName))
+            {
+                LinphoneAPI.linphone_core_set_video_device(linphoneCore, deviceName);
+            }
+        }
+
+        // VATRP-1200 TODO
+        public List<string> GetAvailableMicrophones()
+        {
+            //linphone_core_get_sound_devices
+            // filter with linphone_core_sound_device_can_capture
+            List<string> microphoneList = new List<string>();
+            return microphoneList;
+        }
+
+        public void SetCaptureDevice(string deviceId)
+        {
+            if (!string.IsNullOrEmpty(deviceId))
+            {
+                LinphoneAPI.linphone_core_set_capture_device(linphoneCore, deviceId);
+            }
+        }
+
+        // VATRP-1200 TODO
+        public List<string> GetAvailableSpeakers()
+        {
+            //linphone_core_get_sound_devices
+            // filter with linphone_core_sound_device_can_playback
+            List<string> speakerList = new List<string>();
+            return speakerList;
+        }
+
+        public void SetMicrophone(string deviceId)
+        {
+            if (!string.IsNullOrEmpty(deviceId))
+            {
+                LinphoneAPI.linphone_core_set_playback_device(linphoneCore, deviceId);
+            }
+        }
+
+        #endregion
     }
 }
