@@ -116,8 +116,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             EnableVideoLabel.Visibility = visibleSetting;
             EnableVideoCheckBox.Visibility = visibleSetting;
 
-            EnableRTTLabel.Visibility = visibleSetting;
-            EnableRTTCheckBox.Visibility = visibleSetting;
+//            EnableRTTLabel.Visibility = visibleSetting;
+//            EnableRTTCheckBox.Visibility = visibleSetting;
 
             AudioButton.Visibility = visibleSetting;
             AudioButtonLabel.Visibility = visibleSetting;
