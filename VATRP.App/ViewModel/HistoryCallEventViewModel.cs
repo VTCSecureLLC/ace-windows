@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Windows.Media;
@@ -22,7 +21,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private int _statusWidth;
         private string _callDate;
         private string _duration;
-        private bool _allowAddContact;
 
         public SolidColorBrush CallEventStateBrush
         {
@@ -40,22 +38,24 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _avatar = null;
             _callStateIndicator = null;
             _statusWidth = 16;
-            _allowAddContact = true;
         }
 
         public HistoryCallEventViewModel(VATRPCallEvent callEvent, VATRPContact contact):this()
         {
             this._callEvent = callEvent;
-            this._callEvent.Contact = contact;
             this._contact = contact;
             this._backColor = callEvent.Status == VATRPHistoryEvent.StatusType.Missed ? new SolidColorBrush(Color.FromArgb(255, 0xFE, 0xCD, 0xCD)) : new SolidColorBrush(Color.FromArgb(255, 0xE9, 0xEF, 0xE9));
 
-            if (_contact != null)
-            {
-                _contact.PropertyChanged += OnContactPropertyChanged;
-                _allowAddContact = false;
-            }
+            var vatrpContact = this._contact;
+            DisplayName = callEvent.DisplayName;
 
+            if (vatrpContact != null)
+            {
+                vatrpContact.PropertyChanged += OnContactPropertyChanged;
+                if (_contact != null && _contact.Fullname.NotBlank())
+                    DisplayName = _contact.Fullname;
+            }
+            
             LoadContactAvatar();
             LoadCallStateIndicator();
 
@@ -77,8 +77,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private void OnContactPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             string propertyName = e.PropertyName ?? "";
-            if (propertyName == "ContactName_ForUI")
+            if (propertyName == "DisplayName")
             {
+                this.DisplayName = this.Contact.DisplayName;
                 OnPropertyChanged("DisplayName");
             }
         }
@@ -127,7 +128,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 if (_callEvent != null)
                     switch (_callEvent.Status)
                     {
-                        case VATRPHistoryEvent.StatusType.Failed:
                         case VATRPHistoryEvent.StatusType.Outgoing:
                             uriString = "pack://application:,,,/ACE;component/Resources/outgoing.png";
                             break;
@@ -192,12 +192,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         public string DisplayName
         {
-            get
+            get { return _displayName; }
+
+            set
             {
-                var vatrpCallEvent = this._callEvent;
-                if (vatrpCallEvent != null) 
-                    return vatrpCallEvent.DisplayName;
-                return string.Empty;
+                _displayName = value;
+                OnPropertyChanged("DisplayName");
             }
         }
 
@@ -271,15 +271,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
-        public bool AllowAddContact
-        {
-            get { return _allowAddContact; }
-            set
-            {
-                _allowAddContact = value;
-                OnPropertyChanged("AllowAddContact");
-            }
-        }
     }
 }
 
