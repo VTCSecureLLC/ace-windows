@@ -10,7 +10,6 @@ using VATRP.Core.Events;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using System.Windows.Data;
-using VATRP.Core.Extensions;
 
 namespace com.vtcsecure.ace.windows.ViewModel
 {
@@ -18,7 +17,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
     {
         private ICollectionView _callsListView;
         private IHistoryService _historyService;
-        private IContactsService _contactService;
         private ObservableCollection<HistoryCallEventViewModel> _callHistoryList;
         private string _eventSearchCriteria = string.Empty;
         private DialpadViewModel _dialpadViewModel;
@@ -38,49 +36,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
             this()
         {
             _historyService = historyService;
-            _contactService = ServiceManager.Instance.ContactService;
-            _contactService.ContactAdded += OnNewContactAdded;
-            _contactService.ContactRemoved += OnContactRemoved;
             _historyService.OnCallHistoryEvent += CallHistoryEventChanged;
             _dialpadViewModel = dialpadViewModel;
             _dialpadViewModel.PropertyChanged += OnDialpadPropertyChanged;
-        }
-
-        private void OnContactRemoved(object sender, ContactRemovedEventArgs e)
-        {
-            lock (this.Calls)
-            {
-                foreach (var call in Calls)
-                {
-                    if (call.CallEvent.RemoteParty.TrimSipPrefix() == e.contactId.ID)
-                    {
-                        call.CallEvent.Contact = null;
-                        call.AllowAddContact = true;
-                    }
-                }
-            }
-            CallsListView.Refresh();
-        }
-
-        private void OnNewContactAdded(object sender, ContactEventArgs e)
-        {
-            // search and update all items
-            var contact = _contactService.FindContact(new ContactID(e.Contact));
-            if (contact != null)
-            {
-                lock (this.Calls)
-                {
-                    foreach (var call in Calls)
-                    {
-                        if (call.CallEvent.RemoteParty.TrimSipPrefix() == contact.ID)
-                        {
-                            call.CallEvent.Contact = contact;
-                            call.AllowAddContact = false;
-                        }
-                    }
-                }
-                CallsListView.Refresh();
-            }
         }
 
         private void OnDialpadPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -150,7 +108,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             if (FindCallEvent(callEvent) != null)
                 return;
 
-            var contact = _contactService.FindContact(new ContactID(callEvent.RemoteParty.TrimSipPrefix(), IntPtr.Zero));
+            var contact = ServiceManager.Instance.ContactService.FindContactByPhone(callEvent.RemoteParty);
             lock (this.Calls)
             {
                 Calls.Add(new HistoryCallEventViewModel(callEvent, contact));
@@ -188,23 +146,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
                         break;
                     }
                 }
-            }
-        }
-
-        public void AddNewContact(HistoryCallEventViewModel callEventViewModel)
-        {
-            var remote = callEventViewModel.CallEvent.RemoteParty.TrimSipPrefix();
-            ContactEditViewModel model = new ContactEditViewModel(true, remote);
-            var contactEditView = new com.vtcsecure.ace.windows.Views.ContactEditView(model);
-            var dialogResult = contactEditView.ShowDialog();
-            if (dialogResult != null && dialogResult.Value)
-            {
-                var contact = ServiceManager.Instance.ContactService.FindContact(new ContactID(model.ContactSipAddress, IntPtr.Zero));
-                if (contact != null && contact.Fullname == model.ContactName)
-                    return;
-
-                ServiceManager.Instance.ContactService.AddLinphoneContact(model.ContactName, model.ContactSipUsername,
-                    model.ContactSipAddress);
             }
         }
 
