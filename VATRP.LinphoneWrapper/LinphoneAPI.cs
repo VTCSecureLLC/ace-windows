@@ -1092,7 +1092,11 @@ namespace VATRP.LinphoneWrapper
         public static extern IntPtr linphone_core_create_address(IntPtr lc, string address);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_proxy_config_set_route(IntPtr lc, string route);
+        public static extern int linphone_proxy_config_set_route(IntPtr proxy, string route);
+
+       [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_proxy_config_set_expires(IntPtr proxy, int expires);
+
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_address_set_transport(IntPtr u, int transport);
