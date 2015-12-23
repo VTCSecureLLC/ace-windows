@@ -57,6 +57,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _savedIsInfoOn;
         private bool _savedIsCallHoldOn;
 
+        private string _errorMessage;
         public CallViewModel()
         {
             _visualizeRing = false;
@@ -68,6 +69,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _infoTextSize = 20;
             subscribedForStats = false;
             Declined = false;
+            _errorMessage = String.Empty;
             // initialize based on stored settings:
             if (App.CurrentAccount != null)
             {
@@ -244,7 +246,17 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             get { return (int)(DateTime.Now - _currentCall.CallStartTime).TotalSeconds; }
         }
-		
+
+        public string ErrorMessage
+        {
+            get { return _errorMessage; }
+            set
+            {
+                _errorMessage = value;
+                OnPropertyChanged("ErrorMessage");
+            }
+        }
+
         public int AutoAnswer
         {
             get { return _autoAnswer; }
@@ -718,11 +730,14 @@ namespace com.vtcsecure.ace.windows.ViewModel
             CallState = VATRPCallState.LocalPaused;
         }
 
-        internal void OnClosed(bool error)
+        internal void OnClosed(bool isError, string errorMessage)
         {
-            CallState = VATRPCallState.Closed;
+            CallState = isError ? VATRPCallState.Error : VATRPCallState.Closed;
             ShowIncomingCallPanel = false;
             ShowInfo = false;
+            
+            ShowOutgoingEndCall = isError;
+            ErrorMessage = isError ? errorMessage : string.Empty;
             StopAnimation();
 
             UnsubscribeCallStaistics();

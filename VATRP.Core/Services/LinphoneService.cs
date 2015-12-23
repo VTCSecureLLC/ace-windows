@@ -1497,10 +1497,10 @@ namespace VATRP.Core.Services
 			if (linphoneCore == IntPtr.Zero) return;
 		    if (cfg == proxy_cfg)
 		    {
+                currentRegistrationState = cstate;
 		        if (RegistrationStateChangedEvent != null)
 		            RegistrationStateChangedEvent(cstate);
 		    }
-            currentRegistrationState = cstate;
         }
 
 		void OnGlobalStateChanged(IntPtr lc, LinphoneGlobalState gstate, string message)
@@ -1647,6 +1647,7 @@ namespace VATRP.Core.Services
 
 		        if (call != null)
 		        {
+		            call.LinphoneMessage = message;
 		            call.CallState = newstate;
 
                     if (CallStateChangedEvent != null)
