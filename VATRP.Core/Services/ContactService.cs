@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Windows.Threading;
 using VATRP.Core.Enums;
 using VATRP.Core.Events;
 using VATRP.Core.Extensions;
@@ -176,7 +177,12 @@ namespace VATRP.Core.Services
                 };
                 Contacts.Add(contact);
                 if (ContactAdded != null)
-                    ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
+                {
+                    Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() =>
+                    {
+                        ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
+                    }));
+                }
             }
         }
 
@@ -344,13 +350,19 @@ namespace VATRP.Core.Services
         {
             Contacts.Add(contact);
             if (ContactAdded != null)
-                ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
-
+            {   
+                Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() =>{
+                     ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
+                }));           
+            }
             if (contact.IsLoggedIn && LoggedInContactUpdated != null)
-                LoggedInContactUpdated(this, new ContactEventArgs(new ContactID(contact)));
-
+            {
+                Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() =>
+                {
+                    LoggedInContactUpdated(this, new ContactEventArgs(new ContactID(contact)));
+                }));
+            }
         }
-
         public VATRPContact FindContact(ContactID contactID)
         {
             if (contactID == null)
