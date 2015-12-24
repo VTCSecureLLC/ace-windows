@@ -482,7 +482,7 @@
       </RadioButtonGroup>
       <Dialog Id='FolderForm' X='50' Y='50' Width='373' Height='287' Title='[ProductName]' TrackDiskSpace='yes'>
         <Control Id='NextButton' Type='PushButton' X='300' Y='261' Width='66' Height='18' Text='{\VSI_MS_Sans_Serif13.0_0_0}&amp;Next &gt;' TabSkip='no' Default='yes'>
-          <Publish Event='SetTargetPath' Value='TARGETDIR'><![CDATA[1]]></Publish>
+          <Publish Event='SetTargetPath' Value='INSTALLFOLDER'><![CDATA[1]]></Publish>
           <Publish Event='SpawnDialog' Value='DiskCost'><![CDATA[OutOfDiskSpace=1]]></Publish>
           <Publish Event='EndDialog' Value='Return'><![CDATA[FolderForm_NextArgs="" AND OutOfDiskSpace<>1]]></Publish>
           <Publish Event='NewDialog' Value='[FolderForm_NextArgs]'><![CDATA[FolderForm_NextArgs<>"" AND OutOfDiskSpace<>1]]></Publish>
@@ -493,11 +493,11 @@
         <Control Id='FolderLabel' Type='Text' X='18' Y='114' Width='348' Height='12' Text='{\VSI_MS_Sans_Serif13.0_0_0}&amp;Folder:' TabSkip='no' />
         <Control Id='FolderEdit' Type='PathEdit' X='18' Y='126' Width='252' Height='18' Property='INSTALLFOLDER' Text='{\VSI_MS_Sans_Serif13.0_0_0}MsiPathEdit' TabSkip='no' Sunken='yes' Disabled='no' />
         <Control Id='BrowseButton' Type='PushButton' X='276' Y='126' Width='90' Height='18' Text='{\VSI_MS_Sans_Serif13.0_0_0}B&amp;rowse...' TabSkip='no' Disabled='no'>
-          <Publish Property='SelectFolderDialog_Property' Value='TARGETDIR'><![CDATA[1]]></Publish>
+          <Publish Property='SelectFolderDialog_Property' Value='INSTALLFOLDER'><![CDATA[1]]></Publish>
           <Publish Event='SpawnDialog' Value='SelectFolderDialog'><![CDATA[1]]></Publish>
         </Control>
         <Control Id='DiskCostButton' Type='PushButton' X='276' Y='150' Width='90' Height='18' Text='{\VSI_MS_Sans_Serif13.0_0_0}&amp;Disk Cost...' TabSkip='no'>
-          <Publish Event='SetTargetPath' Value='TARGETDIR'><![CDATA[1]]></Publish>
+          <Publish Event='SetTargetPath' Value='INSTALLFOLDER'><![CDATA[1]]></Publish>
           <Publish Event='SpawnDialog' Value='DiskCost'><![CDATA[1]]></Publish>
         </Control>
         <Control Id='AllUsersRadioGroup' Type='RadioButtonGroup' X='24' Y='210' Width='342' Height='42' Property='FolderForm_AllUsers' Text='{\VSI_MS_Sans_Serif13.0_0_0}MsiRadioButtonGroup' TabSkip='no'>

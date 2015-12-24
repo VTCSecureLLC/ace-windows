@@ -53,7 +53,10 @@
 				<MenuItem x:Name="SelfViewItem" Header="_Media Self-View" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" 
                           Foreground="White" Click="OnShowSelfView" />
                 <MenuItem Header="_Media Text Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Name="ShowRTTView" Click="OnShowRTTView" IsCheckable="True"/>
-				<!--<MenuItem Header="_" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
+                <MenuItem x:Name="ShowSelfPreviewItem" Header="_Show Self Preview" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" 
+                          Foreground="White" Click="OnShowPreviewWindow" />
+
+                <!--<MenuItem Header="_" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
 				<!--<MenuItem x:Name="DialpadItem" Header="_DialPad Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
 				<!--<MenuItem x:Name="RegistrationStatusItem" Header="_Registration Status" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
 				<!--<MenuItem x:Name="ContactsWindowItem" Header="_Contact Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->

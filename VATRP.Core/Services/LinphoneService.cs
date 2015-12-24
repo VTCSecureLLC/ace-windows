@@ -602,6 +602,11 @@ namespace VATRP.Core.Services
     preferences.EnableAVPF ? LinphoneAVPFMode.LinphoneAVPFEnabled : LinphoneAVPFMode.LinphoneAVPFDisabled);
             LinphoneAPI.linphone_proxy_config_set_avpf_rr_interval(proxy_cfg, 3);
 
+		    string route = preferences.IsOutboundProxyOn ? server_addr : string.Empty;
+            // use proxy as route if outbound_proxy is enabled
+		    LinphoneAPI.linphone_proxy_config_set_route(proxy_cfg, route);
+            LinphoneAPI.linphone_proxy_config_set_expires(proxy_cfg, preferences.Expires);
+
 			LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, true);
 			LinphoneAPI.linphone_core_add_proxy_config(linphoneCore, proxy_cfg);
 			LinphoneAPI.linphone_core_set_default_proxy_config(linphoneCore, proxy_cfg);
@@ -1497,10 +1502,10 @@ namespace VATRP.Core.Services
 			if (linphoneCore == IntPtr.Zero) return;
 		    if (cfg == proxy_cfg)
 		    {
+                currentRegistrationState = cstate;
 		        if (RegistrationStateChangedEvent != null)
 		            RegistrationStateChangedEvent(cstate);
 		    }
-            currentRegistrationState = cstate;
         }
 
 		void OnGlobalStateChanged(IntPtr lc, LinphoneGlobalState gstate, string message)
@@ -1647,6 +1652,7 @@ namespace VATRP.Core.Services
 
 		        if (call != null)
 		        {
+		            call.LinphoneMessage = message;
 		            call.CallState = newstate;
 
                     if (CallStateChangedEvent != null)

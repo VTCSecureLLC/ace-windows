@@ -83,17 +83,22 @@
 					   Text="{Binding CallerInfo}" FontSize="{Binding DisplayNameSize}" 
 					   Visibility="{Binding CallerInfo.Length, Converter={StaticResource oivc}}"
 					   />
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                     <TextBlock Margin="10,0" 
 						   Foreground="{DynamicResource AppMainBorderBrush}"
 						Text="{Binding CallState, Converter={StaticResource csts} }" 
 					   VerticalAlignment="Top" FontSize="{Binding InfoTextSize}" 
 					   Visibility="Visible"/>
                     <TextBlock  Margin="10,0" HorizontalAlignment="Center"
-						   Foreground="{DynamicResource AppMainBorderBrush}"
+						   Foreground="{StaticResource AppMainBorderBrush}"
 						Text="{Binding RingDuration, Converter={StaticResource cdc}}" 
 					   VerticalAlignment="Top" FontSize="{Binding InfoTextSize}" 
-					   Visibility="Visible"/>
+					   Visibility="{Binding ErrorMessage.Length, Converter={StaticResource ivc}}"/>
+                    <TextBlock  Margin="10,0" HorizontalAlignment="Center"
+						   Foreground="{StaticResource AppMainBorderBrush}"
+						Text="{Binding ErrorMessage}" 
+					   VerticalAlignment="Top" FontSize="18" 
+					   Visibility="{Binding ErrorMessage.Length, Converter={StaticResource oivc}}"/>
                 </StackPanel>
             </StackPanel>
         </Grid>
@@ -110,6 +115,7 @@
             <Button Grid.Column="0"  Width="240" Click="OnEndCall"  
 					BorderThickness="0" HorizontalAlignment="Center" 
 					VerticalContentAlignment="Center"
+                    Visibility="{Binding ErrorMessage.Length, Converter={StaticResource ivc}}"
 					>
                 <Button.Resources>
                     <Grid x:Key="CallButtonNormal" 

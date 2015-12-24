@@ -49,6 +49,7 @@ namespace VATRP.Core.Model
             {
                 this._contact = value;
                 NotifyPropertyChanged("Contact");
+                NotifyPropertyChanged("DisplayName");
             }
         }
 
