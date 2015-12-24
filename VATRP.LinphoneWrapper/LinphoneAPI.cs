@@ -118,6 +118,12 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_core_iterate(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_enable_keep_alive(IntPtr lc, bool enable);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_core_keep_alive_enabled(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_core_create_default_call_parameters(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
