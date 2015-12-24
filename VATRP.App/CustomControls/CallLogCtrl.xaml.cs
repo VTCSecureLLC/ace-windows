@@ -63,7 +63,15 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 _callHistoryModel.SelectedCallEvent = null;
             }
         }
+
+        private void OnAddToContacts(object sender, RoutedEventArgs e)
+        {
+            var historyItemVM = ((Button)sender).Tag as HistoryCallEventViewModel;
+            if (historyItemVM != null)
+            {
+                _callHistoryModel.AddNewContact(historyItemVM);
+            }
+        }
     }
-        
-   
+  
 }
