@@ -182,6 +182,12 @@ namespace com.vtcsecure.ace.windows.CustomControls
             if (timerHold != null)
                 timerHold.Enabled = true;
         }
+
+        private void ShowGAWarning(object sender, MouseButtonEventArgs e)
+        {
+            MessageBox.Show("Available in General Release", "ACE", MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+        }
     }
         
    
