@@ -33,7 +33,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
             foreach (var s in providersList)
             {
                 var providerModel = new ProviderViewModel {Label = s};
-                providerModel.LoadLogo();
+                providerModel.LoadLogo(true);
+                providerModel.LoadLogo(false);
                 Providers.Add(providerModel);
                 if (s == selectedprovider)
                     _selectedProvider = providerModel;
