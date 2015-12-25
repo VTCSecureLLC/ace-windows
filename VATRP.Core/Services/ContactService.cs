@@ -164,8 +164,9 @@ namespace VATRP.Core.Services
             IntPtr friendPtr = LinphoneAPI.linphone_friend_new_with_address(fqdn);
             if (friendPtr != IntPtr.Zero)
             {
-                LinphoneAPI.linphone_core_add_friend(manager.LinphoneService.LinphoneCore, friendPtr);
                 LinphoneAPI.linphone_friend_enable_subscribes(friendPtr, false);
+                LinphoneAPI.linphone_core_add_friend(manager.LinphoneService.LinphoneCore, friendPtr);
+
                 VATRPContact contact = new VATRPContact(new ContactID(sipAddress, IntPtr.Zero))
                 {
                     DisplayName = name,
