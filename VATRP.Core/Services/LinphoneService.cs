@@ -305,7 +305,10 @@ namespace VATRP.Core.Services
 			    LinphoneAPI.linphone_core_verify_server_cn(linphoneCore, true);
                 LinphoneAPI.linphone_core_verify_server_certificates(linphoneCore, true);
 
-                
+                LinphoneAPI.linphone_core_enable_keep_alive(linphoneCore, true); // enable keep alive, default 10 sec
+
+                //LinphoneAPI.lp_config_set_int(coreConfig, "sip","keepalive_period", 10000);
+
                 // load installed codecs
 			    LoadAudioCodecs();
                 LoadVideoCodecs();
