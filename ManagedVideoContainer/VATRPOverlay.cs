@@ -103,6 +103,7 @@ namespace VATRP.Linphone.VideoWrapper
         {
             commandBarWindow.ShowWindow = bshow;
             commandBarWindow.Refresh();
+            if (bshow)
             commandBarWindow.UpdateWindow();
         }
 
@@ -194,7 +195,8 @@ namespace VATRP.Linphone.VideoWrapper
         {
             numpadWindow.ShowWindow = bshow;
             numpadWindow.Refresh();
-            numpadWindow.UpdateWindow();
+            if (bshow)
+                numpadWindow.UpdateWindow();
         }
         
         public object OverlayNumpadChild
@@ -363,7 +365,8 @@ namespace VATRP.Linphone.VideoWrapper
         {
             callInfoWindow.ShowWindow = bshow;
             callInfoWindow.Refresh();
-            callInfoWindow.UpdateWindow();
+            if (bshow)
+                callInfoWindow.UpdateWindow();
         }
 
         public object OverlayCallInfoChild
@@ -505,7 +508,8 @@ namespace VATRP.Linphone.VideoWrapper
         {
             callsSwitchWindow.ShowWindow = bshow;
             callsSwitchWindow.Refresh();
-            callsSwitchWindow.UpdateWindow();
+            if (bshow)
+                callsSwitchWindow.UpdateWindow();
         }
 
         public object OverlayCallsSwitchChild
@@ -604,7 +608,8 @@ namespace VATRP.Linphone.VideoWrapper
         {
             newCallAcceptWindow.ShowWindow = bshow;
             newCallAcceptWindow.Refresh();
-            newCallAcceptWindow.UpdateWindow();
+            if (bshow)
+                newCallAcceptWindow.UpdateWindow();
         }
 
         public object OverlayNewCallAcceptChild
@@ -627,6 +632,31 @@ namespace VATRP.Linphone.VideoWrapper
                     newCallAcceptWindow.TransparentWindow.Content = value;
                 }
             }
+        }
+
+        public VATRPTranslucentWindow CommandBarWindow
+        {
+            get { return commandBarWindow; }
+        }
+
+        public VATRPTranslucentWindow NumpadWindow
+        {
+            get { return numpadWindow; }
+        }
+
+        public VATRPTranslucentWindow CallInfoWindow
+        {
+            get { return callInfoWindow; }
+        }
+
+        public VATRPTranslucentWindow CallsSwitchWindow
+        {
+            get { return callsSwitchWindow; }
+        }
+
+        public VATRPTranslucentWindow NewCallAcceptWindow
+        {
+            get { return newCallAcceptWindow; }
         }
 
         #endregion
