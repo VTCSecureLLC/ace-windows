@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Timers;
 using System.Windows;
@@ -56,7 +57,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _savedIsRttOn;
         private bool _savedIsInfoOn;
         private bool _savedIsCallHoldOn;
-
         private string _errorMessage;
         public CallViewModel()
         {
@@ -70,6 +70,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
             subscribedForStats = false;
             Declined = false;
             _errorMessage = String.Empty;
+            AllowHideContorls = false;
+            CommandbarLastTimeVisibility = Visibility.Hidden;
+            NumpadLastTimeVisibility = Visibility.Hidden;
+            CallInfoLastTimeVisibility = Visibility.Hidden;
+            CallSwitchLastTimeVisibility = Visibility.Hidden;
+
             // initialize based on stored settings:
             if (App.CurrentAccount != null)
             {
@@ -698,6 +704,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             if (timerCall != null && timerCall.Enabled)
                 timerCall.Stop();
+
+            AllowHideContorls = true;
             StopAnimation();
 
             if (_currentCall.CallEstablishTime == DateTime.MinValue)
@@ -712,6 +720,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         internal void OnStreamRunning()
         {
             CallState = VATRPCallState.StreamsRunning;
+            AllowHideContorls = true;
             SubscribeCallStatistics();
         }
 
@@ -738,6 +747,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             
             ShowOutgoingEndCall = isError;
             ErrorMessage = isError ? errorMessage : string.Empty;
+            AllowHideContorls = false;
             StopAnimation();
 
             UnsubscribeCallStaistics();
@@ -748,6 +758,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             if (autoAnswerTimer.Enabled)
                 autoAnswerTimer.Stop();
 #endif
+
         }
 
         #endregion
@@ -928,9 +939,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
             return ActiveCall.Equals(other);
         }
 
+        public bool PauseRequest;
 
-        public bool PauseRequest { get; set; }
+        public bool ResumeRequest;
 
-        public bool ResumeRequest { get; set; }
+        public bool AllowHideContorls;
+
+        public Visibility CommandbarLastTimeVisibility;
+        public Visibility NumpadLastTimeVisibility;
+        public Visibility CallInfoLastTimeVisibility;
+        public Visibility CallSwitchLastTimeVisibility;
+        
     }
 }
