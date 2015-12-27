@@ -50,7 +50,7 @@ namespace com.vtcsecure.ace.windows
         private readonly ILinphoneService _linphoneService;
         private FlashWindowHelper _flashWindowHelper = new FlashWindowHelper();
         private readonly MainControllerViewModel _mainViewModel;
-        private int CombinedUICallViewSize = 700;
+        private Size CombinedUICallViewSize = new Size(700, 700);
         private readonly DispatcherTimer deferredHideTimer = new DispatcherTimer()
         {
             Interval = TimeSpan.FromMilliseconds(2000),
@@ -637,16 +637,17 @@ namespace com.vtcsecure.ace.windows
             {
                 this.ResizeMode = System.Windows.ResizeMode.CanResize;
                 this.MaxHeight = SystemParameters.WorkArea.Height;
-                CombinedUICallViewSize = (int)SystemParameters.WorkArea.Width;
+                CombinedUICallViewSize.Width = SystemParameters.WorkArea.Width;
+                CombinedUICallViewSize.Height = SystemParameters.WorkArea.Height;
                 WindowState = WindowState.Maximized;
             }
             else
             {
                 this.MaxHeight = 700;
-                CombinedUICallViewSize = 700;
+                CombinedUICallViewSize.Width = 700;
+                CombinedUICallViewSize.Height = 700;
+
                 WindowState = System.Windows.WindowState.Normal;
-//                this.Height = 700;
-//                this.Width = 316;
                 this.ResizeMode = System.Windows.ResizeMode.NoResize;
             }
         }
