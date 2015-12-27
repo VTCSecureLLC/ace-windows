@@ -178,6 +178,7 @@
     <Compile Include="Enums\ACEMenuSettings.cs" />
     <Compile Include="Enums\VATRPSettings.cs" />
     <Compile Include="Model\ActionCommand.cs" />
+    <Compile Include="Services\Win32NativeAPI.cs" />
     <Compile Include="ViewModel\FeedbackViewModel.cs" />
     <Compile Include="ViewModel\ContactEditViewModel.cs" />
     <Compile Include="ViewModel\ContactsViewModel.cs" />
