@@ -55,8 +55,8 @@ namespace com.vtcsecure.ace.windows
 					CallInfoCtrl = _callInfoView
 				};
 
-                callViewModel.VideoWidth = CombinedUICallViewSize;
-			    callViewModel.VideoHeight = CombinedUICallViewSize;
+                callViewModel.VideoWidth = (int)CombinedUICallViewSize.Width;
+			    callViewModel.VideoHeight = (int)CombinedUICallViewSize.Height;
 #if false
 				switch (App.CurrentAccount.PreferredVideoId.ToLower())
 				{
@@ -210,6 +210,7 @@ namespace com.vtcsecure.ace.windows
                     if (_selfView.IsVisible)
                         _selfView.Hide();
 					ctrlCall.AddVideoControl();
+                    ctrlCall.RestartInactivityDetectionTimer();
 					break;
 				case VATRPCallState.StreamsRunning:
 					callViewModel.OnStreamRunning();
@@ -217,6 +218,7 @@ namespace com.vtcsecure.ace.windows
 					ctrlCall.ctrlOverlay.SetCallState("Connected");
 			        ctrlCall.UpdateControls();
                     ctrlCall.ctrlOverlay.ForegroundCallDuration = _mainViewModel.ActiveCallModel.CallDuration;
+                    ctrlCall.RestartInactivityDetectionTimer();
 					break;
 				case VATRPCallState.RemotePaused:
 			        callViewModel.OnRemotePaused();
@@ -457,13 +459,13 @@ namespace com.vtcsecure.ace.windows
 
 	    private void ShowCallOverlayWindow(bool bShow)
 		{
-            ctrlCall.ctrlOverlay.CommandWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize - 660) / 2;
+            ctrlCall.ctrlOverlay.CommandWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize.Width - 660) / 2;
 			ctrlCall.ctrlOverlay.CommandWindowTopMargin = 500 - SystemParameters.CaptionHeight;
 
-            ctrlCall.ctrlOverlay.NumpadWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize - 230) / 2;
+            ctrlCall.ctrlOverlay.NumpadWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize.Width - 230) / 2;
 			ctrlCall.ctrlOverlay.NumpadWindowTopMargin = 170 - SystemParameters.CaptionHeight;
 
-            ctrlCall.ctrlOverlay.CallInfoWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize - 660) / 2;
+            ctrlCall.ctrlOverlay.CallInfoWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize.Width - 660) / 2;
 			ctrlCall.ctrlOverlay.CallInfoWindowTopMargin = 40 - SystemParameters.CaptionHeight;
 
 			ctrlCall.ctrlOverlay.ShowCommandBar(bShow);
@@ -480,7 +482,7 @@ namespace com.vtcsecure.ace.windows
 
         private void ShowOverlayNewCallWindow(bool bShow)
         {
-            ctrlCall.ctrlOverlay.NewCallAcceptWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize - 320) / 2;
+            ctrlCall.ctrlOverlay.NewCallAcceptWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize.Width - 320) / 2;
             ctrlCall.ctrlOverlay.NewCallAcceptWindowTopMargin = 170 - SystemParameters.CaptionHeight;
 
             ctrlCall.ctrlOverlay.ShowNewCallAcceptWindow(bShow);
@@ -497,7 +499,6 @@ namespace com.vtcsecure.ace.windows
 
 		private void OnRegistrationChanged(LinphoneRegistrationState state)
 		{
-//            LOG.Debug("MainWindow.Event:OnRegistrationChanged: registrationState = " + state.ToString());
 			if (this.Dispatcher.Thread != Thread.CurrentThread)
 			{
 				this.Dispatcher.BeginInvoke((Action)(() => this.OnRegistrationChanged(state)));
