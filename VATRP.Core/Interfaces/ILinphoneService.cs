@@ -51,6 +51,7 @@ namespace VATRP.Core.Interfaces
         bool IsSpeakerMuted();
         void ToggleVideo(bool enableVideo, IntPtr callPtr);
         void SendDtmf(VATRPCall call, char dtmf);
+        bool IsCameraEnabled(IntPtr callPtr);
         void EnableVideo(bool enable, bool automaticallyInitiate, bool automaticallyAccept);
         bool IsEchoCancellationEnabled();
         void EnableEchoCancellation(bool enable);
