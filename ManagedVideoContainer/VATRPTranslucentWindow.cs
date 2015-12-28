@@ -101,14 +101,21 @@ namespace VATRP.Linphone.VideoWrapper
             {
                 UpdateWindow();
                 _window.Show();
-                _parent = GetParentWindow(_container);
-                _window.Owner = _parent;
-                _parent.LocationChanged += new EventHandler(parent_LocationChanged);
+                if (_parent == null)
+                {
+                    _parent = GetParentWindow(_container);
+                    _window.Owner = _parent;
+                    _parent.LocationChanged += new EventHandler(parent_LocationChanged);
+                }
             }
             else
             {
                 if (!ShowWindow && _window.Visibility == Visibility.Visible)
+                {
                     _window.Hide();
+                    if (_parent != null) 
+                        _parent.Activate();
+                }
             }
         }
 
