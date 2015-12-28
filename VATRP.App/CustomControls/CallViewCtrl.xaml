@@ -76,15 +76,18 @@
         </StackPanel>
 
         <Grid Grid.Row="0" Visibility="{Binding ShowCallParams, Converter={StaticResource bvc}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-            <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Margin="0,30">
-                <TextBlock   Foreground="{DynamicResource AppMainBorderBrush}"
+                <TextBlock Grid.Row="0" Margin="0,30" Foreground="{DynamicResource AppMainBorderBrush}"
 							HorizontalAlignment="Center"
 					   Text="{Binding CallerInfo}" FontSize="{Binding DisplayNameSize}" 
 					   Visibility="{Binding CallerInfo.Length, Converter={StaticResource oivc}}"
 					   />
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-                    <TextBlock Margin="10,0" 
+                <StackPanel Grid.Row="1" Orientation="Vertical" >
+                <TextBlock Margin="10,0" HorizontalAlignment="Center"
 						   Foreground="{DynamicResource AppMainBorderBrush}"
 						Text="{Binding CallState, Converter={StaticResource csts} }" 
 					   VerticalAlignment="Top" FontSize="{Binding InfoTextSize}" 
@@ -100,7 +103,6 @@
 					   VerticalAlignment="Top" FontSize="18" 
 					   Visibility="{Binding ErrorMessage.Length, Converter={StaticResource oivc}}"/>
                 </StackPanel>
-            </StackPanel>
         </Grid>
 
         <StackPanel Visibility="{Binding ShowCallParams, Converter={StaticResource ibvc}}"
@@ -1411,7 +1413,10 @@
 
                 <videoWrapper:ManagedVideoControl x:Name="ctrlVideo" Width="{Binding VideoWidth}" Height="{Binding VideoHeight}" 
 												  VerticalAlignment="Center" HorizontalAlignment="Center" 
-												  >
+											      MouseEnter="CtrlVideo_OnMouseEnter"
+                                                  MouseLeave="CtrlVideo_OnMouseLeave"
+                                                  MouseMove="CtrlVideo_OnMouseMove"
+                                                  >
                 </videoWrapper:ManagedVideoControl>
 
             </videoWrapper:VATRPOverlay>

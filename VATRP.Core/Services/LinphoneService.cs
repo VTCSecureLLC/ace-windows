@@ -667,6 +667,15 @@ namespace VATRP.Core.Services
 
         public void ClearProxyInformation()
         {
+            if (linphoneCore == IntPtr.Zero)
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                return;
+            }
+
             // remove all proxy entries from linphone configuration file
             LinphoneAPI.linphone_core_clear_proxy_config(linphoneCore);
             // remove all authorization information
@@ -1122,8 +1131,14 @@ namespace VATRP.Core.Services
         public bool IsEchoCancellationEnabled()
         {
             if (linphoneCore == IntPtr.Zero)
-                throw new Exception("Linphone not initialized");
-
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                return false;
+            }
+            
             bool isEchoCancellationEnabled = LinphoneAPI.linphone_core_echo_cancellation_enabled(linphoneCore);
 
             return isEchoCancellationEnabled;
@@ -1133,7 +1148,13 @@ namespace VATRP.Core.Services
         public void EnableEchoCancellation(bool enable)
         {
             if (linphoneCore == IntPtr.Zero)
-                throw new Exception("Linphone not initialized");
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                return;
+            }
 
             LinphoneAPI.linphone_core_enable_echo_cancellation(linphoneCore, enable);
         }
@@ -1142,7 +1163,13 @@ namespace VATRP.Core.Services
         public bool IsSelfViewEnabled()
         {
             if (linphoneCore == IntPtr.Zero)
-                throw new Exception("Linphone not initialized");
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                return false;
+            }
 
             bool isSelfViewEnabled = LinphoneAPI.linphone_core_self_view_enabled(linphoneCore);
 
@@ -1153,15 +1180,27 @@ namespace VATRP.Core.Services
         public void EnableSelfView(bool enable)
         {
             if (linphoneCore == IntPtr.Zero)
-                throw new Exception("Linphone not initialized");
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                return;
+            }
 
             LinphoneAPI.linphone_core_enable_self_view(linphoneCore, enable);
         }
 
 		public void SwitchSelfVideo()
 		{
-			if (linphoneCore == IntPtr.Zero)
-				throw new Exception("Linphone not initialized");
+            if (linphoneCore == IntPtr.Zero)
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                return;
+            }
 
 			bool isSelfViewEnabled = LinphoneAPI.linphone_core_self_view_enabled(linphoneCore);
 			LinphoneAPI.linphone_core_enable_self_view(linphoneCore, !isSelfViewEnabled);
@@ -1169,6 +1208,8 @@ namespace VATRP.Core.Services
 
 		public void SetVideoPreviewWindowHandle(IntPtr hWnd, bool reset = false)
 		{
+		    if (linphoneCore == IntPtr.Zero)
+		        return;
 			LinphoneAPI.linphone_core_enable_video_preview(linphoneCore, !reset);
 		    if (reset)
 		    {
