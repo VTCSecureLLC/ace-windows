@@ -10,8 +10,8 @@
              mc:Ignorable="d" 
     d:DataContext="{d:DesignData Source=../SampleData/DialpadViewSampleData.xaml}"
              d:DesignWidth="300"
-             Loaded="OnLoaded"
-             Unloaded="OnUnloaded" 
+             PreviewKeyUp="OnDialpadPreviewKeyup"
+             PreviewKeyDown="OnDialpadPreviewKeydown"
              >
     <UserControl.Resources>
         <conv:CallStateToBrushConverter x:Key="cstb"/>
@@ -39,8 +39,7 @@
             <TextBox Text="{Binding RemotePartyNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Foreground="{DynamicResource DialpadPageRemotePartyFont}"  
                      FontSize="35" MaxLines="1" Grid.Column="0" CaretBrush="White" Margin="5,0,0,0"
                      AcceptsReturn="False" BorderThickness="0" Background="Transparent"
-                             CharacterCasing="Lower" 
-                             PreviewKeyUp="numberTextBox_PreviewKeyUp" />
+                             CharacterCasing="Lower" />
             <Rectangle  Width="45" Fill="White" Height="30" Margin="10" Grid.Column="1" PreviewMouseUp="OnBackSpaceClicked">
                 <Rectangle.OpacityMask>
                     <ImageBrush ImageSource="/ACE;component/Resources/backspace.png" Stretch="UniformToFill"/>
