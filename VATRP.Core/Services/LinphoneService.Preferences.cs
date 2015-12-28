@@ -12,7 +12,7 @@ namespace VATRP.Core.Services
             public Preferences()
             {
                 IsOutboundProxyOn = true;
-                Expires = 3600;
+                Expires = 280;
             }
 
             public string DisplayName { get; set; }
