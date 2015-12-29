@@ -17,6 +17,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _isDialpadDocked;
         private bool _isHistoryDocked;
         private bool _isSettingsDocked;
+        private bool _isResourceDocked;
         private bool _isMessagingDocked;
         private bool _isCallPanelDocked;
         private bool _offerServiceSelection;
@@ -42,6 +43,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _isMessagingDocked = false;
             _isCallPanelDocked = false;
             _isSettingsDocked = false;
+            _isResourceDocked = false;
             _offerServiceSelection = false;
             _activateWizardPage = false; 
             _dialPadViewModel = new DialpadViewModel();
@@ -114,6 +116,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 _isSettingsDocked = value;
                 OnPropertyChanged("IsSettingsDocked");
+            }
+        }
+
+        public bool IsResourceDocked
+        {
+            get { return _isResourceDocked; }
+            set
+            {
+                _isResourceDocked = value;
+                OnPropertyChanged("IsResourceDocked");
             }
         }
 

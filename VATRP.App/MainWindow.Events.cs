@@ -21,7 +21,7 @@ namespace com.vtcsecure.ace.windows
 		private bool registerRequested = false;
 		private bool signOutRequest = false;
 		private bool defaultConfigRequest;
-
+        
 	    private void DefferedHideOnError(object sender, EventArgs e)
 	    {
 	        deferredHideTimer.Stop();
