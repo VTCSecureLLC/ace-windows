@@ -316,6 +316,15 @@ namespace VATRP.Core.Services
                 LinphoneAPI.linphone_core_set_chat_database_path(linphoneCore, _chatLogPath);
                 LinphoneAPI.linphone_core_set_call_logs_database_path(linphoneCore, _callLogPath);
 
+			    IntPtr defProxyCfg = LinphoneAPI.linphone_core_get_default_proxy_config(linphoneCore);
+			    if (defProxyCfg != IntPtr.Zero)
+			    {
+			        proxy_cfg = defProxyCfg;
+                    LinphoneAPI.linphone_proxy_config_edit(proxy_cfg);
+                    LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, false);
+                    LinphoneAPI.linphone_proxy_config_done(proxy_cfg);
+			    }
+
 				coreLoop = new Thread(LinphoneMainLoop) {IsBackground = true};
 				coreLoop.Start();
 
@@ -593,15 +602,18 @@ namespace VATRP.Core.Services
 				LOG.Debug("failed to get auth info");
 			LinphoneAPI.linphone_core_add_auth_info(linphoneCore, auth_info);
 
+		    LinphoneAPI.linphone_core_set_primary_contact(linphoneCore, identity);
             // remove all proxy entries from linphone configuration file
             LinphoneAPI.linphone_core_clear_proxy_config(linphoneCore);
 
-			proxy_cfg = LinphoneAPI.linphone_core_create_proxy_config(linphoneCore);
+            if (proxy_cfg == IntPtr.Zero)
+                proxy_cfg = LinphoneAPI.linphone_core_create_proxy_config(linphoneCore);
 			/*set localParty with user name and domain*/
 			LinphoneAPI.linphone_proxy_config_set_identity(proxy_cfg, identity);
 
-			LinphoneAPI.linphone_proxy_config_set_server_addr(proxy_cfg, server_addr);
-            LinphoneAPI.linphone_proxy_config_set_avpf_mode(proxy_cfg,
+		    LinphoneAPI.linphone_proxy_config_set_server_addr(proxy_cfg, server_addr);
+
+		    LinphoneAPI.linphone_proxy_config_set_avpf_mode(proxy_cfg,
     preferences.EnableAVPF ? LinphoneAVPFMode.LinphoneAVPFEnabled : LinphoneAVPFMode.LinphoneAVPFDisabled);
             LinphoneAPI.linphone_proxy_config_set_avpf_rr_interval(proxy_cfg, 3);
 
@@ -943,8 +955,6 @@ namespace VATRP.Core.Services
             // ToDo VATRP-842: Set static image instead of using default
             // LinphoneAPI.linphone_core_set_static_picture(linphoneCore, "Resources\\contacts.png");
             LinphoneAPI.linphone_call_enable_camera(callPtr, enableVideo);
-
-
         }
 
         public void SendDtmf(VATRPCall call, char dtmf)
@@ -2049,6 +2059,8 @@ namespace VATRP.Core.Services
             {
                 commandQueue.Enqueue(cmd);
             }
+
+            DoUnregister();
 
             cmd = new LinphoneCommand(LinphoneCommandType.StopLinphone);
             lock (commandQueue)
