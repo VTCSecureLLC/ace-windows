@@ -450,10 +450,10 @@
                         </Rectangle>
                         <Rectangle Width="32" Height="30" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
                             <Rectangle.OpacityMask>
-                                <ImageBrush ImageSource="Resources\rtt.png" />
+                                <ImageBrush ImageSource="Resources\resources_books.png" />
                             </Rectangle.OpacityMask>
                         </Rectangle>
-                        <TextBlock Text="Messages" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+                        <TextBlock Text="Resources" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
 
                     </Grid>
 					<Grid x:Key="ResourcesViewPressed">
@@ -467,10 +467,10 @@
                         </Rectangle>
                         <Rectangle Width="32" Height="30" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
                             <Rectangle.OpacityMask>
-                                <ImageBrush ImageSource="Resources\rtt.png" />
+                                <ImageBrush ImageSource="Resources\resources_books.png" />
                             </Rectangle.OpacityMask>
                         </Rectangle>
-                        <TextBlock Text="Messages" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+                        <TextBlock Text="Resources" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
                     </Grid>
 					<Grid x:Key="ResourcesViewNormal">
 						<Grid.RowDefinitions>
@@ -483,10 +483,10 @@
                         </Rectangle>
                         <Rectangle Width="32" Height="30" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
                             <Rectangle.OpacityMask>
-                                <ImageBrush ImageSource="Resources\rtt.png" />
+                                <ImageBrush ImageSource="Resources\resources_books.png" />
                             </Rectangle.OpacityMask>
                         </Rectangle>
-                        <TextBlock Text="Messages" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+                        <TextBlock Text="Resources" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
 
                     </Grid>
 				</ToggleButton.Resources>
