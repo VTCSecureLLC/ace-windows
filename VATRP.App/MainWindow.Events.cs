@@ -211,6 +211,7 @@ namespace com.vtcsecure.ace.windows
                         _selfView.Hide();
 					ctrlCall.AddVideoControl();
                     ctrlCall.RestartInactivityDetectionTimer();
+			        ctrlCall.UpdateVideoSettingsIfOpen();
 					break;
 				case VATRPCallState.StreamsRunning:
 					callViewModel.OnStreamRunning();
@@ -219,6 +220,7 @@ namespace com.vtcsecure.ace.windows
 			        ctrlCall.UpdateControls();
                     ctrlCall.ctrlOverlay.ForegroundCallDuration = _mainViewModel.ActiveCallModel.CallDuration;
                     ctrlCall.RestartInactivityDetectionTimer();
+			        ctrlCall.UpdateVideoSettingsIfOpen();
 					break;
 				case VATRPCallState.RemotePaused:
 			        callViewModel.OnRemotePaused();

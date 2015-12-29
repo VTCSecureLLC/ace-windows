@@ -328,6 +328,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             bool rttEnabled = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.USE_RTT, true);
             EnableRTTButton(rttEnabled);
+            UpdateVideoSettingsIfOpen();
         }
 
 
@@ -408,6 +409,23 @@ namespace com.vtcsecure.ace.windows.CustomControls
             {
                 this.BtnMuteOn.IsChecked = App.CurrentAccount.MuteMicrophone;
                 this.BtnSpeaker.IsChecked = App.CurrentAccount.MuteSpeaker;
+            }
+        }
+
+        public void UpdateVideoSettingsIfOpen()
+        {
+            if (_viewModel != null && _viewModel.ActiveCall != null)
+            {
+                var isVideoEnabled = ServiceManager.Instance.LinphoneService.IsVideoEnabled(_viewModel.ActiveCall);
+                this.BtnVideoOn.IsEnabled = isVideoEnabled;
+                this.BtnVideoOn.IsChecked = !isVideoEnabled ||
+                                            !ServiceManager.Instance.LinphoneService.IsCameraEnabled(
+                                                _viewModel.ActiveCall.NativeCallPtr);
+            }
+            else
+            {
+                this.BtnVideoOn.IsChecked = true;
+                this.BtnVideoOn.IsEnabled = false;
             }
         }
 

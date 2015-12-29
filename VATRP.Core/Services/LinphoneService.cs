@@ -1108,6 +1108,15 @@ namespace VATRP.Core.Services
         #endregion
 
         #region Video
+
+        public bool IsCameraEnabled(IntPtr callPtr)
+        {
+            if (callPtr == IntPtr.Zero)
+                return false;
+
+            return LinphoneAPI.linphone_call_camera_enabled(callPtr);
+        }
+
         public void EnableVideo(bool enable, bool automaticallyInitiate, bool automaticallyAccept)
 		{
             // if current account exists and we are enabling video, intialize initiate and accept vars to account. Otherwise go with previous
