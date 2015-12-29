@@ -1,0 +1,56 @@
+﻿<local:BaseResourcePanel x:Class="com.vtcsecure.ace.windows.CustomControls.Resources.ResourceMainCtrl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:com.vtcsecure.ace.windows.CustomControls.Resources"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid  Background="{StaticResource RecentsPageMainBg}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="96"/>
+            <ColumnDefinition Width="160*"/>
+            <ColumnDefinition Width="27*"/>
+        </Grid.ColumnDefinitions>
+        <!-- Row 0: Resources Label -->
+        <Label Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Content="Resources" VerticalContentAlignment="Center" Background="Gray" Name="Resources">
+        </Label>
+        <!-- Row 1: Technical Support -->
+        <Button Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" Content="Technical Support" Margin="0,2" 
+                    BorderThickness="0"  Click="OnTechnicalSupport"
+                    VerticalContentAlignment="Center">
+        </Button>
+        <!-- Row 2: Instant Feedback -->
+        <Button Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" Content="Instant Feedback" Margin="0,2" 
+                    BorderThickness="0"  Click="OnInstantFeedback"
+                    VerticalContentAlignment="Center">
+        </Button>
+        <!-- Row 3: Deaf/Hard of Hearing Resources -->
+        <Button Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Content="Deaf/Hard of Hearing Resources" Margin="0,2" 
+                    BorderThickness="0"  Click="OnDeafHoh"
+                    VerticalContentAlignment="Center">
+        </Button>
+        <Label Grid.Column="2" Grid.Row="3" Content=">" MouseDown="OnDeafHoh" TouchDown="OnDeafHoh"
+                   VerticalContentAlignment="Center"/>
+        <!-- Row 4: ACE version -->
+        <Label Grid.Column="0" Grid.Row="4" Content="ACE" VerticalContentAlignment="Center"  Name="AceLabel">
+        </Label>
+        <Label Grid.Column="1" Grid.Row="4" Content="1.0" VerticalContentAlignment="Center"  Name="AceVersionLabel">
+        </Label>
+        <!-- Row 5: General Video Settings Label (in call) -->
+        <Label Grid.Column="0" Grid.Row="5" Content="liblinphone" VerticalContentAlignment="Center"  Name="LinphoneLabel">
+        </Label>
+        <Label Grid.Column="1" Grid.Row="5" Content="1.0" VerticalContentAlignment="Center" Name="LinphoneVersionLabel" >
+        </Label>
+
+
+    </Grid>
+</local:BaseResourcePanel>

@@ -141,7 +141,17 @@ namespace com.vtcsecure.ace.windows
 
         private void btnShowResources(object sender, RoutedEventArgs e)
         {
-            ToggleWindow(_messagingWindow);
+            bool isChecked = BtnResourcesView.IsChecked ?? false;
+            if (isChecked)
+            {
+                _mainViewModel.IsDialpadDocked = false;
+                _mainViewModel.IsCallHistoryDocked = false;
+                _mainViewModel.IsContactDocked = false;
+                _mainViewModel.IsSettingsDocked = false;
+            }
+            _mainViewModel.IsResourceDocked = isChecked;// BtnSettings.IsChecked ?? false;
+            // VATRP 856
+            // ToggleWindow(_messagingWindow);
         }
 
         private void btnSettings_Click(object sender, RoutedEventArgs e)

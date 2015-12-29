@@ -7,6 +7,7 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:customControls="clr-namespace:com.vtcsecure.ace.windows.CustomControls"
 		xmlns:unifiedSettings="clr-namespace:com.vtcsecure.ace.windows.CustomControls.UnifiedSettings"
+		xmlns:resourceControls="clr-namespace:com.vtcsecure.ace.windows.CustomControls.Resources"
 		mc:Ignorable="d"
 		d:DataContext="{d:DesignData Source=SampleData/MainViewSampleData.xaml}"
 
@@ -129,6 +130,10 @@
             <Border x:Name="SettingsPaneHolder" Grid.Row="1"  Visibility="{Binding IsSettingsDocked, Converter={StaticResource bvc}}" 
                     VerticalAlignment="Stretch" >
                 <unifiedSettings:UnifiedSettingsCtrl x:Name="ctrlSettings"  Margin="0" VerticalAlignment="Stretch"/>
+            </Border>
+            <Border x:Name="ResourcesPaneHolder" Grid.Row="1"  Visibility="{Binding IsResourceDocked, Converter={StaticResource bvc}}" 
+                    VerticalAlignment="Stretch" >
+                <resourceControls:ResourcePanel x:Name="ctrlResource"  Margin="0" VerticalAlignment="Stretch"/>
             </Border>
 
             <Grid x:Name="DialpadHolder" Grid.Row="2" Grid.Column="0" Background="{StaticResource AppMainWindowBrush}"
@@ -638,11 +643,19 @@
                 <customControls:CallViewCtrl x:Name="ctrlCall" Margin="0"/>
             </DockPanel>
         </Border>
-        <Border Grid.Column="2" Grid.Row="0" Grid.RowSpan="4" BorderThickness="1,0,1,0" Margin="0" BorderBrush="{StaticResource AppMainBorderBrush}" Background="{StaticResource AppMainBorderBrush}" Visibility="{Binding IsMessagingDocked, Converter={StaticResource bvc}}">
+        <Border Grid.Column="2" Grid.Row="0" Grid.RowSpan="4" BorderThickness="1,0,1,0" Margin="0" BorderBrush="{StaticResource AppMainBorderBrush}" Background="{StaticResource AppMainBorderBrush}" Visibility="Collapsed" IsEnabled="False"><!--Visibility="{Binding IsMessagingDocked, Converter={StaticResource bvc}}"-->
             <DockPanel Dock="Top" Background="{DynamicResource AppMainWindowBrush}" >
             <customControls:RTTCtrl x:Name="ctrlRTT" Margin="0"/>
-        </DockPanel>
-            </Border>
-
-	</Grid>
+            </DockPanel>
+        </Border>
+<!--        <Border x:Name="ResourcePaneHolder" Grid.Row="1"  Visibility="{Binding IsResourceDocked, Converter={StaticResource bvc}}" 
+                    VerticalAlignment="Stretch" >
+<!- -            <Border Grid.Column="2" Grid.Row="0" Grid.RowSpan="4" BorderThickness="1,0,1,0" Margin="0" 
+                    BorderBrush="{StaticResource AppMainBorderBrush}" Background="{StaticResource AppMainBorderBrush}" Visibility="{Binding IsResourceDocked, Converter={StaticResource bvc}}">-  ->
+            <DockPanel Dock="Top" Background="{DynamicResource AppMainWindowBrush}" >
+                <customControls:ResourcePanel x:Name="ctrlResources" Margin="0"/>
+            </DockPanel>
+        </Border>
+-->
+    </Grid>
 </model:VATRPWindow>
