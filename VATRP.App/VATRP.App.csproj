@@ -69,6 +69,7 @@
     <Reference Include="System.Net" />
     <Reference Include="System.Runtime" />
     <Reference Include="System.Runtime.InteropServices.WindowsRuntime" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Runtime.WindowsRuntime, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETCore\v4.5\System.Runtime.WindowsRuntime.dll</HintPath>
@@ -132,6 +133,7 @@
     <Compile Include="CustomControls\Resources\DeafHoHResourcesPanel.xaml.cs">
       <DependentUpon>DeafHoHResourcesPanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\Resources\ResourceInfo.cs" />
     <Compile Include="CustomControls\Resources\ResourceMainCtrl.xaml.cs">
       <DependentUpon>ResourceMainCtrl.xaml</DependentUpon>
     </Compile>
@@ -190,6 +192,7 @@
     <Compile Include="Enums\VATRPSettings.cs" />
     <Compile Include="Model\ActionCommand.cs" />
     <Compile Include="Services\Win32NativeAPI.cs" />
+    <Compile Include="Utilities\JsonDeserializer.cs" />
     <Compile Include="ViewModel\FeedbackViewModel.cs" />
     <Compile Include="ViewModel\ContactEditViewModel.cs" />
     <Compile Include="ViewModel\ContactsViewModel.cs" />
