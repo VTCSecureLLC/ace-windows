@@ -21,6 +21,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.Resources
     /// </summary>
     public partial class ResourcePanel : UserControl
     {
+        public Resources_CallResource CallResourceRequested;
+
         private ResourceMainCtrl _mainPanel;
         private DeafHoHResourcesPanel _deafHohPanel;
 
@@ -40,12 +42,12 @@ namespace com.vtcsecure.ace.windows.CustomControls.Resources
 
             _deafHohPanel = new DeafHoHResourcesPanel();
             InitializePanelAndEvents(_deafHohPanel);
+            _deafHohPanel.CallResourceRequested += HandleCallResourceRequested;
 
             ScrollViewer.SetVerticalScrollBarVisibility(scrollViewer, ScrollBarVisibility.Hidden);
 
             _currentContent = _mainPanel;
             UpdateContentInUI();
-            
         }
 
         private void InitializePanelAndEvents(BaseResourcePanel panel)
@@ -137,6 +139,14 @@ namespace com.vtcsecure.ace.windows.CustomControls.Resources
             UpdateContentInUI();
         }
         #endregion
+
+        private void HandleCallResourceRequested(ResourceInfo resourceInfo)
+        {
+            if (CallResourceRequested != null)
+            {
+                CallResourceRequested(resourceInfo);
+            }
+        }
 
 
     }

@@ -10,10 +10,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="96"/>
@@ -23,5 +19,27 @@
         <!-- Row 0: Deaf HoH Resources Label -->
         <Label Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Content="Deaf/Hard of Hearing Resources" VerticalContentAlignment="Center" Background="Gray" Name="Resources">
         </Label>
+
+        <ListView Background="{StaticResource RecentsPageMainBg}" Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="3" Height="200" Width="280" HorizontalAlignment="Left"
+                      x:Name="ResourceInfoListView" SelectionMode="Single" SelectionChanged="ResourceInfo_SelectionChanged">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Name" Width="95" DisplayMemberBinding="{Binding Path=name}" />
+                    <GridViewColumn Header="Address" Width="160" DisplayMemberBinding="{Binding Path=address}" >
+<!--                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Width="50">
+                                    <CheckBox IsChecked="{Binding Path=Status, Mode=TwoWay}" 
+                                                  Click="CheckBox_Click"
+                                                  VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                        -->
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
     </Grid>
 </local:BaseResourcePanel>

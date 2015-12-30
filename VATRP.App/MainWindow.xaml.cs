@@ -26,6 +26,7 @@ using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using VATRP.LinphoneWrapper.Enums;
 using HockeyApp;
+using com.vtcsecure.ace.windows.CustomControls.Resources;
 
 namespace com.vtcsecure.ace.windows
 {
@@ -451,6 +452,8 @@ namespace com.vtcsecure.ace.windows
             //ctrlSettings.NetworkSettingsChangeClicked += OnSettingsChangeRequired;
             //ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
 
+            ctrlResource.CallResourceRequested += OnCallResourceRequested;
+
             if (App.CurrentAccount != null)
             {
                 if (!string.IsNullOrEmpty(App.CurrentAccount.ProxyHostname) &&
@@ -701,5 +704,13 @@ namespace com.vtcsecure.ace.windows
         }
 
         #endregion
+
+        private void OnCallResourceRequested(ResourceInfo resourceInfo)
+        {
+            if ((resourceInfo != null) && !string.IsNullOrEmpty(resourceInfo.address))
+            {
+                MediaActionHandler.MakeVideoCall(resourceInfo.address);
+            }
+        }
     }
 }
