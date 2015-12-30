@@ -52,7 +52,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 foreach (var call in Calls)
                 {
-                    if (call.CallEvent.RemoteParty.TrimSipPrefix() == e.contactId.ID)
+                    if (call.CallEvent.Contact != null && call.CallEvent.Contact.ID == e.contactId.ID)
                     {
                         call.CallEvent.Contact = null;
                         call.AllowAddContact = true;
@@ -66,7 +66,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             // search and update all items
             var contact = _contactService.FindContact(new ContactID(e.Contact));
-            if (contact != null)
+            if (contact != null && contact.IsLinphoneContact)
             {
                 lock (this.Calls)
                 {
@@ -195,6 +195,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             var remote = callEventViewModel.CallEvent.RemoteParty.TrimSipPrefix();
             ContactEditViewModel model = new ContactEditViewModel(true, remote);
+            model.ContactName = callEventViewModel.DisplayName;
             var contactEditView = new com.vtcsecure.ace.windows.Views.ContactEditView(model);
             var dialogResult = contactEditView.ShowDialog();
             if (dialogResult != null && dialogResult.Value)
