@@ -273,6 +273,9 @@
     <Compile Include="Views\Dialpad.xaml.cs">
       <DependentUpon>Dialpad.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\LegalReleaseWindow.xaml.cs">
+      <DependentUpon>LegalReleaseWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\MediaTextBox.xaml.cs">
       <DependentUpon>MediaTextBox.xaml</DependentUpon>
     </Compile>
@@ -487,6 +490,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\LegalReleaseWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\MediaTextBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -677,6 +684,7 @@
   <PropertyGroup>
     <PostBuildEvent>copy /b "$(SolutionDir)thirdparties\liblinphone\*.dll" "$(TargetDir)"
 xcopy /b "$(SolutionDir)thirdparties\rootca.pem" "$(TargetDir)"
+xcopy /b "$(SolutionDir)thirdparties\legal_release.txt" "$(TargetDir)"
 mkdir "$(TargetDir)\lib"
 mkdir "$(TargetDir)\lib\mediastreamer"
 mkdir "$(TargetDir)\lib\mediastreamer\plugins"

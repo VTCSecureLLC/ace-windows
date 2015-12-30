@@ -46,7 +46,8 @@ namespace VATRP.Core.Model
             ENABLE_ADAPTIVE_RATE_CTRL,
             CURRENT_PROVIDER,
             CALL_DIAL_PREFIX,
-            CALL_DIAL_ESCAPE_PLUS
+            CALL_DIAL_ESCAPE_PLUS,
+            SHOW_LEGAL_RELEASE
         }
 
         public static string LINPHONE_SIP_SERVER = "bc1.vatrp.net";

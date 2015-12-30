@@ -70,7 +70,6 @@ namespace com.vtcsecure.ace.windows
             _mainViewModel.ActivateWizardPage = true;
             _mainViewModel.OfferServiceSelection = false;
 
-            ServiceManager.Instance.Start();
             _linphoneService = ServiceManager.Instance.LinphoneService;
             _linphoneService.RegistrationStateChangedEvent += OnRegistrationChanged;
             _linphoneService.CallStateChangedEvent += OnCallStateChanged;
@@ -406,9 +405,14 @@ namespace com.vtcsecure.ace.windows
         private void OnSourceInitialized(object sender, EventArgs e)
         {
             base.Window_Initialized(sender, e);
+        }
+
+        public void InitializeMainWindow()
+        {
+            ServiceManager.Instance.UpdateLoggedinContact();
             ServiceManager.Instance.StartupLinphoneCore();
 
-            if (App.CurrentAccount == null ||!App.CurrentAccount.Username.NotBlank())
+            if (App.CurrentAccount == null || !App.CurrentAccount.Username.NotBlank())
             {
                 if (_mainViewModel.ActivateWizardPage)
                     OnVideoRelaySelect(this, null);
@@ -467,8 +471,6 @@ namespace com.vtcsecure.ace.windows
                     _mainViewModel.IsCallHistoryDocked = true;
                 }
             }
-            
-            ServiceManager.Instance.UpdateLoggedinContact();
         }
 
         private void OnRttToggled(bool switch_on)
