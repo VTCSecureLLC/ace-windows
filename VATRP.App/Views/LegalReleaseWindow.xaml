@@ -12,7 +12,9 @@
         </Grid.RowDefinitions>
         <RichTextBox x:Name="RtfContainer" HorizontalAlignment="Stretch" 
                      VerticalAlignment="Stretch" Margin="10" IsReadOnlyCaretVisible="True"
-                     VerticalScrollBarVisibility="Auto">
+                     VerticalScrollBarVisibility="Auto"
+                   Loaded="WindowLoaded"
+                     >
                 <RichTextBox.Resources>
                     <Style TargetType="{x:Type Paragraph}">
                         <Setter Property="Margin" Value="0"/>
@@ -22,8 +24,8 @@
             <FlowDocument></FlowDocument>
         </RichTextBox>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0" HorizontalAlignment="Center">
-            <Button Width="100" Height="28" Content="I AGREE" Margin="15,5" Click="AcceptAgreement"></Button>
-            <Button Width="100" Height="28" Content="I DO NOT AGREE" Margin="15,5" Click="DeclineAgreement"></Button>
+            <Button x:Name="BtnAccept" Width="80" Height="28" Content="Accept" Margin="15,5" Click="AcceptAgreement" IsEnabled="False"></Button>
+            <Button Width="80" Height="28" Content="Exit" Margin="15,5" Click="DeclineAgreement"></Button>
         </StackPanel>
 
     </Grid>

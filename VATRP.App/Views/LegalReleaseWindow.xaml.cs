@@ -68,5 +68,25 @@ namespace com.vtcsecure.ace.windows.Views
         {
             Close();
         }
+
+        private void WindowLoaded(object sender, RoutedEventArgs e)
+        {
+            var scroll = (ScrollViewer)((Border)VisualTreeHelper.GetChild(RtfContainer, 0)).Child;
+            if (scroll != null)
+            {
+                scroll.ScrollChanged += OnScrollChanged;
+            }
+            else
+            {
+                BtnAccept.IsEnabled = true;
+            }
+        }
+
+        private void OnScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            var scroll = (sender as ScrollViewer);
+            if (scroll != null) 
+                BtnAccept.IsEnabled = (scroll.VerticalOffset == scroll.ScrollableHeight);
+        }
     }
 }
