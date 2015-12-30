@@ -167,16 +167,29 @@ namespace VATRP.Core.Services
                 LinphoneAPI.linphone_friend_enable_subscribes(friendPtr, false);
                 LinphoneAPI.linphone_core_add_friend(manager.LinphoneService.LinphoneCore, friendPtr);
 
-                VATRPContact contact = new VATRPContact(new ContactID(sipAddress, IntPtr.Zero))
+                var contactID = new ContactID(sipAddress, IntPtr.Zero);
+                VATRPContact contact = FindContact(contactID);
+                if (contact == null)
                 {
-                    DisplayName = name,
-                    Fullname = name,
-                    Gender = "male",
-                    SipUsername = username,
-                    RegistrationName = sipAddress,
-                    IsLinphoneContact = true
-                };
-                Contacts.Add(contact);
+                    contact = new VATRPContact(new ContactID(sipAddress, IntPtr.Zero))
+                    {
+                        DisplayName = name,
+                        Fullname = name,
+                        Gender = "male",
+                        SipUsername = username,
+                        RegistrationName = sipAddress,
+                        IsLinphoneContact = true
+                    };
+                    Contacts.Add(contact);
+                }
+                else
+                {
+                    contact.DisplayName = name;
+                    contact.Fullname = name;
+                    contact.IsLinphoneContact = true;
+                    contact.SipUsername = username;
+                }
+
                 if (ContactAdded != null)
                 {
                     Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() =>
@@ -335,7 +348,6 @@ namespace VATRP.Core.Services
                                         LinphoneAPI.linphone_core_remove_friend(manager.LinphoneService.LinphoneCore,
                                             curStruct.data);
                                         RemoveContact(cfgSipAddress, true);
-                                        return;
                                     }
                                 }
                             }
