@@ -58,6 +58,12 @@ namespace com.vtcsecure.ace.windows.Views
             }
         }
 
+
+        private void OnAcceptTerms(object sender, RoutedEventArgs e)
+        {
+            this.BtnAccept.IsEnabled = true;
+        }
+
         private void AcceptAgreement(object sender, RoutedEventArgs e)
         {
             this.DialogResult = true;
@@ -69,24 +75,27 @@ namespace com.vtcsecure.ace.windows.Views
             Close();
         }
 
+
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
-            var scroll = (ScrollViewer)((Border)VisualTreeHelper.GetChild(RtfContainer, 0)).Child;
-            if (scroll != null)
-            {
-                scroll.ScrollChanged += OnScrollChanged;
-            }
-            else
-            {
-                BtnAccept.IsEnabled = true;
-            }
+         
+//            var test = VisualTreeHelper.GetChild(RtfContainer, 0);
+//            var scroll = (ScrollViewer)((Border)VisualTreeHelper.GetChild(RtfContainer, 0)).Child;
+//            if (scroll != null)
+//            {
+//                scroll.ScrollChanged += OnScrollChanged;
+//            }
+//            else
+//            {
+//                BtnAccept.IsEnabled = true;
+//            }
         }
 
         private void OnScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            var scroll = (sender as ScrollViewer);
-            if (scroll != null) 
-                BtnAccept.IsEnabled = (scroll.VerticalOffset == scroll.ScrollableHeight);
+//            var scroll = (sender as ScrollViewer);
+//            if (scroll != null) 
+//                BtnAccept.IsEnabled = (scroll.VerticalOffset == scroll.ScrollableHeight);
         }
     }
 }
