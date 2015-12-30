@@ -69,7 +69,10 @@ namespace VATRP.LinphoneWrapper
         public static extern IntPtr linphone_core_create_proxy_config(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_core_clear_proxy_config(IntPtr lc);
+        public static extern void linphone_core_clear_proxy_config(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_default_proxy_config(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_proxy_config_normalize_sip_uri(IntPtr proxy, string username);
