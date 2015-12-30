@@ -643,7 +643,7 @@
                 <customControls:CallViewCtrl x:Name="ctrlCall" Margin="0"/>
             </DockPanel>
         </Border>
-        <Border Grid.Column="2" Grid.Row="0" Grid.RowSpan="4" BorderThickness="1,0,1,0" Margin="0" BorderBrush="{StaticResource AppMainBorderBrush}" Background="{StaticResource AppMainBorderBrush}" Visibility="Collapsed" IsEnabled="False"><!--Visibility="{Binding IsMessagingDocked, Converter={StaticResource bvc}}"-->
+        <Border Grid.Column="2" Grid.Row="0" Grid.RowSpan="4" BorderThickness="1,0,1,0" Margin="0" BorderBrush="{StaticResource AppMainBorderBrush}" Background="{StaticResource AppMainBorderBrush}" Visibility="{Binding IsMessagingDocked, Converter={StaticResource bvc}}">
             <DockPanel Dock="Top" Background="{DynamicResource AppMainWindowBrush}" >
             <customControls:RTTCtrl x:Name="ctrlRTT" Margin="0"/>
             </DockPanel>
