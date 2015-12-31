@@ -115,6 +115,11 @@ namespace com.vtcsecure.ace.windows.CustomControls
             if (account != null)
             {
                 App.CurrentAccount = account;
+                if (!string.IsNullOrEmpty(App.CurrentAccount.Password) && !App.CurrentAccount.Password.Equals(passwd))
+                {
+                    MessageBox.Show("Please enter a valid user name and password.", "ACE", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
             }
             else
             {
