@@ -87,13 +87,17 @@ namespace VATRP.Core.Interfaces
         IntPtr LinphoneCore { get; }
         int GetActiveCallsCount { get; }
 
-        List<string> GetAvailableCameras();
-        void SetCamera(string deviceName);
-        List<string> GetAvailableMicrophones();
-        void SetCaptureDevice(string deviceId);
-        List<string> GetAvailableSpeakers();
-        void SetMicrophone(string deviceId);
+        List<VATRPDevice> GetAvailableCameras();
+        void SetCamera(string deviceId);
+        VATRPDevice GetSelectedCamera();
 
+        List<VATRPDevice> GetAvailableMicrophones();
+        void SetCaptureDevice(string deviceId);
+        VATRPDevice GetSelectedMicrophone();
+
+        List<VATRPDevice> GetAvailableSpeakers();
+        void SetSpeakers(string deviceId);
+        VATRPDevice GetSelectedSpeakers();
 
     }
 }

@@ -2081,27 +2081,70 @@ namespace VATRP.Core.Services
 
         #region Devices
         // VATRP-1200 TODO
-        public List<string> GetAvailableCameras()
+        public List<VATRPDevice> GetAvailableCameras()
         {
             //linphone_core_get_video_devices
-            List<string> cameraList = new List<string>();
+            List<VATRPDevice> cameraList = new List<VATRPDevice>();
+
+            IntPtr videoDevicesPtr = LinphoneAPI.linphone_core_get_video_devices(linphoneCore);
+            if (videoDevicesPtr != IntPtr.Zero)
+            {
+                IntPtr current;
+                var offset = 0;
+                while ((current = Marshal.ReadIntPtr(videoDevicesPtr, offset)) != IntPtr.Zero)
+                {
+                    string device = LinphoneAPI.PtrToStringUtf8(current);
+                    VATRPDevice newDevice = new VATRPDevice(device, VATRPDeviceType.CAMERA);
+                    cameraList.Add(newDevice);
+                    offset += IntPtr.Size;
+                }
+            }
             return cameraList;
         }
 
-        public void SetCamera(string deviceName)
+        public void SetCamera(string deviceId)
         {
-            if (!string.IsNullOrEmpty(deviceName))
+            if (!string.IsNullOrEmpty(deviceId))
             {
-                LinphoneAPI.linphone_core_set_video_device(linphoneCore, deviceName);
+                LinphoneAPI.linphone_core_set_video_device(linphoneCore, deviceId);
             }
         }
 
+        public VATRPDevice GetSelectedCamera()
+        {
+            IntPtr deviceIdPtr = LinphoneAPI.linphone_core_get_video_device(linphoneCore);
+            if (deviceIdPtr != IntPtr.Zero)
+            {
+                string deviceId = LinphoneAPI.PtrToStringUtf8(deviceIdPtr);
+                VATRPDevice device = new VATRPDevice(deviceId, VATRPDeviceType.CAMERA);
+                return device;
+            }
+            return null;
+        }
+
+
         // VATRP-1200 TODO
-        public List<string> GetAvailableMicrophones()
+        public List<VATRPDevice> GetAvailableMicrophones()
         {
             //linphone_core_get_sound_devices
             // filter with linphone_core_sound_device_can_capture
-            List<string> microphoneList = new List<string>();
+            List<VATRPDevice> microphoneList = new List<VATRPDevice>();
+            IntPtr soundDevicesPtr = LinphoneAPI.linphone_core_get_sound_devices(linphoneCore);
+            if (soundDevicesPtr != IntPtr.Zero)
+            {
+                IntPtr current;
+                var offset = 0;
+                while ((current = Marshal.ReadIntPtr(soundDevicesPtr, offset)) != IntPtr.Zero)
+                {
+                    string device = LinphoneAPI.PtrToStringUtf8(current);
+                    if (LinphoneAPI.linphone_core_sound_device_can_capture(linphoneCore, device))
+                    {
+                        VATRPDevice newDevice = new VATRPDevice(device, VATRPDeviceType.MICROPHONE);
+                        microphoneList.Add(newDevice);
+                    }
+                    offset += IntPtr.Size;
+                }
+            }
             return microphoneList;
         }
 
@@ -2113,21 +2156,62 @@ namespace VATRP.Core.Services
             }
         }
 
+        public VATRPDevice GetSelectedMicrophone()
+        {
+            IntPtr deviceIdPtr = LinphoneAPI.linphone_core_get_capture_device(linphoneCore);
+            if (deviceIdPtr != IntPtr.Zero)
+            {
+                string deviceId = LinphoneAPI.PtrToStringUtf8(deviceIdPtr);
+                VATRPDevice device = new VATRPDevice(deviceId, VATRPDeviceType.MICROPHONE);
+                return device;
+            }
+            return null;
+        }
+
+
         // VATRP-1200 TODO
-        public List<string> GetAvailableSpeakers()
+        public List<VATRPDevice> GetAvailableSpeakers()
         {
             //linphone_core_get_sound_devices
             // filter with linphone_core_sound_device_can_playback
-            List<string> speakerList = new List<string>();
+            List<VATRPDevice> speakerList = new List<VATRPDevice>();
+            IntPtr soundDevicesPtr = LinphoneAPI.linphone_core_get_sound_devices(linphoneCore);
+            if (soundDevicesPtr != IntPtr.Zero)
+            {
+                IntPtr current;
+                var offset = 0;
+                while ((current = Marshal.ReadIntPtr(soundDevicesPtr, offset)) != IntPtr.Zero)
+                {
+                    string device = LinphoneAPI.PtrToStringUtf8(current);
+                    if (LinphoneAPI.linphone_core_sound_device_can_playback(linphoneCore, device))
+                    {
+                        VATRPDevice newDevice = new VATRPDevice(device, VATRPDeviceType.SPEAKER);
+                        speakerList.Add(newDevice);
+                    }
+                    offset += IntPtr.Size;
+                }
+            }
             return speakerList;
         }
 
-        public void SetMicrophone(string deviceId)
+        public void SetSpeakers(string deviceId)
         {
             if (!string.IsNullOrEmpty(deviceId))
             {
                 LinphoneAPI.linphone_core_set_playback_device(linphoneCore, deviceId);
             }
+        }
+
+        public VATRPDevice GetSelectedSpeakers()
+        {
+            IntPtr deviceIdPtr = LinphoneAPI.linphone_core_get_playback_device(linphoneCore);
+            if (deviceIdPtr != IntPtr.Zero)
+            {
+                string deviceId = LinphoneAPI.PtrToStringUtf8(deviceIdPtr);
+                VATRPDevice device = new VATRPDevice(deviceId, VATRPDeviceType.SPEAKER);
+                return device;
+            }
+            return null;
         }
 
         #endregion

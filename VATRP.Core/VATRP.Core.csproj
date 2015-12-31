@@ -96,6 +96,7 @@
     <Compile Include="Model\Commands\ResumeCallCommand.cs" />
     <Compile Include="Model\Commands\PauseCallCommand.cs" />
     <Compile Include="Model\Commands\TerminateCallCommand.cs" />
+    <Compile Include="Model\VATRPDevice.cs" />
     <Compile Include="Model\VATRPServiceProvider.cs" />
     <Compile Include="Model\VATRPUserGroup.cs" />
     <Compile Include="Model\Utils\Time.cs" />

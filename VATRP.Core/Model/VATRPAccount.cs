@@ -101,6 +101,15 @@ namespace VATRP.Core.Model
         public bool MuteSpeaker { get; set; }
 
         [Column]
+        public string SelectedCameraId { get; set; }
+
+        [Column]
+        public string SelectedSpeakerId { get; set; }
+
+        [Column]
+        public string SelectedMicrophoneId { get; set; }
+        
+        [Column]
         public bool EchoCancel { get; set; }
 
         [Column]
@@ -150,6 +159,8 @@ namespace VATRP.Core.Model
         public List<VATRPCodec> AudioCodecsList = new List<VATRPCodec>();
         public List<VATRPCodec> VideoCodecsList = new List<VATRPCodec>();
 
+        
+
         #endregion
 
         #region Methods
@@ -182,6 +193,9 @@ namespace VATRP.Core.Model
             EchoCancel = false;
             UseOutboundProxy = false;
             VideoPreset = "high-fps";
+            SelectedCameraId = string.Empty;
+            SelectedMicrophoneId = string.Empty;
+            SelectedSpeakerId = string.Empty;
         }
 
         #endregion
