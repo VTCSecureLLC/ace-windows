@@ -558,6 +558,18 @@ namespace com.vtcsecure.ace.windows.Services
             bool bEnable = this.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.ENABLE_ADAPTIVE_RATE_CTRL, true);
             LinphoneService.EnableAdaptiveRateControl(bEnable);
+            if (!string.IsNullOrEmpty(App.CurrentAccount.SelectedCameraId))
+            {
+                LinphoneService.SetCamera(App.CurrentAccount.SelectedCameraId);
+            }
+            if (!string.IsNullOrEmpty(App.CurrentAccount.SelectedMicrophoneId))
+            {
+                LinphoneService.SetCaptureDevice(App.CurrentAccount.SelectedMicrophoneId);
+            }
+            if (!string.IsNullOrEmpty(App.CurrentAccount.SelectedSpeakerId))
+            {
+                LinphoneService.SetSpeakers(App.CurrentAccount.SelectedSpeakerId);
+            }
         }
 
         internal void UpdateLoggedinContact()
@@ -678,5 +690,46 @@ namespace com.vtcsecure.ace.windows.Services
                     Register();
             }
         }
+
+        public List<VATRPDevice> GetAvailableCameras()
+        {
+            return LinphoneService.GetAvailableCameras();
+        }
+        public void SetCamera(string deviceId)
+        {
+            LinphoneService.SetCamera(deviceId);
+        }
+        public VATRPDevice GetSelectedCamera()
+        {
+            return LinphoneService.GetSelectedCamera();
+        }
+
+        public List<VATRPDevice> GetAvailableMicrophones()
+        {
+            return LinphoneService.GetAvailableMicrophones();
+
+        }
+        public void SetCaptureDevice(string deviceId)
+        {
+            LinphoneService.SetCaptureDevice(deviceId);
+        }
+        public VATRPDevice GetSelectedMicrophone()
+        {
+            return LinphoneService.GetSelectedMicrophone();
+        }
+
+        public List<VATRPDevice> GetAvailableSpeakers()
+        {
+            return LinphoneService.GetAvailableSpeakers();
+        }
+        public void SetSpeakers(string deviceId)
+        {
+            LinphoneService.SetSpeakers(deviceId);
+        }
+        public VATRPDevice GetSelectedSpeakers()
+        {
+            return LinphoneService.GetSelectedSpeakers();
+        }
+
     }
 }

@@ -163,6 +163,9 @@
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsCallCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsCallCtrl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsDeviceCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsDeviceCtrl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsContentType.cs" />
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsCtrl.xaml</DependentUpon>
@@ -355,6 +358,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsCallCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsDeviceCtrl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
