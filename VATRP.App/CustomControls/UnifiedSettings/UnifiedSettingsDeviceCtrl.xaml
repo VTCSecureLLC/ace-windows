@@ -33,7 +33,7 @@
                 </ListView.Resources>
                 <ListView.View>
                     <GridView >
-                        <GridViewColumn Header="Name" Width="280" HeaderTemplate="{StaticResource Templ}" HeaderContainerStyle="{StaticResource HeaderStyle}"
+                        <GridViewColumn Header="Name" Width="260" HeaderTemplate="{StaticResource Templ}" HeaderContainerStyle="{StaticResource HeaderStyle}"
                                         DisplayMemberBinding="{Binding Path=displayName}" />
                     </GridView>
                 </ListView.View>

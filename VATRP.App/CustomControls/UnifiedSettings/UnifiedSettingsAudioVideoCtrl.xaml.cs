@@ -25,7 +25,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
     /// </summary>
     public partial class UnifiedSettingsAudioVideoCtrl : BaseUnifiedSettingsPanel
     {
-        private readonly UnifiedSettingsAudioVideoViewModel _viewModel;
 
         public CallViewCtrl CallControl;
 
@@ -37,7 +36,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         {
             InitializeComponent();
             Title = "Audio/Video";
-            _viewModel = new UnifiedSettingsAudioVideoViewModel();
             this.Loaded += UnifiedSettingsAudioVideoCtrl_Loaded;
             _cameraSelectionCtrl = new UnifiedSettingsDeviceCtrl();
             _cameraSelectionCtrl.OnDeviceSelected += HandleDeviceSelected;
@@ -57,7 +55,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         public void Initialize()
         {
-            _viewModel.Initialize();
             if (App.CurrentAccount == null)
                 return;
 /*            List<VATRPDevice> cameraList = ServiceManager.Instance.GetAvailableCameras();

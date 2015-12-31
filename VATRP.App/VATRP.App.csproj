@@ -203,7 +203,6 @@
     <Compile Include="ViewModel\CallInfoViewModel.cs" />
     <Compile Include="ViewModel\AboutViewModel.cs" />
     <Compile Include="ViewModel\CallHistoryViewModel.cs" />
-    <Compile Include="ViewModel\UnifiedSettingsAudioVideoViewModel.cs" />
     <Compile Include="ViewModel\VideoViewModel.cs" />
     <Compile Include="ViewModel\HistoryCallEventViewModel.cs" />
     <Compile Include="ViewModel\ProviderViewModel.cs" />
