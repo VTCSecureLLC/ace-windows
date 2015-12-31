@@ -212,6 +212,14 @@ namespace com.vtcsecure.ace.windows
 					ctrlCall.AddVideoControl();
                     ctrlCall.RestartInactivityDetectionTimer();
 			        ctrlCall.UpdateVideoSettingsIfOpen();
+                    // VATRP-1623: we are setting mute microphone true prior to initiating a call, but the call is always started
+                    //   with the mic enabled. attempting to mute right after call is connected here to side step this issue - 
+                    //   it appears to be an initialization issue in linphone
+                    ServiceManager.Instance.ApplyMediaSettingsChanges();
+
+//                    MuteCall(createCmd.MuteMicrophone);
+//                    MuteSpeaker(createCmd.MuteSpeaker);
+
 					break;
 				case VATRPCallState.StreamsRunning:
 					callViewModel.OnStreamRunning();
