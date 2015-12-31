@@ -101,14 +101,14 @@ namespace com.vtcsecure.ace.windows.ViewModel
             };
             ringTimer.Elapsed += OnUpdateRingCounter;
 
-#if DEBUG
+//#if DEBUG
             autoAnswerTimer = new System.Timers.Timer
             {
                 Interval = 1000,
                 AutoReset = true
             };
             autoAnswerTimer.Elapsed += OnAutoAnswerTimer;
-#endif
+//#endif
             _callInfoViewModel = new CallInfoViewModel();
         }
 
@@ -754,10 +754,10 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
             if (timerCall.Enabled)
                 timerCall.Stop();
-#if DEBUG
+//#if DEBUG
             if (autoAnswerTimer.Enabled)
                 autoAnswerTimer.Stop();
-#endif
+//#endif
 
         }
 
@@ -765,13 +765,13 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         internal void AcceptCall()
         {
-#if DEBUG
+//#if DEBUG
             if (autoAnswerTimer.Enabled)
             {
                 AutoAnswer = 0;
                 autoAnswerTimer.Stop();
             }
-#endif
+//#endif
             StopAnimation();
 
             //Hide();
@@ -784,13 +784,13 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         internal void DeclineCall(bool declineOnTimeout)
         {
-#if DEBUG
+//#if DEBUG
             if (autoAnswerTimer.Enabled)
             {
                 AutoAnswer = 0;
                 autoAnswerTimer.Stop();
             }
-#endif
+//#endif
             SetTimeout(delegate
             {
                 if (_currentCall != null)
@@ -869,13 +869,13 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         internal void HoldAndAcceptCall()
         {
-#if DEBUG
+//#if DEBUG
             if (autoAnswerTimer.Enabled)
             {
                 AutoAnswer = 0;
                 autoAnswerTimer.Stop();
             }
-#endif
+//#endif
             StopAnimation();
 
             IsMuteOn = false;
