@@ -101,6 +101,7 @@ namespace com.vtcsecure.ace.windows
                 _mainViewModel.IsDialpadDocked = false;
                 _mainViewModel.IsContactDocked = false;
                 _mainViewModel.IsSettingsDocked = false;
+                _mainViewModel.IsResourceDocked = false;
             }
             _mainViewModel.IsCallHistoryDocked = isChecked;
         }
@@ -114,6 +115,7 @@ namespace com.vtcsecure.ace.windows
                 _mainViewModel.IsDialpadDocked = false;
                 _mainViewModel.IsCallHistoryDocked = false;
                 _mainViewModel.IsSettingsDocked = false;
+                _mainViewModel.IsResourceDocked = false;
             }
             _mainViewModel.IsContactDocked = isChecked;
         }
@@ -162,6 +164,7 @@ namespace com.vtcsecure.ace.windows
                 _mainViewModel.IsDialpadDocked = false;
                 _mainViewModel.IsCallHistoryDocked = false;
                 _mainViewModel.IsContactDocked = false;
+                _mainViewModel.IsResourceDocked = false;
             }
             _mainViewModel.IsSettingsDocked = BtnSettings.IsChecked ?? false;
             if (_mainViewModel.IsSettingsDocked)
@@ -568,7 +571,11 @@ namespace com.vtcsecure.ace.windows
         private void OnMyAccount(object sender, RoutedEventArgs e)
         {
             _mainViewModel.IsDialpadDocked = false;
+            _mainViewModel.IsCallHistoryDocked = false;
+            _mainViewModel.IsContactDocked = false;
+            _mainViewModel.IsResourceDocked = false;
             _mainViewModel.IsSettingsDocked = true;
+
         }
         private void OnGoToSupport(object sender, RoutedEventArgs e)
         {
