@@ -51,6 +51,10 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 StartAtBootCheckbox.IsChecked = true;
             }
 
+            bool autoAnswerEnabled = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                    Configuration.ConfEntry.AUTO_ANSWER, false);
+            AutoAnswerAfterNotificationCheckBox.IsChecked = autoAnswerEnabled;
+
             if (App.CurrentAccount == null)
                 return;
             string transport = App.CurrentAccount.Transport;
@@ -62,6 +66,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             {
                 SipEncryptionCheckbox.IsChecked = true;
             }
+            VideoMailUriTextBox.Text = App.CurrentAccount.VideoMailUri;
+
         }
 
         public override void ShowAdvancedOptions(bool show)
