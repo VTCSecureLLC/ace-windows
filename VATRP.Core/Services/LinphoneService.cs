@@ -604,7 +604,6 @@ namespace VATRP.Core.Services
 
 		    LinphoneAPI.linphone_core_set_primary_contact(linphoneCore, identity);
             // remove all proxy entries from linphone configuration file
-            LinphoneAPI.linphone_core_clear_proxy_config(linphoneCore);
 
             if (proxy_cfg == IntPtr.Zero)
                 proxy_cfg = LinphoneAPI.linphone_core_create_proxy_config(linphoneCore);
@@ -621,10 +620,9 @@ namespace VATRP.Core.Services
             // use proxy as route if outbound_proxy is enabled
 		    LinphoneAPI.linphone_proxy_config_set_route(proxy_cfg, route);
             LinphoneAPI.linphone_proxy_config_set_expires(proxy_cfg, preferences.Expires);
-
+            LinphoneAPI.linphone_core_set_default_proxy_config(linphoneCore, proxy_cfg);
 			LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, true);
 			LinphoneAPI.linphone_core_add_proxy_config(linphoneCore, proxy_cfg);
-			LinphoneAPI.linphone_core_set_default_proxy_config(linphoneCore, proxy_cfg);
 
             UpdateMediaEncryption();
 			return true;
@@ -675,6 +673,7 @@ namespace VATRP.Core.Services
                     t_configPtr = IntPtr.Zero;
                 }
             }
+			ClearProxyInformation();
 	    }
 
         public void ClearProxyInformation()

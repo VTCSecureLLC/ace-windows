@@ -26,6 +26,7 @@ using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using VATRP.LinphoneWrapper.Enums;
 using HockeyApp;
+using com.vtcsecure.ace.windows.CustomControls.Resources;
 
 namespace com.vtcsecure.ace.windows
 {
@@ -69,7 +70,6 @@ namespace com.vtcsecure.ace.windows
             _mainViewModel.ActivateWizardPage = true;
             _mainViewModel.OfferServiceSelection = false;
 
-            ServiceManager.Instance.Start();
             _linphoneService = ServiceManager.Instance.LinphoneService;
             _linphoneService.RegistrationStateChangedEvent += OnRegistrationChanged;
             _linphoneService.CallStateChangedEvent += OnCallStateChanged;
@@ -405,9 +405,14 @@ namespace com.vtcsecure.ace.windows
         private void OnSourceInitialized(object sender, EventArgs e)
         {
             base.Window_Initialized(sender, e);
+        }
+
+        public void InitializeMainWindow()
+        {
+            ServiceManager.Instance.UpdateLoggedinContact();
             ServiceManager.Instance.StartupLinphoneCore();
 
-            if (App.CurrentAccount == null ||!App.CurrentAccount.Username.NotBlank())
+            if (App.CurrentAccount == null || !App.CurrentAccount.Username.NotBlank())
             {
                 if (_mainViewModel.ActivateWizardPage)
                     OnVideoRelaySelect(this, null);
@@ -451,6 +456,8 @@ namespace com.vtcsecure.ace.windows
             //ctrlSettings.NetworkSettingsChangeClicked += OnSettingsChangeRequired;
             //ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
 
+            ctrlResource.CallResourceRequested += OnCallResourceRequested;
+
             if (App.CurrentAccount != null)
             {
                 if (!string.IsNullOrEmpty(App.CurrentAccount.ProxyHostname) &&
@@ -464,8 +471,6 @@ namespace com.vtcsecure.ace.windows
                     _mainViewModel.IsCallHistoryDocked = true;
                 }
             }
-            
-            ServiceManager.Instance.UpdateLoggedinContact();
         }
 
         private void OnRttToggled(bool switch_on)
@@ -701,5 +706,13 @@ namespace com.vtcsecure.ace.windows
         }
 
         #endregion
+
+        private void OnCallResourceRequested(ResourceInfo resourceInfo)
+        {
+            if ((resourceInfo != null) && !string.IsNullOrEmpty(resourceInfo.address))
+            {
+                MediaActionHandler.MakeVideoCall(resourceInfo.address);
+            }
+        }
     }
 }

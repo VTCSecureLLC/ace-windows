@@ -69,6 +69,7 @@
     <Reference Include="System.Net" />
     <Reference Include="System.Runtime" />
     <Reference Include="System.Runtime.InteropServices.WindowsRuntime" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Runtime.WindowsRuntime, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETCore\v4.5\System.Runtime.WindowsRuntime.dll</HintPath>
@@ -132,6 +133,7 @@
     <Compile Include="CustomControls\Resources\DeafHoHResourcesPanel.xaml.cs">
       <DependentUpon>DeafHoHResourcesPanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\Resources\ResourceInfo.cs" />
     <Compile Include="CustomControls\Resources\ResourceMainCtrl.xaml.cs">
       <DependentUpon>ResourceMainCtrl.xaml</DependentUpon>
     </Compile>
@@ -190,6 +192,7 @@
     <Compile Include="Enums\VATRPSettings.cs" />
     <Compile Include="Model\ActionCommand.cs" />
     <Compile Include="Services\Win32NativeAPI.cs" />
+    <Compile Include="Utilities\JsonDeserializer.cs" />
     <Compile Include="ViewModel\FeedbackViewModel.cs" />
     <Compile Include="ViewModel\ContactEditViewModel.cs" />
     <Compile Include="ViewModel\ContactsViewModel.cs" />
@@ -269,6 +272,9 @@
     </Compile>
     <Compile Include="Views\Dialpad.xaml.cs">
       <DependentUpon>Dialpad.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LegalReleaseWindow.xaml.cs">
+      <DependentUpon>LegalReleaseWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MediaTextBox.xaml.cs">
       <DependentUpon>MediaTextBox.xaml</DependentUpon>
@@ -484,6 +490,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\LegalReleaseWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\MediaTextBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -674,6 +684,7 @@
   <PropertyGroup>
     <PostBuildEvent>copy /b "$(SolutionDir)thirdparties\liblinphone\*.dll" "$(TargetDir)"
 xcopy /b "$(SolutionDir)thirdparties\rootca.pem" "$(TargetDir)"
+xcopy /b "$(SolutionDir)thirdparties\legal_release.txt" "$(TargetDir)"
 mkdir "$(TargetDir)\lib"
 mkdir "$(TargetDir)\lib\mediastreamer"
 mkdir "$(TargetDir)\lib\mediastreamer\plugins"

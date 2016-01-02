@@ -653,7 +653,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             RemoteNumber = _currentCall.From.Username;
             ShowOutgoingEndCall = false;
             CallState = VATRPCallState.InProgress;
-#if DEBUG
+//#if DEBUG
             if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.AUTO_ANSWER, false))
             {
@@ -672,7 +672,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                         autoAnswerTimer.Start();
                 }
             }
-#endif
+//#endif
             if (timerCall != null)
             {
                 if (!timerCall.Enabled)

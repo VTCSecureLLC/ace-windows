@@ -46,14 +46,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
         public HistoryCallEventViewModel(VATRPCallEvent callEvent, VATRPContact contact):this()
         {
             this._callEvent = callEvent;
-            this._callEvent.Contact = contact;
             this._contact = contact;
+            this._callEvent.Contact = contact;
             this._backColor = callEvent.Status == VATRPHistoryEvent.StatusType.Missed ? new SolidColorBrush(Color.FromArgb(255, 0xFE, 0xCD, 0xCD)) : new SolidColorBrush(Color.FromArgb(255, 0xE9, 0xEF, 0xE9));
 
             if (_contact != null)
             {
                 _contact.PropertyChanged += OnContactPropertyChanged;
-                _allowAddContact = false;
+                if (contact.IsLinphoneContact)
+                    _allowAddContact = false;
             }
 
             LoadContactAvatar();
