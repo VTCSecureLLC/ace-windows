@@ -305,11 +305,7 @@ namespace VATRP.Core.Services
 			    LinphoneAPI.linphone_core_verify_server_cn(linphoneCore, true);
                 LinphoneAPI.linphone_core_verify_server_certificates(linphoneCore, true);
 
-                LinphoneAPI.linphone_core_enable_keep_alive(linphoneCore, true); // enable keep alive, default 10 sec
-
-                //LinphoneAPI.lp_config_set_int(coreConfig, "sip","keepalive_period", 10000);
-
-                // load installed codecs
+			    // load installed codecs
 			    LoadAudioCodecs();
                 LoadVideoCodecs();
 
@@ -324,6 +320,15 @@ namespace VATRP.Core.Services
                     LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, false);
                     LinphoneAPI.linphone_proxy_config_done(proxy_cfg);
 			    }
+                
+                IntPtr coreConfig = LinphoneAPI.linphone_core_get_config(linphoneCore);
+                if (coreConfig != IntPtr.Zero)
+                {
+                    LinphoneAPI.lp_config_set_int(coreConfig, "sip", "tcp_tls_keepalive", 1);
+                    LinphoneAPI.lp_config_set_int(coreConfig, "sip", "keepalive_period", 90000);
+                }
+
+			    LinphoneAPI.linphone_core_enable_keep_alive(linphoneCore, false);
 
 				coreLoop = new Thread(LinphoneMainLoop) {IsBackground = true};
 				coreLoop.Start();
@@ -1567,6 +1572,16 @@ namespace VATRP.Core.Services
                 currentRegistrationState = cstate;
 		        if (RegistrationStateChangedEvent != null)
 		            RegistrationStateChangedEvent(cstate);
+		        switch (cstate)
+		        {
+		            case LinphoneRegistrationState.LinphoneRegistrationOk:
+		                LinphoneAPI.linphone_core_enable_keep_alive(linphoneCore, true);
+		                break;
+		            case LinphoneRegistrationState.LinphoneRegistrationFailed:
+		            case LinphoneRegistrationState.LinphoneRegistrationCleared:
+		                LinphoneAPI.linphone_core_enable_keep_alive(linphoneCore, false);
+		                break;
+		        }
 		    }
         }
 
