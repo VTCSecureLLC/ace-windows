@@ -176,9 +176,13 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 var remote = _viewModel.RemotePartyNumber.Trim();
                 if (remote.NotBlank())
                 {
-                    if (MediaActionHandler.MakeVideoCall(remote))
-                        _viewModel.RemotePartyNumber = "";
-                    e.Handled = true;
+                    if (App.CurrentAccount != null)
+                    {
+                        remote = string.Format("sip:{0}@{1}", remote, App.CurrentAccount.ProxyHostname);
+                        if (MediaActionHandler.MakeVideoCall(remote))
+                            _viewModel.RemotePartyNumber = "";
+                        e.Handled = true;
+                    }
                 }
             }
             catch (Exception ex)
