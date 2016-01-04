@@ -23,6 +23,10 @@ namespace com.vtcsecure.ace.windows.ViewModel
             ServiceManager.Instance.ProviderService.ServiceStarted += OnProvidersListLoaded;
         }
 
+        public void UpdateProvider()
+        {
+            OnProvidersListLoaded(this, EventArgs.Empty);
+        }
 
         private void OnProvidersListLoaded(object sender, EventArgs args)
         {

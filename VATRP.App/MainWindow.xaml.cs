@@ -472,6 +472,7 @@ namespace com.vtcsecure.ace.windows
                     _mainViewModel.IsAccountLogged = true;
                     _mainViewModel.IsDialpadDocked = true;
                     _mainViewModel.IsCallHistoryDocked = true;
+                    _mainViewModel.DialpadModel.UpdateProvider();
                 }
             }
         }
