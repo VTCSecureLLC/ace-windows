@@ -11,7 +11,7 @@
 		mc:Ignorable="d"
 		d:DataContext="{d:DesignData Source=SampleData/MainViewSampleData.xaml}"
 
-		Title="{Binding AppTitle}" SizeToContent="WidthAndHeight" MaxHeight="700" ResizeMode="NoResize"
+		Title="{Binding AppTitle}" SizeToContent="WidthAndHeight" MaxHeight="700" ResizeMode="CanMinimize"
 				   Closing="OnClosing" Closed="OnClosed" 
 				   SourceInitialized="OnSourceInitialized" 
 				   Loaded="OnLoaded"
