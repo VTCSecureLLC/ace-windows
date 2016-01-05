@@ -1514,18 +1514,24 @@ namespace VATRP.Core.Services
                 LOG.Error("UpdateNetworkingParameters: Account is NULL");
                 return false;
             }
-
-            if (account.EnubleSTUN)
+            if (account.EnableSTUN)
             {
                 LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyUseStun);
                 var address = string.Format("{0}:{1}", account.STUNAddress, account.STUNPort);
+                LinphoneAPI.linphone_core_set_stun_server(linphoneCore, address);
+            }
+            else if (account.EnableICE)
+            {
+                LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyUseIce);
+                var address = string.Format("{0}:{1}", account.ICEAddress, account.ICEPort);
                 LinphoneAPI.linphone_core_set_stun_server(linphoneCore, address);
             }
             else
             {
                 LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyNoFirewall);
             }
-            
+            int firewallPolicy = LinphoneAPI.linphone_core_get_firewall_policy(linphoneCore);
+
             return false;
         }
 
@@ -1954,6 +1960,7 @@ namespace VATRP.Core.Services
                 if (call != null)
                 {
                     IntPtr statsPtr = LinphoneAPI.linphone_call_get_video_stats(call.NativeCallPtr);
+
                     if (statsPtr != IntPtr.Zero)
                     {
                         return (LinphoneCallStats) Marshal.PtrToStructure(statsPtr, typeof (LinphoneCallStats));
