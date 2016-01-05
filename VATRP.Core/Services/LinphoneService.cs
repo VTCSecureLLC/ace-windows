@@ -709,7 +709,7 @@ namespace VATRP.Core.Services
 		#endregion
 
 		#region Call
-		public void MakeCall(string destination, bool videoOn, bool rttEnabled, bool muteMicrophone, bool muteSpeaker, string geolocation)
+		public void MakeCall(string destination, bool videoOn, bool rttEnabled, bool muteMicrophone, bool muteSpeaker, bool enableVideo, string geolocation)
 		{
 		    if (callsList.Count > 0)
 		    {
@@ -738,7 +738,7 @@ namespace VATRP.Core.Services
                 if (un == "911")
                     LinphoneAPI.linphone_call_params_add_custom_header(callsDefaultParams, "userLocation", geolocation);
 		    }
-
+            LinphoneAPI.linphone_call_params_enable_video(callsDefaultParams, enableVideo);
 		    var cmd = new CreateCallCommand(callsDefaultParams, destination, rttEnabled, muteMicrophone, muteSpeaker);
 
 		    lock (commandQueue)
@@ -747,7 +747,7 @@ namespace VATRP.Core.Services
 		    }
 		}
 
-		public void AcceptCall(IntPtr callPtr, bool rttEnabled, bool muteMicrophone, bool muteSpeaker)
+		public void AcceptCall(IntPtr callPtr, bool rttEnabled, bool muteMicrophone, bool muteSpeaker, bool enableVideo)
 		{
             if (linphoneCore == IntPtr.Zero)
             {
@@ -780,9 +780,11 @@ namespace VATRP.Core.Services
 		                                    rttEnabled;
 
 		            LinphoneAPI.linphone_call_params_enable_realtime_text(callParamsPtr, remoteRttEnabled);
+                    LinphoneAPI.linphone_call_params_enable_video(callParamsPtr, enableVideo);
 		        }
                 MuteCall(muteMicrophone);
                 MuteSpeaker(muteSpeaker);
+                LinphoneAPI.linphone_call_params_enable_video(callParamsPtr, false);
 
 		        var cmd = new AcceptCallCommand(call.NativeCallPtr, callParamsPtr);
 		        //	LinphoneAPI.linphone_call_params_set_record_file(callsDefaultParams, null);
@@ -1135,15 +1137,32 @@ namespace VATRP.Core.Services
 			};
 
 			var t_videoPolicyPtr = Marshal.AllocHGlobal(Marshal.SizeOf(t_videoPolicy));
-			if (t_videoPolicyPtr != IntPtr.Zero)
+            Marshal.StructureToPtr(t_videoPolicy, t_videoPolicyPtr, false);
+
+            LinphoneVideoPolicy new_videoPolicy = (LinphoneVideoPolicy)Marshal.PtrToStructure(t_videoPolicyPtr, typeof(LinphoneVideoPolicy));
+            Console.WriteLine("before calling core: new_videoPolicy values: new_videoPolicy.automatically_accept=" + new_videoPolicy.automatically_accept.ToString() + " new_videoPolicy.automatically_initiate=" + new_videoPolicy.automatically_initiate);
+
+            if (t_videoPolicyPtr != IntPtr.Zero)
 			{
 
 				LinphoneAPI.linphone_core_enable_video_capture(linphoneCore, enable);
 				LinphoneAPI.linphone_core_enable_video_display(linphoneCore, enable);
 				LinphoneAPI.linphone_core_set_video_policy(linphoneCore, t_videoPolicyPtr);
-				Marshal.FreeHGlobal(t_videoPolicyPtr);
+                Console.WriteLine("linphone_core_set_video_policy sent: t_videoPolicy values: t_videoPolicy.automatically_accept=" + t_videoPolicy.automatically_accept.ToString() + " t_videoPolicy.automatically_initiate=" + t_videoPolicy.automatically_initiate);
+                Marshal.FreeHGlobal(t_videoPolicyPtr);
 			}
-		}
+              
+//            callsDefaultParams = LinphoneAPI.linphone_core_create_call_params(linphoneCore, IntPtr.Zero);
+            LinphoneAPI.linphone_call_params_enable_video(callsDefaultParams, enable);
+            bool test = LinphoneAPI.linphone_call_params_video_enabled(callsDefaultParams);
+
+            // here - if I call linphone_core_get_video_policy it returns a policy with automatically_accept = false, automatically_initiate = true
+            IntPtr testPolicyPtr = LinphoneAPI.linphone_core_get_video_policy(linphoneCore);
+            t_videoPolicy = (LinphoneVideoPolicy)Marshal.PtrToStructure(testPolicyPtr, typeof(LinphoneVideoPolicy));
+
+
+            Console.WriteLine("linphone_core_get_video_policy returns: t_videoPolicy values: t_videoPolicy.automatically_accept=" + t_videoPolicy.automatically_accept.ToString() + " t_videoPolicy.automatically_initiate=" + t_videoPolicy.automatically_initiate);
+        }
 
         // Liz E: needed for unified settings
         public bool IsEchoCancellationEnabled()
