@@ -1138,8 +1138,8 @@ namespace VATRP.Core.Services
 			if (t_videoPolicyPtr != IntPtr.Zero)
 			{
 
-				LinphoneAPI.linphone_core_enable_video_capture(linphoneCore, true);
-				LinphoneAPI.linphone_core_enable_video_display(linphoneCore, true);
+				LinphoneAPI.linphone_core_enable_video_capture(linphoneCore, enable);
+				LinphoneAPI.linphone_core_enable_video_display(linphoneCore, enable);
 				LinphoneAPI.linphone_core_set_video_policy(linphoneCore, t_videoPolicyPtr);
 				Marshal.FreeHGlobal(t_videoPolicyPtr);
 			}
