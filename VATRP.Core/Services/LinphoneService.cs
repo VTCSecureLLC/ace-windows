@@ -612,8 +612,7 @@ namespace VATRP.Core.Services
 
 		    LinphoneAPI.linphone_proxy_config_set_server_addr(proxy_cfg, server_addr);
 
-		    LinphoneAPI.linphone_proxy_config_set_avpf_mode(proxy_cfg,
-    preferences.EnableAVPF ? LinphoneAVPFMode.LinphoneAVPFEnabled : LinphoneAVPFMode.LinphoneAVPFDisabled);
+		    LinphoneAPI.linphone_proxy_config_set_avpf_mode(proxy_cfg, (LinphoneAVPFMode)LinphoneAPI.linphone_core_get_avpf_mode(LinphoneCore));
             LinphoneAPI.linphone_proxy_config_set_avpf_rr_interval(proxy_cfg, 3);
 
 		    string route = preferences.IsOutboundProxyOn ? server_addr : string.Empty;
@@ -1539,14 +1538,16 @@ namespace VATRP.Core.Services
 	    {
 	        if (linphoneCore == IntPtr.Zero)
 	            return;
-
-	        int linphoneAvpfMode = LinphoneAPI.linphone_core_get_avpf_mode(linphoneCore);
-	        if (linphoneAvpfMode != (int) mode)
+            
+            LOG.Info("AVPF mode changed to " + mode);
+            LinphoneAPI.linphone_core_set_avpf_mode(linphoneCore, mode);
+            
+	        if (proxy_cfg != IntPtr.Zero)
 	        {
-                LOG.Info("AVPF mode changed to " + mode);
-	            LinphoneAPI.linphone_core_set_avpf_mode(linphoneCore, mode);
+                LinphoneAPI.linphone_proxy_config_set_avpf_mode(proxy_cfg, mode);
 	        }
-            IntPtr coreConfig = LinphoneAPI.linphone_core_get_config(linphoneCore);
+
+	        IntPtr coreConfig = LinphoneAPI.linphone_core_get_config(linphoneCore);
             if (coreConfig != IntPtr.Zero)
             {
                 LOG.Info("RTCP mode changing to " + rtcpMode);
