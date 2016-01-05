@@ -108,8 +108,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             OutboundProxyLabel.Visibility = visibleSetting;
             OutboundProxyCheckbox.Visibility = visibleSetting;
 
-            AvpfLabel.Visibility = visibleSetting;
-            AvpfCheckbox.Visibility = visibleSetting;
+//            AvpfLabel.Visibility = visibleSetting;
+//            AvpfCheckbox.Visibility = visibleSetting;
 
             PreferencesLabel.Visibility = visibleSetting;
 
