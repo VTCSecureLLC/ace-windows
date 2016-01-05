@@ -31,7 +31,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             if (App.CurrentAccount == null)
                 return;
-            EnableStunCheckBox.IsChecked = App.CurrentAccount.EnubleSTUN;
+            EnableStunCheckBox.IsChecked = App.CurrentAccount.EnableSTUN;
             StunHostnameBox.Text = App.CurrentAccount.STUNAddress;
             StunHostPortBox.Text = App.CurrentAccount.STUNPort.ToString();
         }
@@ -44,7 +44,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 return false;
 
             var enabled = EnableStunCheckBox.IsChecked ?? false;
-            if (enabled != App.CurrentAccount.EnubleSTUN)
+            if (enabled != App.CurrentAccount.EnableSTUN)
                 return true;
 
             if (StunHostnameBox.Text != App.CurrentAccount.STUNAddress)
@@ -84,7 +84,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             }
             App.CurrentAccount.STUNAddress = StunHostnameBox.Text;
             App.CurrentAccount.STUNPort = port;
-            App.CurrentAccount.EnubleSTUN = stunEnabled;
+            App.CurrentAccount.EnableSTUN = stunEnabled;
             return true;
         }
 
