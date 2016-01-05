@@ -63,6 +63,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                         break;
                     }
                 }
+                this.EnableVideoCheckBox.IsChecked = App.CurrentAccount.EnableVideo;
             }
 
             this.EnableRTTCheckBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
@@ -413,8 +414,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             Console.WriteLine("Enable Video Clicked");
             if (App.CurrentAccount != null)
             {
-                bool enabled = EnableVideoCheckBox.IsChecked ?? false;
+                bool enabled = EnableVideoCheckBox.IsChecked ?? true;
                 App.CurrentAccount.EnableVideo = enabled;
+                ServiceManager.Instance.SaveAccountSettings();
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.VideoPolicyChanged);
             }                        
         }

@@ -243,8 +243,9 @@ Default value = 1
             if (enable != App.CurrentAccount.VideoAutomaticallyStart)
             {
                 App.CurrentAccount.VideoAutomaticallyStart = enable;
-                ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
+
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.VideoPolicyChanged);
             }
         }
 
@@ -257,8 +258,9 @@ Default value = 1
             if (enable != App.CurrentAccount.VideoAutomaticallyAccept)
             {
                 App.CurrentAccount.VideoAutomaticallyAccept = enable;
-                ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
+
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.VideoPolicyChanged);
             }
         }
         private void OnShowSelfView(object sender, RoutedEventArgs e)
