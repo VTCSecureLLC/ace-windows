@@ -1118,6 +1118,10 @@ namespace VATRP.Core.Services
 
         public void EnableVideo(bool enable, bool automaticallyInitiate, bool automaticallyAccept)
 		{
+            if ((linphoneCore == null) || (linphoneCore == IntPtr.Zero))
+            {
+                return;
+            }
             // if current account exists and we are enabling video, intialize initiate and accept vars to account. Otherwise go with previous
             //   implementation - based on enable.
             bool autoInitiate = enable;
@@ -1143,6 +1147,11 @@ namespace VATRP.Core.Services
 				LinphoneAPI.linphone_core_set_video_policy(linphoneCore, t_videoPolicyPtr);
 				Marshal.FreeHGlobal(t_videoPolicyPtr);
 			}
+            if ((callsDefaultParams == null) || (callsDefaultParams == IntPtr.Zero))
+            {
+                return;
+            }
+
 		}
 
         // Liz E: needed for unified settings

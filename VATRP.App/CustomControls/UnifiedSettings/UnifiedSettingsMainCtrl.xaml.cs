@@ -414,8 +414,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             if (App.CurrentAccount != null)
             {
                 bool enabled = EnableVideoCheckBox.IsChecked ?? false;
-                App.CurrentAccount.EnableVideo = enabled;
-                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.VideoPolicyChanged);
+                if (App.CurrentAccount.EnableVideo != enabled)
+                {
+                    App.CurrentAccount.EnableVideo = enabled;
+                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.VideoPolicyChanged);
+                }
             }                        
         }
 
