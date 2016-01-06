@@ -28,7 +28,6 @@ namespace VATRP.Core.Services
 		private readonly Preferences preferences;
 		private readonly ServiceManagerBase manager;
 		private IntPtr linphoneCore;
-		private IntPtr callsDefaultParams;
 		private IntPtr proxy_cfg;
 		private IntPtr auth_info;
 		private IntPtr t_configPtr;
@@ -289,10 +288,9 @@ namespace VATRP.Core.Services
 				LinphoneAPI.linphone_core_enable_video_display(linphoneCore, true);
 				LinphoneAPI.linphone_core_enable_video_preview(linphoneCore, false);
 				LinphoneAPI.linphone_core_set_native_preview_window_id(linphoneCore, -1);
-                
-                callsDefaultParams = LinphoneAPI.linphone_core_create_call_params(linphoneCore, IntPtr.Zero);
-                LinphoneAPI.linphone_call_params_enable_video(callsDefaultParams, true);
-                LinphoneAPI.linphone_call_params_enable_early_media_sending(callsDefaultParams, true);
+
+			    LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, 660);
+                LinphoneAPI.linphone_core_set_download_bandwidth(linphoneCore, 660);
 
                 string codeBase = Assembly.GetExecutingAssembly().CodeBase;
                 UriBuilder uri = new UriBuilder(codeBase);
@@ -395,6 +393,9 @@ namespace VATRP.Core.Services
                                             if (ErrorEvent != null)
                                                 ErrorEvent(null, "Cannot create call to " + createCmd.Callee);
                                         }
+
+                                        if (createCmd.CallParamsPtr != IntPtr.Zero)
+                                            LinphoneAPI.linphone_call_params_destroy(createCmd.CallParamsPtr);
                                     }
                                 }
                                     break;
@@ -427,13 +428,6 @@ namespace VATRP.Core.Services
                 }
             }
 
-
-
-            if (callsDefaultParams != IntPtr.Zero)
-            {
-                //Marshal.FreeHGlobal(callsDefaultParams);
-                LinphoneAPI.linphone_call_params_destroy(callsDefaultParams);
-            }
             LinphoneAPI.linphone_core_iterate(linphoneCore); // roll
             
             if (vtablePtr != IntPtr.Zero)
@@ -453,7 +447,7 @@ namespace VATRP.Core.Services
             message_received = null;
             message_status_changed = null;
             call_log_updated = null;
-            linphoneCore = callsDefaultParams = proxy_cfg = auth_info = t_configPtr = IntPtr.Zero;
+            linphoneCore = proxy_cfg = auth_info = t_configPtr = IntPtr.Zero;
             call_stats_updated = null;
             coreLoop = null;
             identity = null;
@@ -728,6 +722,12 @@ namespace VATRP.Core.Services
 					ErrorEvent (null, "Cannot make when Linphone Core is not working.");
 				return;
 			}
+            
+            IntPtr callParams = LinphoneAPI.linphone_core_create_call_params(linphoneCore, IntPtr.Zero);
+            LinphoneAPI.linphone_call_params_set_video_direction(callParams, LinphoneMediaDirection.LinphoneMediaDirectionSendRecv);
+            LinphoneAPI.linphone_call_params_enable_video(callParams, true);
+		    LinphoneAPI.linphone_call_params_set_audio_bandwidth_limit(callParams, 0);
+            LinphoneAPI.linphone_call_params_enable_early_media_sending(callParams, true);
 
             if (geolocation.NotBlank())
 		    {
@@ -736,10 +736,10 @@ namespace VATRP.Core.Services
 		        VATRPCall.ParseSipAddress(destination, out un, out host, out port);
 
                 if (un == "911")
-                    LinphoneAPI.linphone_call_params_add_custom_header(callsDefaultParams, "userLocation", geolocation);
+                    LinphoneAPI.linphone_call_params_add_custom_header(callParams, "userLocation", geolocation);
 		    }
 
-		    var cmd = new CreateCallCommand(callsDefaultParams, destination, rttEnabled, muteMicrophone, muteSpeaker);
+		    var cmd = new CreateCallCommand(callParams, destination, rttEnabled, muteMicrophone, muteSpeaker);
 
 		    lock (commandQueue)
 		    {
@@ -766,11 +766,7 @@ namespace VATRP.Core.Services
 		            return;
 		        }
 
-		        IntPtr callParamsPtr = LinphoneAPI.linphone_core_create_call_params(linphoneCore, callPtr);
-		        if (callParamsPtr == IntPtr.Zero)
-		        {
-		            callParamsPtr = callsDefaultParams;
-		        }
+                IntPtr callParamsPtr = LinphoneAPI.linphone_core_create_call_params(linphoneCore, callPtr);
 
 		        IntPtr callerParams = LinphoneAPI.linphone_call_get_remote_params(call.NativeCallPtr);
 
@@ -1315,6 +1311,31 @@ namespace VATRP.Core.Services
                 {
                     LOG.Info("Set preferred video size by name: " + account.PreferredVideoId);
                     LinphoneAPI.linphone_core_set_preferred_video_size_by_name(linphoneCore, account.PreferredVideoId);
+
+                    int bandwidth = 512;
+                    switch (account.PreferredVideoId)
+                    {
+                        case "720p":
+                            bandwidth = 1024 + 128;
+                            break;
+                        case "svga":
+                            bandwidth = 860;
+                            break;
+                        case "vga":
+                            bandwidth = 660;
+                            break;
+                        case "cif":
+                            bandwidth = 460;
+                            break;
+                        case "qvga":
+                            bandwidth = 410;
+                            break;
+                        case "qcif":
+                            bandwidth = 256;
+                            break;
+                    }
+                    LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, bandwidth);
+                    LinphoneAPI.linphone_core_set_download_bandwidth(linphoneCore, bandwidth);
                 }
             }
 
@@ -1420,7 +1441,7 @@ namespace VATRP.Core.Services
             var h263PtPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, "H263", 90000, -1);
             setFmtpSetting(h263PtPtr, "CIF=1;QCIF=1", "CIF=1;QCIF=1");
             var h264PtPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, "H264", 90000, -1);
-            setFmtpSetting(h264PtPtr, null, "packetization-mode=1");
+            setFmtpSetting(h264PtPtr, null, "packetization-mode=1;profile-level-id=42801F");
         }
         private void setFmtpSetting(IntPtr ptPtr, string sendFmtp, string recvFmtp)
         {
