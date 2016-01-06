@@ -29,13 +29,15 @@ namespace com.vtcsecure.ace.windows.Services
             }
             bool muteMicrophone = false;
             bool muteSpeaker = false;
+            bool enableVideo = true;
             if (App.CurrentAccount != null)
             {
                 muteMicrophone = App.CurrentAccount.MuteMicrophone;
                 muteSpeaker = App.CurrentAccount.MuteSpeaker;
+                enableVideo = App.CurrentAccount.EnableVideo;
             }
             _linphoneService.MakeCall(remoteUri, false, ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.USE_RTT, true), muteMicrophone, muteSpeaker, ServiceManager.Instance.LocationString);
+                Configuration.ConfEntry.USE_RTT, true), muteMicrophone, muteSpeaker, enableVideo, ServiceManager.Instance.LocationString);
         }
 
         internal static bool MakeVideoCall(string remoteUri)
@@ -57,13 +59,16 @@ namespace com.vtcsecure.ace.windows.Services
             }
             bool muteMicrophone = false;
             bool muteSpeaker = false;
+            bool enableVideo = false;
             if (App.CurrentAccount != null)
             {
                 muteMicrophone = App.CurrentAccount.MuteMicrophone;
                 muteSpeaker = App.CurrentAccount.MuteSpeaker;
+                enableVideo = App.CurrentAccount.EnableVideo;
             }
+            // update video policy settings prior to making a call
             _linphoneService.MakeCall(remoteUri, true, ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.USE_RTT, true), muteMicrophone, muteSpeaker, ServiceManager.Instance.LocationString);
+                Configuration.ConfEntry.USE_RTT, true), muteMicrophone, muteSpeaker, enableVideo, ServiceManager.Instance.LocationString);
             return true;
         }
 
