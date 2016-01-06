@@ -31,13 +31,17 @@ namespace com.vtcsecure.ace.windows.CustomControls.Resources
         void ControlLoaded(object sender, RoutedEventArgs e)
         {
             // populate the version labels:
-            System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-            var version = assembly.GetName().Version;
+            //System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            //var version = assembly.GetName().Version;
 
-            AceVersionLabel.Content = string.Format("Version {0}.{1}.{2}", version.Major, version.Minor, version.Build);
+            //AceVersionLabel.Content = string.Format("Version {0}.{1}.{2}", version.Major, version.Minor, version.Build);
 
-            string linphoneLibraryVersion = VATRP.LinphoneWrapper.LinphoneAPI.linphone_core_get_version_asString();
-            LinphoneVersionLabel.Content = string.Format("Core Version {0}", linphoneLibraryVersion);
+            //string linphoneLibraryVersion = VATRP.LinphoneWrapper.LinphoneAPI.linphone_core_get_version_asString();
+            //LinphoneVersionLabel.Content = string.Format("Core Version {0}", linphoneLibraryVersion);
+            AceLabel.Visibility = System.Windows.Visibility.Collapsed;
+            AceVersionLabel.Visibility = System.Windows.Visibility.Collapsed;
+            LinphoneLabel.Visibility = System.Windows.Visibility.Collapsed;
+            LinphoneVersionLabel.Visibility = System.Windows.Visibility.Collapsed;
         }
 
         private void OnTechnicalSupport(object sender, RoutedEventArgs e)

@@ -291,7 +291,7 @@ namespace com.vtcsecure.ace.windows.Services
             }
 
             LinphoneService.LinphoneConfig.Transport = App.CurrentAccount.Transport;
-            LinphoneService.LinphoneConfig.EnableSTUN = App.CurrentAccount.EnubleSTUN;
+            LinphoneService.LinphoneConfig.EnableSTUN = App.CurrentAccount.EnableSTUN;
             LinphoneService.LinphoneConfig.STUNAddress = App.CurrentAccount.STUNAddress;
             LinphoneService.LinphoneConfig.STUNPort = App.CurrentAccount.STUNPort;
             LinphoneService.LinphoneConfig.MediaEncryption = GetMediaEncryptionText(App.CurrentAccount.MediaEncryption);

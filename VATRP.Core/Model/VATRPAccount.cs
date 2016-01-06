@@ -83,13 +83,22 @@ namespace VATRP.Core.Model
         }
 
         [Column]
-        public bool EnubleSTUN { get; set; }
+        public bool EnableSTUN { get; set; }
 
         [Column]
         public string STUNAddress { get; set; }
 
         [Column]
         public ushort STUNPort { get; set; }
+
+        [Column]
+        public bool EnableICE { get; set; }
+
+        [Column]
+        public string ICEAddress { get; set; }
+
+        [Column]
+        public ushort ICEPort { get; set; }
 
         [Column] 
         public bool EnableAVPF { get; set; }

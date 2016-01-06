@@ -134,9 +134,16 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_call_params_enable_video(IntPtr cp, bool enabled);
+        
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_call_params_set_audio_bandwidth_limit(IntPtr cp, int kbit);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool linphone_call_params_video_enabled(IntPtr cp);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_call_params_set_video_direction(IntPtr cp, LinphoneMediaDirection dir);
+
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool linphone_core_in_call(IntPtr lc);
 
@@ -362,6 +369,12 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_core_get_ringback(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_download_bandwidth(IntPtr lc, int bw);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_upload_bandwidth(IntPtr lc, int bw);
 
 /**
  * Specify a ring back tone to be played to far end during incoming calls.
