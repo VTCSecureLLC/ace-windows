@@ -11,6 +11,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -98,7 +99,7 @@ namespace com.vtcsecure.ace.windows
             bool isChecked = BtnRecents.IsChecked ?? false;
             if (isChecked)
             {
-                _mainViewModel.IsDialpadDocked = false;
+                CloseAnimated();
                 _mainViewModel.IsContactDocked = false;
                 _mainViewModel.IsSettingsDocked = false;
                 _mainViewModel.IsResourceDocked = false;
@@ -112,7 +113,7 @@ namespace com.vtcsecure.ace.windows
             bool isChecked = BtnContacts.IsChecked ?? false;
             if (isChecked)
             {
-                _mainViewModel.IsDialpadDocked = false;
+                CloseAnimated();
                 _mainViewModel.IsCallHistoryDocked = false;
                 _mainViewModel.IsSettingsDocked = false;
                 _mainViewModel.IsResourceDocked = false;
@@ -139,6 +140,10 @@ namespace com.vtcsecure.ace.windows
         {
             //ToggleWindow(_dialpadBox);
             _mainViewModel.IsDialpadDocked = BtnDialpad.IsChecked ?? false;
+            if (_mainViewModel.IsDialpadDocked)
+                OpenAnimated();
+            else
+                CloseAnimated();
         }
 
         private void btnShowResources(object sender, RoutedEventArgs e)
@@ -146,7 +151,7 @@ namespace com.vtcsecure.ace.windows
             bool isChecked = BtnResourcesView.IsChecked ?? false;
             if (isChecked)
             {
-                _mainViewModel.IsDialpadDocked = false;
+                CloseAnimated();
                 _mainViewModel.IsCallHistoryDocked = false;
                 _mainViewModel.IsContactDocked = false;
                 _mainViewModel.IsSettingsDocked = false;
@@ -161,7 +166,7 @@ namespace com.vtcsecure.ace.windows
             bool isChecked = BtnSettings.IsChecked ?? false;
             if (isChecked)
             {
-                _mainViewModel.IsDialpadDocked = false;
+                CloseAnimated();
                 _mainViewModel.IsCallHistoryDocked = false;
                 _mainViewModel.IsContactDocked = false;
                 _mainViewModel.IsResourceDocked = false;
@@ -450,6 +455,7 @@ namespace com.vtcsecure.ace.windows
             ctrlContacts.MakeCallRequested += OnMakeCallRequested;
             ctrlCall.KeypadCtrl = _keypadCtrl;
             ctrlDialpad.KeypadPressed += OnDialpadClicked;
+            _mainViewModel.DialpadHeight = ctrlDialpad.ActualHeight;
 
             // Liz E. - ToDo unified Settings
             ctrlSettings.AccountChangeRequested += OnAccountChangeRequested;
@@ -470,7 +476,7 @@ namespace com.vtcsecure.ace.windows
                 {
                     _mainViewModel.OfferServiceSelection = false;
                     _mainViewModel.IsAccountLogged = true;
-                    _mainViewModel.IsDialpadDocked = true;
+                    OpenAnimated();
                     _mainViewModel.IsCallHistoryDocked = true;
                 }
             }
@@ -548,7 +554,7 @@ namespace com.vtcsecure.ace.windows
                     _mainViewModel.ActivateWizardPage = true;
 
                     _mainViewModel.IsAccountLogged = false;
-                    _mainViewModel.IsDialpadDocked = false;
+                    CloseAnimated();
                     _mainViewModel.IsCallHistoryDocked = false;
                     _mainViewModel.IsContactDocked = false;
                     _mainViewModel.IsMessagingDocked = false;
@@ -570,7 +576,7 @@ namespace com.vtcsecure.ace.windows
 
         private void OnMyAccount(object sender, RoutedEventArgs e)
         {
-            _mainViewModel.IsDialpadDocked = false;
+            CloseAnimated();
             _mainViewModel.IsCallHistoryDocked = false;
             _mainViewModel.IsContactDocked = false;
             _mainViewModel.IsResourceDocked = false;
@@ -720,6 +726,46 @@ namespace com.vtcsecure.ace.windows
             {
                 MediaActionHandler.MakeVideoCall(resourceInfo.address);
             }
+        }
+
+        public bool IsSliding { get; set; }
+		
+        private void SlideDownCompleted(object sender, EventArgs e)
+        {
+            IsSliding = false;
+            _mainViewModel.DialpadHeight = 1;
+        }
+
+        private void SlideUpCompleted(object sender, EventArgs e)
+        {
+            IsSliding = false;
+            _mainViewModel.DialpadHeight = ctrlDialpad.ActualHeight;
+        }
+
+        public void OpenAnimated()
+        {
+            if (IsSliding )
+                return;
+            IsSliding = true;
+            _mainViewModel.DialpadHeight = 1;
+            _mainViewModel.IsDialpadDocked = true;
+            var s = (Storyboard)Resources["SlideUpAnimation"];
+
+            if (s != null)
+            {
+                s.Begin();
+            }
+        }
+
+        public void CloseAnimated()
+        {
+            if (IsSliding )
+                return;
+            IsSliding = true;
+            _mainViewModel.DialpadHeight = 1;
+            _mainViewModel.IsDialpadDocked = false;
+            var s = (Storyboard)Resources["SlideDownAnimation"];
+            if (s != null) s.Begin();
         }
     }
 }

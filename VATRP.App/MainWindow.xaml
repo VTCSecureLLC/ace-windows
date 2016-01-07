@@ -24,8 +24,17 @@
 	<model:VATRPWindow.Resources>
 		<conv:BoolToVisibilityConverter x:Key="bvc"/>
 		<conv:BoolToVisibilityConverter x:Key="ibvc" OppositeBooleanValue="True"/>
-	</model:VATRPWindow.Resources>
-	<Grid x:Name="LayoutGrid" Background="{DynamicResource AppMainWindowBrush}">
+        <Storyboard x:Key="SlideUpAnimation" BeginTime="0:0:0.1" Completed="SlideUpCompleted">
+            <DoubleAnimation Storyboard.TargetName="DialpadTransform" Storyboard.TargetProperty="Y" To="0"  
+                                 Duration="0:0:0.2" AccelerationRatio="0.7" DecelerationRatio="0.3"/>
+        </Storyboard>
+        <Storyboard x:Key="SlideDownAnimation" BeginTime="0:0:0.1" Completed="SlideDownCompleted">
+            <DoubleAnimation Storyboard.TargetName="DialpadTransform" Storyboard.TargetProperty="Y" To="350" 
+                                 Duration="0:0:0.2" AccelerationRatio="0.7" DecelerationRatio="0.3"/>
+        </Storyboard>
+    </model:VATRPWindow.Resources>
+
+    <Grid x:Name="LayoutGrid" Background="{DynamicResource AppMainWindowBrush}">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="Auto"/>
 			<ColumnDefinition Width="Auto"/>
@@ -136,12 +145,24 @@
                 <resourceControls:ResourcePanel x:Name="ctrlResource"  Margin="0" VerticalAlignment="Stretch"/>
             </Border>
 
-            <Grid x:Name="DialpadHolder" Grid.Row="2" Grid.Column="0" Background="{StaticResource AppMainWindowBrush}"
-		Visibility="{Binding IsDialpadDocked, Converter={StaticResource bvc}}" Height="Auto">
-                <customControls:DialPadScreen x:Name="ctrlDialpad" Margin="0"/>
+            <Grid x:Name="DialpadBackground" Grid.Row="2" Grid.Column="0" Height="{Binding DialpadHeight}"/>
+        </Grid>
+
+        <Grid x:Name="DialpadViewHolder" Grid.Row="1" Grid.Column="0" Visibility="{Binding IsAccountLogged, Converter={StaticResource bvc}}" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid x:Name="DialpadHolder" Grid.Row="1" Grid.Column="0" VerticalAlignment="Bottom"
+		 Height="Auto">
+                <Grid.RenderTransform>
+                    <TranslateTransform x:Name="DialpadTransform" Y="350"/>
+                </Grid.RenderTransform>
+                <customControls:DialPadScreen x:Name="ctrlDialpad" Margin="0" />
             </Grid>
         </Grid>
-        
+
         <!--Navigation panel-->
 		<Grid x:Name="NavPanel" Margin="0" Grid.Row="3" Grid.Column="0" Visibility="{Binding IsAccountLogged, Converter={StaticResource bvc}}" Height="50" Background="{StaticResource AppMainWindowBrush}">
 			<Grid.ColumnDefinitions>

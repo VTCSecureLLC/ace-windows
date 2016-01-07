@@ -565,7 +565,7 @@ namespace com.vtcsecure.ace.windows
 
                 signOutRequest = false;
                 _mainViewModel.IsAccountLogged = false;
-                _mainViewModel.IsDialpadDocked = false;
+                CloseAnimated();
                 _mainViewModel.IsCallHistoryDocked = false;
                 _mainViewModel.IsContactDocked = false;
                 _mainViewModel.IsMessagingDocked = false;
@@ -607,7 +607,7 @@ namespace com.vtcsecure.ace.windows
 				App.CurrentAccount.ProxyHostname,
 				App.CurrentAccount.ProxyPort));
 
-			_mainViewModel.IsDialpadDocked = true;
+			OpenAnimated();
 			_mainViewModel.IsCallHistoryDocked = true;
 			_mainViewModel.IsAccountLogged = true;
 			ServiceManager.Instance.UpdateLoggedinContact();
