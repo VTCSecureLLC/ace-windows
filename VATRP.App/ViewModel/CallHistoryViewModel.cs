@@ -222,7 +222,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     if (callModel.DisplayName.ToLower().Contains(EventSearchCriteria.ToLower()))
                         return true;
                 }
-                return callModel.CallEvent != null && callModel.CallEvent.RemoteParty.ToLower().Contains(EventSearchCriteria.ToLower());
+                return callModel.CallEvent != null && callModel.CallEvent.Username.ToLower().Contains(EventSearchCriteria.ToLower());
             }
             return true;
         }
