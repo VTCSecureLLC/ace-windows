@@ -180,7 +180,11 @@ namespace com.vtcsecure.ace.windows
 					_flashWindowHelper.StopFlashing();
 					stopPlayback = true;
 					callViewModel.ShowOutgoingEndCall = false;
-					
+			        callViewModel.IsRTTEnabled =
+			            ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+			                Configuration.ConfEntry.USE_RTT, true) && callViewModel.ActiveCall != null &&
+			            _linphoneService.IsRttEnabled(callViewModel.ActiveCall.NativeCallPtr);
+
 					ShowCallOverlayWindow(true);
                     ShowOverlayNewCallWindow(false);
 					ctrlCall.ctrlOverlay.SetCallerInfo(callViewModel.CallerInfo);
