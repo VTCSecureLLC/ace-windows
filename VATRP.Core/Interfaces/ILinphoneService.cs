@@ -9,6 +9,8 @@ namespace VATRP.Core.Interfaces
 {
     public interface ILinphoneService : IVATRPservice
     {
+        #region Events
+
         event LinphoneService.GlobalStateChangedDelegate GlobalStateChangedEvent;
         event LinphoneService.RegistrationStateChangedDelegate RegistrationStateChangedEvent;
         event LinphoneService.CallStateChangedDelegate CallStateChangedEvent;
@@ -19,11 +21,21 @@ namespace VATRP.Core.Interfaces
         event LinphoneService.OnMessageReceivedDelegate OnChatMessageReceivedEvent;
         event LinphoneService.OnMessageStatusChangedDelegate OnChatMessageStatusChangedEvent;
         event LinphoneService.OnCallLogUpdatedDelegate OnLinphoneCallLogUpdatedEvent;
+
+        #endregion
+
+        #region Properties
+
         LinphoneService.Preferences LinphoneConfig { get; }
         bool IsStarting { get; }
         bool IsStarted { get; }
         bool IsStopping { get; }
         bool IsStopped { get; }
+
+        #endregion
+
+        #region Methods
+
         bool Start(bool enableLogs);
         void LockCalls();
         void UnlockCalls();
@@ -40,6 +52,7 @@ namespace VATRP.Core.Interfaces
         bool TerminateCall(IntPtr callPtr);
         void ResumeCall(IntPtr callPtr);
         void PauseCall(IntPtr callPtr);
+        bool IsRttEnabled(IntPtr callPtr);
         void AcceptRTTProposition(IntPtr callPtr);
         void SendRTTProposition(IntPtr callPtr);
 
@@ -98,6 +111,9 @@ namespace VATRP.Core.Interfaces
         List<VATRPDevice> GetAvailableSpeakers();
         void SetSpeakers(string deviceId);
         VATRPDevice GetSelectedSpeakers();
+
+        #endregion
+
 
     }
 }
