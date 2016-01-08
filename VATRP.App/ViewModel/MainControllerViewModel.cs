@@ -246,6 +246,14 @@ namespace com.vtcsecure.ace.windows.ViewModel
         #endregion
 
         #region Calls management
+        internal int GetCallCount()
+        {
+            if (CallsViewModelList != null)
+            {
+                return CallsViewModelList.Count;
+            }
+            return 0;
+        }
 
         internal CallViewModel FindCallViewModel(VATRPCall call)
         {

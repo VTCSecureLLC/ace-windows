@@ -216,10 +216,6 @@ namespace com.vtcsecure.ace.windows
 					ctrlCall.AddVideoControl();
                     ctrlCall.RestartInactivityDetectionTimer();
 			        ctrlCall.UpdateVideoSettingsIfOpen();
-                    // VATRP-1623: we are setting mute microphone true prior to initiating a call, but the call is always started
-                    //   with the mic enabled. attempting to mute right after call is connected here to side step this issue - 
-                    //   it appears to be an initialization issue in linphone
-                    ServiceManager.Instance.ApplyMediaSettingsChanges();
 
 //                    MuteCall(createCmd.MuteMicrophone);
 //                    MuteSpeaker(createCmd.MuteSpeaker);
@@ -228,7 +224,14 @@ namespace com.vtcsecure.ace.windows
 				case VATRPCallState.StreamsRunning:
 					callViewModel.OnStreamRunning();
                     ShowCallOverlayWindow(true);
-					ctrlCall.ctrlOverlay.SetCallState("Connected");
+                    // VATRP-1623: we are setting mute microphone true prior to initiating a call, but the call is always started
+                    //   with the mic enabled. attempting to mute right after call is connected here to side step this issue - 
+                    //   it appears to be an initialization issue in linphone
+                    if (_mainViewModel.GetCallCount() == 1)
+                    {
+                        ServiceManager.Instance.ApplyMediaSettingsChanges();
+                    }
+                    ctrlCall.ctrlOverlay.SetCallState("Connected");
 			        ctrlCall.UpdateControls();
                     ctrlCall.ctrlOverlay.ForegroundCallDuration = _mainViewModel.ActiveCallModel.CallDuration;
                     ctrlCall.RestartInactivityDetectionTimer();
