@@ -163,7 +163,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             SaveStates();
         }
 
-        private void AcceptCall(object sender, RoutedEventArgs e)
+        public void AcceptCall(object sender, RoutedEventArgs e)
         {
             if (_parentViewModel != null)
                 _parentViewModel.AcceptCall(_viewModel);
