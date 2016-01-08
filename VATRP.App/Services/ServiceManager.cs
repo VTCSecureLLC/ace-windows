@@ -295,11 +295,7 @@ namespace com.vtcsecure.ace.windows.Services
             LinphoneService.LinphoneConfig.STUNAddress = App.CurrentAccount.STUNAddress;
             LinphoneService.LinphoneConfig.STUNPort = App.CurrentAccount.STUNPort;
             LinphoneService.LinphoneConfig.MediaEncryption = GetMediaEncryptionText(App.CurrentAccount.MediaEncryption);
-#if !DEBUG
-            LinphoneService.LinphoneConfig.EnableAVPF = true;
-#else
             LinphoneService.LinphoneConfig.EnableAVPF = App.CurrentAccount.EnableAVPF;
-#endif
             LOG.Info("Linphone service configured for account: " + App.CurrentAccount.RegistrationUser);
             return true;
         }
