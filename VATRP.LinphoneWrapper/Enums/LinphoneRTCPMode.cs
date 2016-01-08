@@ -8,8 +8,8 @@ namespace VATRP.LinphoneWrapper.Enums
 {
     public enum LinphoneRTCPMode
     {
-        LinphoneAVPFDefault = -1, // Use default value defined at upper level
-        LinphoneAVPFDisabled = 0, // RTCP is disabled
-        LinphoneAVPFEnabled = 1 // RTCP is enabled 
+        LinphoneRTCPDefault = -1, // Use default value defined at upper level
+        LinphoneRTCPDisabled = 0, // RTCP is disabled
+        LinphoneRTCPEnabled = 1 // RTCP is enabled 
     }
 }
