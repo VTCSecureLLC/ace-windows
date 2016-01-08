@@ -242,7 +242,7 @@ namespace com.vtcsecure.ace.windows
                     callViewModel.CallState = VATRPCallState.RemotePaused;
                     ShowCallOverlayWindow(true);
                     ctrlCall.ctrlOverlay.SetCallerInfo(callViewModel.CallerInfo);
-                    ctrlCall.ctrlOverlay.SetCallState("Connected");
+                    ctrlCall.ctrlOverlay.SetCallState("On Hold");
                     ctrlCall.UpdateControls();
 					break;
                 case VATRPCallState.LocalPausing:
