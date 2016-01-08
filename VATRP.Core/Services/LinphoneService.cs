@@ -729,7 +729,7 @@ namespace VATRP.Core.Services
             
             IntPtr callParams = LinphoneAPI.linphone_core_create_call_params(linphoneCore, IntPtr.Zero);
             LinphoneAPI.linphone_call_params_set_video_direction(callParams, LinphoneMediaDirection.LinphoneMediaDirectionSendRecv);
-            LinphoneAPI.linphone_call_params_enable_video(callParams, true);
+            LinphoneAPI.linphone_call_params_enable_video(callParams, enableVideo);
 		    LinphoneAPI.linphone_call_params_set_audio_bandwidth_limit(callParams, 0);
             LinphoneAPI.linphone_call_params_enable_early_media_sending(callParams, true);
 
@@ -742,8 +742,8 @@ namespace VATRP.Core.Services
                 if (un == "911")
                     LinphoneAPI.linphone_call_params_add_custom_header(callParams, "userLocation", geolocation);
 		    }
-            LinphoneAPI.linphone_call_params_enable_video(callParams, enableVideo);
-		    var cmd = new CreateCallCommand(callParams, destination, rttEnabled, muteMicrophone, muteSpeaker);
+
+            var cmd = new CreateCallCommand(callParams, destination, rttEnabled, muteMicrophone, muteSpeaker);
 
 		    lock (commandQueue)
 		    {
@@ -784,7 +784,6 @@ namespace VATRP.Core.Services
 		        }
                 MuteCall(muteMicrophone);
                 MuteSpeaker(muteSpeaker);
-                LinphoneAPI.linphone_call_params_enable_video(callParamsPtr, false);
 
 		        var cmd = new AcceptCallCommand(call.NativeCallPtr, callParamsPtr);
 		        //	LinphoneAPI.linphone_call_params_set_record_file(callsDefaultParams, null);
