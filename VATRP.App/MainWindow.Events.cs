@@ -180,11 +180,7 @@ namespace com.vtcsecure.ace.windows
 					_flashWindowHelper.StopFlashing();
 					stopPlayback = true;
 					callViewModel.ShowOutgoingEndCall = false;
-			        callViewModel.IsRTTEnabled =
-			            ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-			                Configuration.ConfEntry.USE_RTT, true) && callViewModel.ActiveCall != null &&
-			            _linphoneService.IsRttEnabled(callViewModel.ActiveCall.NativeCallPtr);
-
+					
 					ShowCallOverlayWindow(true);
                     ShowOverlayNewCallWindow(false);
 					ctrlCall.ctrlOverlay.SetCallerInfo(callViewModel.CallerInfo);
@@ -216,10 +212,6 @@ namespace com.vtcsecure.ace.windows
 					ctrlCall.AddVideoControl();
                     ctrlCall.RestartInactivityDetectionTimer();
 			        ctrlCall.UpdateVideoSettingsIfOpen();
-                    // VATRP-1623: we are setting mute microphone true prior to initiating a call, but the call is always started
-                    //   with the mic enabled. attempting to mute right after call is connected here to side step this issue - 
-                    //   it appears to be an initialization issue in linphone
-                    ServiceManager.Instance.ApplyMediaSettingsChanges();
 
 //                    MuteCall(createCmd.MuteMicrophone);
 //                    MuteSpeaker(createCmd.MuteSpeaker);
@@ -229,7 +221,14 @@ namespace com.vtcsecure.ace.windows
 					callViewModel.OnStreamRunning();
                     ShowCallOverlayWindow(true);
 					ctrlCall.ctrlOverlay.SetCallState("Connected");
-			        ctrlCall.UpdateControls();
+                    // VATRP-1623: we are setting mute microphone true prior to initiating a call, but the call is always started
+                    //   with the mic enabled. attempting to mute right after call is connected here to side step this issue - 
+                    //   it appears to be an initialization issue in linphone
+                    //if (_mainViewModel.GetCallCount() == 1) // we do not want to do this if we are already in a call - it will cause a crash. Behavior appears good 
+                   // {
+                   //     ServiceManager.Instance.ApplyMediaSettingsChanges();
+                    //}
+                    ctrlCall.UpdateControls();
                     ctrlCall.ctrlOverlay.ForegroundCallDuration = _mainViewModel.ActiveCallModel.CallDuration;
                     ctrlCall.RestartInactivityDetectionTimer();
 			        ctrlCall.UpdateVideoSettingsIfOpen();
@@ -569,7 +568,7 @@ namespace com.vtcsecure.ace.windows
 
                 signOutRequest = false;
                 _mainViewModel.IsAccountLogged = false;
-                CloseAnimated();
+                _mainViewModel.IsDialpadDocked = false;
                 _mainViewModel.IsCallHistoryDocked = false;
                 _mainViewModel.IsContactDocked = false;
                 _mainViewModel.IsMessagingDocked = false;
@@ -611,10 +610,9 @@ namespace com.vtcsecure.ace.windows
 				App.CurrentAccount.ProxyHostname,
 				App.CurrentAccount.ProxyPort));
 
-			OpenAnimated();
+			_mainViewModel.IsDialpadDocked = true;
 			_mainViewModel.IsCallHistoryDocked = true;
 			_mainViewModel.IsAccountLogged = true;
-            _mainViewModel.DialpadModel.UpdateProvider();
 			ServiceManager.Instance.UpdateLoggedinContact();
 		    ServiceManager.Instance.StartupLinphoneCore();
 		}
