@@ -505,15 +505,15 @@ namespace com.vtcsecure.ace.windows.Services
             //    eg - is there something that happens if we want rtcp off and avpf on?
             if (rtcpFeedback.Equals("Off"))
             {
-                LinphoneService.SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFDisabled, LinphoneRTCPMode.LinphoneAVPFDisabled);
+                LinphoneService.SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFDisabled, LinphoneRTCPMode.LinphoneRTCPDisabled);
             }
             else if (rtcpFeedback.Equals("Implicit"))
             {
-                LinphoneService.SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFDisabled, LinphoneRTCPMode.LinphoneAVPFEnabled);
+                LinphoneService.SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFDisabled, LinphoneRTCPMode.LinphoneRTCPEnabled);
             }
             else if (rtcpFeedback.Equals("Explicit"))
             {
-                LinphoneService.SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFEnabled, LinphoneRTCPMode.LinphoneAVPFEnabled);
+                LinphoneService.SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFEnabled, LinphoneRTCPMode.LinphoneRTCPEnabled);
             }
             // commenting this in case we need somethinghere from the compiler debug statement
 
