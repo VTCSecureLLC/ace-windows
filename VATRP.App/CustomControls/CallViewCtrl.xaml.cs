@@ -32,6 +32,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
         private bool _showControlsOnTimeout = false;
         private bool restoreVisibilityStates = false;
         private System.Drawing.Point _lastMousePosition;
+        private bool _inactivityTimerStopped;
+
         #endregion
 
         #region Properties
@@ -219,6 +221,17 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         private void OnToggleRTT(object sender, RoutedEventArgs e)
         {
+            if (!_viewModel.IsRTTEnabled)
+            {
+                _inactivityTimerStopped = true;
+                _mouseInactivityTimer.Stop();
+                MessageBox.Show("RTT has been disabled for this call", "ACE", MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                RestartInactivityDetectionTimer();
+                BtnRTT.IsChecked = false;
+                return;
+            }
+
             if (RttToggled != null)
                 RttToggled(BtnRTT.IsChecked ?? false);
             SaveStates();
@@ -299,7 +312,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             _viewModel.IsMuteOn = _viewModel.SavedIsMuteOn;
             _viewModel.IsSpeakerOn = _viewModel.SavedIsSpeakerOn;
             _viewModel.IsNumpadOn = _viewModel.SavedIsNumpadOn;
-            _viewModel.IsRttOn = _viewModel.SavedIsRttOn;
+            _viewModel.IsRttOn = _viewModel.SavedIsRttOn && _viewModel.IsRTTEnabled;
             _viewModel.IsCallInfoOn = _viewModel.SavedIsInfoOn;
             _viewModel.IsCallOnHold = _viewModel.SavedIsCallHoldOn;
         }
@@ -557,7 +570,10 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 if (restoreVisibilityStates)
                 {
                     if (_mouseInactivityTimer.IsEnabled)
+                    {
+                        _inactivityTimerStopped = true;
                         _mouseInactivityTimer.Stop();
+                    }
                 }
                 return;
             }
@@ -591,8 +607,13 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         private void OnMouseInactivityTimer(object sender, EventArgs e)
         {
-           // Debug.WriteLine("OnMouseActivity Timeout: Restore Visibility = " + restoreVisibilityStates);
             _mouseInactivityTimer.Stop();
+
+            if (_inactivityTimerStopped)
+            {
+                Debug.WriteLine("Inactivity timer stopped. Do not process ");
+                return;
+            }
 
             if (!restoreVisibilityStates)
             {
@@ -613,9 +634,13 @@ namespace com.vtcsecure.ace.windows.CustomControls
             if (_mouseInactivityTimer != null)
             {
                 if (_mouseInactivityTimer.IsEnabled)
+                {
+                    _inactivityTimerStopped = true;
                     _mouseInactivityTimer.Stop();
+                }
 
                 _mouseInactivityTimer.Start();
+                _inactivityTimerStopped = false;
             }
         }
     }

@@ -1212,7 +1212,7 @@ namespace VATRP.LinphoneWrapper
         public static extern int linphone_call_params_enable_realtime_text(IntPtr cp, bool yesno);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_call_params_realtime_text_enabled(IntPtr cp);
+        public static extern byte linphone_call_params_realtime_text_enabled(IntPtr cp);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]

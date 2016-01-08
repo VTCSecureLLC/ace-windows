@@ -776,7 +776,7 @@ namespace VATRP.Core.Services
 
 		        if (callerParams != IntPtr.Zero)
 		        {
-		            bool remoteRttEnabled = LinphoneAPI.linphone_call_params_realtime_text_enabled(callerParams) &
+		            bool remoteRttEnabled = LinphoneAPI.linphone_call_params_realtime_text_enabled(callerParams)!=0  &&
 		                                    rttEnabled;
 
 		            LinphoneAPI.linphone_call_params_enable_realtime_text(callParamsPtr, remoteRttEnabled);
@@ -972,6 +972,17 @@ namespace VATRP.Core.Services
 		#endregion
 
         #region Messaging
+
+        public bool IsRttEnabled(IntPtr callPtr)
+        {
+            if (callPtr == IntPtr.Zero)
+                return false;
+
+            IntPtr callerParams = LinphoneAPI.linphone_call_get_remote_params(callPtr);
+
+            return callerParams != IntPtr.Zero && LinphoneAPI.linphone_call_params_realtime_text_enabled(callerParams) != 0;
+        }
+
         public void AcceptRTTProposition(IntPtr callPtr)
         {
             if (linphoneCore == IntPtr.Zero)

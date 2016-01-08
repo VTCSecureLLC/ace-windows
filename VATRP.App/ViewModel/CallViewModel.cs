@@ -45,6 +45,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _isSpeakerOn;
         private bool _isNumpadOn;
         private bool _isRttOn;
+        private bool _isRttEnabled;
         private bool _isInfoOn;
         private bool _isCallOnHold;
         private int _videoWidth;
@@ -359,7 +360,17 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 OnPropertyChanged("IsRttOn");
             }
         }
-
+		
+        public bool IsRTTEnabled
+        {
+            get { return _isRttEnabled; }
+            set
+            {
+                _isRttEnabled = value;
+                OnPropertyChanged("IsRTTEnabled");
+            }
+        }
+		
         public bool IsCallInfoOn
         {
             get { return _isInfoOn; }
