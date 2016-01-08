@@ -614,6 +614,7 @@ namespace com.vtcsecure.ace.windows
 			_mainViewModel.IsDialpadDocked = true;
 			_mainViewModel.IsCallHistoryDocked = true;
 			_mainViewModel.IsAccountLogged = true;
+            _mainViewModel.DialpadModel.UpdateProvider();
 			ServiceManager.Instance.UpdateLoggedinContact();
 		    ServiceManager.Instance.StartupLinphoneCore();
 		}
