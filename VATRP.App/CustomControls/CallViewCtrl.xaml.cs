@@ -282,7 +282,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             }
         }
 
-        private void HoldAndAcceptCall(object sender, RoutedEventArgs e)
+        public void HoldAndAcceptCall(object sender, RoutedEventArgs e)
         {
             if (_parentViewModel != null)
                 _parentViewModel.AcceptCall(_viewModel);

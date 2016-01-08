@@ -736,13 +736,20 @@ namespace com.vtcsecure.ace.windows
         private void OnAppKeyUp(object sender, KeyEventArgs e)
         {
             if (_linphoneService != null && (_mainViewModel != null && _mainViewModel.ActiveCallModel != null && 
-                                             _mainViewModel.ActiveCallModel.CallState == VATRPCallState.InProgress &&
-                                             (_linphoneService.GetActiveCallsCount == 1)))
+                                             _mainViewModel.ActiveCallModel.CallState == VATRPCallState.InProgress ))
             {
                 if (e.Key == Key.Enter && !e.IsRepeat)
                 {
-                    // Accept incoming call
-                    ctrlCall.AcceptCall(this, null);
+                    if (_linphoneService.GetActiveCallsCount == 1)
+                    {
+                        // Accept incoming call
+                        ctrlCall.AcceptCall(this, null);
+                    }
+                    else if (_linphoneService.GetActiveCallsCount == 2)
+                    {
+                        // Hold/Accept incoming call
+                        ctrlCall.HoldAndAcceptCall(this, null);
+                    }
                 }
             }
         }
