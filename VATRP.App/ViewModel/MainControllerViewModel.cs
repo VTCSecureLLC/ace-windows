@@ -22,6 +22,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _isCallPanelDocked;
         private bool _offerServiceSelection;
         private bool _activateWizardPage;
+        private double _dialpadHeight;
 
         private DialpadViewModel _dialPadViewModel;
         private CallHistoryViewModel _historyViewModel;
@@ -55,6 +56,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _settingsViewModel = new SettingsViewModel();
             _callsViewModelList = new ObservableCollection<CallViewModel>();
             _linphoneService = ServiceManager.Instance.LinphoneService;
+            _dialpadHeight = 350;
         }
 
         #region Properties
@@ -231,9 +233,27 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
+        public double DialpadHeight
+        {
+            get { return _dialpadHeight; }
+            set
+            {
+                _dialpadHeight = value; 
+                OnPropertyChanged("DialpadHeight");
+            }
+        }
+
         #endregion
 
         #region Calls management
+        internal int GetCallCount()
+        {
+            if (CallsViewModelList != null)
+            {
+                return CallsViewModelList.Count;
+            }
+            return 0;
+        }
 
         internal CallViewModel FindCallViewModel(VATRPCall call)
         {
