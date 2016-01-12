@@ -667,8 +667,13 @@ namespace com.vtcsecure.ace.windows.ViewModel
             ShowOutgoingEndCall = false;
             CallState = VATRPCallState.InProgress;
 //#if DEBUG
+            bool isUserAgent = false;
+            if (App.CurrentAccount != null)
+            {
+                isUserAgent = App.CurrentAccount.UserNeedsAgentView;
+            }
             if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.AUTO_ANSWER, false))
+                Configuration.ConfEntry.AUTO_ANSWER, false) || isUserAgent)
             {
                 if (autoAnswerTimer != null)
                 {

@@ -236,6 +236,11 @@ namespace com.vtcsecure.ace.windows
                     ctrlCall.ctrlOverlay.ForegroundCallDuration = _mainViewModel.ActiveCallModel.CallDuration;
                     ctrlCall.RestartInactivityDetectionTimer();
 			        ctrlCall.UpdateVideoSettingsIfOpen();
+                    // VATRP-1899
+                    if ((App.CurrentAccount != null) && App.CurrentAccount.UserNeedsAgentView)
+                    {
+                        _mainViewModel.IsMessagingDocked = true;
+                    }
 					break;
 				case VATRPCallState.RemotePaused:
 			        callViewModel.OnRemotePaused();
@@ -605,19 +610,47 @@ namespace com.vtcsecure.ace.windows
 			defaultConfigRequest = false;
 		}
 
+        // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
+        private void SetToUserAgentView(bool isUserAgent)
+        {
+            System.Windows.Visibility visibility = System.Windows.Visibility.Visible;
+
+            if (isUserAgent)
+            {
+                visibility = System.Windows.Visibility.Collapsed; 
+            }
+            // for the agent view, we want to hide all navigation buttons except the settings button.
+            // we want to ensure that auto answer is set to true.
+            this.BtnContacts.Visibility = visibility;
+            this.BtnDialpad.Visibility = visibility;
+            this.BtnRecents.Visibility = visibility;
+            this.BtnResourcesView.Visibility = visibility;
+            this.BtnSettings.Visibility = System.Windows.Visibility.Visible;
+            // configure the other settings that we need for user agent:
+        }
+
 		private void OnNewAccountRegistered(string accountId)
 		{
 		    _mainViewModel.OfferServiceSelection = false;
 		    _mainViewModel.ActivateWizardPage = false;
-			LOG.Info(string.Format( "New account registered. Useaname -{0}. Host - {1} Port - {2}",
+			LOG.Info(string.Format( "New account registered. Username -{0}. Host - {1} Port - {2}",
 				App.CurrentAccount.RegistrationUser,
 				App.CurrentAccount.ProxyHostname,
 				App.CurrentAccount.ProxyPort));
 
 			OpenAnimated();
-			_mainViewModel.IsCallHistoryDocked = true;
-			_mainViewModel.IsAccountLogged = true;
-            _mainViewModel.DialpadModel.UpdateProvider();
+            // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
+            if ((App.CurrentAccount != null) && (!App.CurrentAccount.UserNeedsAgentView))
+            {
+			    _mainViewModel.IsCallHistoryDocked = true;
+			    _mainViewModel.IsAccountLogged = true;
+                _mainViewModel.DialpadModel.UpdateProvider();
+                SetToUserAgentView(false);
+            }
+            else
+            {
+                SetToUserAgentView(true);
+            }
 			ServiceManager.Instance.UpdateLoggedinContact();
 		    ServiceManager.Instance.StartupLinphoneCore();
 		}
