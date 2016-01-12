@@ -184,7 +184,7 @@ namespace com.vtcsecure.ace.windows.Services
             {
                 // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
                 //  This will ultimately be set by the configuration resources from Ace Connect.
-                if (App.CurrentAccount.Username.Equals("lizann_3"))
+                if (App.CurrentAccount.Username.Equals("agent_1"))
                 {
                     App.CurrentAccount.UserNeedsAgentView = true;
                 }
@@ -197,7 +197,7 @@ namespace com.vtcsecure.ace.windows.Services
             {
                 // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
                 //  This will ultimately be set by the configuration resources from Ace Connect.
-                if (App.CurrentAccount.Username.Equals("lizann_3"))
+                if (App.CurrentAccount.Username.Equals("agent_1"))
                 {
                     App.CurrentAccount.UserNeedsAgentView = true;
                 }
