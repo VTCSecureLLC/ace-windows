@@ -180,10 +180,28 @@ namespace com.vtcsecure.ace.windows.Services
         private void OnConfigurationServiceStarted(object sender, EventArgs args)
         {
             App.CurrentAccount = LoadActiveAccount();
+            if (App.CurrentAccount != null)
+            {
+                // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
+                //  This will ultimately be set by the configuration resources from Ace Connect.
+                if (App.CurrentAccount.Username.Equals("agent_1"))
+                {
+                    App.CurrentAccount.UserNeedsAgentView = true;
+                }
+            }
         }
         private void OnAccountsServiceStarted(object sender, EventArgs args)
         {
             App.CurrentAccount = LoadActiveAccount();
+            if (App.CurrentAccount != null)
+            {
+                // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
+                //  This will ultimately be set by the configuration resources from Ace Connect.
+                if (App.CurrentAccount.Username.Equals("agent_1"))
+                {
+                    App.CurrentAccount.UserNeedsAgentView = true;
+                }
+            }
             AccountServiceStopped = false;
         }
         private void OnProviderServiceStarted(object sender, EventArgs args)
