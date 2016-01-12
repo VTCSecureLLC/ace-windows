@@ -15,7 +15,6 @@ namespace VATRP.Core.Model
         private string _transport;
         private string _mediaEncryption;
 
-		
         #endregion
 
         #region Properties
@@ -168,7 +167,9 @@ namespace VATRP.Core.Model
         public List<VATRPCodec> AudioCodecsList = new List<VATRPCodec>();
         public List<VATRPCodec> VideoCodecsList = new List<VATRPCodec>();
 
-        
+        [Column]
+        public bool UserNeedsAgentView { get; set; }
+
 
         #endregion
 
@@ -205,6 +206,7 @@ namespace VATRP.Core.Model
             SelectedCameraId = string.Empty;
             SelectedMicrophoneId = string.Empty;
             SelectedSpeakerId = string.Empty;
+            UserNeedsAgentView = false;
         }
 
         #endregion

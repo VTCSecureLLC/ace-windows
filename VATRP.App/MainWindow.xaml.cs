@@ -480,9 +480,18 @@ namespace com.vtcsecure.ace.windows
                 {
                     _mainViewModel.OfferServiceSelection = false;
                     _mainViewModel.IsAccountLogged = true;
-                    OpenAnimated();
-                    _mainViewModel.IsCallHistoryDocked = true;
-                    _mainViewModel.DialpadModel.UpdateProvider();
+                    // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
+                    if (!App.CurrentAccount.UserNeedsAgentView)
+                    {
+                        OpenAnimated();
+                        _mainViewModel.IsCallHistoryDocked = true;
+                        _mainViewModel.DialpadModel.UpdateProvider();
+                        SetToUserAgentView(false);
+                    }
+                    else
+                    {
+                        SetToUserAgentView(true);
+                    }
                 }
             }
         }
