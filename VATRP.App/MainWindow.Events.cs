@@ -638,12 +638,12 @@ namespace com.vtcsecure.ace.windows
 				App.CurrentAccount.ProxyHostname,
 				App.CurrentAccount.ProxyPort));
 
-			OpenAnimated();
             _mainViewModel.IsAccountLogged = true;
             // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
             if ((App.CurrentAccount != null) && (!App.CurrentAccount.UserNeedsAgentView))
             {
-			    _mainViewModel.IsCallHistoryDocked = true;
+                OpenAnimated();
+                _mainViewModel.IsCallHistoryDocked = true;
                 _mainViewModel.DialpadModel.UpdateProvider();
                 SetToUserAgentView(false);
             }
