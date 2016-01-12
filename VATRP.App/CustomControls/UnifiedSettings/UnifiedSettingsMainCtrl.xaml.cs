@@ -83,9 +83,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 visibleSetting = System.Windows.Visibility.Visible;
             }
             DebugMenuLabel.Visibility = visibleSetting;
-            ReleaseCoreButton.Visibility = visibleSetting;
-            ClearCacheButton.Visibility = visibleSetting;
-            BatteryAlertButton.Visibility = visibleSetting;
             AutoAnswerLabel.Visibility = visibleSetting;
             AutoAnswerCheckBox.Visibility = visibleSetting;
         }
@@ -152,7 +149,10 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             PasswordLabel.Visibility = visibleSetting;
             PasswordTextBox.Visibility = visibleSetting;
 
-           
+            ReleaseCoreButton.Visibility = visibleSetting;
+            ClearCacheButton.Visibility = visibleSetting;
+            BatteryAlertButton.Visibility = visibleSetting;
+
         }
         #endregion
 
