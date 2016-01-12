@@ -227,7 +227,7 @@ namespace com.vtcsecure.ace.windows
                     // VATRP-1623: we are setting mute microphone true prior to initiating a call, but the call is always started
                     //   with the mic enabled. attempting to mute right after call is connected here to side step this issue - 
                     //   it appears to be an initialization issue in linphone
-                    if (_mainViewModel.GetCallCount() == 1)
+                    if (_linphoneService.GetActiveCallsCount == 1)
                     {
                         ServiceManager.Instance.ApplyMediaSettingsChanges();
                     }
@@ -242,7 +242,7 @@ namespace com.vtcsecure.ace.windows
                     callViewModel.CallState = VATRPCallState.RemotePaused;
                     ShowCallOverlayWindow(true);
                     ctrlCall.ctrlOverlay.SetCallerInfo(callViewModel.CallerInfo);
-                    ctrlCall.ctrlOverlay.SetCallState("Connected");
+                    ctrlCall.ctrlOverlay.SetCallState("On Hold");
                     ctrlCall.UpdateControls();
 					break;
                 case VATRPCallState.LocalPausing:

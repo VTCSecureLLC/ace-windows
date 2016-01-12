@@ -434,6 +434,10 @@ namespace com.vtcsecure.ace.windows
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
+            // VATRP-901
+            EventManager.RegisterClassHandler(typeof(Window),
+     Keyboard.KeyUpEvent, new KeyEventHandler(OnAppKeyUp), true);
+
             _historyView.IsVisibleChanged += OnChildVisibilityChanged;
             _historyView.MakeCallRequested += OnMakeCallRequested;
             _contactBox.IsVisibleChanged += OnChildVisibilityChanged;
@@ -726,6 +730,27 @@ namespace com.vtcsecure.ace.windows
             if ((resourceInfo != null) && !string.IsNullOrEmpty(resourceInfo.address))
             {
                 MediaActionHandler.MakeVideoCall(resourceInfo.address);
+            }
+        }
+
+        private void OnAppKeyUp(object sender, KeyEventArgs e)
+        {
+            if (_linphoneService != null && (_mainViewModel != null && _mainViewModel.ActiveCallModel != null && 
+                                             _mainViewModel.ActiveCallModel.CallState == VATRPCallState.InProgress ))
+            {
+                if (e.Key == Key.Enter && !e.IsRepeat)
+                {
+                    if (_linphoneService.GetActiveCallsCount == 1)
+                    {
+                        // Accept incoming call
+                        ctrlCall.AcceptCall(this, null);
+                    }
+                    else if (_linphoneService.GetActiveCallsCount == 2)
+                    {
+                        // Hold/Accept incoming call
+                        ctrlCall.HoldAndAcceptCall(this, null);
+                    }
+                }
             }
         }
 
