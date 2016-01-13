@@ -33,6 +33,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private CallViewModel _activeCallViewModel;
         private ContactsViewModel _contactsViewModel;
         private ILinphoneService _linphoneService;
+        private int _uiMissedCallsCount;
 
 
         public MainControllerViewModel()
@@ -54,9 +55,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _messageViewModel = new MessagingViewModel(ServiceManager.Instance.ChatService,
                 ServiceManager.Instance.ContactService);
             _settingsViewModel = new SettingsViewModel();
+            _historyViewModel.MissedCallsCountChanged += OnMissedCallsCountChanged;
             _callsViewModelList = new ObservableCollection<CallViewModel>();
             _linphoneService = ServiceManager.Instance.LinphoneService;
             _dialpadHeight = 350;
+        }
+
+        private void OnMissedCallsCountChanged(object callEvent, EventArgs args)
+        {
+            if (_historyViewModel != null) 
+                UIMissedCallsCount = _historyViewModel.UnseenMissedCallsCount;
         }
 
         #region Properties
@@ -171,6 +179,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 _activateWizardPage = value;
                 OnPropertyChanged("ActivateWizardPage");
+            }
+        }
+
+        public int UIMissedCallsCount
+        {
+            get { return _uiMissedCallsCount; }
+            set
+            {
+                _uiMissedCallsCount = value;
+                OnPropertyChanged("UIMissedCallsCount");
             }
         }
 

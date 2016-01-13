@@ -24,6 +24,7 @@
 	<model:VATRPWindow.Resources>
 		<conv:BoolToVisibilityConverter x:Key="bvc"/>
 		<conv:BoolToVisibilityConverter x:Key="ibvc" OppositeBooleanValue="True"/>
+        <conv:IntToVisibilityConverter x:Key="oivc" OppositeBooleanValue="True"/>
         <Storyboard x:Key="SlideUpAnimation" BeginTime="0:0:0.1" Completed="SlideUpCompleted">
             <DoubleAnimation Storyboard.TargetName="DialpadTransform" Storyboard.TargetProperty="Y" To="0"  
                                  Duration="0:0:0.2" AccelerationRatio="0.7" DecelerationRatio="0.3"/>
@@ -268,6 +269,13 @@
 					</Style>
 				</ToggleButton.Style>
 			</ToggleButton>
+            <Border Width="20" Height="20" CornerRadius="10" Grid.Column="0" HorizontalAlignment="Right" 
+                    VerticalAlignment="Top" Background="#ffFF0000" Margin="0,1,0,0" 
+                    Visibility="{Binding UIMissedCallsCount, Converter={StaticResource oivc}}" >
+                <TextBlock Text="{Binding UIMissedCallsCount}" 
+                           VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0"
+                           FontSize="12" Foreground="White" />
+            </Border>
 
             <ToggleButton x:Name="BtnContacts" Grid.Column="1" Click="btnContacts_Click" Height="60" Width="60" HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding IsContactDocked}">
 				<ToggleButton.Resources>
