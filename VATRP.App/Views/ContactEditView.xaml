@@ -25,14 +25,16 @@
         <TextBlock Grid.Row="3" Grid.Column="0" Margin="5" HorizontalAlignment="Right" FontSize="14" Text="Provider:" Foreground="Black" VerticalAlignment="Center"/>
 
         <ComboBox Grid.Column="1" Grid.Row="3" Margin="5, 5" SelectedItem="{Binding SelectedProvider, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="32" HorizontalAlignment="Left"
-          ItemsSource="{Binding Providers}" Background="White" Foreground="{StaticResource AppMainWindowBrush}" Style="{StaticResource ProviderComboStyle}" ItemContainerStyle="{StaticResource ContactProviderComboBoxItemStyle}">
-            <ComboBox.Resources>
-                <system:Double x:Key="{x:Static SystemParameters.VerticalScrollBarWidthKey}">0</system:Double>
-            </ComboBox.Resources>
+          ItemsSource="{Binding Providers}" Background="White" 
+                  Foreground="{StaticResource AppMainWindowBrush}" 
+                  Style="{StaticResource ProviderComboStyle}" 
+                  ItemContainerStyle="{StaticResource ContactProviderComboBoxItemStyle}"
+                  PreviewMouseDown="ShowGAWarning"
+                  >
             <ComboBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal" >
-                        <Image Source="{Binding Logo}" Width="32" Height="32"/>
+                        <Image Source="{Binding GrayedLogo}" Width="32" Height="32"/>
                     </StackPanel>
                 </DataTemplate>
             </ComboBox.ItemTemplate>

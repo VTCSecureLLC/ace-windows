@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Interop;
+using System.Windows.Input;
+using System.Windows.Threading;
 using com.vtcsecure.ace.windows.Model;
 using com.vtcsecure.ace.windows.Services;
 using com.vtcsecure.ace.windows.ViewModel;
 using com.vtcsecure.ace.windows.Views;
 using log4net;
 using VATRP.Core.Model;
-using VATRP.LinphoneWrapper.Enums;
+using Win32Api = com.vtcsecure.ace.windows.Services.Win32NativeAPI;
 
 namespace com.vtcsecure.ace.windows.CustomControls
 {
@@ -20,14 +20,24 @@ namespace com.vtcsecure.ace.windows.CustomControls
     public partial class CallViewCtrl
     {
         public UnifiedSettings.UnifiedSettingsCtrl SettingsControl;
+
         #region Members
-        private static readonly ILog LOG = LogManager.GetLogger(typeof(CallViewCtrl));
+
+        private static readonly ILog LOG = LogManager.GetLogger(typeof (CallViewCtrl));
         private CallViewModel _viewModel;
         private MainControllerViewModel _parentViewModel;
         private CallViewModel _backgroundCallViewModel;
+        private DispatcherTimer _mouseInactivityTimer;
+        private bool _controlsHiddenByTimer = false;
+        private bool _showControlsOnTimeout = false;
+        private bool restoreVisibilityStates = false;
+        private System.Drawing.Point _lastMousePosition;
+        private bool _inactivityTimerStopped;
+
         #endregion
-        
+
         #region Properties
+
         public KeyPadCtrl KeypadCtrl { get; set; }
 
         public MainControllerViewModel ParentViewModel
@@ -35,18 +45,19 @@ namespace com.vtcsecure.ace.windows.CustomControls
             get { return _parentViewModel; }
             set { _parentViewModel = value; }
         }
+
         public CallViewModel BackgroundCallViewModel
         {
             get { return _backgroundCallViewModel; }
-            set
-            {
-                _backgroundCallViewModel = value;
-            }
+            set { _backgroundCallViewModel = value; }
         }
+
         #endregion
 
         #region Events
+
         public delegate void SwitchCallbarButton(bool switch_on);
+
         public event SwitchCallbarButton VideoOnToggled;
         public event SwitchCallbarButton MuteOnToggled;
         public event SwitchCallbarButton SpeakerOnToggled;
@@ -55,6 +66,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
         public event SwitchCallbarButton CallInfoToggled;
         public event EventHandler<KeyPadEventArgs> KeypadClicked;
         public event EventHandler SwitchHoldCallsRequested;
+        private bool _mouseInControlArea = false;
+
         #endregion
 
         public CallViewCtrl()
@@ -75,9 +88,15 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
             ctrlOverlay.CallsSwitchOverlayWidth = 190;
             ctrlOverlay.CallsSwitchOverlayHeight = 200;
+
+            _mouseInactivityTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(3),
+            };
+            _mouseInactivityTimer.Tick += OnMouseInactivityTimer;
         }
 
-        public CallViewCtrl(MainControllerViewModel parentVM):this()
+        public CallViewCtrl(MainControllerViewModel parentVM) : this()
         {
             _parentViewModel = parentVM;
         }
@@ -89,12 +108,12 @@ namespace com.vtcsecure.ace.windows.CustomControls
             DataContext = viewModel;
             _viewModel = viewModel;
 
-           UpdateControls();
+            UpdateControls();
         }
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            
+
         }
 
         internal void EndCall(bool bRunning)
@@ -118,7 +137,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         internal void MuteCall(bool isMuted)
         {
-            if (_viewModel.ActiveCall != null )
+            if (_viewModel.ActiveCall != null)
                 _viewModel.MuteCall(isMuted);
             if (SettingsControl != null)
             {
@@ -139,12 +158,12 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         private void OnSwitchVideo(object sender, RoutedEventArgs e)
         {
-            if (_viewModel != null) 
+            if (_viewModel != null)
                 _viewModel.SwitchSelfVideo();
             SaveStates();
         }
 
-        private void AcceptCall(object sender, RoutedEventArgs e)
+        public void AcceptCall(object sender, RoutedEventArgs e)
         {
             if (_parentViewModel != null)
                 _parentViewModel.AcceptCall(_viewModel);
@@ -157,6 +176,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
         }
 
         #region Call Statistics Info
+
         private void OnToggleInfo(object sender, RoutedEventArgs e)
         {
             if (CallInfoToggled != null)
@@ -201,6 +221,17 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         private void OnToggleRTT(object sender, RoutedEventArgs e)
         {
+            if (!_viewModel.IsRTTEnabled)
+            {
+                _inactivityTimerStopped = true;
+                _mouseInactivityTimer.Stop();
+                MessageBox.Show("RTT has been disabled for this call", "ACE", MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                RestartInactivityDetectionTimer();
+                BtnRTT.IsChecked = false;
+                return;
+            }
+
             if (RttToggled != null)
                 RttToggled(BtnRTT.IsChecked ?? false);
             SaveStates();
@@ -241,10 +272,9 @@ namespace com.vtcsecure.ace.windows.CustomControls
                     {
                         char key;
                         if (char.TryParse(btnKey.Tag.ToString(), out key))
-                            KeypadClicked(this, new KeyPadEventArgs((DialpadKey)key));
+                            KeypadClicked(this, new KeyPadEventArgs((DialpadKey) key));
                         else
                         {
-                            Debug.WriteLine("Failed to get keypad: " + btnKey.Tag);
                             KeypadClicked(this, new KeyPadEventArgs(DialpadKey.DialpadKey_Key0));
                         }
                     }
@@ -252,7 +282,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             }
         }
 
-        private void HoldAndAcceptCall(object sender, RoutedEventArgs e)
+        public void HoldAndAcceptCall(object sender, RoutedEventArgs e)
         {
             if (_parentViewModel != null)
                 _parentViewModel.AcceptCall(_viewModel);
@@ -282,7 +312,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             _viewModel.IsMuteOn = _viewModel.SavedIsMuteOn;
             _viewModel.IsSpeakerOn = _viewModel.SavedIsSpeakerOn;
             _viewModel.IsNumpadOn = _viewModel.SavedIsNumpadOn;
-            _viewModel.IsRttOn = _viewModel.SavedIsRttOn;
+            _viewModel.IsRttOn = _viewModel.SavedIsRttOn && _viewModel.IsRTTEnabled;
             _viewModel.IsCallInfoOn = _viewModel.SavedIsInfoOn;
             _viewModel.IsCallOnHold = _viewModel.SavedIsCallHoldOn;
         }
@@ -309,8 +339,9 @@ namespace com.vtcsecure.ace.windows.CustomControls
             ctrlOverlay.ShowNumpadWindow(BtnNumpad.IsChecked ?? false);
 
             bool rttEnabled = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-    Configuration.ConfEntry.USE_RTT, true);
+                Configuration.ConfEntry.USE_RTT, true);
             EnableRTTButton(rttEnabled);
+            UpdateVideoSettingsIfOpen();
         }
 
 
@@ -394,6 +425,223 @@ namespace com.vtcsecure.ace.windows.CustomControls
             }
         }
 
+        public void UpdateVideoSettingsIfOpen()
+        {
+            if (_viewModel != null && _viewModel.ActiveCall != null)
+            {
+                var isVideoEnabled = ServiceManager.Instance.LinphoneService.IsVideoEnabled(_viewModel.ActiveCall);
+                this.BtnVideoOn.IsEnabled = isVideoEnabled;
+                this.BtnVideoOn.IsChecked = !isVideoEnabled ||
+                                            !ServiceManager.Instance.LinphoneService.IsCameraEnabled(
+                                                _viewModel.ActiveCall.NativeCallPtr);
+            }
+            else
+            {
+                this.BtnVideoOn.IsChecked = true;
+                this.BtnVideoOn.IsEnabled = false;
+            }
+        }
+
+        private void RestoreControlsVisibility()
+        {
+            if (!restoreVisibilityStates)
+                return;
+
+            //Debug.WriteLine("ShowControl: " + opt);
+            // Show controls with their last visibility state
+            if (_viewModel != null)
+            {
+                if (_viewModel.CallInfoLastTimeVisibility == Visibility.Visible)
+                {
+                    ctrlOverlay.ShowCallInfoWindow(true);
+                }
+
+                if (_viewModel.CommandbarLastTimeVisibility == Visibility.Visible)
+                {
+                    ctrlOverlay.ShowCommandBar(true);
+                }
+
+                if (_viewModel.CallSwitchLastTimeVisibility == Visibility.Visible)
+                {
+                    ctrlOverlay.ShowCallsSwitchWindow(true);
+                }
+
+                if (_viewModel.NumpadLastTimeVisibility == Visibility.Visible)
+                {
+                    ctrlOverlay.ShowNumpadWindow(true);
+                }
+            }
+            restoreVisibilityStates = false;
+        }
+
+        private void HideOverlayControls()
+        {
+            if (_viewModel == null || restoreVisibilityStates)
+                return;
+
+            var wndObject = ctrlOverlay.CallInfoWindow;
+            if (wndObject != null)
+            {
+                _viewModel.CallInfoLastTimeVisibility = wndObject.ShowWindow
+                    ? Visibility.Visible
+                    : Visibility.Hidden;
+                if (wndObject.ShowWindow)
+                {
+                    _viewModel.CallInfoLastTimeVisibility = Visibility.Visible;
+                    ctrlOverlay.ShowCallInfoWindow(false);
+                }
+            }
+
+            wndObject = ctrlOverlay.CommandBarWindow;
+            if (wndObject != null)
+            {
+                _viewModel.CommandbarLastTimeVisibility = wndObject.ShowWindow
+                    ? Visibility.Visible
+                    : Visibility.Hidden;
+                if (wndObject.ShowWindow)
+                {
+                    _viewModel.CommandbarLastTimeVisibility = Visibility.Visible;
+                    ctrlOverlay.ShowCommandBar(false);
+                }
+            }
+
+            wndObject = ctrlOverlay.CallsSwitchWindow;
+            if (wndObject != null)
+            {
+                _viewModel.CallSwitchLastTimeVisibility = wndObject.ShowWindow
+                    ? Visibility.Visible
+                    : Visibility.Hidden;
+                if (wndObject.ShowWindow)
+                {
+                    _viewModel.CallSwitchLastTimeVisibility = Visibility.Visible;
+                    ctrlOverlay.ShowCallsSwitchWindow(false);
+                }
+            }
+
+            wndObject = ctrlOverlay.NumpadWindow;
+            if (wndObject != null)
+            {
+                _viewModel.NumpadLastTimeVisibility = wndObject.ShowWindow
+                    ? Visibility.Visible
+                    : Visibility.Hidden;
+                if (wndObject.ShowWindow)
+                {
+                    _viewModel.NumpadLastTimeVisibility = Visibility.Visible;
+                    ctrlOverlay.ShowNumpadWindow(false);
+                }
+            }
+
+            restoreVisibilityStates = true;
+        }
+
+        private void CtrlVideo_OnMouseMove(object sender, MouseEventArgs e)
+        {
+            if (_viewModel == null || !_viewModel.AllowHideContorls)
+                return;
+
+            Win32Api.POINT mousePositionInControl;
+            Win32Api.GetCursorPos(out mousePositionInControl);
+
+            //Debug.WriteLine("Current:{0} {1} Last: x:{2} y:{3}", mousePositionInControl.X, mousePositionInControl.Y,
+            //    _lastMousePosition.X, _lastMousePosition.Y);
+            if (_lastMousePosition.X != mousePositionInControl.X ||
+                _lastMousePosition.Y != mousePositionInControl.Y)
+            {
+                _mouseInControlArea = false;
+                RestoreControlsVisibility();
+                RestartInactivityDetectionTimer();
+            }
+            _lastMousePosition = mousePositionInControl;
+        }
+        
+        private void CtrlVideo_OnMouseEnter(object sender, MouseEventArgs e)
+        {
+            //Debug.WriteLine("OnMouseEnter: Restore Visibility - " + restoreVisibilityStates);
+            if (_viewModel == null || !_viewModel.AllowHideContorls)
+                return;
+
+            Win32Api.POINT mousePositionInControl;
+            Win32Api.GetCursorPos(out mousePositionInControl);
+
+            if (_lastMousePosition.X == mousePositionInControl.X &&
+                _lastMousePosition.Y == mousePositionInControl.Y)
+            {
+                //Debug.WriteLine("Unchanged coordinates. Should be skipped. Control area: " + _mouseInControlArea);
+                if (restoreVisibilityStates)
+                {
+                    if (_mouseInactivityTimer.IsEnabled)
+                    {
+                        _inactivityTimerStopped = true;
+                        _mouseInactivityTimer.Stop();
+                    }
+                }
+                return;
+            }
+
+            _lastMousePosition = mousePositionInControl;
+            if (!_mouseInControlArea)
+                RestoreControlsVisibility();
+            RestartInactivityDetectionTimer();
+        }
+
+        private void CtrlVideo_OnMouseLeave(object sender, MouseEventArgs e)
+        {
+            if (_viewModel == null || !_viewModel.AllowHideContorls)
+                return;
+
+            Point mousePosition = Mouse.GetPosition(this);
+
+            //Debug.WriteLine("MouseLeave: X = {0}, Y={1}", mousePositionInControl.X, mousePositionInControl.Y); 
+            if (mousePosition.X > 0 && mousePosition.Y > 0)
+            {
+                //Debug.WriteLine("we are in control area, ");
+                _mouseInControlArea = true;
+            }
+
+            Win32Api.POINT mousePositionInControl;
+            Win32Api.GetCursorPos(out mousePositionInControl);
+            _lastMousePosition = mousePositionInControl;
+            RestartInactivityDetectionTimer();
+        }
+
+
+        private void OnMouseInactivityTimer(object sender, EventArgs e)
+        {
+            _mouseInactivityTimer.Stop();
+
+            if (_inactivityTimerStopped)
+            {
+                Debug.WriteLine("Inactivity timer stopped. Do not process ");
+                return;
+            }
+
+            if (!restoreVisibilityStates)
+            {
+                Win32Api.POINT mousePositionInControl;
+                Win32Api.GetCursorPos(out mousePositionInControl);
+                _lastMousePosition = mousePositionInControl;
+                HideOverlayControls();
+            }
+            else
+            {
+                RestoreControlsVisibility();
+            }
+        }
+
+        public void RestartInactivityDetectionTimer()
+        {
+//            Debug.WriteLine("Restart detection timer");
+            if (_mouseInactivityTimer != null)
+            {
+                if (_mouseInactivityTimer.IsEnabled)
+                {
+                    _inactivityTimerStopped = true;
+                    _mouseInactivityTimer.Stop();
+                }
+
+                _mouseInactivityTimer.Start();
+                _inactivityTimerStopped = false;
+            }
+        }
     }
-    
 }

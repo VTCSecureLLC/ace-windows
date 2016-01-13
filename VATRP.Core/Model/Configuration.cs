@@ -40,12 +40,14 @@ namespace VATRP.Core.Model
             AUTO_ANSWER,
             AUTO_ANSWER_AFTER,
             AVPF_ON,
+            RTCP_FEEDBACK,
             DTMF_SIP_INFO,
             USE_RTT,
             ENABLE_ADAPTIVE_RATE_CTRL,
             CURRENT_PROVIDER,
             CALL_DIAL_PREFIX,
-            CALL_DIAL_ESCAPE_PLUS
+            CALL_DIAL_ESCAPE_PLUS,
+            SHOW_LEGAL_RELEASE
         }
 
         public static string LINPHONE_SIP_SERVER = "bc1.vatrp.net";

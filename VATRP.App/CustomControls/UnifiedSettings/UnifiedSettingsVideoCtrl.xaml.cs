@@ -68,7 +68,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             foreach (var item in PreferredVideoSizeComboBox.Items)
             {
                 var tb = item as TextBlock;
-                if (GetPreferredVideoSizeId(tb) == App.CurrentAccount.PreferredVideoId)
+                if (GetPreferredVideoSizeId(tb).Equals(App.CurrentAccount.PreferredVideoId))
                 {
                     PreferredVideoSizeComboBox.SelectedItem = item;
                     break;
@@ -80,6 +80,32 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             {
                 VideoCodecsListView.Items.Add(item);
             }
+            /*
+            New option name: RTCP feedback
+Option Location: Advanced > Video
+Options: Implicit, Explicit, Off
+Default: "Implicit"
+
+AVPF shall be off by default and  "rtcp_fb_implicit_rtcp_fb" on =1 call that combination "RTCP feedback (AVPF)"   (Implicit)
+and then a setting with both AVPF off and  "rtcp_fb_implicit_rtcp_fb" off , and call that  setting  "RTCP feedback (AVPF)"   (Off)
+And a setting with both AVPF on and  "rtcp_fb_implicit_rtcp_fb" on , and call that  setting  "RTCP feedback (AVPF)"   (Explicit).
+             * The function can be activated/deactivated via an integer parameter called "rtcp_fb_implicit_rtcp_fb" inside "rtp" section. Values are 0 or 1.
+This parameter can be set dynamically also via the traditional wrappers to get/set parameters (lp_config_set_int for C API).
+Default value = 1
+             * */
+            string rtcpFeedbackString = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.RTCP_FEEDBACK, "Off");
+
+            foreach (var item in RtcpFeedbackComboBox.Items)
+            {
+                var tb = item as TextBlock;
+                if (tb.Text.Equals(rtcpFeedbackString))
+                {
+                    RtcpFeedbackComboBox.SelectedItem = item;
+                    break;
+                }
+            }
+
         }
 
         public override void UpdateForMenuSettingChange(ACEMenuSettingsUpdateType menuSetting)
@@ -164,6 +190,22 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             return false;
         }
 
+        private bool IsRtcpFeedbackChanged()
+        {
+            var rtcpFeedbackTextBlock = RtcpFeedbackComboBox.SelectedItem as TextBlock;
+            string rtcpFeedbackString = rtcpFeedbackTextBlock.Text;
+            string oldRtcpFeedbackString = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.RTCP_FEEDBACK, "Off");
+
+            if ((string.IsNullOrWhiteSpace(rtcpFeedbackString) && !string.IsNullOrWhiteSpace(oldRtcpFeedbackString)) ||
+                (!string.IsNullOrWhiteSpace(rtcpFeedbackString) && string.IsNullOrWhiteSpace(oldRtcpFeedbackString)))
+                return true;
+            if ((!string.IsNullOrWhiteSpace(rtcpFeedbackString) && !string.IsNullOrWhiteSpace(oldRtcpFeedbackString)) &&
+                (!rtcpFeedbackString.Equals(oldRtcpFeedbackString)))
+                return true;
+
+            return false;
+        }
 
 
         #region HelperMethods
@@ -201,8 +243,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             if (enable != App.CurrentAccount.VideoAutomaticallyStart)
             {
                 App.CurrentAccount.VideoAutomaticallyStart = enable;
-                ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
+
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.VideoPolicyChanged);
             }
         }
 
@@ -215,8 +258,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             if (enable != App.CurrentAccount.VideoAutomaticallyAccept)
             {
                 App.CurrentAccount.VideoAutomaticallyAccept = enable;
-                ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
+
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.VideoPolicyChanged);
             }
         }
         private void OnShowSelfView(object sender, RoutedEventArgs e)
@@ -341,6 +385,41 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         private void VideoCodecsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+        }
+        #endregion
+
+        #region RtcpFeedback
+        private void OnRtcpFeedback(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("RTCP Feedback Selected");
+            if (App.CurrentAccount == null)
+                return;
+            if (!IsRtcpFeedbackChanged())
+                return;
+
+            var tb = RtcpFeedbackComboBox.SelectedItem as TextBlock;
+            if (tb != null)
+            {
+                var str = tb.Text;
+                if (string.IsNullOrWhiteSpace(str))
+                    return;
+
+                ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                     Configuration.ConfEntry.RTCP_FEEDBACK, str);
+                if (str.Equals("Explicit"))
+                {
+                    ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                         Configuration.ConfEntry.AVPF_ON, true);
+                }
+                else
+                {
+                    ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                         Configuration.ConfEntry.AVPF_ON, false);
+                }
+                ServiceManager.Instance.ConfigurationService.SaveConfig();
+                // RTCP Feedback and AVPF are related
+                ServiceManager.Instance.ApplyAVPFChanges();
+            }
         }
         #endregion
     }

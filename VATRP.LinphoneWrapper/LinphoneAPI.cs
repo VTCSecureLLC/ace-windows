@@ -69,7 +69,10 @@ namespace VATRP.LinphoneWrapper
         public static extern IntPtr linphone_core_create_proxy_config(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_core_clear_proxy_config(IntPtr lc);
+        public static extern void linphone_core_clear_proxy_config(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_default_proxy_config(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_proxy_config_normalize_sip_uri(IntPtr proxy, string username);
@@ -118,6 +121,12 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_core_iterate(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_enable_keep_alive(IntPtr lc, bool enable);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_core_keep_alive_enabled(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_core_create_default_call_parameters(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -125,9 +134,16 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_call_params_enable_video(IntPtr cp, bool enabled);
+        
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_call_params_set_audio_bandwidth_limit(IntPtr cp, int kbit);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool linphone_call_params_video_enabled(IntPtr cp);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_call_params_set_video_direction(IntPtr cp, LinphoneMediaDirection dir);
+
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool linphone_core_in_call(IntPtr lc);
 
@@ -353,6 +369,12 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_core_get_ringback(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_download_bandwidth(IntPtr lc, int bw);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_upload_bandwidth(IntPtr lc, int bw);
 
 /**
  * Specify a ring back tone to be played to far end during incoming calls.
@@ -1092,7 +1114,11 @@ namespace VATRP.LinphoneWrapper
         public static extern IntPtr linphone_core_create_address(IntPtr lc, string address);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_proxy_config_set_route(IntPtr lc, string route);
+        public static extern int linphone_proxy_config_set_route(IntPtr proxy, string route);
+
+       [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_proxy_config_set_expires(IntPtr proxy, int expires);
+
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_address_set_transport(IntPtr u, int transport);
@@ -1186,7 +1212,7 @@ namespace VATRP.LinphoneWrapper
         public static extern int linphone_call_params_enable_realtime_text(IntPtr cp, bool yesno);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_call_params_realtime_text_enabled(IntPtr cp);
+        public static extern byte linphone_call_params_realtime_text_enabled(IntPtr cp);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -2162,6 +2188,12 @@ namespace VATRP.LinphoneWrapper
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_proxy_config_set_dial_escape_plus(IntPtr cfg, bool enable);
 
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_config(IntPtr linphoneCore);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr lp_config_set_int(IntPtr lpconfig, string section, string key, int value);
         #endregion
 
     }

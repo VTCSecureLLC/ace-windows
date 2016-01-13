@@ -7,10 +7,11 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:customControls="clr-namespace:com.vtcsecure.ace.windows.CustomControls"
 		xmlns:unifiedSettings="clr-namespace:com.vtcsecure.ace.windows.CustomControls.UnifiedSettings"
+		xmlns:resourceControls="clr-namespace:com.vtcsecure.ace.windows.CustomControls.Resources"
 		mc:Ignorable="d"
 		d:DataContext="{d:DesignData Source=SampleData/MainViewSampleData.xaml}"
 
-		Title="{Binding AppTitle}" SizeToContent="WidthAndHeight" MaxHeight="700" ResizeMode="NoResize"
+		Title="{Binding AppTitle}" SizeToContent="WidthAndHeight" MaxHeight="700" ResizeMode="CanMinimize"
 				   Closing="OnClosing" Closed="OnClosed" 
 				   SourceInitialized="OnSourceInitialized" 
 				   Loaded="OnLoaded"
@@ -23,8 +24,17 @@
 	<model:VATRPWindow.Resources>
 		<conv:BoolToVisibilityConverter x:Key="bvc"/>
 		<conv:BoolToVisibilityConverter x:Key="ibvc" OppositeBooleanValue="True"/>
-	</model:VATRPWindow.Resources>
-	<Grid x:Name="LayoutGrid" Background="{DynamicResource AppMainWindowBrush}">
+        <Storyboard x:Key="SlideUpAnimation" BeginTime="0:0:0.1" Completed="SlideUpCompleted">
+            <DoubleAnimation Storyboard.TargetName="DialpadTransform" Storyboard.TargetProperty="Y" To="0"  
+                                 Duration="0:0:0.2" AccelerationRatio="0.7" DecelerationRatio="0.3"/>
+        </Storyboard>
+        <Storyboard x:Key="SlideDownAnimation" BeginTime="0:0:0.1" Completed="SlideDownCompleted">
+            <DoubleAnimation Storyboard.TargetName="DialpadTransform" Storyboard.TargetProperty="Y" To="350" 
+                                 Duration="0:0:0.2" AccelerationRatio="0.7" DecelerationRatio="0.3"/>
+        </Storyboard>
+    </model:VATRPWindow.Resources>
+
+    <Grid x:Name="LayoutGrid" Background="{DynamicResource AppMainWindowBrush}">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="Auto"/>
 			<ColumnDefinition Width="Auto"/>
@@ -53,7 +63,10 @@
 				<MenuItem x:Name="SelfViewItem" Header="_Media Self-View" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" 
                           Foreground="White" Click="OnShowSelfView" />
                 <MenuItem Header="_Media Text Window" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Name="ShowRTTView" Click="OnShowRTTView" IsCheckable="True"/>
-				<!--<MenuItem Header="_" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
+                <MenuItem x:Name="ShowSelfPreviewItem" Header="_Show Self Preview" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" 
+                          Foreground="White" Click="OnShowPreviewWindow" />
+
+                <!--<MenuItem Header="_" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
 				<!--<MenuItem x:Name="DialpadItem" Header="_DialPad Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
 				<!--<MenuItem x:Name="RegistrationStatusItem" Header="_Registration Status" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
 				<!--<MenuItem x:Name="ContactsWindowItem" Header="_Contact Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
@@ -127,13 +140,29 @@
                     VerticalAlignment="Stretch" >
                 <unifiedSettings:UnifiedSettingsCtrl x:Name="ctrlSettings"  Margin="0" VerticalAlignment="Stretch"/>
             </Border>
+            <Border x:Name="ResourcesPaneHolder" Grid.Row="1"  Visibility="{Binding IsResourceDocked, Converter={StaticResource bvc}}" 
+                    VerticalAlignment="Stretch" >
+                <resourceControls:ResourcePanel x:Name="ctrlResource"  Margin="0" VerticalAlignment="Stretch"/>
+            </Border>
 
-            <Grid x:Name="DialpadHolder" Grid.Row="2" Grid.Column="0" Background="{StaticResource AppMainWindowBrush}"
-		Visibility="{Binding IsDialpadDocked, Converter={StaticResource bvc}}" Height="Auto">
-                <customControls:DialPadScreen x:Name="ctrlDialpad" Margin="0"/>
+            <Grid x:Name="DialpadBackground" Grid.Row="2" Grid.Column="0" Height="{Binding DialpadHeight}"/>
+        </Grid>
+
+        <Grid x:Name="DialpadViewHolder" Grid.Row="1" Grid.Column="0" Visibility="{Binding IsAccountLogged, Converter={StaticResource bvc}}" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid x:Name="DialpadHolder" Grid.Row="1" Grid.Column="0" VerticalAlignment="Bottom"
+		 Height="Auto">
+                <Grid.RenderTransform>
+                    <TranslateTransform x:Name="DialpadTransform" Y="350"/>
+                </Grid.RenderTransform>
+                <customControls:DialPadScreen x:Name="ctrlDialpad" Margin="0" />
             </Grid>
         </Grid>
-        
+
         <!--Navigation panel-->
 		<Grid x:Name="NavPanel" Margin="0" Grid.Row="3" Grid.Column="0" Visibility="{Binding IsAccountLogged, Converter={StaticResource bvc}}" Height="50" Background="{StaticResource AppMainWindowBrush}">
 			<Grid.ColumnDefinitions>
@@ -434,7 +463,7 @@
 				</ToggleButton.Style>
 
 			</ToggleButton>
-			<ToggleButton x:Name="BtnResourcesView" Grid.Column="3" Click="btnShowResources" Height="60" Width="60" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <ToggleButton x:Name="BtnResourcesView" Grid.Column="3" Click="btnShowResources" Height="60" Width="60" HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding IsResourceDocked}">
 				<ToggleButton.Resources>
 					<Grid x:Key="ResourcesViewHover" >
                         <Grid.RowDefinitions>
@@ -447,10 +476,10 @@
                         </Rectangle>
                         <Rectangle Width="32" Height="30" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
                             <Rectangle.OpacityMask>
-                                <ImageBrush ImageSource="Resources\rtt.png" />
+                                <ImageBrush ImageSource="Resources\resources_books.png" />
                             </Rectangle.OpacityMask>
                         </Rectangle>
-                        <TextBlock Text="Messages" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+                        <TextBlock Text="Resources" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
 
                     </Grid>
 					<Grid x:Key="ResourcesViewPressed">
@@ -464,10 +493,10 @@
                         </Rectangle>
                         <Rectangle Width="32" Height="30" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
                             <Rectangle.OpacityMask>
-                                <ImageBrush ImageSource="Resources\rtt.png" />
+                                <ImageBrush ImageSource="Resources\resources_books.png" />
                             </Rectangle.OpacityMask>
                         </Rectangle>
-                        <TextBlock Text="Messages" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+                        <TextBlock Text="Resources" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
                     </Grid>
 					<Grid x:Key="ResourcesViewNormal">
 						<Grid.RowDefinitions>
@@ -480,10 +509,10 @@
                         </Rectangle>
                         <Rectangle Width="32" Height="30" Margin="0,10,0,0" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Top" Grid.Row="0" Grid.RowSpan="2">
                             <Rectangle.OpacityMask>
-                                <ImageBrush ImageSource="Resources\rtt.png" />
+                                <ImageBrush ImageSource="Resources\resources_books.png" />
                             </Rectangle.OpacityMask>
                         </Rectangle>
-                        <TextBlock Text="Messages" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
+                        <TextBlock Text="Resources" HorizontalAlignment="Center" Grid.Row="1" FontSize="10" VerticalAlignment="Top" Margin ="0,7" Foreground="{StaticResource NavigationBarPressedButtonFont}"></TextBlock>
 
                     </Grid>
 				</ToggleButton.Resources>
@@ -638,8 +667,16 @@
         <Border Grid.Column="2" Grid.Row="0" Grid.RowSpan="4" BorderThickness="1,0,1,0" Margin="0" BorderBrush="{StaticResource AppMainBorderBrush}" Background="{StaticResource AppMainBorderBrush}" Visibility="{Binding IsMessagingDocked, Converter={StaticResource bvc}}">
             <DockPanel Dock="Top" Background="{DynamicResource AppMainWindowBrush}" >
             <customControls:RTTCtrl x:Name="ctrlRTT" Margin="0"/>
-        </DockPanel>
-            </Border>
-
-	</Grid>
+            </DockPanel>
+        </Border>
+<!--        <Border x:Name="ResourcePaneHolder" Grid.Row="1"  Visibility="{Binding IsResourceDocked, Converter={StaticResource bvc}}" 
+                    VerticalAlignment="Stretch" >
+<!- -            <Border Grid.Column="2" Grid.Row="0" Grid.RowSpan="4" BorderThickness="1,0,1,0" Margin="0" 
+                    BorderBrush="{StaticResource AppMainBorderBrush}" Background="{StaticResource AppMainBorderBrush}" Visibility="{Binding IsResourceDocked, Converter={StaticResource bvc}}">-  ->
+            <DockPanel Dock="Top" Background="{DynamicResource AppMainWindowBrush}" >
+                <customControls:ResourcePanel x:Name="ctrlResources" Margin="0"/>
+            </DockPanel>
+        </Border>
+-->
+    </Grid>
 </model:VATRPWindow>

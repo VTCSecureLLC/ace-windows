@@ -62,7 +62,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             if (_contactsViewModel.SelectedContact != null)
             {
                 if (MakeCallRequested != null && _contactsViewModel.SelectedContact.Contact != null)
-                    MakeCallRequested(_contactsViewModel.SelectedContact.Contact.SipUsername);
+                    MakeCallRequested(_contactsViewModel.SelectedContact.Contact.RegistrationName);
                 _contactsViewModel.SelectedContact = null;
             }
         }
@@ -72,9 +72,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
             var contact = ((ToggleButton) sender).Tag as VATRPContact;
             if (contact != null)
             {
-                ContactEditViewModel model = new ContactEditViewModel(false);
+                ContactEditViewModel model = new ContactEditViewModel(false, contact.RegistrationName);
                 model.ContactName = contact.Fullname;
-                model.ContactSipUsername = contact.RegistrationName;
                 model.TrimSipUsername();
                 var contactEditView = new ContactEditView(model);
                 Nullable<bool> dialogResult = contactEditView.ShowDialog();

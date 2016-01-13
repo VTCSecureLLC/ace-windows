@@ -11,9 +11,11 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using com.vtcsecure.ace.windows.ViewModel;
 using log4net;
 using com.vtcsecure.ace.windows.CustomControls;
@@ -25,6 +27,7 @@ using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using VATRP.LinphoneWrapper.Enums;
 using HockeyApp;
+using com.vtcsecure.ace.windows.CustomControls.Resources;
 
 namespace com.vtcsecure.ace.windows
 {
@@ -49,7 +52,11 @@ namespace com.vtcsecure.ace.windows
         private readonly ILinphoneService _linphoneService;
         private FlashWindowHelper _flashWindowHelper = new FlashWindowHelper();
         private readonly MainControllerViewModel _mainViewModel;
-        private int CombinedUICallViewSize = 700;
+        private Size CombinedUICallViewSize = new Size(700, 700);
+        private readonly DispatcherTimer deferredHideTimer = new DispatcherTimer()
+        {
+            Interval = TimeSpan.FromMilliseconds(2000),
+        };
         #endregion
 
         #region Properties
@@ -64,7 +71,6 @@ namespace com.vtcsecure.ace.windows
             _mainViewModel.ActivateWizardPage = true;
             _mainViewModel.OfferServiceSelection = false;
 
-            ServiceManager.Instance.Start();
             _linphoneService = ServiceManager.Instance.LinphoneService;
             _linphoneService.RegistrationStateChangedEvent += OnRegistrationChanged;
             _linphoneService.CallStateChangedEvent += OnCallStateChanged;
@@ -84,6 +90,7 @@ namespace com.vtcsecure.ace.windows
 
             ctrlSettings.SetCallControl(ctrlCall);
             ctrlCall.SettingsControl = ctrlSettings;
+            deferredHideTimer.Tick += DefferedHideOnError;
         }
 
         private void btnRecents_Click(object sender, RoutedEventArgs e)
@@ -92,9 +99,10 @@ namespace com.vtcsecure.ace.windows
             bool isChecked = BtnRecents.IsChecked ?? false;
             if (isChecked)
             {
-                _mainViewModel.IsDialpadDocked = false;
+                CloseAnimated();
                 _mainViewModel.IsContactDocked = false;
                 _mainViewModel.IsSettingsDocked = false;
+                _mainViewModel.IsResourceDocked = false;
             }
             _mainViewModel.IsCallHistoryDocked = isChecked;
         }
@@ -105,9 +113,10 @@ namespace com.vtcsecure.ace.windows
             bool isChecked = BtnContacts.IsChecked ?? false;
             if (isChecked)
             {
-                _mainViewModel.IsDialpadDocked = false;
+                CloseAnimated();
                 _mainViewModel.IsCallHistoryDocked = false;
                 _mainViewModel.IsSettingsDocked = false;
+                _mainViewModel.IsResourceDocked = false;
             }
             _mainViewModel.IsContactDocked = isChecked;
         }
@@ -131,11 +140,25 @@ namespace com.vtcsecure.ace.windows
         {
             //ToggleWindow(_dialpadBox);
             _mainViewModel.IsDialpadDocked = BtnDialpad.IsChecked ?? false;
+            if (_mainViewModel.IsDialpadDocked)
+                OpenAnimated();
+            else
+                CloseAnimated();
         }
 
         private void btnShowResources(object sender, RoutedEventArgs e)
         {
-            ToggleWindow(_messagingWindow);
+            bool isChecked = BtnResourcesView.IsChecked ?? false;
+            if (isChecked)
+            {
+                CloseAnimated();
+                _mainViewModel.IsCallHistoryDocked = false;
+                _mainViewModel.IsContactDocked = false;
+                _mainViewModel.IsSettingsDocked = false;
+            }
+            _mainViewModel.IsResourceDocked = isChecked;// BtnSettings.IsChecked ?? false;
+            // VATRP 856
+            // ToggleWindow(_messagingWindow);
         }
 
         private void btnSettings_Click(object sender, RoutedEventArgs e)
@@ -143,9 +166,10 @@ namespace com.vtcsecure.ace.windows
             bool isChecked = BtnSettings.IsChecked ?? false;
             if (isChecked)
             {
-                _mainViewModel.IsDialpadDocked = false;
+                CloseAnimated();
                 _mainViewModel.IsCallHistoryDocked = false;
                 _mainViewModel.IsContactDocked = false;
+                _mainViewModel.IsResourceDocked = false;
             }
             _mainViewModel.IsSettingsDocked = BtnSettings.IsChecked ?? false;
             if (_mainViewModel.IsSettingsDocked)
@@ -389,9 +413,14 @@ namespace com.vtcsecure.ace.windows
         private void OnSourceInitialized(object sender, EventArgs e)
         {
             base.Window_Initialized(sender, e);
+        }
+
+        public void InitializeMainWindow()
+        {
+            ServiceManager.Instance.UpdateLoggedinContact();
             ServiceManager.Instance.StartupLinphoneCore();
 
-            if (App.CurrentAccount == null ||!App.CurrentAccount.Username.NotBlank())
+            if (App.CurrentAccount == null || !App.CurrentAccount.Username.NotBlank())
             {
                 if (_mainViewModel.ActivateWizardPage)
                     OnVideoRelaySelect(this, null);
@@ -405,12 +434,17 @@ namespace com.vtcsecure.ace.windows
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
+            // VATRP-901
+            EventManager.RegisterClassHandler(typeof(Window),
+     Keyboard.KeyUpEvent, new KeyEventHandler(OnAppKeyUp), true);
+
             _historyView.IsVisibleChanged += OnChildVisibilityChanged;
             _historyView.MakeCallRequested += OnMakeCallRequested;
             _contactBox.IsVisibleChanged += OnChildVisibilityChanged;
             _dialpadBox.IsVisibleChanged += OnChildVisibilityChanged;
             _settingsView.IsVisibleChanged += OnChildVisibilityChanged;
             _messagingWindow.IsVisibleChanged += OnChildVisibilityChanged;
+            _selfView.IsVisibleChanged += OnChildVisibilityChanged;
             _settingsView.SettingsSavedEvent += OnSettingsSaved;
             _keypadCtrl.KeypadClicked += OnKeypadClicked;
             _dialpadBox.KeypadClicked += OnDialpadClicked;
@@ -425,6 +459,7 @@ namespace com.vtcsecure.ace.windows
             ctrlContacts.MakeCallRequested += OnMakeCallRequested;
             ctrlCall.KeypadCtrl = _keypadCtrl;
             ctrlDialpad.KeypadPressed += OnDialpadClicked;
+            _mainViewModel.DialpadHeight = ctrlDialpad.ActualHeight;
 
             // Liz E. - ToDo unified Settings
             ctrlSettings.AccountChangeRequested += OnAccountChangeRequested;
@@ -433,6 +468,8 @@ namespace com.vtcsecure.ace.windows
             //ctrlSettings.MultimediaSettingsChangeClicked += OnSettingsChangeRequired;
             //ctrlSettings.NetworkSettingsChangeClicked += OnSettingsChangeRequired;
             //ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
+
+            ctrlResource.CallResourceRequested += OnCallResourceRequested;
 
             if (App.CurrentAccount != null)
             {
@@ -443,12 +480,20 @@ namespace com.vtcsecure.ace.windows
                 {
                     _mainViewModel.OfferServiceSelection = false;
                     _mainViewModel.IsAccountLogged = true;
-                    _mainViewModel.IsDialpadDocked = true;
-                    _mainViewModel.IsCallHistoryDocked = true;
+                    // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
+                    if (!App.CurrentAccount.UserNeedsAgentView)
+                    {
+                        OpenAnimated();
+                        _mainViewModel.IsCallHistoryDocked = true;
+                        _mainViewModel.DialpadModel.UpdateProvider();
+                        SetToUserAgentView(false);
+                    }
+                    else
+                    {
+                        SetToUserAgentView(true);
+                    }
                 }
             }
-            
-            ServiceManager.Instance.UpdateLoggedinContact();
         }
 
         private void OnRttToggled(bool switch_on)
@@ -523,7 +568,7 @@ namespace com.vtcsecure.ace.windows
                     _mainViewModel.ActivateWizardPage = true;
 
                     _mainViewModel.IsAccountLogged = false;
-                    _mainViewModel.IsDialpadDocked = false;
+                    CloseAnimated();
                     _mainViewModel.IsCallHistoryDocked = false;
                     _mainViewModel.IsContactDocked = false;
                     _mainViewModel.IsMessagingDocked = false;
@@ -545,8 +590,12 @@ namespace com.vtcsecure.ace.windows
 
         private void OnMyAccount(object sender, RoutedEventArgs e)
         {
-            _mainViewModel.IsDialpadDocked = false;
+            CloseAnimated();
+            _mainViewModel.IsCallHistoryDocked = false;
+            _mainViewModel.IsContactDocked = false;
+            _mainViewModel.IsResourceDocked = false;
             _mainViewModel.IsSettingsDocked = true;
+
         }
         private void OnGoToSupport(object sender, RoutedEventArgs e)
         {
@@ -605,6 +654,14 @@ namespace com.vtcsecure.ace.windows
             }
         }
 
+        private void OnShowPreviewWindow(object sender, RoutedEventArgs e)
+        {
+            if (_selfView != null)
+            {
+                ToggleWindow(_selfView);
+            }
+        }
+
         private void OnShowRTTView(object sender, RoutedEventArgs e)
         {
             bool enabled = this.ShowRTTView.IsChecked;
@@ -622,16 +679,17 @@ namespace com.vtcsecure.ace.windows
             {
                 this.ResizeMode = System.Windows.ResizeMode.CanResize;
                 this.MaxHeight = SystemParameters.WorkArea.Height;
-                CombinedUICallViewSize = (int)SystemParameters.WorkArea.Width;
+                CombinedUICallViewSize.Width = SystemParameters.WorkArea.Width;
+                CombinedUICallViewSize.Height = SystemParameters.WorkArea.Height;
                 WindowState = WindowState.Maximized;
             }
             else
             {
                 this.MaxHeight = 700;
-                CombinedUICallViewSize = 700;
+                CombinedUICallViewSize.Width = 700;
+                CombinedUICallViewSize.Height = 700;
+
                 WindowState = System.Windows.WindowState.Normal;
-//                this.Height = 700;
-//                this.Width = 316;
                 this.ResizeMode = System.Windows.ResizeMode.NoResize;
             }
         }
@@ -675,5 +733,74 @@ namespace com.vtcsecure.ace.windows
         }
 
         #endregion
+
+        private void OnCallResourceRequested(ResourceInfo resourceInfo)
+        {
+            if ((resourceInfo != null) && !string.IsNullOrEmpty(resourceInfo.address))
+            {
+                MediaActionHandler.MakeVideoCall(resourceInfo.address);
+            }
+        }
+
+        private void OnAppKeyUp(object sender, KeyEventArgs e)
+        {
+            if (_linphoneService != null && (_mainViewModel != null && _mainViewModel.ActiveCallModel != null && 
+                                             _mainViewModel.ActiveCallModel.CallState == VATRPCallState.InProgress ))
+            {
+                if (e.Key == Key.Enter && !e.IsRepeat)
+                {
+                    if (_linphoneService.GetActiveCallsCount == 1)
+                    {
+                        // Accept incoming call
+                        ctrlCall.AcceptCall(this, null);
+                    }
+                    else if (_linphoneService.GetActiveCallsCount == 2)
+                    {
+                        // Hold/Accept incoming call
+                        ctrlCall.HoldAndAcceptCall(this, null);
+                    }
+                }
+            }
+        }
+
+        public bool IsSliding { get; set; }
+		
+        private void SlideDownCompleted(object sender, EventArgs e)
+        {
+            IsSliding = false;
+            _mainViewModel.DialpadHeight = 1;
+        }
+
+        private void SlideUpCompleted(object sender, EventArgs e)
+        {
+            IsSliding = false;
+            _mainViewModel.DialpadHeight = ctrlDialpad.ActualHeight;
+        }
+
+        public void OpenAnimated()
+        {
+            if (IsSliding )
+                return;
+            IsSliding = true;
+            _mainViewModel.DialpadHeight = 1;
+            _mainViewModel.IsDialpadDocked = true;
+            var s = (Storyboard)Resources["SlideUpAnimation"];
+
+            if (s != null)
+            {
+                s.Begin();
+            }
+        }
+
+        public void CloseAnimated()
+        {
+            if (IsSliding )
+                return;
+            IsSliding = true;
+            _mainViewModel.DialpadHeight = 1;
+            _mainViewModel.IsDialpadDocked = false;
+            var s = (Storyboard)Resources["SlideDownAnimation"];
+            if (s != null) s.Begin();
+        }
     }
 }

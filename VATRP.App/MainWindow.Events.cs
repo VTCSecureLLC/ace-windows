@@ -4,6 +4,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Interop;
+using System.Windows.Threading;
 using com.vtcsecure.ace.windows.CustomControls;
 using com.vtcsecure.ace.windows.Model;
 using com.vtcsecure.ace.windows.Services;
@@ -20,7 +21,18 @@ namespace com.vtcsecure.ace.windows
 		private bool registerRequested = false;
 		private bool signOutRequest = false;
 		private bool defaultConfigRequest;
-		private void OnCallStateChanged(VATRPCall call)
+        
+	    private void DefferedHideOnError(object sender, EventArgs e)
+	    {
+	        deferredHideTimer.Stop();
+
+	        if (_mainViewModel != null)
+	        {
+                _mainViewModel.IsCallPanelDocked = false;
+	        }
+	    }
+
+	    private void OnCallStateChanged(VATRPCall call)
 		{
 			if (this.Dispatcher.Thread != Thread.CurrentThread)
 			{
@@ -31,6 +43,9 @@ namespace com.vtcsecure.ace.windows
 		    if (call == null)
 		        return;
 
+            if (deferredHideTimer != null && deferredHideTimer.IsEnabled)
+                deferredHideTimer.Stop();
+
 			CallViewModel callViewModel = _mainViewModel.FindCallViewModel(call);
 
 			if (callViewModel == null)
@@ -40,8 +55,8 @@ namespace com.vtcsecure.ace.windows
 					CallInfoCtrl = _callInfoView
 				};
 
-                callViewModel.VideoWidth = CombinedUICallViewSize;
-			    callViewModel.VideoHeight = CombinedUICallViewSize;
+                callViewModel.VideoWidth = (int)CombinedUICallViewSize.Width;
+			    callViewModel.VideoHeight = (int)CombinedUICallViewSize.Height;
 #if false
 				switch (App.CurrentAccount.PreferredVideoId.ToLower())
 				{
@@ -165,7 +180,11 @@ namespace com.vtcsecure.ace.windows
 					_flashWindowHelper.StopFlashing();
 					stopPlayback = true;
 					callViewModel.ShowOutgoingEndCall = false;
-					
+			        callViewModel.IsRTTEnabled =
+			            ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+			                Configuration.ConfEntry.USE_RTT, true) && callViewModel.ActiveCall != null &&
+			            _linphoneService.IsRttEnabled(callViewModel.ActiveCall.NativeCallPtr);
+
 					ShowCallOverlayWindow(true);
                     ShowOverlayNewCallWindow(false);
 					ctrlCall.ctrlOverlay.SetCallerInfo(callViewModel.CallerInfo);
@@ -192,21 +211,43 @@ namespace com.vtcsecure.ace.windows
                     ctrlCall.ctrlOverlay.StartCallTimer(ctrlCall.ctrlOverlay.ForegroundCallDuration);
 					_callOverlayView.EndCallRequested = false;
 
+                    if (_selfView.IsVisible)
+                        _selfView.Hide();
 					ctrlCall.AddVideoControl();
+                    ctrlCall.RestartInactivityDetectionTimer();
+			        ctrlCall.UpdateVideoSettingsIfOpen();
+
+//                    MuteCall(createCmd.MuteMicrophone);
+//                    MuteSpeaker(createCmd.MuteSpeaker);
+
 					break;
 				case VATRPCallState.StreamsRunning:
 					callViewModel.OnStreamRunning();
                     ShowCallOverlayWindow(true);
-					ctrlCall.ctrlOverlay.SetCallState("Connected");
+                    // VATRP-1623: we are setting mute microphone true prior to initiating a call, but the call is always started
+                    //   with the mic enabled. attempting to mute right after call is connected here to side step this issue - 
+                    //   it appears to be an initialization issue in linphone
+                    if (_linphoneService.GetActiveCallsCount == 1)
+                    {
+                        ServiceManager.Instance.ApplyMediaSettingsChanges();
+                    }
+                    ctrlCall.ctrlOverlay.SetCallState("Connected");
 			        ctrlCall.UpdateControls();
                     ctrlCall.ctrlOverlay.ForegroundCallDuration = _mainViewModel.ActiveCallModel.CallDuration;
+                    ctrlCall.RestartInactivityDetectionTimer();
+			        ctrlCall.UpdateVideoSettingsIfOpen();
+                    // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
+                    if ((App.CurrentAccount != null) && App.CurrentAccount.UserNeedsAgentView)
+                    {
+                        _mainViewModel.IsMessagingDocked = true;
+                    }
 					break;
 				case VATRPCallState.RemotePaused:
 			        callViewModel.OnRemotePaused();
                     callViewModel.CallState = VATRPCallState.RemotePaused;
                     ShowCallOverlayWindow(true);
                     ctrlCall.ctrlOverlay.SetCallerInfo(callViewModel.CallerInfo);
-                    ctrlCall.ctrlOverlay.SetCallState("Connected");
+                    ctrlCall.ctrlOverlay.SetCallState("On Hold");
                     ctrlCall.UpdateControls();
 					break;
                 case VATRPCallState.LocalPausing:
@@ -287,7 +328,7 @@ namespace com.vtcsecure.ace.windows
                     break;
                 case VATRPCallState.Closed:
 					_flashWindowHelper.StopFlashing();
-					callViewModel.OnClosed(false);
+					callViewModel.OnClosed(false, string.Empty);
 					stopPlayback = true;
 			        destroycall = true;
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
@@ -350,7 +391,7 @@ namespace com.vtcsecure.ace.windows
 			        destroycall = true;
 					_flashWindowHelper.StopFlashing();
                     ctrlCall.BackgroundCallViewModel = null;
-					callViewModel.OnClosed(true);
+					callViewModel.OnClosed(true, call.LinphoneMessage);
 					stopPlayback = true;
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                        Configuration.ConfEntry.USE_RTT, true))
@@ -364,10 +405,12 @@ namespace com.vtcsecure.ace.windows
 						_mainViewModel.RemoveCalViewModel(callViewModel);
 						_callInfoView.Hide();
 						ctrlCall.ctrlOverlay.StopCallTimer();
-						ShowCallOverlayWindow(false);
-						_mainViewModel.IsMessagingDocked = false;
-						_mainViewModel.IsCallPanelDocked = false;
-						_mainViewModel.ActiveCallModel = null;
+                        ShowCallOverlayWindow(false);
+                        _mainViewModel.IsMessagingDocked = false;
+
+                        if (deferredHideTimer != null)
+                            deferredHideTimer.Start();
+                        _mainViewModel.ActiveCallModel = null;
 					}
 					
 					break;
@@ -393,11 +436,14 @@ namespace com.vtcsecure.ace.windows
                             _remoteVideoView.DestroyOnClosing = true; // allow window to be closed
                             _remoteVideoView.Close();
                             _remoteVideoView = null;
-                            _callOverlayView.Hide();
                         }
-                        _mainViewModel.IsMessagingDocked = false;
-                        _mainViewModel.IsCallPanelDocked = false;
+                        if (deferredHideTimer != null && !deferredHideTimer.IsEnabled)
+                        {
+                            _mainViewModel.IsMessagingDocked = false;
+                            _mainViewModel.IsCallPanelDocked = false;
+                        }
                     }
+
                     _mainViewModel.ActiveCallModel = null;
                 }
 		    }
@@ -435,13 +481,13 @@ namespace com.vtcsecure.ace.windows
 
 	    private void ShowCallOverlayWindow(bool bShow)
 		{
-            ctrlCall.ctrlOverlay.CommandWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize - 660) / 2;
+            ctrlCall.ctrlOverlay.CommandWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize.Width - 660) / 2;
 			ctrlCall.ctrlOverlay.CommandWindowTopMargin = 500 - SystemParameters.CaptionHeight;
 
-            ctrlCall.ctrlOverlay.NumpadWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize - 230) / 2;
+            ctrlCall.ctrlOverlay.NumpadWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize.Width - 230) / 2;
 			ctrlCall.ctrlOverlay.NumpadWindowTopMargin = 170 - SystemParameters.CaptionHeight;
 
-            ctrlCall.ctrlOverlay.CallInfoWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize - 660) / 2;
+            ctrlCall.ctrlOverlay.CallInfoWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize.Width - 660) / 2;
 			ctrlCall.ctrlOverlay.CallInfoWindowTopMargin = 40 - SystemParameters.CaptionHeight;
 
 			ctrlCall.ctrlOverlay.ShowCommandBar(bShow);
@@ -458,7 +504,7 @@ namespace com.vtcsecure.ace.windows
 
         private void ShowOverlayNewCallWindow(bool bShow)
         {
-            ctrlCall.ctrlOverlay.NewCallAcceptWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize - 320) / 2;
+            ctrlCall.ctrlOverlay.NewCallAcceptWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize.Width - 320) / 2;
             ctrlCall.ctrlOverlay.NewCallAcceptWindowTopMargin = 170 - SystemParameters.CaptionHeight;
 
             ctrlCall.ctrlOverlay.ShowNewCallAcceptWindow(bShow);
@@ -475,7 +521,6 @@ namespace com.vtcsecure.ace.windows
 
 		private void OnRegistrationChanged(LinphoneRegistrationState state)
 		{
-//            LOG.Debug("MainWindow.Event:OnRegistrationChanged: registrationState = " + state.ToString());
 			if (this.Dispatcher.Thread != Thread.CurrentThread)
 			{
 				this.Dispatcher.BeginInvoke((Action)(() => this.OnRegistrationChanged(state)));
@@ -532,7 +577,7 @@ namespace com.vtcsecure.ace.windows
 
                 signOutRequest = false;
                 _mainViewModel.IsAccountLogged = false;
-                _mainViewModel.IsDialpadDocked = false;
+                CloseAnimated();
                 _mainViewModel.IsCallHistoryDocked = false;
                 _mainViewModel.IsContactDocked = false;
                 _mainViewModel.IsMessagingDocked = false;
@@ -565,18 +610,47 @@ namespace com.vtcsecure.ace.windows
 			defaultConfigRequest = false;
 		}
 
+        // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
+        private void SetToUserAgentView(bool isUserAgent)
+        {
+            System.Windows.Visibility visibility = System.Windows.Visibility.Visible;
+
+            if (isUserAgent)
+            {
+                visibility = System.Windows.Visibility.Collapsed; 
+            }
+            // for the agent view, we want to hide all navigation buttons except the settings button.
+            // we want to ensure that auto answer is set to true.
+            this.BtnContacts.Visibility = visibility;
+            this.BtnDialpad.Visibility = visibility;
+            this.BtnRecents.Visibility = visibility;
+            this.BtnResourcesView.Visibility = visibility;
+            this.BtnSettings.Visibility = System.Windows.Visibility.Visible;
+            // configure the other settings that we need for user agent:
+        }
+
 		private void OnNewAccountRegistered(string accountId)
 		{
 		    _mainViewModel.OfferServiceSelection = false;
 		    _mainViewModel.ActivateWizardPage = false;
-			LOG.Info(string.Format( "New account registered. Useaname -{0}. Host - {1} Port - {2}",
+			LOG.Info(string.Format( "New account registered. Username -{0}. Host - {1} Port - {2}",
 				App.CurrentAccount.RegistrationUser,
 				App.CurrentAccount.ProxyHostname,
 				App.CurrentAccount.ProxyPort));
 
-			_mainViewModel.IsDialpadDocked = true;
-			_mainViewModel.IsCallHistoryDocked = true;
-			_mainViewModel.IsAccountLogged = true;
+            _mainViewModel.IsAccountLogged = true;
+            // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
+            if ((App.CurrentAccount != null) && (!App.CurrentAccount.UserNeedsAgentView))
+            {
+                OpenAnimated();
+                _mainViewModel.IsCallHistoryDocked = true;
+                _mainViewModel.DialpadModel.UpdateProvider();
+                SetToUserAgentView(false);
+            }
+            else
+            {
+                SetToUserAgentView(true);
+            }
 			ServiceManager.Instance.UpdateLoggedinContact();
 		    ServiceManager.Instance.StartupLinphoneCore();
 		}
@@ -607,6 +681,9 @@ namespace com.vtcsecure.ace.windows
 					break;
 				case VATRPWindowType.SETTINGS_VIEW:
 					break;
+                case VATRPWindowType.SELF_VIEW:
+                    this.ShowSelfPreviewItem.IsChecked = bShow;
+			        break;
 			}
 		}
 

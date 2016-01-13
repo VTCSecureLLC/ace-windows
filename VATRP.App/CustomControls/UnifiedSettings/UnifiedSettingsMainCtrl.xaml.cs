@@ -63,8 +63,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                         break;
                     }
                 }
+                this.EnableVideoCheckBox.IsChecked = App.CurrentAccount.EnableVideo;
             }
 
+            this.EnableRTTCheckBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.USE_RTT, true);
             this.AutoAnswerCheckBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.AUTO_ANSWER, false);
             this.AvpfCheckbox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
@@ -80,9 +83,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 visibleSetting = System.Windows.Visibility.Visible;
             }
             DebugMenuLabel.Visibility = visibleSetting;
-            ReleaseCoreButton.Visibility = visibleSetting;
-            ClearCacheButton.Visibility = visibleSetting;
-            BatteryAlertButton.Visibility = visibleSetting;
             AutoAnswerLabel.Visibility = visibleSetting;
             AutoAnswerCheckBox.Visibility = visibleSetting;
         }
@@ -106,16 +106,16 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             OutboundProxyLabel.Visibility = visibleSetting;
             OutboundProxyCheckbox.Visibility = visibleSetting;
 
-            AvpfLabel.Visibility = visibleSetting;
-            AvpfCheckbox.Visibility = visibleSetting;
+//            AvpfLabel.Visibility = visibleSetting;
+//            AvpfCheckbox.Visibility = visibleSetting;
 
             PreferencesLabel.Visibility = visibleSetting;
 
             EnableVideoLabel.Visibility = visibleSetting;
             EnableVideoCheckBox.Visibility = visibleSetting;
 
-            EnableRTTLabel.Visibility = visibleSetting;
-            EnableRTTCheckBox.Visibility = visibleSetting;
+//            EnableRTTLabel.Visibility = visibleSetting;
+//            EnableRTTCheckBox.Visibility = visibleSetting;
 
             AudioButton.Visibility = visibleSetting;
             AudioButtonLabel.Visibility = visibleSetting;
@@ -149,7 +149,10 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             PasswordLabel.Visibility = visibleSetting;
             PasswordTextBox.Visibility = visibleSetting;
 
-           
+            ReleaseCoreButton.Visibility = visibleSetting;
+            ClearCacheButton.Visibility = visibleSetting;
+            BatteryAlertButton.Visibility = visibleSetting;
+
         }
         #endregion
 
@@ -412,8 +415,12 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             if (App.CurrentAccount != null)
             {
                 bool enabled = EnableVideoCheckBox.IsChecked ?? false;
-                App.CurrentAccount.EnableVideo = enabled;
-                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.VideoPolicyChanged);
+                if (App.CurrentAccount.EnableVideo != enabled)
+                {
+                    App.CurrentAccount.EnableVideo = enabled;
+                    ServiceManager.Instance.SaveAccountSettings();
+                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.VideoPolicyChanged);
+                }
             }                        
         }
 

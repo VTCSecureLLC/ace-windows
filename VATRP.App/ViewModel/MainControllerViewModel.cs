@@ -17,10 +17,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _isDialpadDocked;
         private bool _isHistoryDocked;
         private bool _isSettingsDocked;
+        private bool _isResourceDocked;
         private bool _isMessagingDocked;
         private bool _isCallPanelDocked;
         private bool _offerServiceSelection;
         private bool _activateWizardPage;
+        private double _dialpadHeight;
 
         private DialpadViewModel _dialPadViewModel;
         private CallHistoryViewModel _historyViewModel;
@@ -42,6 +44,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _isMessagingDocked = false;
             _isCallPanelDocked = false;
             _isSettingsDocked = false;
+            _isResourceDocked = false;
             _offerServiceSelection = false;
             _activateWizardPage = false; 
             _dialPadViewModel = new DialpadViewModel();
@@ -53,6 +56,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _settingsViewModel = new SettingsViewModel();
             _callsViewModelList = new ObservableCollection<CallViewModel>();
             _linphoneService = ServiceManager.Instance.LinphoneService;
+            _dialpadHeight = 350;
         }
 
         #region Properties
@@ -114,6 +118,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 _isSettingsDocked = value;
                 OnPropertyChanged("IsSettingsDocked");
+            }
+        }
+
+        public bool IsResourceDocked
+        {
+            get { return _isResourceDocked; }
+            set
+            {
+                _isResourceDocked = value;
+                OnPropertyChanged("IsResourceDocked");
             }
         }
 
@@ -219,10 +233,20 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
+        public double DialpadHeight
+        {
+            get { return _dialpadHeight; }
+            set
+            {
+                _dialpadHeight = value; 
+                OnPropertyChanged("DialpadHeight");
+            }
+        }
+
         #endregion
 
         #region Calls management
-
+        
         internal CallViewModel FindCallViewModel(VATRPCall call)
         {
             if (call == null)
@@ -319,16 +343,18 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     viewModel.AcceptCall();
                     bool muteMicrophone = false;
                     bool muteSpeaker = false;
+                    bool enableVideo = true;
                     if (App.CurrentAccount != null)
                     {
                         muteMicrophone = App.CurrentAccount.MuteMicrophone;
                         muteSpeaker = App.CurrentAccount.MuteSpeaker;
+                        enableVideo = App.CurrentAccount.EnableVideo;
                     }
                     try
                     {
                         _linphoneService.AcceptCall(viewModel.ActiveCall.NativeCallPtr,
                             ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                                Configuration.ConfEntry.USE_RTT, true), muteMicrophone, muteSpeaker);
+                                Configuration.ConfEntry.USE_RTT, true), muteMicrophone, muteSpeaker, enableVideo);
                     }
                     catch (Exception ex)
                     {

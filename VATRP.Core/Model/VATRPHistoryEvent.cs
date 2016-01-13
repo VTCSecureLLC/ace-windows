@@ -49,6 +49,7 @@ namespace VATRP.Core.Model
             {
                 this._contact = value;
                 NotifyPropertyChanged("Contact");
+                NotifyPropertyChanged("DisplayName");
             }
         }
 
@@ -57,7 +58,8 @@ namespace VATRP.Core.Model
             get
             {
                 var vatrpContact = this.Contact;
-                if (vatrpContact != null && !string.IsNullOrEmpty(vatrpContact.DisplayName))
+                if (vatrpContact != null && vatrpContact.IsLinphoneContact && 
+                    !string.IsNullOrEmpty(vatrpContact.DisplayName))
                     return this.Contact.DisplayName;
 
                 return _displayName;

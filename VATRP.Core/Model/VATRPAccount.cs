@@ -15,7 +15,6 @@ namespace VATRP.Core.Model
         private string _transport;
         private string _mediaEncryption;
 
-		
         #endregion
 
         #region Properties
@@ -83,13 +82,22 @@ namespace VATRP.Core.Model
         }
 
         [Column]
-        public bool EnubleSTUN { get; set; }
+        public bool EnableSTUN { get; set; }
 
         [Column]
         public string STUNAddress { get; set; }
 
         [Column]
         public ushort STUNPort { get; set; }
+
+        [Column]
+        public bool EnableICE { get; set; }
+
+        [Column]
+        public string ICEAddress { get; set; }
+
+        [Column]
+        public ushort ICEPort { get; set; }
 
         [Column] 
         public bool EnableAVPF { get; set; }
@@ -100,6 +108,15 @@ namespace VATRP.Core.Model
         [Column]
         public bool MuteSpeaker { get; set; }
 
+        [Column]
+        public string SelectedCameraId { get; set; }
+
+        [Column]
+        public string SelectedSpeakerId { get; set; }
+
+        [Column]
+        public string SelectedMicrophoneId { get; set; }
+        
         [Column]
         public bool EchoCancel { get; set; }
 
@@ -150,6 +167,10 @@ namespace VATRP.Core.Model
         public List<VATRPCodec> AudioCodecsList = new List<VATRPCodec>();
         public List<VATRPCodec> VideoCodecsList = new List<VATRPCodec>();
 
+        [Column]
+        public bool UserNeedsAgentView { get; set; }
+
+
         #endregion
 
         #region Methods
@@ -182,6 +203,10 @@ namespace VATRP.Core.Model
             EchoCancel = false;
             UseOutboundProxy = false;
             VideoPreset = "high-fps";
+            SelectedCameraId = string.Empty;
+            SelectedMicrophoneId = string.Empty;
+            SelectedSpeakerId = string.Empty;
+            UserNeedsAgentView = false;
         }
 
         #endregion

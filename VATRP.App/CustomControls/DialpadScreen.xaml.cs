@@ -6,6 +6,7 @@ using log4net;
 using com.vtcsecure.ace.windows.Model;
 using com.vtcsecure.ace.windows.Services;
 using com.vtcsecure.ace.windows.ViewModel;
+using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 
 namespace com.vtcsecure.ace.windows.CustomControls
@@ -116,33 +117,6 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         #endregion
         
-       
-        private void OnLoaded(object sender, RoutedEventArgs e)
-        {
-            
-        }
-
-       private void OnUnloaded(object sender, RoutedEventArgs e)
-        {
-           
-        }
-
-        private void numberTextBox_PreviewKeyUp(object sender, KeyEventArgs e)
-        {
-            try
-            {
-                if (e.Key == Key.Enter)
-                {
-                    MediaActionHandler.MakeVideoCall(_viewModel.RemotePartyNumber);
-                    _viewModel.RemotePartyNumber = "";
-                }
-            }
-            catch (Exception ex)
-            {
-                
-            }
-        }
-        
         private void VideoCallClick(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(_viewModel.RemotePartyNumber))
@@ -151,7 +125,11 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 return;
             }
 
-            MediaActionHandler.MakeVideoCall(_viewModel.RemotePartyNumber);
+            if (App.CurrentAccount != null)
+            {
+                var remote = string.Format("sip:{0}@{1}", _viewModel.RemotePartyNumber, App.CurrentAccount.ProxyHostname);
+                MediaActionHandler.MakeVideoCall(remote);
+            }
             _viewModel.RemotePartyNumber = "";
         }
 
@@ -182,7 +160,41 @@ namespace com.vtcsecure.ace.windows.CustomControls
             if (timerHold != null)
                 timerHold.Enabled = true;
         }
+
+        private void ShowGAWarning(object sender, MouseButtonEventArgs e)
+        {
+            MessageBox.Show("Available in General Release", "ACE", MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+        }
+
+        private void OnDialpadPreviewKeyup(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter)
+                return;
+            try
+            {
+                var remote = _viewModel.RemotePartyNumber.Trim();
+                if (remote.NotBlank())
+                {
+                    if (App.CurrentAccount != null)
+                    {
+                        remote = string.Format("sip:{0}@{1}", remote, App.CurrentAccount.ProxyHostname);
+                        if (MediaActionHandler.MakeVideoCall(remote))
+                            _viewModel.RemotePartyNumber = "";
+                        e.Handled = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ServiceManager.LogError("OnDialString", ex);
+            }
+        }
+
+        private void OnDialpadPreviewKeydown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+                e.Handled = true; // prevent further processing
+        }
     }
-        
-   
 }
