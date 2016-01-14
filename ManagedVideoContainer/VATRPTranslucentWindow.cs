@@ -125,18 +125,14 @@ namespace VATRP.Linphone.VideoWrapper
             FrameworkElement windowContent=((parent.Content) as FrameworkElement);
             if (windowContent != null)
             {
-                Rect r = LayoutInformation.GetLayoutSlot(_container);
                 windowLeftMargin = WindowLeftMargin == 0 ? (parent.ActualWidth - windowContent.ActualWidth)/2 : WindowLeftMargin;
                 windowTopMargin = (WindowTopMargin == 0) ? (parent.ActualHeight - windowContent.ActualHeight) : WindowTopMargin;
 
-
                 _window.Left = parent.Left + windowLeftMargin;
-                _window.Top = parent.Top + SystemParameters.CaptionHeight +  windowTopMargin;
+                _window.Top = parent.Top + windowTopMargin;
                 _window.Width = OverlayWidth;
                 _window.Height = OverlayHeight;
             }
         }
-
-        
     }
 }
