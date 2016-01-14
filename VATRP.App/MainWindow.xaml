@@ -48,7 +48,9 @@
 			<RowDefinition Height="Auto"></RowDefinition>
 		</Grid.RowDefinitions>
 		<Menu IsMainMenu="True" Height="27" HorizontalAlignment="Left" x:Name="WndMenu" VerticalAlignment="Top" Width="Auto" 
-			  Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Grid.Column="0">
+			  Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Grid.Column="0" 
+              Visibility="{Binding IsInCallFullScreen, Converter={StaticResource ibvc}}"
+              >
 			<MenuItem x:Name="VATRPItem" Header="_ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
                 <MenuItem Header="_My Account" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnMyAccount"/>
                 <!--<MenuItem Header="_Preferences" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnMyAccount"/>-->
@@ -119,7 +121,7 @@
 			</StackPanel>
 		</Grid>
 
-		<Grid x:Name="ActivityViewHolder" Grid.Row="1" Grid.Column="0" Visibility="{Binding IsAccountLogged, Converter={StaticResource bvc}}" >
+        <Grid x:Name="ActivityViewHolder" Grid.Row="1" Grid.Column="0" Visibility="{Binding IsDashboardDocked, Converter={StaticResource bvc}}" >
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto"/>
 				<RowDefinition Height="*"/>
@@ -149,7 +151,7 @@
             <Grid x:Name="DialpadBackground" Grid.Row="2" Grid.Column="0" Height="{Binding DialpadHeight}"/>
         </Grid>
 
-        <Grid x:Name="DialpadViewHolder" Grid.Row="1" Grid.Column="0" Visibility="{Binding IsAccountLogged, Converter={StaticResource bvc}}" >
+        <Grid x:Name="DialpadViewHolder" Grid.Row="1" Grid.Column="0" Visibility="{Binding IsDashboardDocked, Converter={StaticResource bvc}}" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto" />
@@ -165,7 +167,7 @@
         </Grid>
 
         <!--Navigation panel-->
-		<Grid x:Name="NavPanel" Margin="0" Grid.Row="3" Grid.Column="0" Visibility="{Binding IsAccountLogged, Converter={StaticResource bvc}}" Height="50" Background="{StaticResource AppMainWindowBrush}">
+        <Grid x:Name="NavPanel" Margin="0" Grid.Row="3" Grid.Column="0" Visibility="{Binding IsDashboardDocked, Converter={StaticResource bvc}}" Height="50" Background="{StaticResource AppMainWindowBrush}">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="60" />
 				<ColumnDefinition Width="60" />
@@ -664,15 +666,16 @@
 
 		</Grid>
 
-        <Border Grid.Column="1" Grid.Row="0" Grid.RowSpan="4" BorderThickness="1,0,1,0" Margin="0" BorderBrush="{StaticResource AppMainBorderBrush}" 
+        <Border x:Name="CallViewBorder" Grid.Column="1" Grid.Row="0" Grid.RowSpan="4" BorderThickness="1,0,1,0" Margin="0" BorderBrush="{StaticResource AppMainBorderBrush}" 
                 Background="{StaticResource AppMainBorderBrush}" 
-                MinWidth="700" MaxWidth="700" 
                 Visibility="{Binding IsCallPanelDocked, Converter={StaticResource bvc}}">
         <DockPanel Dock="Top"  Background="{DynamicResource AppMainWindowBrush}" >
                 <customControls:CallViewCtrl x:Name="ctrlCall" Margin="0"/>
             </DockPanel>
         </Border>
-        <Border Grid.Column="2" Grid.Row="0" Grid.RowSpan="4" BorderThickness="1,0,1,0" Margin="0" BorderBrush="{StaticResource AppMainBorderBrush}" Background="{StaticResource AppMainBorderBrush}" Visibility="{Binding IsMessagingDocked, Converter={StaticResource bvc}}">
+        <Border x:Name="MessageViewBorder" Grid.Column="2" Grid.Row="0" Grid.RowSpan="4" BorderThickness="1,0,1,0" Margin="0" BorderBrush="{StaticResource AppMainBorderBrush}" 
+                Background="{StaticResource AppMainBorderBrush}" 
+                Visibility="{Binding IsMessagingDocked, Converter={StaticResource bvc}}">
             <DockPanel Dock="Top" Background="{DynamicResource AppMainWindowBrush}" >
             <customControls:RTTCtrl x:Name="ctrlRTT" Margin="0"/>
             </DockPanel>

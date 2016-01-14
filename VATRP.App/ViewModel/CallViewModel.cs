@@ -380,6 +380,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 OnPropertyChanged("IsCallInfoOn");
             }
         }
+
+        public bool IsFullScreenOn
+        {
+            get { return _isFullScreenOn; }
+            set
+            {
+                _isFullScreenOn = value;
+                OnPropertyChanged("IsFullScreenOn");
+            }
+        }
 		
         public bool IsCallOnHold
         {
@@ -969,6 +979,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         public Visibility NumpadLastTimeVisibility;
         public Visibility CallInfoLastTimeVisibility;
         public Visibility CallSwitchLastTimeVisibility;
+        private bool _isFullScreenOn;
         
     }
 }
