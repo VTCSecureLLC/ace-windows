@@ -689,23 +689,13 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-<<<<<<< HEAD
     <PostBuildEvent>
       copy /b "$(SolutionDir)\output\bin\*.dll" "$(TargetDir)"
 
       xcopy /b "$(SolutionDir)thirdparties\rootca.pem" "$(TargetDir)"
+      xcopy /b "$(SolutionDir)thirdparties\legal_release.txt" "$(TargetDir)"
     </PostBuildEvent>
 
-=======
-    <PostBuildEvent>copy /b "$(SolutionDir)thirdparties\liblinphone\*.dll" "$(TargetDir)"
-xcopy /b "$(SolutionDir)thirdparties\rootca.pem" "$(TargetDir)"
-xcopy /b "$(SolutionDir)thirdparties\legal_release.txt" "$(TargetDir)"
-mkdir "$(TargetDir)\lib"
-mkdir "$(TargetDir)\lib\mediastreamer"
-mkdir "$(TargetDir)\lib\mediastreamer\plugins"
-move  "$(TargetDir)\openh264.dll" "$(TargetDir)\lib\mediastreamer\plugins"
-move  "$(TargetDir)\libmsopenh264.dll" "$(TargetDir)\lib\mediastreamer\plugins"</PostBuildEvent>
->>>>>>> c5ab8f9ccb693d222cf266e5dc4bb3218c7ab200
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
