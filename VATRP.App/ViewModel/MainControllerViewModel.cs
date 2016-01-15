@@ -20,6 +20,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _isResourceDocked;
         private bool _isMessagingDocked;
         private bool _isCallPanelDocked;
+        private bool _isIncallFullScreen;
         private bool _offerServiceSelection;
         private bool _activateWizardPage;
         private double _dialpadHeight;
@@ -76,7 +77,25 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 _isAccountLogged = value;
                 OnPropertyChanged("IsAccountLogged");
+                OnPropertyChanged("IsDashboardDocked");
             }
+        }
+
+        public bool IsInCallFullScreen
+        {
+            get { return _isIncallFullScreen; }
+            set
+            {
+                _isIncallFullScreen = value;
+                OnPropertyChanged("IsInCallFullScreen");
+                OnPropertyChanged("IsDashboardDocked");
+                OnPropertyChanged("IsCallPanelBorderVisible");
+            }
+        }
+
+        public bool IsDashboardDocked
+        {
+            get { return _isAccountLogged && !_isIncallFullScreen; }
         }
 
         public string AppTitle
