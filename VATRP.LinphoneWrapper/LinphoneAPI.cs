@@ -27,14 +27,17 @@ namespace VATRP.LinphoneWrapper
         #endregion
 
         #region Methods
+
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_core_get_version();
+
         public static string linphone_core_get_version_asString()
         {
             IntPtr ptr = linphone_core_get_version();
             // assume returned string is utf-8 encoded
             return PtrToStringUtf8(ptr);
         }
+
         public static string PtrToStringUtf8(IntPtr ptr) // aPtr is nul-terminated
         {
             if (ptr == IntPtr.Zero)
@@ -134,7 +137,7 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_call_params_enable_video(IntPtr cp, bool enabled);
-        
+
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_call_params_set_audio_bandwidth_limit(IntPtr cp, int kbit);
 
@@ -220,18 +223,18 @@ namespace VATRP.LinphoneWrapper
         public static extern int linphone_core_redirect_call(IntPtr lc, IntPtr call, string redirect_uri);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern	int linphone_core_pause_call(IntPtr lc, IntPtr call);
+        public static extern int linphone_core_pause_call(IntPtr lc, IntPtr call);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        
-        public static extern	int linphone_core_pause_all_calls(IntPtr lc);
+
+        public static extern int linphone_core_pause_all_calls(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_core_resume_call(IntPtr lc, IntPtr call);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_core_defer_call_update(IntPtr lc, IntPtr call);
-        
+
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_call_start_recording(IntPtr call);
 
@@ -1116,7 +1119,7 @@ namespace VATRP.LinphoneWrapper
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_proxy_config_set_route(IntPtr proxy, string route);
 
-       [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_proxy_config_set_expires(IntPtr proxy, int expires);
 
 
@@ -1459,6 +1462,7 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_chat_message_state_to_string(LinphoneChatMessageState state);
+
 /**
  * Get the state of the message
  *@param message #LinphoneChatMessage obj
@@ -1912,7 +1916,7 @@ namespace VATRP.LinphoneWrapper
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_friend_edit(IntPtr fr);
 
-         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_friend_done(IntPtr fr);
 
         #endregion
@@ -2042,8 +2046,8 @@ namespace VATRP.LinphoneWrapper
  * @return The RTP statistics that have been computed locally for the call.
 **/
 
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] 
-        public static extern  IntPtr linphone_call_log_get_local_stats (IntPtr cl);
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_log_get_local_stats(IntPtr cl);
 
 /**
  * Get the overall quality indication of the call.
@@ -2064,8 +2068,8 @@ namespace VATRP.LinphoneWrapper
  * @return The reference key string that has been associated to the call log, or NULL if none has been associated.
 **/
 
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] 
-        public static extern IntPtr linphone_call_log_get_ref_key ( IntPtr cl );
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_log_get_ref_key(IntPtr cl);
 
 /**
  * Get the remote address (that is from or to depending on call direction).
@@ -2142,30 +2146,30 @@ namespace VATRP.LinphoneWrapper
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_address_get_display_name(IntPtr u);
 
-        
+
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_address_get_username(IntPtr u);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_address_get_domain(IntPtr u);
-        
+
         #endregion
-        
+
         #region Security
-        
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern  void linphone_core_set_zrtp_secrets_file(IntPtr lc, string file);
-        
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern  IntPtr linphone_core_get_zrtp_secrets_file(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern  void linphone_core_set_user_certificates_path(IntPtr lc, string path);
+        public static extern void linphone_core_set_zrtp_secrets_file(IntPtr lc, string file);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern  IntPtr linphone_core_get_user_certificates_path(IntPtr lc);
-        
+        public static extern IntPtr linphone_core_get_zrtp_secrets_file(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_user_certificates_path(IntPtr lc, string path);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_user_certificates_path(IntPtr lc);
+
         #endregion
 
         #endregion
@@ -2177,14 +2181,18 @@ namespace VATRP.LinphoneWrapper
         public static extern void ortp_free(IntPtr p);
 
         #region Configuration
+
         /**void linphone_proxy_config_set_dial_prefix (LinphoneProxyConfig* cfg, const char* prefix)
          * Sets a dialing prefix to be automatically prepended when inviting a number with linphone_core_invite(); This dialing prefix shall usually be the country code of the country where the user is living.
          * */
+
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_proxy_config_set_dial_prefix(IntPtr cfg, string route);
+
         /** void linphone_proxy_config_set_dial_escape_plus	(LinphoneProxyConfig * 	cfg, bool_t val)
          * Sets whether liblinphone should replace "+" by international calling prefix in dialed numbers (passed to linphone_core_invite ).
          * */
+
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_proxy_config_set_dial_escape_plus(IntPtr cfg, bool enable);
 
@@ -2194,7 +2202,123 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr lp_config_set_int(IntPtr lpconfig, string section, string key, int value);
+
         #endregion
 
+        #region MS LIST
+
+/** Inserts a new element containing data to the end of a given list
+ * @param list list where data should be added. If NULL, a new list will be created.
+ * @param data data to insert into the list
+ * @return first element of the list
+**/
+        [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr ms_list_append(IntPtr list, IntPtr data);
+
+/** Inserts given element to the end of a given list
+ * @param list list where data should be added. If NULL, a new list will be created.
+ * @param new_elem element to append
+ * @return first element of the list
+**/
+        [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr ms_list_append_link(IntPtr list, IntPtr new_elem);
+
+/** Inserts a new element containing data to the start of a given list
+ * @param list list where data should be added. If NULL, a new list will be created.
+ * @param data data to insert into the list
+ * @return first element of the list - the one which was just created.
+**/
+        [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr ms_list_prepend(IntPtr list, IntPtr data);
+
+/** Frees all elements of a given list
+ * Note that data contained in each element will not be freed. If you need to clean
+ * them, consider using @ms_list_free_with_data
+ * @param list object to free.
+ * @return NULL
+**/
+        [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr ms_list_free(IntPtr list);
+
+/** Concatenates second list to the end of first list
+ * @param first First list
+ * @param second Second list to append at the end of first list.
+ * @return first element of the merged list
+**/
+        [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr ms_list_concat(IntPtr first, IntPtr second);
+
+/** Finds and remove the first element containing the given data. Nothing is done if element is not found.
+ * @param list List in which data must be removed
+ * @param data Data to remove
+ * @return first element of the modified list
+**/
+        [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr ms_list_remove(IntPtr list, IntPtr data);
+
+/** Returns size of a given list
+ * @param list List to measure
+ * @return Size of list
+**/
+        [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int ms_list_size(IntPtr list);
+
+/** Finds and remove given element in list.
+ * @param list List in which element must be removed
+ * @param element element to remove
+ * @return first element of the modified list
+**/
+        [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr ms_list_remove_link(IntPtr list, IntPtr elem);
+
+/** Finds first element containing data in the given list.
+ * @param list List in which element must be found
+ * @param data data to find
+ * @return element containing data, or NULL if not found
+**/
+        [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr ms_list_find(IntPtr list, IntPtr data);
+
+/** Returns the nth element data of the list
+ * @param list List object
+ * @param index data index which must be returned.
+ * @return Element at the given index. NULL if index is invalid (negative or greater or equal to ms_list_size).
+**/
+        [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr ms_list_nth_data(IntPtr list, int index);
+
+/** Returns the index of the given element
+ * @param list List object
+ * @param elem Element to search for.
+ * @return Index of the given element. -1 if not found.
+**/
+        [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int ms_list_position(IntPtr list, IntPtr elem);
+
+/** Returns the index of the first element containing data
+ * @param list List object
+ * @param data Data to search for.
+ * @return Index of the element containing data. -1 if not found.
+**/
+        [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int ms_list_index(IntPtr list, IntPtr data);
+
+/** Inserts a new element containing data before the given element
+ * @param list list where data should be added. If NULL, a new list will be created.
+ * @param before element parent to the one we will insert.
+ * @param data data to insert into the list
+ * @return first element of the modified list.
+**/
+        [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr ms_list_insert(IntPtr list, IntPtr before, IntPtr data);
+
+/** Copies a list in another one, duplicating elements but not data
+ * @param list list to copy
+ * @return Newly created list
+**/
+        [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr ms_list_copy(IntPtr list);
+
+        #endregion
     }
 }
