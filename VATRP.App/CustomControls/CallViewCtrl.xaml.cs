@@ -33,7 +33,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
         private bool restoreVisibilityStates = false;
         private System.Drawing.Point _lastMousePosition;
         private bool _inactivityTimerStopped;
-
+        private bool _isFullScreenOn;
         #endregion
 
         #region Properties
@@ -59,6 +59,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
         public delegate void SwitchCallbarButton(bool switch_on);
 
         public event SwitchCallbarButton VideoOnToggled;
+        public event SwitchCallbarButton FullScreenOnToggled;
         public event SwitchCallbarButton MuteOnToggled;
         public event SwitchCallbarButton SpeakerOnToggled;
         public event SwitchCallbarButton NumpadToggled;
@@ -75,7 +76,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             InitializeComponent();
             DataContext = _viewModel;
             ctrlOverlay.CommandOverlayWidth = 660;
-            ctrlOverlay.CommandOverlayHeight = 550;
+            ctrlOverlay.CommandOverlayHeight = 160;
 
             ctrlOverlay.NumpadOverlayWidth = 229;
             ctrlOverlay.NumpadOverlayHeight = 305;
@@ -156,13 +157,6 @@ namespace com.vtcsecure.ace.windows.CustomControls
             EndCall(false);
         }
 
-        private void OnSwitchVideo(object sender, RoutedEventArgs e)
-        {
-            if (_viewModel != null)
-                _viewModel.SwitchSelfVideo();
-            SaveStates();
-        }
-
         public void AcceptCall(object sender, RoutedEventArgs e)
         {
             if (_parentViewModel != null)
@@ -200,6 +194,13 @@ namespace com.vtcsecure.ace.windows.CustomControls
             {
                 ServiceManager.LogError("Main OnCallStateChanged", ex);
             }
+        }
+
+        private void OnToggleFullScreen(object sender, RoutedEventArgs e)
+        {
+            if (FullScreenOnToggled != null)
+                FullScreenOnToggled(BtnFullScreen.IsChecked ?? false);
+            SaveStates();
         }
 
         private void OnToggleVideo(object sender, RoutedEventArgs e)

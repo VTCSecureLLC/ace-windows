@@ -350,7 +350,7 @@ namespace com.vtcsecure.ace.windows
 						_mainViewModel.IsMessagingDocked = false;
 						_mainViewModel.IsCallPanelDocked = false;
 						_mainViewModel.ActiveCallModel = null;
-
+					    OnFullScreenToggled(false); // restore main window to dashboard
 					}
 					else
 					{
@@ -411,6 +411,7 @@ namespace com.vtcsecure.ace.windows
                         if (deferredHideTimer != null)
                             deferredHideTimer.Start();
                         _mainViewModel.ActiveCallModel = null;
+                        OnFullScreenToggled(false); // restore main window to dashboard
 					}
 					
 					break;
@@ -481,14 +482,8 @@ namespace com.vtcsecure.ace.windows
 
 	    private void ShowCallOverlayWindow(bool bShow)
 		{
-            ctrlCall.ctrlOverlay.CommandWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize.Width - 660) / 2;
-			ctrlCall.ctrlOverlay.CommandWindowTopMargin = 500 - SystemParameters.CaptionHeight;
-
-            ctrlCall.ctrlOverlay.NumpadWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize.Width - 230) / 2;
-			ctrlCall.ctrlOverlay.NumpadWindowTopMargin = 170 - SystemParameters.CaptionHeight;
-
-            ctrlCall.ctrlOverlay.CallInfoWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize.Width - 660) / 2;
-			ctrlCall.ctrlOverlay.CallInfoWindowTopMargin = 40 - SystemParameters.CaptionHeight;
+            if (bShow)
+                RearrangeUICallView(GetCallViewSize());
 
 			ctrlCall.ctrlOverlay.ShowCommandBar(bShow);
 			ctrlCall.ctrlOverlay.ShowNumpadWindow(false);
@@ -504,16 +499,10 @@ namespace com.vtcsecure.ace.windows
 
         private void ShowOverlayNewCallWindow(bool bShow)
         {
-            ctrlCall.ctrlOverlay.NewCallAcceptWindowLeftMargin = ctrlDialpad.ActualWidth + (CombinedUICallViewSize.Width - 320) / 2;
-            ctrlCall.ctrlOverlay.NewCallAcceptWindowTopMargin = 170 - SystemParameters.CaptionHeight;
-
             ctrlCall.ctrlOverlay.ShowNewCallAcceptWindow(bShow);
         }
         private void ShowOverlaySwitchCallWindow(bool bShow)
         {
-            ctrlCall.ctrlOverlay.CallsSwitchWindowLeftMargin = ctrlDialpad.ActualWidth + 10;
-            ctrlCall.ctrlOverlay.CallsSwitchWindowTopMargin = SystemParameters.CaptionHeight - 10;
-
             ctrlCall.ctrlOverlay.ShowCallsSwitchWindow(bShow);
             if (!bShow)
                 ctrlCall.ctrlOverlay.StopPausedCallTimer();

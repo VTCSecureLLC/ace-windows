@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using VATRP.Core.Model;
 using com.vtcsecure.ace.windows.Services;
 using com.vtcsecure.ace.windows.Enums;
+using System.ComponentModel;
 
 namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 {
@@ -22,14 +23,10 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
     /// </summary>
     public partial class UnifiedSettingsVideoCtrl : BaseUnifiedSettingsPanel
     {
+        private CollectionView _codecsView;
         public UnifiedSettingsVideoCtrl()
         {
             InitializeComponent();
-            //            VideoCodecsListView.Items.Clear();
-            // foreach (var item in App.CurrentAccount.VideoCodecsList)
-            // {
-            //     VideoCodecsListView.Items.Add(item);
-            // }
             this.Loaded += UnifiedSettingsVideoCtrl_Loaded;
         }
 
@@ -75,10 +72,12 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 }
             }
 
-            VideoCodecsListView.Items.Clear();
-            foreach (var item in App.CurrentAccount.VideoCodecsList)
+            VideoCodecsListView.ItemsSource = App.CurrentAccount.VideoCodecsList;
+            _codecsView = (CollectionView)CollectionViewSource.GetDefaultView(VideoCodecsListView.ItemsSource);
+            if (_codecsView != null)
             {
-                VideoCodecsListView.Items.Add(item);
+                _codecsView.SortDescriptions.Add(new SortDescription("Priority", ListSortDirection.Ascending));
+                _codecsView.Refresh();
             }
             /*
             New option name: RTCP feedback
