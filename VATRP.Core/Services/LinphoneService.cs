@@ -62,6 +62,8 @@ namespace VATRP.Core.Services
         private readonly string _callLogPath;
 
         private LinphoneRegistrationState currentRegistrationState;
+        private IntPtr _linphoneAudioCodecsList = IntPtr.Zero;
+        private IntPtr _linphoneVideoCodecsList = IntPtr.Zero;
         #endregion
 
 		#region Delegates
@@ -1389,12 +1391,14 @@ namespace VATRP.Core.Services
 
         public bool UpdateNativeCodecs(VATRPAccount account, CodecType codecType)
 	    {
+            var retValue = true;
+
             if (linphoneCore == IntPtr.Zero)
 				throw new Exception("Linphone not initialized");
 
 	        if (account == null)
 	            throw new ArgumentNullException("Account is not defined");
-            var retValue = true;
+            
             var cfgCodecs = codecType == CodecType.Video ? account.VideoCodecsList : account.AudioCodecsList;
             var linphoneCodecs = codecType == CodecType.Video ? _videoCodecs : _audioCodecs;
             var tmpCodecs = new List<VATRPCodec>();
@@ -1403,27 +1407,7 @@ namespace VATRP.Core.Services
                 // find cfgCodec in linphone codec list
                 var pt = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, cfgCodec.CodecName, LinphoneAPI.LINPHONE_FIND_PAYLOAD_IGNORE_RATE,
                     cfgCodec.Channels);
-                if (pt != IntPtr.Zero)
-                {
-                    var isEnabled = LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, pt);
-                    LOG.Info("Codec: " + cfgCodec.CodecName + " Enabled: " + cfgCodec.Status + " In Linphone Status: " +
-                             isEnabled);
-
-                    if (LinphoneAPI.linphone_core_enable_payload_type(linphoneCore, pt, cfgCodec.Status) != 0)
-                    {
-                        LOG.Warn("Failed to update codec: " + cfgCodec.CodecName + " Enabled: " + cfgCodec.Status +
-                                 " Restoring status");
-                        cfgCodec.Status = isEnabled;
-                        retValue = false;
-                    }
-                    else
-                    {
-                        LOG.Info(string.Format("=== Updated Codec {0}, Channels {1} Status: {2}. ", cfgCodec.CodecName,
-                            cfgCodec.Channels,
-                            cfgCodec.Status ? "Enabled" : "Disabled"));
-                    }
-                }
-                else
+                if (pt == IntPtr.Zero)
                 {
                     LOG.Warn(string.Format("Codec not found: {0} , Channels: {1} ", cfgCodec.CodecName,
                         cfgCodec.Channels));
@@ -1446,8 +1430,47 @@ namespace VATRP.Core.Services
                 cfgCodecs.Remove(codec);
             }
 
+            foreach (var codec in linphoneCodecs)
+            {
+                for (int i = 0; i < cfgCodecs.Count; i++)
+                {
+                    if (cfgCodecs[i].CodecName == codec.CodecName && cfgCodecs[i].Rate == codec.Rate && cfgCodecs[i].Channels == codec.Channels)
+                    {
+                        cfgCodecs[i].Priority = codec.Priority;
+                        cfgCodecs[i].Status = codec.Status;
+                    }
+                }
+            }
+
             return retValue;
 	    }
+
+        public bool UpdateCodecsAccessibility(VATRPAccount account, CodecType codecType)
+        {
+            var retValue = true;
+
+            if (linphoneCore == IntPtr.Zero)
+                throw new Exception("Linphone not initialized");
+
+            if (account == null)
+                throw new ArgumentNullException("Account is not defined");
+
+            var cfgCodecs = codecType == CodecType.Video ? account.VideoCodecsList : account.AudioCodecsList;
+            var linphoneCodecs = codecType == CodecType.Video ? _videoCodecs : _audioCodecs;
+
+            foreach (var cfgCodec in cfgCodecs)
+            {
+                var payloadPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, cfgCodec.CodecName, cfgCodec.IPBitRate,
+                    cfgCodec.Channels);
+                if (payloadPtr == IntPtr.Zero)
+                    continue;
+                if (cfgCodec.Status == LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, payloadPtr))
+                    continue;
+                LinphoneAPI.linphone_core_enable_payload_type(linphoneCore, payloadPtr, cfgCodec.Status);
+            }
+
+            return retValue;
+        }
 
 	    public void FillCodecsList(VATRPAccount account, CodecType codecType)
 	    {
@@ -1485,45 +1508,145 @@ namespace VATRP.Core.Services
             if (linphoneCore == IntPtr.Zero)
                 throw new Exception("Linphone not initialized");
             _audioCodecs.Clear();
-			var audioCodecsList = new List<PayloadType>();
-			IntPtr audioCodecListPtr = LinphoneAPI.linphone_core_get_audio_codecs(linphoneCore);
+	
+            // remove 
+		    string[] primaryCodecs = {"G722", "PCMU", "PCMA", "speex", "speex"};
+            int[] rate = { LinphoneAPI.LINPHONE_FIND_PAYLOAD_IGNORE_RATE, LinphoneAPI.LINPHONE_FIND_PAYLOAD_IGNORE_RATE, LinphoneAPI.LINPHONE_FIND_PAYLOAD_IGNORE_RATE, 28000, 8000 };
 
-			MSList curStruct;
-			do
-			{
-				curStruct.next = IntPtr.Zero;
-				curStruct.prev = IntPtr.Zero;
-				curStruct.data = IntPtr.Zero;
-				curStruct = (MSList) Marshal.PtrToStructure(audioCodecListPtr, typeof (MSList));
-				if (curStruct.data != IntPtr.Zero)
-				{
-					var payload = (PayloadType) Marshal.PtrToStructure(curStruct.data, typeof (PayloadType));
+            _linphoneAudioCodecsList = IntPtr.Zero;
+		    int i;
+		    for (i = 0; i < primaryCodecs.Length; i++)
+		    {
+		        var pt = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, primaryCodecs[i],
+                    rate[i],
+		            LinphoneAPI.LINPHONE_FIND_PAYLOAD_IGNORE_CHANNELS);
 
-				    var codec = new VATRPCodec
-				    {
+		        if (pt != IntPtr.Zero)
+		        {
+		            _linphoneAudioCodecsList = LinphoneAPI.ms_list_append(_linphoneAudioCodecsList, pt);
+		        }
+		    }
+
+            IntPtr audioCodecListPtr = LinphoneAPI.linphone_core_get_audio_codecs(linphoneCore);
+
+            MSList curStruct;
+            do
+            {
+                curStruct.next = IntPtr.Zero;
+                curStruct.prev = IntPtr.Zero;
+                curStruct.data = IntPtr.Zero;
+                curStruct = (MSList)Marshal.PtrToStructure(audioCodecListPtr, typeof(MSList));
+                if (curStruct.data != IntPtr.Zero)
+                {
+                    var payload = (PayloadType)Marshal.PtrToStructure(curStruct.data, typeof(PayloadType));
+
+                    bool found = false;
+                    for (i = 0; i < primaryCodecs.Length; i++)
+                    {
+                        if (primaryCodecs[i] == payload.mime_type)
+                        {
+                            if (rate[i] == LinphoneAPI.LINPHONE_FIND_PAYLOAD_IGNORE_RATE || payload.clock_rate == rate[i])
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!found)
+                    {
+                        _linphoneAudioCodecsList = LinphoneAPI.ms_list_append(_linphoneAudioCodecsList, curStruct.data);
+                    }
+                }
+                audioCodecListPtr = curStruct.next;
+            } while (curStruct.next != IntPtr.Zero);
+
+            LinphoneAPI.linphone_core_set_audio_codecs(linphoneCore, _linphoneAudioCodecsList);
+
+            //  enable codecs
+            audioCodecListPtr = LinphoneAPI.linphone_core_get_audio_codecs(linphoneCore);
+            do
+            {
+                curStruct.next = IntPtr.Zero;
+                curStruct.prev = IntPtr.Zero;
+                curStruct.data = IntPtr.Zero;
+                curStruct = (MSList)Marshal.PtrToStructure(audioCodecListPtr, typeof(MSList));
+                if (curStruct.data != IntPtr.Zero)
+                {
+                    var payload = (PayloadType)Marshal.PtrToStructure(curStruct.data, typeof(PayloadType));
+
+                    bool enable = false;
+                    for (i = 0; i < primaryCodecs.Length; i++)
+                    {
+                        if (primaryCodecs[i] == payload.mime_type)
+                        {
+                            if (rate[i] == LinphoneAPI.LINPHONE_FIND_PAYLOAD_IGNORE_RATE || payload.clock_rate == rate[i])
+                            {
+                                enable = true;
+                                break;
+                            }
+                        }
+                    }
+                    IntPtr payloadPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, payload.mime_type, payload.clock_rate, payload.channels);
+                    LinphoneAPI.linphone_core_enable_payload_type(linphoneCore, payloadPtr, enable);
+                }
+                audioCodecListPtr = curStruct.next;
+            } while (curStruct.next != IntPtr.Zero);
+            
+
+            audioCodecListPtr = LinphoneAPI.linphone_core_get_audio_codecs(linphoneCore);
+            int index = 1;
+            do
+            {
+                curStruct.next = IntPtr.Zero;
+                curStruct.prev = IntPtr.Zero;
+                curStruct.data = IntPtr.Zero;
+                curStruct = (MSList)Marshal.PtrToStructure(audioCodecListPtr, typeof(MSList));
+                if (curStruct.data != IntPtr.Zero)
+                {
+                    var payload = (PayloadType)Marshal.PtrToStructure(curStruct.data, typeof(PayloadType));
+                    var codec = new VATRPCodec
+                    {
+                        Priority = index++,
                         Purpose = CodecType.Audio,
-				        CodecName = payload.mime_type,
-				        Rate = payload.normal_bitrate,
+                        CodecName = payload.mime_type,
+                        Rate = payload.normal_bitrate,
                         IPBitRate = payload.clock_rate,
                         Channels = payload.channels,
                         ReceivingFormat = payload.recv_fmtp,
                         SendingFormat = payload.send_fmtp,
-				        Status = LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, curStruct.data),
-				        IsUsable = LinphoneAPI.linphone_core_check_payload_type_usability(linphoneCore, curStruct.data)
-				    };
+                        Status = LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, curStruct.data),
+                        IsUsable = LinphoneAPI.linphone_core_check_payload_type_usability(linphoneCore, curStruct.data)
+                    };
                     _audioCodecs.Add(codec);
-				}
-				audioCodecListPtr = curStruct.next;
-			} while (curStruct.next != IntPtr.Zero);
+                }
+                audioCodecListPtr = curStruct.next;
+            } while (curStruct.next != IntPtr.Zero);
 		}
 
         private void LoadVideoCodecs()
         {
             if (linphoneCore == IntPtr.Zero)
                 throw new Exception("Linphone not initialized");
-
             _videoCodecs.Clear();
-            var videoCodecsList = new List<PayloadType>();
+
+            // remove 
+            string[] primaryCodecs = { "H264", "H263", "VP8" };
+
+            _linphoneVideoCodecsList = IntPtr.Zero;
+            int i;
+            for (i = 0; i < primaryCodecs.Length; i++)
+            {
+                var pt = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, primaryCodecs[i],
+                    LinphoneAPI.LINPHONE_FIND_PAYLOAD_IGNORE_RATE,
+                    LinphoneAPI.LINPHONE_FIND_PAYLOAD_IGNORE_CHANNELS);
+
+                if (pt != IntPtr.Zero)
+                {
+                    _linphoneVideoCodecsList = LinphoneAPI.ms_list_append(_linphoneVideoCodecsList, pt);
+                }
+            }
+
             IntPtr videoCodecListPtr = LinphoneAPI.linphone_core_get_video_codecs(linphoneCore);
 
             MSList curStruct;
@@ -1536,8 +1659,69 @@ namespace VATRP.Core.Services
                 if (curStruct.data != IntPtr.Zero)
                 {
                     var payload = (PayloadType)Marshal.PtrToStructure(curStruct.data, typeof(PayloadType));
+
+                    bool found = false;
+                    for (i = 0; i < primaryCodecs.Length; i++)
+                    {
+                        if (primaryCodecs[i] == payload.mime_type)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found)
+                    {
+                        _linphoneVideoCodecsList = LinphoneAPI.ms_list_append(_linphoneVideoCodecsList, curStruct.data);
+                    }
+                }
+                videoCodecListPtr = curStruct.next;
+            } while (curStruct.next != IntPtr.Zero);
+
+            LinphoneAPI.linphone_core_set_video_codecs(linphoneCore, _linphoneVideoCodecsList);
+
+            //  enable codecs
+            videoCodecListPtr = LinphoneAPI.linphone_core_get_video_codecs(linphoneCore);
+            do
+            {
+                curStruct.next = IntPtr.Zero;
+                curStruct.prev = IntPtr.Zero;
+                curStruct.data = IntPtr.Zero;
+                curStruct = (MSList)Marshal.PtrToStructure(videoCodecListPtr, typeof(MSList));
+                if (curStruct.data != IntPtr.Zero)
+                {
+                    var payload = (PayloadType)Marshal.PtrToStructure(curStruct.data, typeof(PayloadType));
+
+                    bool enable = false;
+                    for (i = 0; i < primaryCodecs.Length; i++)
+                    {
+                        if (primaryCodecs[i] == payload.mime_type)
+                        {
+                            enable = true;
+                            break;
+                        }
+                    }
+                    IntPtr payloadPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, payload.mime_type, payload.clock_rate, payload.channels);
+                    LinphoneAPI.linphone_core_enable_payload_type(linphoneCore, payloadPtr, enable);
+                }
+                videoCodecListPtr = curStruct.next;
+            } while (curStruct.next != IntPtr.Zero);
+
+
+            videoCodecListPtr = LinphoneAPI.linphone_core_get_video_codecs(linphoneCore);
+            int index = 1;
+            do
+            {
+                curStruct.next = IntPtr.Zero;
+                curStruct.prev = IntPtr.Zero;
+                curStruct.data = IntPtr.Zero;
+                curStruct = (MSList)Marshal.PtrToStructure(videoCodecListPtr, typeof(MSList));
+                if (curStruct.data != IntPtr.Zero)
+                {
+                    var payload = (PayloadType)Marshal.PtrToStructure(curStruct.data, typeof(PayloadType));
                     var codec = new VATRPCodec
                     {
+                        Priority = index++,
                         Purpose = CodecType.Video,
                         CodecName = payload.mime_type,
                         Rate = payload.normal_bitrate,
