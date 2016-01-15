@@ -27,7 +27,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
             string linphoneLibraryVersion = VATRP.LinphoneWrapper.LinphoneAPI.linphone_core_get_version_asString();
             LinphoneLibVersion = string.Format("Core Version {0}", linphoneLibraryVersion);
-            Copyright = "Copyright 2015";
+            Copyright = "Copyright 2015-2016";
         }
 
         #region Properties

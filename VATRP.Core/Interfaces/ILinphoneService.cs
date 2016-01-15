@@ -77,6 +77,7 @@ namespace VATRP.Core.Interfaces
         bool IsVideoEnabled(VATRPCall call);
         void UpdateMediaSettings(VATRPAccount account);
         bool UpdateNativeCodecs(VATRPAccount account, CodecType codecType);
+        bool UpdateCodecsAccessibility(VATRPAccount account, CodecType codecType);
         void configureFmtpCodec();
         void FillCodecsList(VATRPAccount account, CodecType codecType);
         bool UpdateNetworkingParameters(VATRPAccount account);
