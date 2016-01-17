@@ -420,13 +420,39 @@ namespace com.vtcsecure.ace.windows
 
         public void InitializeMainWindow()
         {
+            // this method does not take into account the two checkboxes that allow the user to select whether or not to
+            //   remember the password and whether or not to automatically login.
+
             ServiceManager.Instance.UpdateLoggedinContact();
-            ServiceManager.Instance.StartupLinphoneCore();
 
             if (App.CurrentAccount == null || !App.CurrentAccount.Username.NotBlank())
             {
                 if (_mainViewModel.ActivateWizardPage)
                     OnVideoRelaySelect(this, null);
+            }
+            else
+            {
+                if (!App.CurrentAccount.AutoLogin || string.IsNullOrEmpty(App.CurrentAccount.Password))
+                {
+                    var wizardPage = new ProviderLoginScreen(this);
+                    wizardPage.InitializeToAccount(App.CurrentAccount);
+//                    var newAccount = new VATRPAccount { AccountType = VATRPAccountType.VideoRelayService };
+//                    App.CurrentAccount = newAccount;
+
+                    ChangeWizardPage(wizardPage);
+//                    OnVideoRelaySelect(this, null);
+                    // then we need to open the login screen.
+//                    ProviderLoginScreen wizardPage = new ProviderLoginScreen(this);
+//                    wizardPage.InitializeToAccount(App.CurrentAccount);
+//                    WizardPagepanel.Children.Clear();
+//                    _mainViewModel.OfferServiceSelection = false;
+//                    _mainViewModel.ActivateWizardPage = true;
+                }
+                else
+                {
+                    // if the user has selected not to log in automatically, make sure that we move to the 
+                    ServiceManager.Instance.StartupLinphoneCore();
+                }
             }
         }
 
@@ -475,7 +501,7 @@ namespace com.vtcsecure.ace.windows
 
             ctrlResource.CallResourceRequested += OnCallResourceRequested;
 
-            if (App.CurrentAccount != null)
+            if ((App.CurrentAccount != null) && App.CurrentAccount.AutoLogin)
             {
                 if (!string.IsNullOrEmpty(App.CurrentAccount.ProxyHostname) &&
                     !string.IsNullOrEmpty(App.CurrentAccount.RegistrationPassword) &&
