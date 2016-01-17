@@ -144,7 +144,6 @@ namespace com.vtcsecure.ace.windows.CustomControls
             else
             {
                 App.CurrentAccount.Password = "";
-//                App.CurrentAccount.RegistrationPassword = "";
             }
             App.CurrentAccount.ProxyHostname = HostnameBox.Text;
             App.CurrentAccount.ProxyPort = port;

@@ -436,17 +436,8 @@ namespace com.vtcsecure.ace.windows
                 {
                     var wizardPage = new ProviderLoginScreen(this);
                     wizardPage.InitializeToAccount(App.CurrentAccount);
-//                    var newAccount = new VATRPAccount { AccountType = VATRPAccountType.VideoRelayService };
-//                    App.CurrentAccount = newAccount;
 
                     ChangeWizardPage(wizardPage);
-//                    OnVideoRelaySelect(this, null);
-                    // then we need to open the login screen.
-//                    ProviderLoginScreen wizardPage = new ProviderLoginScreen(this);
-//                    wizardPage.InitializeToAccount(App.CurrentAccount);
-//                    WizardPagepanel.Children.Clear();
-//                    _mainViewModel.OfferServiceSelection = false;
-//                    _mainViewModel.ActivateWizardPage = true;
                 }
                 else
                 {
