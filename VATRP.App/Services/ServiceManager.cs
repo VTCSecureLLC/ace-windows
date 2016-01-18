@@ -480,7 +480,7 @@ namespace com.vtcsecure.ace.windows.Services
 
         internal void Register()
         {
-            if(App.CurrentAccount != null && !string.IsNullOrEmpty(App.CurrentAccount.Username) )
+            if(App.CurrentAccount != null && !string.IsNullOrEmpty(App.CurrentAccount.Username))
                 LinphoneService.Register();
         }
 

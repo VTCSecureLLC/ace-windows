@@ -76,6 +76,19 @@ namespace com.vtcsecure.ace.windows.CustomControls
             
         }
 
+        private void OnAutoLogin(object sender, RoutedEventArgs e)
+        {
+            bool autoLogin = AutoLoginBox.IsChecked ?? false;
+            if (autoLogin)
+            {
+                RememberPasswordBox.IsChecked = true;
+                RememberPasswordBox.IsEnabled = false;
+            }
+            else
+            {
+                RememberPasswordBox.IsEnabled = true;
+            }
+        }
         private void LoginCmd_Click(object sender, RoutedEventArgs e)
         {
 
@@ -123,10 +136,17 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
             App.CurrentAccount.AuthID = AuthIDBox.Text;
             App.CurrentAccount.Username = LoginBox.Text;
-            App.CurrentAccount.Password = PasswdBox.Password;
+            App.CurrentAccount.RememberPassword = RememberPasswordBox.IsChecked ?? false;
+            if (App.CurrentAccount.RememberPassword)
+            {
+                App.CurrentAccount.Password = PasswdBox.Password;
+            }
+            else
+            {
+                App.CurrentAccount.Password = "";
+            }
             App.CurrentAccount.ProxyHostname = HostnameBox.Text;
             App.CurrentAccount.ProxyPort = port;
-            App.CurrentAccount.RememberPassword = RememberPasswordBox.IsChecked ?? false;
 
             App.CurrentAccount.RegistrationPassword = PasswdBox.Password;
             App.CurrentAccount.RegistrationUser = LoginBox.Text;
