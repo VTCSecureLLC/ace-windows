@@ -103,12 +103,12 @@
                 </StackPanel>
         </Grid>
 
-        <StackPanel Visibility="{Binding ShowCallParams, Converter={StaticResource ibvc}}"
-			Grid.Row="1" Grid.RowSpan="2" Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,0,40" HorizontalAlignment="Center">
+        <StackPanel Visibility="{Binding AutoAnswer, Converter={StaticResource oivc}}"
+			Grid.Row="1"  Orientation="Vertical" VerticalAlignment="Bottom" Margin="0,0,0,30" HorizontalAlignment="Center">
             <TextBlock HorizontalAlignment="Center" Margin="2" Text="{Binding AutoAnswer, StringFormat=AutoAnswer after {0} sec}" 
 					   VerticalAlignment="Center" FontSize="{Binding InfoTextSize}" 
 						   Foreground="{DynamicResource AppMainBorderBrush}"
-					   Visibility="{Binding AutoAnswer, Converter={StaticResource oivc}}"/>
+					   />
         </StackPanel>
 
         <Grid Grid.Row="2" Height="70" Visibility="{Binding ShowOutgoingEndCall, Converter={StaticResource bvc}}" 
@@ -167,7 +167,7 @@
             </Button>
         </Grid>
 
-        <Grid Grid.Row="2" Height="70" x:Name="IncomingPanel" 
+        <Grid Grid.Row="2" Height="70" x:Name="IncomingPanel" Margin="110,0"
               Visibility="{Binding ShowIncomingCallPanel, Converter={StaticResource bvc}}" 
               VerticalAlignment="Stretch"
               ZIndex="90">
