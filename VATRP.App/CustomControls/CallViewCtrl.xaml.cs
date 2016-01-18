@@ -644,12 +644,5 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 _inactivityTimerStopped = false;
             }
         }
-        
-        public void CheckRttButton()
-        {
-            _viewModel.IsRttOn = true;
-            BtnRTT.IsChecked = _viewModel.IsRttOn;
-            _viewModel.SavedIsRttOn = BtnRTT.IsChecked ?? false;
-        }
     }
 }
