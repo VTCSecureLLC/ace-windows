@@ -482,6 +482,8 @@ namespace com.vtcsecure.ace.windows
             ctrlDialpad.KeypadPressed += OnDialpadClicked;
             _mainViewModel.DialpadHeight = ctrlDialpad.ActualHeight;
 
+            _mainViewModel.MessagingModel.RttReceived += OnRttReceived;
+
             // Liz E. - ToDo unified Settings
             ctrlSettings.AccountChangeRequested += OnAccountChangeRequested;
             //ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
@@ -645,6 +647,15 @@ namespace com.vtcsecure.ace.windows
             if (_mainViewModel.IsInCallFullScreen)
             {
                 RearrangeUICallView(GetCallViewSize());
+            }
+        }
+
+        private void OnRttReceived(object sender, EventArgs e)
+        {
+            if (!_mainViewModel.IsMessagingDocked)
+            {
+                ctrlCall.CheckRttButton();
+                OnRttToggled(true);
             }
         }
 
