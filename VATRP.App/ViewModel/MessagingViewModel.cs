@@ -279,6 +279,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 {
                     this.Chat.Contact.PropertyChanged += this.Contact_PropertyChanged;
                 }
+
+                Chat.CharsCountInBubble = 0;
             }
 
             _contactViewModel.IsSelected = true;
