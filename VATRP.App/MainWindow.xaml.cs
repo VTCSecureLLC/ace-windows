@@ -361,6 +361,7 @@ namespace com.vtcsecure.ace.windows
             {
                 ProviderLoginScreen wizardPage = new ProviderLoginScreen(this);
                 currentAccount.Password = ""; // clear password for logout
+                ServiceManager.Instance.AccountService.Save();
                 wizardPage.InitializeToAccount(currentAccount);
                 ChangeWizardPage(wizardPage);
             } // else let it go to the front by default to set up a new account with new service selection
@@ -492,7 +493,7 @@ namespace com.vtcsecure.ace.windows
 
             ctrlResource.CallResourceRequested += OnCallResourceRequested;
 
-            if ((App.CurrentAccount != null) && App.CurrentAccount.AutoLogin)
+            if ((App.CurrentAccount != null) && App.CurrentAccount.AutoLogin && App.CurrentAccount.Password.NotBlank())
             {
                 if (!string.IsNullOrEmpty(App.CurrentAccount.ProxyHostname) &&
                     !string.IsNullOrEmpty(App.CurrentAccount.RegistrationPassword) &&
@@ -718,9 +719,7 @@ namespace com.vtcsecure.ace.windows
                     _mainViewModel.IsCallHistoryDocked = false;
                     _mainViewModel.IsContactDocked = false;
                     _mainViewModel.IsMessagingDocked = false;
-                    ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-                        Configuration.ConfEntry.ACCOUNT_IN_USE, string.Empty);
-
+                    
                     this.Wizard_HandleLogout();
                 }
                     break;
