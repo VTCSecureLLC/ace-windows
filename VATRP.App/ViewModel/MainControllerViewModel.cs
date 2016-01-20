@@ -64,8 +64,14 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         private void OnMissedCallsCountChanged(object callEvent, EventArgs args)
         {
-            if (_historyViewModel != null) 
+            if (_historyViewModel != null)
+            {
+                if (IsCallHistoryDocked)
+                {
+                    _historyViewModel.ResetLastMissedCallTime();
+                }
                 UIMissedCallsCount = _historyViewModel.UnseenMissedCallsCount;
+            }
         }
 
         #region Properties

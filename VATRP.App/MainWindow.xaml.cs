@@ -106,6 +106,8 @@ namespace com.vtcsecure.ace.windows
                 _mainViewModel.IsContactDocked = false;
                 _mainViewModel.IsSettingsDocked = false;
                 _mainViewModel.IsResourceDocked = false;
+                _mainViewModel.HistoryModel.ResetLastMissedCallTime();
+                _mainViewModel.UIMissedCallsCount = 0;
             }
             _mainViewModel.IsCallHistoryDocked = isChecked;
         }
