@@ -104,7 +104,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         {
             Console.WriteLine("Start at Boot Clicked");
 
-            string applicationName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
+            string applicationName = "ACE";
 
             bool enabled = this.StartAtBootCheckbox.IsChecked ?? false;
             if (enabled)
