@@ -10,11 +10,11 @@ namespace VATRP.Core.Model
         #region Members
 
         private string _videoPreset;
+        private string _videoMailUri;
         private string _preferredVideoId;
         private string _transport;
         private string _mediaEncryption;
 
-		
         #endregion
 
         #region Properties
@@ -53,6 +53,9 @@ namespace VATRP.Core.Model
         public string ProxyHostname { get; set; }
 
         [Column]
+        public bool UseOutboundProxy { get; set; }
+
+        [Column]
         public string DisplayName { get; set; }
 
         [Column]
@@ -79,13 +82,22 @@ namespace VATRP.Core.Model
         }
 
         [Column]
-        public bool EnubleSTUN { get; set; }
+        public bool EnableSTUN { get; set; }
 
         [Column]
         public string STUNAddress { get; set; }
 
         [Column]
         public ushort STUNPort { get; set; }
+
+        [Column]
+        public bool EnableICE { get; set; }
+
+        [Column]
+        public string ICEAddress { get; set; }
+
+        [Column]
+        public ushort ICEPort { get; set; }
 
         [Column] 
         public bool EnableAVPF { get; set; }
@@ -97,6 +109,15 @@ namespace VATRP.Core.Model
         public bool MuteSpeaker { get; set; }
 
         [Column]
+        public string SelectedCameraId { get; set; }
+
+        [Column]
+        public string SelectedSpeakerId { get; set; }
+
+        [Column]
+        public string SelectedMicrophoneId { get; set; }
+        
+        [Column]
         public bool EchoCancel { get; set; }
 
         [Column]
@@ -104,6 +125,9 @@ namespace VATRP.Core.Model
 
         [Column]
         public bool VideoAutomaticallyAccept { get; set; }
+
+        [Column]
+        public bool EnableVideo { get; set; }
 
         [Column]
         public bool ShowSelfView { get; set; }
@@ -129,8 +153,23 @@ namespace VATRP.Core.Model
             }
         }
 
+        [Column]
+        public string VideoMailUri
+        {
+            get { return _videoMailUri; }
+            set
+            {
+                // Liz E. - linphone uses null to get the default preset. Allow null here.
+                _videoMailUri = value;
+            }
+        }
+
         public List<VATRPCodec> AudioCodecsList = new List<VATRPCodec>();
         public List<VATRPCodec> VideoCodecsList = new List<VATRPCodec>();
+
+        [Column]
+        public bool UserNeedsAgentView { get; set; }
+
 
         #endregion
 
@@ -155,13 +194,19 @@ namespace VATRP.Core.Model
             DisplayName = string.Empty;
             VideoAutomaticallyStart = true;
             VideoAutomaticallyAccept = true;
+            EnableVideo = true;
             ShowSelfView = true;
             PreferredVideoId = string.Empty;
             VideoPreset = null;
             MuteMicrophone = false;
             MuteSpeaker = false;
             EchoCancel = false;
+            UseOutboundProxy = false;
             VideoPreset = "high-fps";
+            SelectedCameraId = string.Empty;
+            SelectedMicrophoneId = string.Empty;
+            SelectedSpeakerId = string.Empty;
+            UserNeedsAgentView = false;
         }
 
         #endregion

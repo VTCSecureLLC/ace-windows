@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using VATRP.Core.Model;
 using VATRP.Core.Services;
 using VATRP.LinphoneWrapper.Enums;
@@ -8,6 +9,8 @@ namespace VATRP.Core.Interfaces
 {
     public interface ILinphoneService : IVATRPservice
     {
+        #region Events
+
         event LinphoneService.GlobalStateChangedDelegate GlobalStateChangedEvent;
         event LinphoneService.RegistrationStateChangedDelegate RegistrationStateChangedEvent;
         event LinphoneService.CallStateChangedDelegate CallStateChangedEvent;
@@ -18,11 +21,21 @@ namespace VATRP.Core.Interfaces
         event LinphoneService.OnMessageReceivedDelegate OnChatMessageReceivedEvent;
         event LinphoneService.OnMessageStatusChangedDelegate OnChatMessageStatusChangedEvent;
         event LinphoneService.OnCallLogUpdatedDelegate OnLinphoneCallLogUpdatedEvent;
+
+        #endregion
+
+        #region Properties
+
         LinphoneService.Preferences LinphoneConfig { get; }
         bool IsStarting { get; }
         bool IsStarted { get; }
         bool IsStopping { get; }
         bool IsStopped { get; }
+
+        #endregion
+
+        #region Methods
+
         bool Start(bool enableLogs);
         void LockCalls();
         void UnlockCalls();
@@ -33,12 +46,13 @@ namespace VATRP.Core.Interfaces
         bool Unregister(bool deferred);
         void ClearProxyInformation();
         void ClearAccountInformation();
-        void MakeCall(string destination, bool videoOn, bool rttEnabled, bool muteMicrophone, bool muteSpeaker, string geolocation);
-        void AcceptCall(IntPtr callPtr, bool rttEnabled, bool muteMicrophone, bool muteSpaker);
+        void MakeCall(string destination, bool videoOn, bool rttEnabled, bool muteMicrophone, bool muteSpeaker, bool enableVideo, string geolocation);
+        void AcceptCall(IntPtr callPtr, bool rttEnabled, bool muteMicrophone, bool muteSpaker, bool enableVideo);
         void DeclineCall(IntPtr callPtr);
         bool TerminateCall(IntPtr callPtr);
         void ResumeCall(IntPtr callPtr);
         void PauseCall(IntPtr callPtr);
+        bool IsRttEnabled(IntPtr callPtr);
         void AcceptRTTProposition(IntPtr callPtr);
         void SendRTTProposition(IntPtr callPtr);
 
@@ -50,7 +64,8 @@ namespace VATRP.Core.Interfaces
         bool IsSpeakerMuted();
         void ToggleVideo(bool enableVideo, IntPtr callPtr);
         void SendDtmf(VATRPCall call, char dtmf);
-        void EnableVideo(bool enable);
+        bool IsCameraEnabled(IntPtr callPtr);
+        void EnableVideo(bool enable, bool automaticallyInitiate, bool automaticallyAccept);
         bool IsEchoCancellationEnabled();
         void EnableEchoCancellation(bool enable);
         bool IsSelfViewEnabled();
@@ -62,9 +77,11 @@ namespace VATRP.Core.Interfaces
         bool IsVideoEnabled(VATRPCall call);
         void UpdateMediaSettings(VATRPAccount account);
         bool UpdateNativeCodecs(VATRPAccount account, CodecType codecType);
+        bool UpdateCodecsAccessibility(VATRPAccount account, CodecType codecType);
+        void configureFmtpCodec();
         void FillCodecsList(VATRPAccount account, CodecType codecType);
         bool UpdateNetworkingParameters(VATRPAccount account);
-        void SetAVPFMode(LinphoneAVPFMode mode);
+        void SetAVPFMode(LinphoneAVPFMode mode, LinphoneRTCPMode rtcpMode);
         int GetAVPFMode();
         IntPtr GetCallParams(IntPtr callPtr);
         string GetUsedAudioCodec(IntPtr callParams);
@@ -83,5 +100,21 @@ namespace VATRP.Core.Interfaces
         void EnableAdaptiveRateControl(bool bEnable);
         IntPtr LinphoneCore { get; }
         int GetActiveCallsCount { get; }
+
+        List<VATRPDevice> GetAvailableCameras();
+        void SetCamera(string deviceId);
+        VATRPDevice GetSelectedCamera();
+
+        List<VATRPDevice> GetAvailableMicrophones();
+        void SetCaptureDevice(string deviceId);
+        VATRPDevice GetSelectedMicrophone();
+
+        List<VATRPDevice> GetAvailableSpeakers();
+        void SetSpeakers(string deviceId);
+        VATRPDevice GetSelectedSpeakers();
+
+        #endregion
+
+
     }
 }

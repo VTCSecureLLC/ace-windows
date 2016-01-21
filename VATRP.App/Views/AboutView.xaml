@@ -4,21 +4,21 @@
         Title="About ACE" Height="200" Width="400" Icon="/ACE;component/Resources/vatrp.ico" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1.7*"/>
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-        <StackPanel x:Name="ImagePanel" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,0,0,0">
-        <Image Source="/ACE;component/Resources/vatrp.ico"></Image>    
+        <StackPanel x:Name="ImagePanel" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10,0,0,0">
+        <Image Source="/ACE;component/Resources/about.png"></Image>    
         </StackPanel>
-        <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="0" Margin="15,0,0,0">
-            <TextBlock Margin="5,10,0,5" FontSize="20" Text="{Binding AppName}"/>
-            <TextBlock Margin="5,3,0,5" FontSize="14" Text="{Binding AppVersion}"/>
-            <TextBlock Margin="5,3,0,5" FontSize="14" Text="{Binding LinphoneLibVersion}"/>
-            <TextBlock Margin="5,3,0,5" FontSize="12" Text="{Binding Copyright}"/>
+        <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="0" Margin="5,0,0,0">
+            <TextBlock Margin="5,10,0,2" FontSize="18" Text="{Binding AppName}"/>
+            <TextBlock Margin="5,3,0,2" FontSize="13" Text="{Binding AppVersion}"/>
+            <TextBlock Margin="5,3,0,2" FontSize="13" Text="{Binding LinphoneLibVersion}"/>
+            <TextBlock Margin="5,3,0,2" FontSize="12" Text="{Binding Copyright}"/>
         </StackPanel>
         <Button Grid.Column="1" Grid.Row="1" Width="80" Height="24" Margin="0,0,30,0" HorizontalAlignment="Right" Content="OK" Click="Button_Click">
             

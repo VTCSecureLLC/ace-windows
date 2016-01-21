@@ -22,6 +22,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
 {
     public class MessagingViewModel : ViewModelBase
     {
+
+        #region Members
+
         private string _receiverAddress;
         private string _messageText;
         private VATRPChat _chat;
@@ -38,11 +41,21 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private ICollectionView contactsListView;
         private ICollectionView messagesListView;
         private ObservableCollection<VATRPChatMessage> _testMessages;
-        public event EventHandler<EventArgs> ConversationUpdated;
-        Thread _inputProcessorThread;
+
+        private Thread _inputProcessorThread;
         private bool _isRunning;
         private Queue<string> _inputTypingQueue = new Queue<string>();
         private static ManualResetEvent regulator = new ManualResetEvent(false);
+
+        #endregion
+
+        #region Events
+
+        public event EventHandler<EventArgs> ConversationUpdated;
+        public event EventHandler<EventArgs> RttReceived;
+        
+        #endregion
+
         public MessagingViewModel()
         {
             _messageText = string.Empty;
@@ -65,7 +78,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
             this._chatsManager.ContactsChanged += OnContactsChanged;
             this._chatsManager.ContactAdded += OnChatContactAdded;
             this._chatsManager.ContactRemoved += OnChatContactRemoved;
+            this._chatsManager.RttReceived += OnRttReceived;
             this._contactsManager.LoggedInContactUpdated += OnLoggedContactUpdated;
+        }
+
+        private void OnRttReceived(object sender, EventArgs e)
+        {
+            if (RttReceived != null)
+            {
+                RttReceived(sender, EventArgs.Empty);
+            }
         }
 
         #region Events
@@ -279,6 +301,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 {
                     this.Chat.Contact.PropertyChanged += this.Contact_PropertyChanged;
                 }
+
+                Chat.CharsCountInBubble = 0;
             }
 
             _contactViewModel.IsSelected = true;

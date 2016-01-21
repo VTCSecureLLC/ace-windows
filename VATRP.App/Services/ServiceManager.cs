@@ -180,10 +180,28 @@ namespace com.vtcsecure.ace.windows.Services
         private void OnConfigurationServiceStarted(object sender, EventArgs args)
         {
             App.CurrentAccount = LoadActiveAccount();
+            if (App.CurrentAccount != null)
+            {
+                // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
+                //  This will ultimately be set by the configuration resources from Ace Connect.
+                if (App.CurrentAccount.Username.Equals("agent_1"))
+                {
+                    App.CurrentAccount.UserNeedsAgentView = true;
+                }
+            }
         }
         private void OnAccountsServiceStarted(object sender, EventArgs args)
         {
             App.CurrentAccount = LoadActiveAccount();
+            if (App.CurrentAccount != null)
+            {
+                // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
+                //  This will ultimately be set by the configuration resources from Ace Connect.
+                if (App.CurrentAccount.Username.Equals("agent_1"))
+                {
+                    App.CurrentAccount.UserNeedsAgentView = true;
+                }
+            }
             AccountServiceStopped = false;
         }
         private void OnProviderServiceStarted(object sender, EventArgs args)
@@ -291,15 +309,11 @@ namespace com.vtcsecure.ace.windows.Services
             }
 
             LinphoneService.LinphoneConfig.Transport = App.CurrentAccount.Transport;
-            LinphoneService.LinphoneConfig.EnableSTUN = App.CurrentAccount.EnubleSTUN;
+            LinphoneService.LinphoneConfig.EnableSTUN = App.CurrentAccount.EnableSTUN;
             LinphoneService.LinphoneConfig.STUNAddress = App.CurrentAccount.STUNAddress;
             LinphoneService.LinphoneConfig.STUNPort = App.CurrentAccount.STUNPort;
             LinphoneService.LinphoneConfig.MediaEncryption = GetMediaEncryptionText(App.CurrentAccount.MediaEncryption);
-#if !DEBUG
-            LinphoneService.LinphoneConfig.EnableAVPF = true;
-#else
             LinphoneService.LinphoneConfig.EnableAVPF = App.CurrentAccount.EnableAVPF;
-#endif
             LOG.Info("Linphone service configured for account: " + App.CurrentAccount.RegistrationUser);
             return true;
         }
@@ -457,6 +471,7 @@ namespace com.vtcsecure.ace.windows.Services
                 LinphoneService.FillCodecsList(App.CurrentAccount, CodecType.Video);
 
             LinphoneService.UpdateNetworkingParameters(App.CurrentAccount);
+            LinphoneService.configureFmtpCodec();
             ApplyAVPFChanges();
             ApplyDtmfOnSIPInfoChanges();
             ApplyMediaSettingsChanges();
@@ -465,7 +480,8 @@ namespace com.vtcsecure.ace.windows.Services
 
         internal void Register()
         {
-            LinphoneService.Register();
+            if(App.CurrentAccount != null && !string.IsNullOrEmpty(App.CurrentAccount.Username))
+                LinphoneService.Register();
         }
 
         internal void RegisterNewAccount(string id)
@@ -476,10 +492,10 @@ namespace com.vtcsecure.ace.windows.Services
 
         internal void ApplyCodecChanges()
         {
-            var retValue = LinphoneService.UpdateNativeCodecs(App.CurrentAccount,
+            var retValue = LinphoneService.UpdateCodecsAccessibility(App.CurrentAccount,
                 CodecType.Audio);
 
-            retValue &= LinphoneService.UpdateNativeCodecs(App.CurrentAccount, CodecType.Video);
+            retValue &= LinphoneService.UpdateCodecsAccessibility(App.CurrentAccount, CodecType.Video);
 
             if (!retValue)
                 SaveAccountSettings();
@@ -492,15 +508,38 @@ namespace com.vtcsecure.ace.windows.Services
 
         internal void ApplyAVPFChanges()
         {
-            var mode = LinphoneAVPFMode.LinphoneAVPFEnabled;
-#if DEBUG
-            if (!this.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.AVPF_ON, true))
+            // VATRP-1507: Tie RTCP and AVPF together:
+            string rtcpFeedback = this.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.RTCP_FEEDBACK, "Off");
+            // if RTCPFeedback = Off then RTCP and AVPF are both off
+            // if RTCPFeedback = Implicit then RTCP is on, AVPF is off
+            // if RTCPFeedback = Explicit then RTCP is on, AVPF = on
+            //LinphoneAVPFMode avpfMode = LinphoneAVPFMode.LinphoneAVPFEnabled;
+            // Note: we could make the RTCP also be a bool, but using this method in case we need to handle something differently in the future.
+            //    eg - is there something that happens if we want rtcp off and avpf on?
+            if (rtcpFeedback.Equals("Off"))
             {
-                mode = LinphoneAVPFMode.LinphoneAVPFDisabled;
+                LinphoneService.SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFDisabled, LinphoneRTCPMode.LinphoneRTCPDisabled);
             }
-#endif
-            LinphoneService.SetAVPFMode(mode);
+            else if (rtcpFeedback.Equals("Implicit"))
+            {
+                LinphoneService.SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFDisabled, LinphoneRTCPMode.LinphoneRTCPEnabled);
+            }
+            else if (rtcpFeedback.Equals("Explicit"))
+            {
+                LinphoneService.SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFEnabled, LinphoneRTCPMode.LinphoneRTCPEnabled);
+            }
+            // commenting this in case we need somethinghere from the compiler debug statement
+
+//            var mode = LinphoneAVPFMode.LinphoneAVPFEnabled;
+//#if DEBUG
+//            if (!this.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+//                Configuration.ConfEntry.AVPF_ON, true))
+//            {
+//                mode = LinphoneAVPFMode.LinphoneAVPFDisabled;
+//            }
+//#endif
+//            LinphoneService.SetAVPFMode(mode);
         }
 
         internal void ApplyDtmfOnSIPInfoChanges()
@@ -533,31 +572,50 @@ namespace com.vtcsecure.ace.windows.Services
             bool bEnable = this.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.ENABLE_ADAPTIVE_RATE_CTRL, true);
             LinphoneService.EnableAdaptiveRateControl(bEnable);
+            if (!string.IsNullOrEmpty(App.CurrentAccount.SelectedCameraId))
+            {
+                LinphoneService.SetCamera(App.CurrentAccount.SelectedCameraId);
+            }
+            if (!string.IsNullOrEmpty(App.CurrentAccount.SelectedMicrophoneId))
+            {
+                LinphoneService.SetCaptureDevice(App.CurrentAccount.SelectedMicrophoneId);
+            }
+            if (!string.IsNullOrEmpty(App.CurrentAccount.SelectedSpeakerId))
+            {
+                LinphoneService.SetSpeakers(App.CurrentAccount.SelectedSpeakerId);
+            }
         }
 
         internal void UpdateLoggedinContact()
         {
             if (App.CurrentAccount == null || !App.CurrentAccount.Username.NotBlank())
                 return;
+            var contactAddress = string.Format("{0}@{1}", App.CurrentAccount.Username,
+                App.CurrentAccount.ProxyHostname);
             VATRPContact contact = this.ContactService.FindLoggedInContact();
-            if (contact == null)
+            bool addLogedInContact = true;
+            if (contact != null)
             {
-                var contactAddress = string.Format("{0}@{1}", App.CurrentAccount.Username,
-                    App.CurrentAccount.ProxyHostname);
+                if (contact.SipUsername == contactAddress)
+                {
+                    contact.IsLoggedIn = false;
+                    addLogedInContact = false;
+                }
+            }
+
+            if (addLogedInContact)
+            {
                 var contactID = new ContactID(contactAddress, IntPtr.Zero);
                 contact = new VATRPContact(contactID)
                 {
                     IsLoggedIn = true,
                     Fullname = App.CurrentAccount.Username,
                     DisplayName = App.CurrentAccount.DisplayName,
-                    RegistrationName = string.Format("sip:{0}@{1}", App.CurrentAccount.Username, App.CurrentAccount.ProxyHostname)
+                    RegistrationName =
+                        string.Format("sip:{0}@{1}", App.CurrentAccount.Username, App.CurrentAccount.ProxyHostname)
                 };
                 contact.Initials = contact.Fullname.Substring(0, 1).ToUpper();
                 this.ContactService.AddContact(contact, string.Empty);
-            }
-            else
-            {
-                contact.IsLoggedIn = false;
             }
         }
 
@@ -595,7 +653,6 @@ namespace com.vtcsecure.ace.windows.Services
             try
             {
                 Geolocator loc = new Geolocator();
-
                 try
                 {
                     loc.DesiredAccuracy = PositionAccuracy.High;
@@ -608,6 +665,7 @@ namespace com.vtcsecure.ace.windows.Services
                 catch (System.UnauthorizedAccessException ex)
                 {
                     // handle error
+                    LogError("GetGeolocation", ex);
                     _geoLocaionUnauthorized = true;
                 }
             }
@@ -637,5 +695,55 @@ namespace com.vtcsecure.ace.windows.Services
         {
             LinphoneService.ClearAccountInformation();
         }
+
+        internal void StartupLinphoneCore()
+        {
+            if (UpdateLinphoneConfig())
+            {
+                if (StartLinphoneService())
+                    Register();
+            }
+        }
+
+        public List<VATRPDevice> GetAvailableCameras()
+        {
+            return LinphoneService.GetAvailableCameras();
+        }
+        public void SetCamera(string deviceId)
+        {
+            LinphoneService.SetCamera(deviceId);
+        }
+        public VATRPDevice GetSelectedCamera()
+        {
+            return LinphoneService.GetSelectedCamera();
+        }
+
+        public List<VATRPDevice> GetAvailableMicrophones()
+        {
+            return LinphoneService.GetAvailableMicrophones();
+
+        }
+        public void SetCaptureDevice(string deviceId)
+        {
+            LinphoneService.SetCaptureDevice(deviceId);
+        }
+        public VATRPDevice GetSelectedMicrophone()
+        {
+            return LinphoneService.GetSelectedMicrophone();
+        }
+
+        public List<VATRPDevice> GetAvailableSpeakers()
+        {
+            return LinphoneService.GetAvailableSpeakers();
+        }
+        public void SetSpeakers(string deviceId)
+        {
+            LinphoneService.SetSpeakers(deviceId);
+        }
+        public VATRPDevice GetSelectedSpeakers()
+        {
+            return LinphoneService.GetSelectedSpeakers();
+        }
+
     }
 }

@@ -10,6 +10,8 @@ using VATRP.Core.Events;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using System.Windows.Data;
+using com.vtcsecure.ace.windows.Model;
+using VATRP.Core.Extensions;
 
 namespace com.vtcsecure.ace.windows.ViewModel
 {
@@ -17,16 +19,20 @@ namespace com.vtcsecure.ace.windows.ViewModel
     {
         private ICollectionView _callsListView;
         private IHistoryService _historyService;
+        private IContactsService _contactService;
         private ObservableCollection<HistoryCallEventViewModel> _callHistoryList;
         private string _eventSearchCriteria = string.Empty;
         private DialpadViewModel _dialpadViewModel;
         private double _historyPaneHeight;
         private HistoryCallEventViewModel _selectedCallEvent;
         private int _activeTab;
+        private int _unseenMissedCallsCount;
+        public event EventHandler MissedCallsCountChanged;
 
         public CallHistoryViewModel()
         {
             _activeTab = 0; // All tab is active by default
+            _unseenMissedCallsCount = 0;
             _callsListView = CollectionViewSource.GetDefaultView(this.Calls);
             _callsListView.SortDescriptions.Add(new SortDescription("SortDate", ListSortDirection.Descending));
             _callsListView.Filter = new Predicate<object>(this.FilterEventsList);
@@ -36,9 +42,49 @@ namespace com.vtcsecure.ace.windows.ViewModel
             this()
         {
             _historyService = historyService;
+            _contactService = ServiceManager.Instance.ContactService;
+            _contactService.ContactAdded += OnNewContactAdded;
+            _contactService.ContactRemoved += OnContactRemoved;
             _historyService.OnCallHistoryEvent += CallHistoryEventChanged;
             _dialpadViewModel = dialpadViewModel;
             _dialpadViewModel.PropertyChanged += OnDialpadPropertyChanged;
+        }
+
+        private void OnContactRemoved(object sender, ContactRemovedEventArgs e)
+        {
+            lock (this.Calls)
+            {
+                foreach (var call in Calls)
+                {
+                    if (call.CallEvent.Contact != null && call.CallEvent.Contact.ID == e.contactId.ID)
+                    {
+                        call.CallEvent.Contact = null;
+                        call.AllowAddContact = true;
+                    }
+                }
+            }
+            CallsListView.Refresh();
+        }
+
+        private void OnNewContactAdded(object sender, ContactEventArgs e)
+        {
+            // search and update all items
+            var contact = _contactService.FindContact(new ContactID(e.Contact));
+            if (contact != null && contact.IsLinphoneContact)
+            {
+                lock (this.Calls)
+                {
+                    foreach (var call in Calls)
+                    {
+                        if (call.CallEvent.RemoteParty.TrimSipPrefix() == contact.ID)
+                        {
+                            call.CallEvent.Contact = contact;
+                            call.AllowAddContact = false;
+                        }
+                    }
+                }
+                CallsListView.Refresh();
+            }
         }
 
         private void OnDialpadPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -108,10 +154,30 @@ namespace com.vtcsecure.ace.windows.ViewModel
             if (FindCallEvent(callEvent) != null)
                 return;
 
-            var contact = ServiceManager.Instance.ContactService.FindContactByPhone(callEvent.RemoteParty);
+            var contact = _contactService.FindContact(new ContactID(callEvent.RemoteParty.TrimSipPrefix(), IntPtr.Zero));
             lock (this.Calls)
             {
                 Calls.Add(new HistoryCallEventViewModel(callEvent, contact));
+                if (callEvent.Status == VATRPHistoryEvent.StatusType.Missed)
+                {
+                    var lastSeenDate = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+    Configuration.ConfEntry.LAST_MISSED_CALL_DATE, string.Empty);
+
+                    DateTime dtLastSeenConfig;
+
+                    if ( !DateTime.TryParse(lastSeenDate, out dtLastSeenConfig) )
+                        dtLastSeenConfig = new DateTime(1970, 1, 1);
+
+                    if (callEvent.EndTime < dtLastSeenConfig)
+                    {
+                        _unseenMissedCallsCount++;
+
+                        if (MissedCallsCountChanged != null)
+                            MissedCallsCountChanged(callEvent, EventArgs.Empty);
+                        ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+    Configuration.ConfEntry.LAST_MISSED_CALL_DATE, dtLastSeenConfig.ToString());
+                    }
+                }
             }
 
             if (refreshNow)
@@ -142,10 +208,36 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     if (call.CallEvent == callEvent)
                     {
                         Calls.Remove(call);
+                        if (callEvent.Status == VATRPHistoryEvent.StatusType.Missed)
+                        {
+                            _unseenMissedCallsCount--;
+                            if (_unseenMissedCallsCount < 0)
+                                _unseenMissedCallsCount = 0;
+                            if (MissedCallsCountChanged != null)
+                                MissedCallsCountChanged(null, EventArgs.Empty);
+                        }
                         CallsListView.Refresh();
                         break;
                     }
                 }
+            }
+        }
+
+        public void AddNewContact(HistoryCallEventViewModel callEventViewModel)
+        {
+            var remote = callEventViewModel.CallEvent.RemoteParty.TrimSipPrefix();
+            ContactEditViewModel model = new ContactEditViewModel(true, remote);
+            model.ContactName = callEventViewModel.DisplayName;
+            var contactEditView = new com.vtcsecure.ace.windows.Views.ContactEditView(model);
+            var dialogResult = contactEditView.ShowDialog();
+            if (dialogResult != null && dialogResult.Value)
+            {
+                var contact = ServiceManager.Instance.ContactService.FindContact(new ContactID(model.ContactSipAddress, IntPtr.Zero));
+                if (contact != null && contact.Fullname == model.ContactName)
+                    return;
+
+                ServiceManager.Instance.ContactService.AddLinphoneContact(model.ContactName, model.ContactSipUsername,
+                    model.ContactSipAddress);
             }
         }
 
@@ -162,7 +254,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     if (callModel.DisplayName.ToLower().Contains(EventSearchCriteria.ToLower()))
                         return true;
                 }
-                return callModel.CallEvent != null && callModel.CallEvent.RemoteParty.ToLower().Contains(EventSearchCriteria.ToLower());
+                return callModel.CallEvent != null && callModel.CallEvent.Username.ToLower().Contains(EventSearchCriteria.ToLower());
             }
             return true;
         }
@@ -227,6 +319,18 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 CallsListView.Refresh();
                 OnPropertyChanged("ActiveTab");
             }
+        }
+
+        public int UnseenMissedCallsCount
+        {
+            get { return _unseenMissedCallsCount; }
+        }
+
+        public void ResetLastMissedCallTime()
+        {
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+    Configuration.ConfEntry.LAST_MISSED_CALL_DATE, DateTime.Now.ToString());
+            _unseenMissedCallsCount = 0;
         }
     }
 }

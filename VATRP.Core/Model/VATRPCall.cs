@@ -17,6 +17,7 @@ namespace VATRP.Core.Model
         private DateTime callEstablishTime;
         private bool _videoEnabled;
         private VATRPChat _chatRoom;
+        private string _linphoneMessage;
 
         public System.DateTime CallEstablishTime
         {
@@ -102,6 +103,12 @@ namespace VATRP.Core.Model
         {
             get { return _videoEnabled; }
             set { _videoEnabled = value; }
+        }
+
+        public string LinphoneMessage
+        {
+            get { return _linphoneMessage; }
+            set { _linphoneMessage = value; }
         }
 
         public static bool ParseSipAddress(string sipAddress, out string username, out string hostname, out int port)

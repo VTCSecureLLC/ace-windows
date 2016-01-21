@@ -52,6 +52,8 @@ namespace VATRP.Core.Services
 
         public event EventHandler<ConversationEventArgs> NewConversationCreated;
 
+        public event EventHandler<EventArgs> RttReceived;
+		
         public bool IsRTTenabled { get; set; }
         public ChatsService(ServiceManagerBase mngBase)
         {
@@ -170,52 +172,94 @@ namespace VATRP.Core.Services
 
                     chat.UnreadMsgCount++;
 
-                    VATRPChatMessage message = chat.SearchIncompleteMessage(MessageDirection.Incoming);
-                    if (message == null)
+                    chat.CharsCountInBubble++;
+                    var rttCodeArray = new char[2];
+                    var rttCodearrayLength = 1;
+                    if (chat.CharsCountInBubble == 201)
                     {
-                        message = new VATRPChatMessage(MessageContentType.Text)
+                        rttCodeArray[0] = UNLF;
+                        try
                         {
-                            Direction = MessageDirection.Incoming,
-                            IsIncompleteMessage = true,
-                            Chat = chat,
-                            IsRTTMarker = false,
-                        };
-
-                        chat.AddMessage(message, false);
-                    }
-                    
-                    char rcvdRtt = '\0';
-                    try
-                    {
-                        rcvdRtt = Convert.ToChar(rttCode);
-                        var sb = new StringBuilder(message.Content);
-                        switch (rcvdRtt)
-                        {
-                            case UNLF: //
-                            case CR:
-                            case LF:
-                                message.IsIncompleteMessage = false;
-                                break;
-                            case '\b':
-                                sb.Remove(sb.Length - 1, 1);
-                                break;
-                            default:
-                                sb.Append(rcvdRtt);
-                                break;
+                            rttCodeArray[1] = Convert.ToChar(rttCode);
                         }
-                        if (message.IsIncompleteMessage)
-                            message.Content = sb.ToString();
+                        catch (Exception)
+                        {
+                            
+                        }
+                        rttCodearrayLength = 2;
+                        chat.CharsCountInBubble = 0;
                     }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine("Error in OnChatMessageComposing: " + ex.Message);
-                        message.IsIncompleteMessage = false;
-                    }
-                    if (string.IsNullOrEmpty(message.Content))
-                        chat.DeleteMessage(message);
                     else
-                        chat.UpdateLastMessage(false);
-                    this.OnConversationUpdated(chat, true);
+                    {
+                        try
+                        {
+                            rttCodeArray[0] = Convert.ToChar(rttCode);
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+
+                    for (int i = 0; i < rttCodearrayLength; i++)
+                    {
+                        VATRPChatMessage message = chat.SearchIncompleteMessage(MessageDirection.Incoming);
+
+                        if (message == null)
+                        {
+                            message = new VATRPChatMessage(MessageContentType.Text)
+                            {
+                                Direction = MessageDirection.Incoming,
+                                IsIncompleteMessage = true,
+                                Chat = chat,
+                                IsRTTMarker = false,
+                            };
+
+                            chat.AddMessage(message, false);
+                        }
+
+                        try
+                        {
+                            var sb = new StringBuilder(message.Content);
+                            switch (rttCodeArray[i])
+                            {
+                                case UNLF: //
+                                case CR:
+                                case LF:
+                                    message.IsIncompleteMessage = false;
+                                    break;
+                                case '\b':
+                                    sb.Remove(sb.Length - 1, 1);
+                                    break;
+                                default:
+                                    sb.Append(rttCodeArray[i]);
+                                    break;
+                            }
+                            if (message.IsIncompleteMessage)
+                                message.Content = sb.ToString();
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine("Error in OnChatMessageComposing: " + ex.Message);
+                            message.IsIncompleteMessage = false;
+                        }
+                        if (string.IsNullOrEmpty(message.Content))
+                            chat.DeleteMessage(message);
+                        else
+                            chat.UpdateLastMessage(false);
+                        this.OnConversationUpdated(chat, true);
+                    
+						if (string.IsNullOrEmpty(message.Content))
+							chat.DeleteMessage(message);
+						else
+							chat.UpdateLastMessage(false);
+						this.OnConversationUpdated(chat, true);
+
+						if (this.RttReceived != null)
+						{
+							this.RttReceived(this, EventArgs.Empty);
+						}
+					}
                 });
         }
 

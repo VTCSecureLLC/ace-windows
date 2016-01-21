@@ -43,6 +43,26 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 this.HostPortBox.Text = account.ProxyPort.ToString();
                 RememberPasswordBox.IsChecked = account.RememberPassword;
                 AutoLoginBox.IsChecked = account.AutoLogin;
+                string transport = App.CurrentAccount.Transport;
+                if (string.IsNullOrWhiteSpace(transport))
+                {
+                    transport = "TCP";
+                }
+                foreach (var item in TransportComboBox.Items)
+                {
+                    var tb = item as TextBlock;
+                    string itemString = tb.Text;
+                    if (itemString.Equals(transport))
+                    {
+                        TransportComboBox.SelectedItem = item;
+                        TextBlock selectedItem = TransportComboBox.SelectedItem as TextBlock;
+                        if (selectedItem != null)
+                        {
+                            string test = selectedItem.Text;
+                        }
+                        break;
+                    }
+                }
             }
         }
 
@@ -56,6 +76,19 @@ namespace com.vtcsecure.ace.windows.CustomControls
             
         }
 
+        private void OnAutoLogin(object sender, RoutedEventArgs e)
+        {
+            bool autoLogin = AutoLoginBox.IsChecked ?? false;
+            if (autoLogin)
+            {
+                RememberPasswordBox.IsChecked = true;
+                RememberPasswordBox.IsEnabled = false;
+            }
+            else
+            {
+                RememberPasswordBox.IsEnabled = true;
+            }
+        }
         private void LoginCmd_Click(object sender, RoutedEventArgs e)
         {
 
@@ -90,17 +123,41 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 MessageBox.Show("Invalid SIP server port", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+
+            var account = ServiceManager.Instance.AccountService.FindAccount(LoginBox.Text, HostnameBox.Text);
+            if (account != null)
+            {
+                App.CurrentAccount = account;
+            }
+            else
+            {
+                ServiceManager.Instance.AccountService.AddAccount(App.CurrentAccount);
+            }
+
             App.CurrentAccount.AuthID = AuthIDBox.Text;
             App.CurrentAccount.Username = LoginBox.Text;
-            App.CurrentAccount.Password = PasswdBox.Password;
+            App.CurrentAccount.RememberPassword = RememberPasswordBox.IsChecked ?? false;
+            if (App.CurrentAccount.RememberPassword)
+            {
+                App.CurrentAccount.Password = PasswdBox.Password;
+            }
+            else
+            {
+                App.CurrentAccount.Password = "";
+            }
             App.CurrentAccount.ProxyHostname = HostnameBox.Text;
             App.CurrentAccount.ProxyPort = port;
-            App.CurrentAccount.RememberPassword = RememberPasswordBox.IsChecked ?? false;
 
             App.CurrentAccount.RegistrationPassword = PasswdBox.Password;
             App.CurrentAccount.RegistrationUser = LoginBox.Text;
             App.CurrentAccount.AutoLogin = AutoLoginBox.IsChecked ?? false;
 
+            var transportText = TransportComboBox.SelectedItem as TextBlock;
+            if (transportText != null)
+                App.CurrentAccount.Transport = transportText.Text;
+
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+    Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);
             ServiceManager.Instance.AccountService.Save();
             ServiceManager.Instance.RegisterNewAccount(App.CurrentAccount.AccountID);
         }

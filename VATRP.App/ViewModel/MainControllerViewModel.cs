@@ -17,8 +17,13 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _isDialpadDocked;
         private bool _isHistoryDocked;
         private bool _isSettingsDocked;
+        private bool _isResourceDocked;
         private bool _isMessagingDocked;
         private bool _isCallPanelDocked;
+        private bool _isIncallFullScreen;
+        private bool _offerServiceSelection;
+        private bool _activateWizardPage;
+        private double _dialpadHeight;
 
         private DialpadViewModel _dialPadViewModel;
         private CallHistoryViewModel _historyViewModel;
@@ -29,6 +34,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private CallViewModel _activeCallViewModel;
         private ContactsViewModel _contactsViewModel;
         private ILinphoneService _linphoneService;
+        private int _uiMissedCallsCount;
+
 
         public MainControllerViewModel()
         {
@@ -39,6 +46,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _isMessagingDocked = false;
             _isCallPanelDocked = false;
             _isSettingsDocked = false;
+            _isResourceDocked = false;
+            _offerServiceSelection = false;
+            _activateWizardPage = false; 
             _dialPadViewModel = new DialpadViewModel();
             _historyViewModel = new CallHistoryViewModel(ServiceManager.Instance.HistoryService, _dialPadViewModel);
             _contactsViewModel = new ContactsViewModel(ServiceManager.Instance.ContactService, _dialPadViewModel);
@@ -46,8 +56,22 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _messageViewModel = new MessagingViewModel(ServiceManager.Instance.ChatService,
                 ServiceManager.Instance.ContactService);
             _settingsViewModel = new SettingsViewModel();
+            _historyViewModel.MissedCallsCountChanged += OnMissedCallsCountChanged;
             _callsViewModelList = new ObservableCollection<CallViewModel>();
             _linphoneService = ServiceManager.Instance.LinphoneService;
+            _dialpadHeight = 350;
+        }
+
+        private void OnMissedCallsCountChanged(object callEvent, EventArgs args)
+        {
+            if (_historyViewModel != null)
+            {
+                if (IsCallHistoryDocked)
+                {
+                    _historyViewModel.ResetLastMissedCallTime();
+                }
+                UIMissedCallsCount = _historyViewModel.UnseenMissedCallsCount;
+            }
         }
 
         #region Properties
@@ -59,7 +83,25 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 _isAccountLogged = value;
                 OnPropertyChanged("IsAccountLogged");
+                OnPropertyChanged("IsDashboardDocked");
             }
+        }
+
+        public bool IsInCallFullScreen
+        {
+            get { return _isIncallFullScreen; }
+            set
+            {
+                _isIncallFullScreen = value;
+                OnPropertyChanged("IsInCallFullScreen");
+                OnPropertyChanged("IsDashboardDocked");
+                OnPropertyChanged("IsCallPanelBorderVisible");
+            }
+        }
+
+        public bool IsDashboardDocked
+        {
+            get { return _isAccountLogged && !_isIncallFullScreen; }
         }
 
         public string AppTitle
@@ -112,6 +154,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
+        public bool IsResourceDocked
+        {
+            get { return _isResourceDocked; }
+            set
+            {
+                _isResourceDocked = value;
+                OnPropertyChanged("IsResourceDocked");
+            }
+        }
+
         public bool IsMessagingDocked
         {
             get { return _isMessagingDocked; }
@@ -129,6 +181,39 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 _isCallPanelDocked = value;
                 OnPropertyChanged("IsCallPanelDocked");
+            }
+        }
+
+        public bool OfferServiceSelection
+        {
+            get { return _offerServiceSelection; }
+            set
+            {
+                _offerServiceSelection = value;
+                OnPropertyChanged("OfferServiceSelection");
+            }
+        }
+
+        public bool ActivateWizardPage
+        {
+            get
+            {
+                return _activateWizardPage; 
+            }
+            set
+            {
+                _activateWizardPage = value;
+                OnPropertyChanged("ActivateWizardPage");
+            }
+        }
+
+        public int UIMissedCallsCount
+        {
+            get { return _uiMissedCallsCount; }
+            set
+            {
+                _uiMissedCallsCount = value;
+                OnPropertyChanged("UIMissedCallsCount");
             }
         }
 
@@ -191,10 +276,20 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
+        public double DialpadHeight
+        {
+            get { return _dialpadHeight; }
+            set
+            {
+                _dialpadHeight = value; 
+                OnPropertyChanged("DialpadHeight");
+            }
+        }
+
         #endregion
 
         #region Calls management
-
+        
         internal CallViewModel FindCallViewModel(VATRPCall call)
         {
             if (call == null)
@@ -291,16 +386,18 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     viewModel.AcceptCall();
                     bool muteMicrophone = false;
                     bool muteSpeaker = false;
+                    bool enableVideo = true;
                     if (App.CurrentAccount != null)
                     {
                         muteMicrophone = App.CurrentAccount.MuteMicrophone;
                         muteSpeaker = App.CurrentAccount.MuteSpeaker;
+                        enableVideo = App.CurrentAccount.EnableVideo;
                     }
                     try
                     {
                         _linphoneService.AcceptCall(viewModel.ActiveCall.NativeCallPtr,
                             ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                                Configuration.ConfEntry.USE_RTT, true), muteMicrophone, muteSpeaker);
+                                Configuration.ConfEntry.USE_RTT, true), muteMicrophone, muteSpeaker, enableVideo);
                     }
                     catch (Exception ex)
                     {

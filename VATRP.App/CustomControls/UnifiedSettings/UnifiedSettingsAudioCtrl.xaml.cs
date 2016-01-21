@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using VATRP.Core.Model;
 using com.vtcsecure.ace.windows.Services;
 using com.vtcsecure.ace.windows.Enums;
+using System.ComponentModel;
 
 namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 {
@@ -23,6 +24,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
     public partial class UnifiedSettingsAudioCtrl : BaseUnifiedSettingsPanel
     {
         public CallViewCtrl CallControl;
+        private CollectionView _codecsView;
 
         public UnifiedSettingsAudioCtrl()
         {
@@ -43,10 +45,12 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
             MuteSpeakerCheckBox.IsChecked = App.CurrentAccount.MuteSpeaker;
 
-            AudioCodecsListView.Items.Clear();
-            foreach (var item in App.CurrentAccount.AudioCodecsList)
+            AudioCodecsListView.ItemsSource = App.CurrentAccount.AudioCodecsList;
+            _codecsView = (CollectionView)CollectionViewSource.GetDefaultView(AudioCodecsListView.ItemsSource);
+            if (_codecsView != null)
             {
-                AudioCodecsListView.Items.Add(item);
+                _codecsView.SortDescriptions.Add(new SortDescription("Priority", ListSortDirection.Ascending));
+                _codecsView.Refresh();
             }
         }
 
@@ -146,6 +150,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 App.CurrentAccount.MuteSpeaker = enabled;
                 ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
+
+                if ((CallControl != null) && CallControl.IsLoaded)
+                {
+                    CallControl.UpdateMuteSettingsIfOpen();
+                }
             }
         }
 

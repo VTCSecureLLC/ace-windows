@@ -22,6 +22,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
     // ToDo VATRP-985: Unified Settings: Make it so that if the edit boxes are done editing the data validates/updates immediately
     public partial class UnifiedSettingsMainCtrl : BaseUnifiedSettingsPanel
     {
+        public event UnifiedSettings_EnableSettings ShowSettingsUpdate;
 
         public UnifiedSettingsMainCtrl()
         {
@@ -62,66 +63,98 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                         break;
                     }
                 }
+                this.EnableVideoCheckBox.IsChecked = App.CurrentAccount.EnableVideo;
             }
 
+            this.EnableRTTCheckBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.USE_RTT, true);
             this.AutoAnswerCheckBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.AUTO_ANSWER, false);
             this.AvpfCheckbox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.AVPF_ON, true);
-
-
-#if DEBUG
-            DebugMenuLabel.Visibility = System.Windows.Visibility.Visible;
-            ReleaseCoreButton.Visibility = System.Windows.Visibility.Visible;
-            ClearCacheButton.Visibility = System.Windows.Visibility.Visible;
-            BatteryAlertButton.Visibility = System.Windows.Visibility.Visible;
-            AutoAnswerLabel.Visibility = System.Windows.Visibility.Visible;
-            AutoAnswerCheckBox.Visibility = System.Windows.Visibility.Visible;
-#endif
-
         }
 
-        public override void SaveData()
+        #region SettingsLevel
+        public override void ShowDebugOptions(bool show)
         {
-            // we are saving as we go here
-/*            if (App.CurrentAccount == null)
-                return;
-            
-            if (string.IsNullOrWhiteSpace(UserNameTextBox.Text))
+            System.Windows.Visibility visibleSetting = System.Windows.Visibility.Collapsed;
+            if (show)
             {
-                MessageBox.Show("Incorrect login", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
+                visibleSetting = System.Windows.Visibility.Visible;
             }
-
-            if (string.IsNullOrWhiteSpace(PasswordTextBox.Password))
-            {
-                MessageBox.Show("Empty password is not allowed", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-
-            if (string.IsNullOrWhiteSpace(DomainTextBox.Text))
-            {
-                MessageBox.Show("Incorrect SIP Server Address", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            
-            ushort port = 0;
-
-            ushort.TryParse(ProxyTextBox.Text, out port);
-            if (port < 1 || port > 65535)
-            {
-                MessageBox.Show("Incorrect SIP Server Port", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            if (App.CurrentAccount != null)
-            {
-                App.CurrentAccount.ProxyPort = port;
-                App.CurrentAccount.AuthID = UserIdTextBox.Text;
-                App.CurrentAccount.Username = UserNameTextBox.Text;
-                App.CurrentAccount.Password = PasswordTextBox.Password;
-                App.CurrentAccount.ProxyHostname = DomainTextBox.Text;
-                App.CurrentAccount.RegistrationUser = UserNameTextBox.Text;
-                App.CurrentAccount.RegistrationPassword = PasswordTextBox.Password;
-                //App.CurrentAccount.Transport = (string)TransportValueLabel.Content; // saved when changed
-            }
-*/
+            DebugMenuLabel.Visibility = visibleSetting;
+            AutoAnswerLabel.Visibility = visibleSetting;
+            AutoAnswerCheckBox.Visibility = visibleSetting;
         }
+
+        public override void ShowAdvancedOptions(bool show)
+        {
+            System.Windows.Visibility visibleSetting = System.Windows.Visibility.Collapsed;
+            if (show)
+            {
+                visibleSetting = System.Windows.Visibility.Visible;
+            }
+            UserIdLabel.Visibility = visibleSetting;
+            UserIdTextBox.Visibility = visibleSetting;
+
+            ProxyLabel.Visibility = visibleSetting;
+            ProxyTextBox.Visibility = visibleSetting;
+
+            TransportLabel.Visibility = visibleSetting;
+            TransportComboBox.Visibility = visibleSetting;
+
+            OutboundProxyLabel.Visibility = visibleSetting;
+            OutboundProxyCheckbox.Visibility = visibleSetting;
+
+//            AvpfLabel.Visibility = visibleSetting;
+//            AvpfCheckbox.Visibility = visibleSetting;
+
+            PreferencesLabel.Visibility = visibleSetting;
+
+            EnableVideoLabel.Visibility = visibleSetting;
+            EnableVideoCheckBox.Visibility = visibleSetting;
+
+//            EnableRTTLabel.Visibility = visibleSetting;
+//            EnableRTTCheckBox.Visibility = visibleSetting;
+
+            AudioButton.Visibility = visibleSetting;
+            AudioButtonLabel.Visibility = visibleSetting;
+
+            VideoButton.Visibility = visibleSetting;
+            VideoButtonLabel.Visibility = visibleSetting;
+
+            CallButton.Visibility = visibleSetting;
+            CallButtonLabel.Visibility = visibleSetting;
+
+            NetworkButton.Visibility = visibleSetting;
+            NetworkButtonLabel.Visibility = visibleSetting;
+
+            // not yet specified for windows
+            AdvancedButton.Visibility = System.Windows.Visibility.Collapsed;//visibleSetting;
+            AdvancedButtonLabel.Visibility = System.Windows.Visibility.Collapsed;//visibleSetting;
+
+        }
+
+        public override void ShowSuperOptions(bool show)
+        {
+            base.ShowSuperOptions(show);
+            System.Windows.Visibility visibleSetting = System.Windows.Visibility.Collapsed;
+            if (show)
+            {
+                visibleSetting = System.Windows.Visibility.Visible;
+            }
+            RunWizardButton.Visibility = visibleSetting;
+            ClearAccountButton.Visibility = visibleSetting;
+
+            PasswordLabel.Visibility = visibleSetting;
+            PasswordTextBox.Visibility = visibleSetting;
+
+            ReleaseCoreButton.Visibility = visibleSetting;
+            ClearCacheButton.Visibility = visibleSetting;
+            BatteryAlertButton.Visibility = visibleSetting;
+
+        }
+        #endregion
 
         private bool IsTransportChanged()
         {
@@ -235,8 +268,12 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             if (App.CurrentAccount != null)
             {
                 bool isChanged = false;
-                
-                App.CurrentAccount.ProxyPort = port;
+
+                if (App.CurrentAccount.ProxyPort != port)
+                {
+                    App.CurrentAccount.ProxyPort = port;
+                    isChanged = true;
+                }
                 if (ValueChanged(App.CurrentAccount.AuthID, UserIdTextBox.Text))
                 {
                     App.CurrentAccount.AuthID = UserIdTextBox.Text;
@@ -286,6 +323,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
             return false;
         }
+
         public void OnUserNameChanged(Object sender, RoutedEventArgs args)
         {
             if ((App.CurrentAccount == null) || !this.IsVisible)
@@ -353,6 +391,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnOutboundProxy(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Outbound Proxy Clicked");
+            if (App.CurrentAccount == null)
+                return;
+            bool enabled = OutboundProxyCheckbox.IsChecked ?? false;
+            App.CurrentAccount.UseOutboundProxy = enabled;
+            ServiceManager.Instance.SaveAccountSettings();
         }
         private void OnAvpf(object sender, RoutedEventArgs e)
         {
@@ -361,30 +404,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.AVPF_ON, enabled);
             ServiceManager.Instance.ConfigurationService.SaveConfig();
-
-        }
-        private void OnMoreOptions(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("More Options Clicked");
-            // changes visibility of the more options items:
-            System.Windows.Visibility visibleSetting = System.Windows.Visibility.Collapsed;
-            bool showMoreOptions = MoreOptionsCheckbox.IsChecked ?? false;
-            if (showMoreOptions)
-            {
-                visibleSetting = System.Windows.Visibility.Visible;
-            }
-            UserIdLabel.Visibility = visibleSetting;
-            UserIdTextBox.Visibility = visibleSetting;
-
-            ProxyLabel.Visibility = visibleSetting;
-            ProxyTextBox.Visibility = visibleSetting;
-
-            OutboundProxyLabel.Visibility = visibleSetting;
-            OutboundProxyCheckbox.Visibility = visibleSetting;
-
-            AvpfLabel.Visibility = visibleSetting;
-            AvpfCheckbox.Visibility = visibleSetting;
-
+            ServiceManager.Instance.ApplyAVPFChanges();
         }
         #endregion
 
@@ -392,18 +412,35 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnEnableVideo(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Enable Video Clicked");
-            bool enabled = EnableVideoCheckBox.IsChecked ?? false;
-            // ToDo: VATRP-985: where is the enable video setting?
-
-            ServiceManager.Instance.ConfigurationService.SaveConfig();
-
+            if (App.CurrentAccount != null)
+            {
+                bool enabled = EnableVideoCheckBox.IsChecked ?? false;
+                if (App.CurrentAccount.EnableVideo != enabled)
+                {
+                    App.CurrentAccount.EnableVideo = enabled;
+                    ServiceManager.Instance.SaveAccountSettings();
+                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.VideoPolicyChanged);
+                }
+            }                        
         }
 
+        private void OnEnableRTT(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Enable Real Time Text Call Clicked");
+            bool enabled = EnableRTTCheckBox.IsChecked ?? false;
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.USE_RTT, enabled);
+            ServiceManager.Instance.ConfigurationService.SaveConfig();
+        }
+
+        // Liz E. - the spreadsheet calls for an rtt checkbox - using that instead.
+        /*
         private void OnTextPreferences(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Text Preferences Clicked");
             OnContentChanging(UnifiedSettingsContentType.TextContent);
         }
+         * */
 
         private void OnAudioPreferences(object sender, RoutedEventArgs e)
         {
@@ -420,16 +457,19 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnCallPreferences(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Call Preferences Clicked");
+            OnContentChanging(UnifiedSettingsContentType.CallSettingsContent);
         }
 
         private void OnNetworkPreferences(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Network Preferences Clicked");
+            OnContentChanging(UnifiedSettingsContentType.NetworkSettingsContent);
         }
 
         private void OnAdvancedPreferences(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Advanced Preferences Clicked");
+            OnContentChanging(UnifiedSettingsContentType.AdvancedSettingsContent);
         }
         #endregion
 

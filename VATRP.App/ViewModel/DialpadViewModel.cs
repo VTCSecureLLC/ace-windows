@@ -23,18 +23,22 @@ namespace com.vtcsecure.ace.windows.ViewModel
             ServiceManager.Instance.ProviderService.ServiceStarted += OnProvidersListLoaded;
         }
 
+        public void UpdateProvider()
+        {
+            OnProvidersListLoaded(this, EventArgs.Empty);
+        }
 
         private void OnProvidersListLoaded(object sender, EventArgs args)
         {
             var providersList = ServiceManager.Instance.ProviderService.GetProviderList();
 
-            var selectedprovider = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.CURRENT_PROVIDER, "");
+            var selectedprovider =  ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,  Configuration.ConfEntry.CURRENT_PROVIDER, "");
 
             foreach (var s in providersList)
             {
                 var providerModel = new ProviderViewModel {Label = s};
-                providerModel.LoadLogo();
+                providerModel.LoadLogo(true);
+                providerModel.LoadLogo(false);
                 Providers.Add(providerModel);
                 if (s == selectedprovider)
                     _selectedProvider = providerModel;
@@ -114,6 +118,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             set
             {
                 _selectedProvider = value;
+                ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL, Configuration.ConfEntry.CURRENT_PROVIDER, value.Label);
                 OnPropertyChanged("SelectedProvider");
             }
         }

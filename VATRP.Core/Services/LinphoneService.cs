@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -26,7 +28,6 @@ namespace VATRP.Core.Services
 		private readonly Preferences preferences;
 		private readonly ServiceManagerBase manager;
 		private IntPtr linphoneCore;
-		private IntPtr callsDefaultParams;
 		private IntPtr proxy_cfg;
 		private IntPtr auth_info;
 		private IntPtr t_configPtr;
@@ -60,6 +61,9 @@ namespace VATRP.Core.Services
         private readonly string _chatLogPath;
         private readonly string _callLogPath;
 
+        private LinphoneRegistrationState currentRegistrationState;
+        private IntPtr _linphoneAudioCodecsList = IntPtr.Zero;
+        private IntPtr _linphoneVideoCodecsList = IntPtr.Zero;
         #endregion
 
 		#region Delegates
@@ -203,6 +207,7 @@ namespace VATRP.Core.Services
 		#region Methods
 		public LinphoneService(ServiceManagerBase manager)
 		{
+            this.currentRegistrationState = LinphoneRegistrationState.LinphoneRegistrationNone;
 			this.manager = manager;
             commandQueue = new Queue<LinphoneCommand>();
 			preferences = new Preferences();
@@ -285,17 +290,45 @@ namespace VATRP.Core.Services
 				LinphoneAPI.linphone_core_enable_video_display(linphoneCore, true);
 				LinphoneAPI.linphone_core_enable_video_preview(linphoneCore, false);
 				LinphoneAPI.linphone_core_set_native_preview_window_id(linphoneCore, -1);
-                
-                callsDefaultParams = LinphoneAPI.linphone_core_create_call_params(linphoneCore, IntPtr.Zero);
-                LinphoneAPI.linphone_call_params_enable_video(callsDefaultParams, true);
-                LinphoneAPI.linphone_call_params_enable_early_media_sending(callsDefaultParams, true);
 
-                // load installed codecs
+			    LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, 660);
+                LinphoneAPI.linphone_core_set_download_bandwidth(linphoneCore, 660);
+
+                string codeBase = Assembly.GetExecutingAssembly().CodeBase;
+                UriBuilder uri = new UriBuilder(codeBase);
+                string path = Uri.UnescapeDataString(uri.Path);
+			    if (!string.IsNullOrEmpty(path))
+			    {
+			        var rootCAPath = Path.Combine(Path.GetDirectoryName(path), "rootca.pem");
+			        LinphoneAPI.linphone_core_set_root_ca(linphoneCore, rootCAPath);
+			    }
+			    LinphoneAPI.linphone_core_verify_server_cn(linphoneCore, true);
+                LinphoneAPI.linphone_core_verify_server_certificates(linphoneCore, true);
+
+			    // load installed codecs
 			    LoadAudioCodecs();
                 LoadVideoCodecs();
 
                 LinphoneAPI.linphone_core_set_chat_database_path(linphoneCore, _chatLogPath);
                 LinphoneAPI.linphone_core_set_call_logs_database_path(linphoneCore, _callLogPath);
+
+			    IntPtr defProxyCfg = LinphoneAPI.linphone_core_get_default_proxy_config(linphoneCore);
+			    if (defProxyCfg != IntPtr.Zero)
+			    {
+			        proxy_cfg = defProxyCfg;
+                    LinphoneAPI.linphone_proxy_config_edit(proxy_cfg);
+                    LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, false);
+                    LinphoneAPI.linphone_proxy_config_done(proxy_cfg);
+			    }
+                
+                IntPtr coreConfig = LinphoneAPI.linphone_core_get_config(linphoneCore);
+                if (coreConfig != IntPtr.Zero)
+                {
+                    LinphoneAPI.lp_config_set_int(coreConfig, "sip", "tcp_tls_keepalive", 1);
+                    LinphoneAPI.lp_config_set_int(coreConfig, "sip", "keepalive_period", 90000);
+                }
+
+			    LinphoneAPI.linphone_core_enable_keep_alive(linphoneCore, false);
 
 				coreLoop = new Thread(LinphoneMainLoop) {IsBackground = true};
 				coreLoop.Start();
@@ -367,6 +400,9 @@ namespace VATRP.Core.Services
                                             if (ErrorEvent != null)
                                                 ErrorEvent(null, "Cannot create call to " + createCmd.Callee);
                                         }
+
+                                        if (createCmd.CallParamsPtr != IntPtr.Zero)
+                                            LinphoneAPI.linphone_call_params_destroy(createCmd.CallParamsPtr);
                                     }
                                 }
                                     break;
@@ -399,13 +435,6 @@ namespace VATRP.Core.Services
                 }
             }
 
-
-
-            if (callsDefaultParams != IntPtr.Zero)
-            {
-                //Marshal.FreeHGlobal(callsDefaultParams);
-                LinphoneAPI.linphone_call_params_destroy(callsDefaultParams);
-            }
             LinphoneAPI.linphone_core_iterate(linphoneCore); // roll
             
             if (vtablePtr != IntPtr.Zero)
@@ -425,7 +454,7 @@ namespace VATRP.Core.Services
             message_received = null;
             message_status_changed = null;
             call_log_updated = null;
-            linphoneCore = callsDefaultParams = proxy_cfg = auth_info = t_configPtr = IntPtr.Zero;
+            linphoneCore = proxy_cfg = auth_info = t_configPtr = IntPtr.Zero;
             call_stats_updated = null;
             coreLoop = null;
             identity = null;
@@ -523,6 +552,13 @@ namespace VATRP.Core.Services
 		#region Registration
 		public bool Register()
 		{
+            // make sure that we are not already registering
+            //if ((currentRegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk) ||
+            if (   (currentRegistrationState == LinphoneRegistrationState.LinphoneRegistrationProgress))
+            {
+                return false;
+            }
+
 			t_config = new LCSipTransports()
 			{
 				udp_port = preferences.Transport == "UDP" ? LinphoneAPI.LC_SIP_TRANSPORT_RANDOM : LinphoneAPI.LC_SIP_TRANSPORT_DISABLED,
@@ -545,28 +581,48 @@ namespace VATRP.Core.Services
 				identity = string.Format("\"{0}\" <sip:{1}@{2}>", preferences.DisplayName, preferences.Username,
 					preferences.ProxyHost);
 			}
-            
-			server_addr = string.Format("sip:{0}:{1};transport={2}", preferences.ProxyHost,
-                preferences.ProxyPort, preferences.Transport.ToLower());
 
-            LOG.Debug(string.Format( "Register SIP account: {0} Server: {1}", identity, server_addr));
+            int port = preferences.ProxyPort;
+            if (preferences.Transport.ToLower().Equals("tls"))
+            {
+                port = 25061;
+            }
+			server_addr = string.Format("sip:{0}:{1};transport={2}", preferences.ProxyHost,
+                port, preferences.Transport.ToLower());
+
+            Debug.WriteLine(string.Format( "Register SIP account: {0} Server: {1} Password: {2}", identity, server_addr, preferences.Password));
+
+            if (auth_info != IntPtr.Zero)
+            {
+                LinphoneAPI.linphone_core_remove_auth_info(linphoneCore, auth_info);
+                auth_info = IntPtr.Zero;
+            }
 
 			auth_info = LinphoneAPI.linphone_auth_info_new(preferences.Username, string.IsNullOrEmpty(preferences.AuthID) ? null : preferences.AuthID, preferences.Password, null, null, null);
 			if (auth_info == IntPtr.Zero)
 				LOG.Debug("failed to get auth info");
 			LinphoneAPI.linphone_core_add_auth_info(linphoneCore, auth_info);
 
+		    LinphoneAPI.linphone_core_set_primary_contact(linphoneCore, identity);
             // remove all proxy entries from linphone configuration file
-            LinphoneAPI.linphone_core_clear_proxy_config(linphoneCore);
 
-			proxy_cfg = LinphoneAPI.linphone_core_create_proxy_config(linphoneCore);
+            if (proxy_cfg == IntPtr.Zero)
+                proxy_cfg = LinphoneAPI.linphone_core_create_proxy_config(linphoneCore);
 			/*set localParty with user name and domain*/
 			LinphoneAPI.linphone_proxy_config_set_identity(proxy_cfg, identity);
 
-			LinphoneAPI.linphone_proxy_config_set_server_addr(proxy_cfg, server_addr);
+		    LinphoneAPI.linphone_proxy_config_set_server_addr(proxy_cfg, server_addr);
+
+		    LinphoneAPI.linphone_proxy_config_set_avpf_mode(proxy_cfg, (LinphoneAVPFMode)LinphoneAPI.linphone_core_get_avpf_mode(LinphoneCore));
+            LinphoneAPI.linphone_proxy_config_set_avpf_rr_interval(proxy_cfg, 3);
+
+		    string route = preferences.IsOutboundProxyOn ? server_addr : string.Empty;
+            // use proxy as route if outbound_proxy is enabled
+		    LinphoneAPI.linphone_proxy_config_set_route(proxy_cfg, route);
+            LinphoneAPI.linphone_proxy_config_set_expires(proxy_cfg, preferences.Expires);
+            LinphoneAPI.linphone_core_set_default_proxy_config(linphoneCore, proxy_cfg);
 			LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, true);
 			LinphoneAPI.linphone_core_add_proxy_config(linphoneCore, proxy_cfg);
-			LinphoneAPI.linphone_core_set_default_proxy_config(linphoneCore, proxy_cfg);
 
             UpdateMediaEncryption();
 			return true;
@@ -592,19 +648,18 @@ namespace VATRP.Core.Services
 
 	    private void DoUnregister()
 	    {
-            if (proxy_cfg != IntPtr.Zero && LinphoneAPI.linphone_proxy_config_is_registered(proxy_cfg))
+            if (linphoneCore == IntPtr.Zero)
+                return;
+
+            IntPtr proxyCfg = IntPtr.Zero;
+            LinphoneAPI.linphone_core_get_default_proxy(LinphoneCore, ref proxyCfg);
+            if (proxyCfg != IntPtr.Zero && LinphoneAPI.linphone_proxy_config_is_registered(proxyCfg))
             {
                 try
                 {
-                    if (proxy_cfg != IntPtr.Zero)
-                        LinphoneAPI.linphone_proxy_config_edit(proxy_cfg);
-
-                    if (proxy_cfg != IntPtr.Zero)
-                        LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, false);
-                    if (proxy_cfg != IntPtr.Zero)
-                    LinphoneAPI.linphone_proxy_config_done(proxy_cfg);
-                    proxy_cfg = IntPtr.Zero;
-
+                    LinphoneAPI.linphone_proxy_config_edit(proxyCfg);
+                    LinphoneAPI.linphone_proxy_config_enable_register(proxyCfg, false);
+                    LinphoneAPI.linphone_proxy_config_done(proxyCfg);
                     if (RegistrationStateChangedEvent != null)
                         RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationCleared);
                 }
@@ -618,10 +673,20 @@ namespace VATRP.Core.Services
                     t_configPtr = IntPtr.Zero;
                 }
             }
+			ClearProxyInformation();
 	    }
 
         public void ClearProxyInformation()
         {
+            if (linphoneCore == IntPtr.Zero)
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                return;
+            }
+
             // remove all proxy entries from linphone configuration file
             LinphoneAPI.linphone_core_clear_proxy_config(linphoneCore);
             // remove all authorization information
@@ -644,7 +709,7 @@ namespace VATRP.Core.Services
 		#endregion
 
 		#region Call
-		public void MakeCall(string destination, bool videoOn, bool rttEnabled, bool muteMicrophone, bool muteSpeaker, string geolocation)
+		public void MakeCall(string destination, bool videoOn, bool rttEnabled, bool muteMicrophone, bool muteSpeaker, bool enableVideo, string geolocation)
 		{
 		    if (callsList.Count > 0)
 		    {
@@ -663,6 +728,12 @@ namespace VATRP.Core.Services
 					ErrorEvent (null, "Cannot make when Linphone Core is not working.");
 				return;
 			}
+            
+            IntPtr callParams = LinphoneAPI.linphone_core_create_call_params(linphoneCore, IntPtr.Zero);
+            LinphoneAPI.linphone_call_params_set_video_direction(callParams, LinphoneMediaDirection.LinphoneMediaDirectionSendRecv);
+            LinphoneAPI.linphone_call_params_enable_video(callParams, enableVideo);
+		    LinphoneAPI.linphone_call_params_set_audio_bandwidth_limit(callParams, 0);
+            LinphoneAPI.linphone_call_params_enable_early_media_sending(callParams, true);
 
             if (geolocation.NotBlank())
 		    {
@@ -671,10 +742,10 @@ namespace VATRP.Core.Services
 		        VATRPCall.ParseSipAddress(destination, out un, out host, out port);
 
                 if (un == "911")
-                    LinphoneAPI.linphone_call_params_add_custom_header(callsDefaultParams, "userLocation", geolocation);
+                    LinphoneAPI.linphone_call_params_add_custom_header(callParams, "userLocation", geolocation);
 		    }
 
-		    var cmd = new CreateCallCommand(callsDefaultParams, destination, rttEnabled, muteMicrophone, muteSpeaker);
+            var cmd = new CreateCallCommand(callParams, destination, rttEnabled, muteMicrophone, muteSpeaker);
 
 		    lock (commandQueue)
 		    {
@@ -682,7 +753,7 @@ namespace VATRP.Core.Services
 		    }
 		}
 
-		public void AcceptCall(IntPtr callPtr, bool rttEnabled, bool muteMicrophone, bool muteSpeaker)
+		public void AcceptCall(IntPtr callPtr, bool rttEnabled, bool muteMicrophone, bool muteSpeaker, bool enableVideo)
 		{
             if (linphoneCore == IntPtr.Zero)
             {
@@ -701,20 +772,17 @@ namespace VATRP.Core.Services
 		            return;
 		        }
 
-		        IntPtr callParamsPtr = LinphoneAPI.linphone_core_create_call_params(linphoneCore, callPtr);
-		        if (callParamsPtr == IntPtr.Zero)
-		        {
-		            callParamsPtr = callsDefaultParams;
-		        }
+                IntPtr callParamsPtr = LinphoneAPI.linphone_core_create_call_params(linphoneCore, callPtr);
 
 		        IntPtr callerParams = LinphoneAPI.linphone_call_get_remote_params(call.NativeCallPtr);
 
 		        if (callerParams != IntPtr.Zero)
 		        {
-		            bool remoteRttEnabled = LinphoneAPI.linphone_call_params_realtime_text_enabled(callerParams) &
+		            bool remoteRttEnabled = LinphoneAPI.linphone_call_params_realtime_text_enabled(callerParams)!=0  &&
 		                                    rttEnabled;
 
 		            LinphoneAPI.linphone_call_params_enable_realtime_text(callParamsPtr, remoteRttEnabled);
+                    LinphoneAPI.linphone_call_params_enable_video(callParamsPtr, enableVideo);
 		        }
                 MuteCall(muteMicrophone);
                 MuteSpeaker(muteSpeaker);
@@ -889,8 +957,6 @@ namespace VATRP.Core.Services
             // ToDo VATRP-842: Set static image instead of using default
             // LinphoneAPI.linphone_core_set_static_picture(linphoneCore, "Resources\\contacts.png");
             LinphoneAPI.linphone_call_enable_camera(callPtr, enableVideo);
-
-
         }
 
         public void SendDtmf(VATRPCall call, char dtmf)
@@ -908,6 +974,17 @@ namespace VATRP.Core.Services
 		#endregion
 
         #region Messaging
+
+        public bool IsRttEnabled(IntPtr callPtr)
+        {
+            if (callPtr == IntPtr.Zero)
+                return false;
+
+            IntPtr callerParams = LinphoneAPI.linphone_call_get_remote_params(callPtr);
+
+            return callerParams != IntPtr.Zero && LinphoneAPI.linphone_call_params_realtime_text_enabled(callerParams) != 0;
+        }
+
         public void AcceptRTTProposition(IntPtr callPtr)
         {
             if (linphoneCore == IntPtr.Zero)
@@ -1045,31 +1122,71 @@ namespace VATRP.Core.Services
 
         #region Video
 
-        public void EnableVideo(bool enable)
+        public bool IsCameraEnabled(IntPtr callPtr)
+        {
+            if (callPtr == IntPtr.Zero)
+                return false;
+
+            return LinphoneAPI.linphone_call_camera_enabled(callPtr);
+        }
+
+        public void EnableVideo(bool enable, bool automaticallyInitiate, bool automaticallyAccept)
 		{
+            if ((linphoneCore == null) || (linphoneCore == IntPtr.Zero))
+            {
+                return;
+            }
+            // if current account exists and we are enabling video, intialize initiate and accept vars to account. Otherwise go with previous
+            //   implementation - based on enable.
+            bool autoInitiate = enable;
+            bool autoAccept = enable;
+            if (enable) // if we are not enabling video, do not allow autoInitiate and auto Accept to be true.
+            {
+                autoInitiate = automaticallyInitiate;
+                autoAccept = automaticallyAccept;
+            }
+
 			var t_videoPolicy = new LinphoneVideoPolicy()
 			{
-				automatically_initiate = enable,
-				automatically_accept = enable
+				automatically_initiate = autoInitiate,
+				automatically_accept = autoAccept
 			};
 
 			var t_videoPolicyPtr = Marshal.AllocHGlobal(Marshal.SizeOf(t_videoPolicy));
-			if (t_videoPolicyPtr != IntPtr.Zero)
+            Marshal.StructureToPtr(t_videoPolicy, t_videoPolicyPtr, false);
+
+            LinphoneVideoPolicy new_videoPolicy = (LinphoneVideoPolicy)Marshal.PtrToStructure(t_videoPolicyPtr, typeof(LinphoneVideoPolicy));
+            Console.WriteLine("before calling core: new_videoPolicy values: new_videoPolicy.automatically_accept=" + new_videoPolicy.automatically_accept.ToString() + " new_videoPolicy.automatically_initiate=" + new_videoPolicy.automatically_initiate);
+
+            if (t_videoPolicyPtr != IntPtr.Zero)
 			{
 
-				LinphoneAPI.linphone_core_enable_video_capture(linphoneCore, true);
-				LinphoneAPI.linphone_core_enable_video_display(linphoneCore, true);
+				LinphoneAPI.linphone_core_enable_video_capture(linphoneCore, enable);
+				LinphoneAPI.linphone_core_enable_video_display(linphoneCore, enable);
 				LinphoneAPI.linphone_core_set_video_policy(linphoneCore, t_videoPolicyPtr);
-				Marshal.FreeHGlobal(t_videoPolicyPtr);
+                Console.WriteLine("linphone_core_set_video_policy sent: t_videoPolicy values: t_videoPolicy.automatically_accept=" + t_videoPolicy.automatically_accept.ToString() + " t_videoPolicy.automatically_initiate=" + t_videoPolicy.automatically_initiate);
+                Marshal.FreeHGlobal(t_videoPolicyPtr);
 			}
-		}
+
+            // here - if I call linphone_core_get_video_policy it returns a policy with automatically_accept = false, automatically_initiate = true
+            IntPtr testPolicyPtr = LinphoneAPI.linphone_core_get_video_policy(linphoneCore);
+            t_videoPolicy = (LinphoneVideoPolicy)Marshal.PtrToStructure(testPolicyPtr, typeof(LinphoneVideoPolicy));
+
+            Console.WriteLine("linphone_core_get_video_policy returns: t_videoPolicy values: t_videoPolicy.automatically_accept=" + t_videoPolicy.automatically_accept.ToString() + " t_videoPolicy.automatically_initiate=" + t_videoPolicy.automatically_initiate);
+        }
 
         // Liz E: needed for unified settings
         public bool IsEchoCancellationEnabled()
         {
             if (linphoneCore == IntPtr.Zero)
-                throw new Exception("Linphone not initialized");
-
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                return false;
+            }
+            
             bool isEchoCancellationEnabled = LinphoneAPI.linphone_core_echo_cancellation_enabled(linphoneCore);
 
             return isEchoCancellationEnabled;
@@ -1079,7 +1196,13 @@ namespace VATRP.Core.Services
         public void EnableEchoCancellation(bool enable)
         {
             if (linphoneCore == IntPtr.Zero)
-                throw new Exception("Linphone not initialized");
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                return;
+            }
 
             LinphoneAPI.linphone_core_enable_echo_cancellation(linphoneCore, enable);
         }
@@ -1088,7 +1211,13 @@ namespace VATRP.Core.Services
         public bool IsSelfViewEnabled()
         {
             if (linphoneCore == IntPtr.Zero)
-                throw new Exception("Linphone not initialized");
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                return false;
+            }
 
             bool isSelfViewEnabled = LinphoneAPI.linphone_core_self_view_enabled(linphoneCore);
 
@@ -1099,15 +1228,27 @@ namespace VATRP.Core.Services
         public void EnableSelfView(bool enable)
         {
             if (linphoneCore == IntPtr.Zero)
-                throw new Exception("Linphone not initialized");
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                return;
+            }
 
             LinphoneAPI.linphone_core_enable_self_view(linphoneCore, enable);
         }
 
 		public void SwitchSelfVideo()
 		{
-			if (linphoneCore == IntPtr.Zero)
-				throw new Exception("Linphone not initialized");
+            if (linphoneCore == IntPtr.Zero)
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                return;
+            }
 
 			bool isSelfViewEnabled = LinphoneAPI.linphone_core_self_view_enabled(linphoneCore);
 			LinphoneAPI.linphone_core_enable_self_view(linphoneCore, !isSelfViewEnabled);
@@ -1115,6 +1256,8 @@ namespace VATRP.Core.Services
 
 		public void SetVideoPreviewWindowHandle(IntPtr hWnd, bool reset = false)
 		{
+		    if (linphoneCore == IntPtr.Zero)
+		        return;
 			LinphoneAPI.linphone_core_enable_video_preview(linphoneCore, !reset);
 		    if (reset)
 		    {
@@ -1193,6 +1336,31 @@ namespace VATRP.Core.Services
                 {
                     LOG.Info("Set preferred video size by name: " + account.PreferredVideoId);
                     LinphoneAPI.linphone_core_set_preferred_video_size_by_name(linphoneCore, account.PreferredVideoId);
+
+                    int bandwidth = 512;
+                    switch (account.PreferredVideoId)
+                    {
+                        case "720p":
+                            bandwidth = 1024 + 128;
+                            break;
+                        case "svga":
+                            bandwidth = 860;
+                            break;
+                        case "vga":
+                            bandwidth = 660;
+                            break;
+                        case "cif":
+                            bandwidth = 460;
+                            break;
+                        case "qvga":
+                            bandwidth = 410;
+                            break;
+                        case "qcif":
+                            bandwidth = 256;
+                            break;
+                    }
+                    LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, bandwidth);
+                    LinphoneAPI.linphone_core_set_download_bandwidth(linphoneCore, bandwidth);
                 }
             }
 
@@ -1223,12 +1391,14 @@ namespace VATRP.Core.Services
 
         public bool UpdateNativeCodecs(VATRPAccount account, CodecType codecType)
 	    {
+            var retValue = true;
+
             if (linphoneCore == IntPtr.Zero)
 				throw new Exception("Linphone not initialized");
 
 	        if (account == null)
 	            throw new ArgumentNullException("Account is not defined");
-            var retValue = true;
+            
             var cfgCodecs = codecType == CodecType.Video ? account.VideoCodecsList : account.AudioCodecsList;
             var linphoneCodecs = codecType == CodecType.Video ? _videoCodecs : _audioCodecs;
             var tmpCodecs = new List<VATRPCodec>();
@@ -1237,27 +1407,7 @@ namespace VATRP.Core.Services
                 // find cfgCodec in linphone codec list
                 var pt = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, cfgCodec.CodecName, LinphoneAPI.LINPHONE_FIND_PAYLOAD_IGNORE_RATE,
                     cfgCodec.Channels);
-                if (pt != IntPtr.Zero)
-                {
-                    var isEnabled = LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, pt);
-                    LOG.Info("Codec: " + cfgCodec.CodecName + " Enabled: " + cfgCodec.Status + " In Linphone Status: " +
-                             isEnabled);
-
-                    if (LinphoneAPI.linphone_core_enable_payload_type(linphoneCore, pt, cfgCodec.Status) != 0)
-                    {
-                        LOG.Warn("Failed to update codec: " + cfgCodec.CodecName + " Enabled: " + cfgCodec.Status +
-                                 " Restoring status");
-                        cfgCodec.Status = isEnabled;
-                        retValue = false;
-                    }
-                    else
-                    {
-                        LOG.Info(string.Format("=== Updated Codec {0}, Channels {1} Status: {2}. ", cfgCodec.CodecName,
-                            cfgCodec.Channels,
-                            cfgCodec.Status ? "Enabled" : "Disabled"));
-                    }
-                }
-                else
+                if (pt == IntPtr.Zero)
                 {
                     LOG.Warn(string.Format("Codec not found: {0} , Channels: {1} ", cfgCodec.CodecName,
                         cfgCodec.Channels));
@@ -1279,17 +1429,48 @@ namespace VATRP.Core.Services
                 LOG.Info(string.Format("Removing Codec from configuration: {0} , Channels: {1} ", codec.CodecName, codec.Channels));
                 cfgCodecs.Remove(codec);
             }
-            var ptPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, "H263", 90000, -1);
-            if (ptPtr != IntPtr.Zero)
+
+            foreach (var codec in linphoneCodecs)
             {
-                var payload = (PayloadType)Marshal.PtrToStructure(ptPtr, typeof(PayloadType));
-                payload.send_fmtp = "CIF=1;QCIF=1";
-                payload.recv_fmtp = "CIF=1;QCIF=1";
-                Marshal.StructureToPtr(payload, ptPtr, false);
-                LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, ptPtr);
+                for (int i = 0; i < cfgCodecs.Count; i++)
+                {
+                    if (cfgCodecs[i].CodecName == codec.CodecName && cfgCodecs[i].Rate == codec.Rate && cfgCodecs[i].Channels == codec.Channels)
+                    {
+                        cfgCodecs[i].Priority = codec.Priority;
+                        cfgCodecs[i].Status = codec.Status;
+                    }
+                }
             }
+
             return retValue;
 	    }
+
+        public bool UpdateCodecsAccessibility(VATRPAccount account, CodecType codecType)
+        {
+            var retValue = true;
+
+            if (linphoneCore == IntPtr.Zero)
+                throw new Exception("Linphone not initialized");
+
+            if (account == null)
+                throw new ArgumentNullException("Account is not defined");
+
+            var cfgCodecs = codecType == CodecType.Video ? account.VideoCodecsList : account.AudioCodecsList;
+            var linphoneCodecs = codecType == CodecType.Video ? _videoCodecs : _audioCodecs;
+
+            foreach (var cfgCodec in cfgCodecs)
+            {
+                var payloadPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, cfgCodec.CodecName, cfgCodec.IPBitRate,
+                    cfgCodec.Channels);
+                if (payloadPtr == IntPtr.Zero)
+                    continue;
+                if (cfgCodec.Status == LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, payloadPtr))
+                    continue;
+                LinphoneAPI.linphone_core_enable_payload_type(linphoneCore, payloadPtr, cfgCodec.Status);
+            }
+
+            return retValue;
+        }
 
 	    public void FillCodecsList(VATRPAccount account, CodecType codecType)
 	    {
@@ -1301,50 +1482,171 @@ namespace VATRP.Core.Services
             cfgCodecs.AddRange(linphoneCodecs);
 	    }
 
+        public void configureFmtpCodec()
+        {
+            var h263PtPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, "H263", 90000, -1);
+            setFmtpSetting(h263PtPtr, "CIF=1;QCIF=1", "CIF=1;QCIF=1");
+            var h264PtPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, "H264", 90000, -1);
+            setFmtpSetting(h264PtPtr, null, "packetization-mode=1;profile-level-id=42801F");
+        }
+        private void setFmtpSetting(IntPtr ptPtr, string sendFmtp, string recvFmtp)
+        {
+            if (ptPtr != IntPtr.Zero)
+            {
+                var payload = (PayloadType)Marshal.PtrToStructure(ptPtr, typeof(PayloadType));
+                if (recvFmtp != null)
+                     payload.recv_fmtp = recvFmtp;
+                if (sendFmtp != null)
+                    payload.send_fmtp = sendFmtp;
+                Marshal.StructureToPtr(payload, ptPtr, false);
+                LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, ptPtr);
+            }
+
+        }
 		private void LoadAudioCodecs()
 		{
             if (linphoneCore == IntPtr.Zero)
                 throw new Exception("Linphone not initialized");
             _audioCodecs.Clear();
-			var audioCodecsList = new List<PayloadType>();
-			IntPtr audioCodecListPtr = LinphoneAPI.linphone_core_get_audio_codecs(linphoneCore);
+	
+            // remove 
+		    string[] primaryCodecs = {"G722", "PCMU", "PCMA", "speex", "speex"};
+            int[] rate = { LinphoneAPI.LINPHONE_FIND_PAYLOAD_IGNORE_RATE, LinphoneAPI.LINPHONE_FIND_PAYLOAD_IGNORE_RATE, LinphoneAPI.LINPHONE_FIND_PAYLOAD_IGNORE_RATE, 28000, 8000 };
 
-			MSList curStruct;
-			do
-			{
-				curStruct.next = IntPtr.Zero;
-				curStruct.prev = IntPtr.Zero;
-				curStruct.data = IntPtr.Zero;
-				curStruct = (MSList) Marshal.PtrToStructure(audioCodecListPtr, typeof (MSList));
-				if (curStruct.data != IntPtr.Zero)
-				{
-					var payload = (PayloadType) Marshal.PtrToStructure(curStruct.data, typeof (PayloadType));
+            _linphoneAudioCodecsList = IntPtr.Zero;
+		    int i;
+		    for (i = 0; i < primaryCodecs.Length; i++)
+		    {
+		        var pt = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, primaryCodecs[i],
+                    rate[i],
+		            LinphoneAPI.LINPHONE_FIND_PAYLOAD_IGNORE_CHANNELS);
 
-				    var codec = new VATRPCodec
-				    {
+		        if (pt != IntPtr.Zero)
+		        {
+		            _linphoneAudioCodecsList = LinphoneAPI.ms_list_append(_linphoneAudioCodecsList, pt);
+		        }
+		    }
+
+            IntPtr audioCodecListPtr = LinphoneAPI.linphone_core_get_audio_codecs(linphoneCore);
+
+            MSList curStruct;
+            do
+            {
+                curStruct.next = IntPtr.Zero;
+                curStruct.prev = IntPtr.Zero;
+                curStruct.data = IntPtr.Zero;
+                curStruct = (MSList)Marshal.PtrToStructure(audioCodecListPtr, typeof(MSList));
+                if (curStruct.data != IntPtr.Zero)
+                {
+                    var payload = (PayloadType)Marshal.PtrToStructure(curStruct.data, typeof(PayloadType));
+
+                    bool found = false;
+                    for (i = 0; i < primaryCodecs.Length; i++)
+                    {
+                        if (primaryCodecs[i] == payload.mime_type)
+                        {
+                            if (rate[i] == LinphoneAPI.LINPHONE_FIND_PAYLOAD_IGNORE_RATE || payload.clock_rate == rate[i])
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!found)
+                    {
+                        _linphoneAudioCodecsList = LinphoneAPI.ms_list_append(_linphoneAudioCodecsList, curStruct.data);
+                    }
+                }
+                audioCodecListPtr = curStruct.next;
+            } while (curStruct.next != IntPtr.Zero);
+
+            LinphoneAPI.linphone_core_set_audio_codecs(linphoneCore, _linphoneAudioCodecsList);
+
+            //  enable codecs
+            audioCodecListPtr = LinphoneAPI.linphone_core_get_audio_codecs(linphoneCore);
+            do
+            {
+                curStruct.next = IntPtr.Zero;
+                curStruct.prev = IntPtr.Zero;
+                curStruct.data = IntPtr.Zero;
+                curStruct = (MSList)Marshal.PtrToStructure(audioCodecListPtr, typeof(MSList));
+                if (curStruct.data != IntPtr.Zero)
+                {
+                    var payload = (PayloadType)Marshal.PtrToStructure(curStruct.data, typeof(PayloadType));
+
+                    bool enable = false;
+                    for (i = 0; i < primaryCodecs.Length; i++)
+                    {
+                        if (primaryCodecs[i] == payload.mime_type)
+                        {
+                            if (rate[i] == LinphoneAPI.LINPHONE_FIND_PAYLOAD_IGNORE_RATE || payload.clock_rate == rate[i])
+                            {
+                                enable = true;
+                                break;
+                            }
+                        }
+                    }
+                    IntPtr payloadPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, payload.mime_type, payload.clock_rate, payload.channels);
+                    LinphoneAPI.linphone_core_enable_payload_type(linphoneCore, payloadPtr, enable);
+                }
+                audioCodecListPtr = curStruct.next;
+            } while (curStruct.next != IntPtr.Zero);
+            
+
+            audioCodecListPtr = LinphoneAPI.linphone_core_get_audio_codecs(linphoneCore);
+            int index = 1;
+            do
+            {
+                curStruct.next = IntPtr.Zero;
+                curStruct.prev = IntPtr.Zero;
+                curStruct.data = IntPtr.Zero;
+                curStruct = (MSList)Marshal.PtrToStructure(audioCodecListPtr, typeof(MSList));
+                if (curStruct.data != IntPtr.Zero)
+                {
+                    var payload = (PayloadType)Marshal.PtrToStructure(curStruct.data, typeof(PayloadType));
+                    var codec = new VATRPCodec
+                    {
+                        Priority = index++,
                         Purpose = CodecType.Audio,
-				        CodecName = payload.mime_type,
-				        Rate = payload.normal_bitrate,
+                        CodecName = payload.mime_type,
+                        Rate = payload.normal_bitrate,
                         IPBitRate = payload.clock_rate,
                         Channels = payload.channels,
                         ReceivingFormat = payload.recv_fmtp,
                         SendingFormat = payload.send_fmtp,
-				        Status = LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, curStruct.data),
-				        IsUsable = LinphoneAPI.linphone_core_check_payload_type_usability(linphoneCore, curStruct.data)
-				    };
+                        Status = LinphoneAPI.linphone_core_payload_type_enabled(linphoneCore, curStruct.data),
+                        IsUsable = LinphoneAPI.linphone_core_check_payload_type_usability(linphoneCore, curStruct.data)
+                    };
                     _audioCodecs.Add(codec);
-				}
-				audioCodecListPtr = curStruct.next;
-			} while (curStruct.next != IntPtr.Zero);
+                }
+                audioCodecListPtr = curStruct.next;
+            } while (curStruct.next != IntPtr.Zero);
 		}
 
         private void LoadVideoCodecs()
         {
             if (linphoneCore == IntPtr.Zero)
                 throw new Exception("Linphone not initialized");
-
             _videoCodecs.Clear();
-            var videoCodecsList = new List<PayloadType>();
+
+            // remove 
+            string[] primaryCodecs = { "H264", "H263", "VP8" };
+
+            _linphoneVideoCodecsList = IntPtr.Zero;
+            int i;
+            for (i = 0; i < primaryCodecs.Length; i++)
+            {
+                var pt = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, primaryCodecs[i],
+                    LinphoneAPI.LINPHONE_FIND_PAYLOAD_IGNORE_RATE,
+                    LinphoneAPI.LINPHONE_FIND_PAYLOAD_IGNORE_CHANNELS);
+
+                if (pt != IntPtr.Zero)
+                {
+                    _linphoneVideoCodecsList = LinphoneAPI.ms_list_append(_linphoneVideoCodecsList, pt);
+                }
+            }
+
             IntPtr videoCodecListPtr = LinphoneAPI.linphone_core_get_video_codecs(linphoneCore);
 
             MSList curStruct;
@@ -1357,8 +1659,69 @@ namespace VATRP.Core.Services
                 if (curStruct.data != IntPtr.Zero)
                 {
                     var payload = (PayloadType)Marshal.PtrToStructure(curStruct.data, typeof(PayloadType));
+
+                    bool found = false;
+                    for (i = 0; i < primaryCodecs.Length; i++)
+                    {
+                        if (primaryCodecs[i] == payload.mime_type)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found)
+                    {
+                        _linphoneVideoCodecsList = LinphoneAPI.ms_list_append(_linphoneVideoCodecsList, curStruct.data);
+                    }
+                }
+                videoCodecListPtr = curStruct.next;
+            } while (curStruct.next != IntPtr.Zero);
+
+            LinphoneAPI.linphone_core_set_video_codecs(linphoneCore, _linphoneVideoCodecsList);
+
+            //  enable codecs
+            videoCodecListPtr = LinphoneAPI.linphone_core_get_video_codecs(linphoneCore);
+            do
+            {
+                curStruct.next = IntPtr.Zero;
+                curStruct.prev = IntPtr.Zero;
+                curStruct.data = IntPtr.Zero;
+                curStruct = (MSList)Marshal.PtrToStructure(videoCodecListPtr, typeof(MSList));
+                if (curStruct.data != IntPtr.Zero)
+                {
+                    var payload = (PayloadType)Marshal.PtrToStructure(curStruct.data, typeof(PayloadType));
+
+                    bool enable = false;
+                    for (i = 0; i < primaryCodecs.Length; i++)
+                    {
+                        if (primaryCodecs[i] == payload.mime_type)
+                        {
+                            enable = true;
+                            break;
+                        }
+                    }
+                    IntPtr payloadPtr = LinphoneAPI.linphone_core_find_payload_type(linphoneCore, payload.mime_type, payload.clock_rate, payload.channels);
+                    LinphoneAPI.linphone_core_enable_payload_type(linphoneCore, payloadPtr, enable);
+                }
+                videoCodecListPtr = curStruct.next;
+            } while (curStruct.next != IntPtr.Zero);
+
+
+            videoCodecListPtr = LinphoneAPI.linphone_core_get_video_codecs(linphoneCore);
+            int index = 1;
+            do
+            {
+                curStruct.next = IntPtr.Zero;
+                curStruct.prev = IntPtr.Zero;
+                curStruct.data = IntPtr.Zero;
+                curStruct = (MSList)Marshal.PtrToStructure(videoCodecListPtr, typeof(MSList));
+                if (curStruct.data != IntPtr.Zero)
+                {
+                    var payload = (PayloadType)Marshal.PtrToStructure(curStruct.data, typeof(PayloadType));
                     var codec = new VATRPCodec
                     {
+                        Priority = index++,
                         Purpose = CodecType.Video,
                         CodecName = payload.mime_type,
                         Rate = payload.normal_bitrate,
@@ -1388,38 +1751,52 @@ namespace VATRP.Core.Services
                 LOG.Error("UpdateNetworkingParameters: Account is NULL");
                 return false;
             }
-
-            if (account.EnubleSTUN)
+            if (account.EnableSTUN)
             {
                 LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyUseStun);
                 var address = string.Format("{0}:{1}", account.STUNAddress, account.STUNPort);
+                LinphoneAPI.linphone_core_set_stun_server(linphoneCore, address);
+            }
+            else if (account.EnableICE)
+            {
+                LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyUseIce);
+                var address = string.Format("{0}:{1}", account.ICEAddress, account.ICEPort);
                 LinphoneAPI.linphone_core_set_stun_server(linphoneCore, address);
             }
             else
             {
                 LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyNoFirewall);
             }
-            
+            int firewallPolicy = LinphoneAPI.linphone_core_get_firewall_policy(linphoneCore);
+
             return false;
         }
 
-	    public void SetAVPFMode(LinphoneAVPFMode mode)
+	    public void SetAVPFMode(LinphoneAVPFMode mode, LinphoneRTCPMode rtcpMode)
 	    {
 	        if (linphoneCore == IntPtr.Zero)
-                throw new Exception("Linphone not initialized");
-
-	        int linphoneAvpfMode = LinphoneAPI.linphone_core_get_avpf_mode(linphoneCore);
-	        if (linphoneAvpfMode != (int) mode)
+	            return;
+            
+            LOG.Info("AVPF mode changed to " + mode);
+            LinphoneAPI.linphone_core_set_avpf_mode(linphoneCore, mode);
+            
+	        if (proxy_cfg != IntPtr.Zero)
 	        {
-                LOG.Info("AVPF mode changed to " + mode);
-	            LinphoneAPI.linphone_core_set_avpf_mode(linphoneCore, mode);
+                LinphoneAPI.linphone_proxy_config_set_avpf_mode(proxy_cfg, mode);
 	        }
-	    }
 
-          public int GetAVPFMode()
+	        IntPtr coreConfig = LinphoneAPI.linphone_core_get_config(linphoneCore);
+            if (coreConfig != IntPtr.Zero)
+            {
+                LOG.Info("RTCP mode changing to " + rtcpMode);
+                LinphoneAPI.lp_config_set_int(coreConfig, "rtp", "rtcp_fb_implicit_rtcp_fb", (int)rtcpMode);
+            }
+        }
+
+        public int GetAVPFMode()
         {
             if (linphoneCore == IntPtr.Zero)
-                throw new Exception("Linphone not initialized");
+                return (int) LinphoneAVPFMode.LinphoneAVPFDefault;
 
             return LinphoneAPI.linphone_core_get_avpf_mode(linphoneCore);
         }
@@ -1430,13 +1807,23 @@ namespace VATRP.Core.Services
 		void OnRegistrationChanged (IntPtr lc, IntPtr cfg, LinphoneRegistrationState cstate, string message) 
 		{
 			if (linphoneCore == IntPtr.Zero) return;
-
 		    if (cfg == proxy_cfg)
 		    {
+                currentRegistrationState = cstate;
 		        if (RegistrationStateChangedEvent != null)
 		            RegistrationStateChangedEvent(cstate);
+		        switch (cstate)
+		        {
+		            case LinphoneRegistrationState.LinphoneRegistrationOk:
+		                LinphoneAPI.linphone_core_enable_keep_alive(linphoneCore, true);
+		                break;
+		            case LinphoneRegistrationState.LinphoneRegistrationFailed:
+		            case LinphoneRegistrationState.LinphoneRegistrationCleared:
+		                LinphoneAPI.linphone_core_enable_keep_alive(linphoneCore, false);
+		                break;
+		        }
 		    }
-		}
+        }
 
 		void OnGlobalStateChanged(IntPtr lc, LinphoneGlobalState gstate, string message)
 		{
@@ -1582,6 +1969,7 @@ namespace VATRP.Core.Services
 
 		        if (call != null)
 		        {
+		            call.LinphoneMessage = message;
 		            call.CallState = newstate;
 
                     if (CallStateChangedEvent != null)
@@ -1821,6 +2209,7 @@ namespace VATRP.Core.Services
                 if (call != null)
                 {
                     IntPtr statsPtr = LinphoneAPI.linphone_call_get_video_stats(call.NativeCallPtr);
+
                     if (statsPtr != IntPtr.Zero)
                     {
                         return (LinphoneCallStats) Marshal.PtrToStructure(statsPtr, typeof (LinphoneCallStats));
@@ -1935,6 +2324,8 @@ namespace VATRP.Core.Services
                 commandQueue.Enqueue(cmd);
             }
 
+            DoUnregister();
+
             cmd = new LinphoneCommand(LinphoneCommandType.StopLinphone);
             lock (commandQueue)
             {
@@ -1942,6 +2333,143 @@ namespace VATRP.Core.Services
             }
             return true;
         }
+        #endregion
+
+        #region Devices
+        // VATRP-1200 TODO
+        public List<VATRPDevice> GetAvailableCameras()
+        {
+            //linphone_core_get_video_devices
+            List<VATRPDevice> cameraList = new List<VATRPDevice>();
+
+            IntPtr videoDevicesPtr = LinphoneAPI.linphone_core_get_video_devices(linphoneCore);
+            if (videoDevicesPtr != IntPtr.Zero)
+            {
+                IntPtr current;
+                var offset = 0;
+                while ((current = Marshal.ReadIntPtr(videoDevicesPtr, offset)) != IntPtr.Zero)
+                {
+                    string device = LinphoneAPI.PtrToStringUtf8(current);
+                    VATRPDevice newDevice = new VATRPDevice(device, VATRPDeviceType.CAMERA);
+                    cameraList.Add(newDevice);
+                    offset += IntPtr.Size;
+                }
+            }
+            return cameraList;
+        }
+
+        public void SetCamera(string deviceId)
+        {
+            if (!string.IsNullOrEmpty(deviceId))
+            {
+                LinphoneAPI.linphone_core_set_video_device(linphoneCore, deviceId);
+            }
+        }
+
+        public VATRPDevice GetSelectedCamera()
+        {
+            IntPtr deviceIdPtr = LinphoneAPI.linphone_core_get_video_device(linphoneCore);
+            if (deviceIdPtr != IntPtr.Zero)
+            {
+                string deviceId = LinphoneAPI.PtrToStringUtf8(deviceIdPtr);
+                VATRPDevice device = new VATRPDevice(deviceId, VATRPDeviceType.CAMERA);
+                return device;
+            }
+            return null;
+        }
+
+
+        // VATRP-1200 TODO
+        public List<VATRPDevice> GetAvailableMicrophones()
+        {
+            //linphone_core_get_sound_devices
+            // filter with linphone_core_sound_device_can_capture
+            List<VATRPDevice> microphoneList = new List<VATRPDevice>();
+            IntPtr soundDevicesPtr = LinphoneAPI.linphone_core_get_sound_devices(linphoneCore);
+            if (soundDevicesPtr != IntPtr.Zero)
+            {
+                IntPtr current;
+                var offset = 0;
+                while ((current = Marshal.ReadIntPtr(soundDevicesPtr, offset)) != IntPtr.Zero)
+                {
+                    string device = LinphoneAPI.PtrToStringUtf8(current);
+                    if (LinphoneAPI.linphone_core_sound_device_can_capture(linphoneCore, device))
+                    {
+                        VATRPDevice newDevice = new VATRPDevice(device, VATRPDeviceType.MICROPHONE);
+                        microphoneList.Add(newDevice);
+                    }
+                    offset += IntPtr.Size;
+                }
+            }
+            return microphoneList;
+        }
+
+        public void SetCaptureDevice(string deviceId)
+        {
+            if (!string.IsNullOrEmpty(deviceId))
+            {
+                LinphoneAPI.linphone_core_set_capture_device(linphoneCore, deviceId);
+            }
+        }
+
+        public VATRPDevice GetSelectedMicrophone()
+        {
+            IntPtr deviceIdPtr = LinphoneAPI.linphone_core_get_capture_device(linphoneCore);
+            if (deviceIdPtr != IntPtr.Zero)
+            {
+                string deviceId = LinphoneAPI.PtrToStringUtf8(deviceIdPtr);
+                VATRPDevice device = new VATRPDevice(deviceId, VATRPDeviceType.MICROPHONE);
+                return device;
+            }
+            return null;
+        }
+
+
+        // VATRP-1200 TODO
+        public List<VATRPDevice> GetAvailableSpeakers()
+        {
+            //linphone_core_get_sound_devices
+            // filter with linphone_core_sound_device_can_playback
+            List<VATRPDevice> speakerList = new List<VATRPDevice>();
+            IntPtr soundDevicesPtr = LinphoneAPI.linphone_core_get_sound_devices(linphoneCore);
+            if (soundDevicesPtr != IntPtr.Zero)
+            {
+                IntPtr current;
+                var offset = 0;
+                while ((current = Marshal.ReadIntPtr(soundDevicesPtr, offset)) != IntPtr.Zero)
+                {
+                    string device = LinphoneAPI.PtrToStringUtf8(current);
+                    if (LinphoneAPI.linphone_core_sound_device_can_playback(linphoneCore, device))
+                    {
+                        VATRPDevice newDevice = new VATRPDevice(device, VATRPDeviceType.SPEAKER);
+                        speakerList.Add(newDevice);
+                    }
+                    offset += IntPtr.Size;
+                }
+            }
+            return speakerList;
+        }
+
+        public void SetSpeakers(string deviceId)
+        {
+            if (!string.IsNullOrEmpty(deviceId))
+            {
+                LinphoneAPI.linphone_core_set_playback_device(linphoneCore, deviceId);
+            }
+        }
+
+        public VATRPDevice GetSelectedSpeakers()
+        {
+            IntPtr deviceIdPtr = LinphoneAPI.linphone_core_get_playback_device(linphoneCore);
+            if (deviceIdPtr != IntPtr.Zero)
+            {
+                string deviceId = LinphoneAPI.PtrToStringUtf8(deviceIdPtr);
+                VATRPDevice device = new VATRPDevice(deviceId, VATRPDeviceType.SPEAKER);
+                return device;
+            }
+            return null;
+        }
+
         #endregion
     }
 }

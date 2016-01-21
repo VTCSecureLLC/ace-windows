@@ -66,8 +66,8 @@
           <Component Id='com_XML2.DLL' Guid='32DD57D7-8E08-41CD-BBE7-FBD8FC97E0C1' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='XML2.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='xml2.dll' Source='ThirdParties\liblinphone\xml2.dll' KeyPath='yes' />
           </Component>
-          <Component Id='com_ZLIB1.DLL' Guid='394E8FFF-7338-4328-95DF-AA5A5CDD44ED' Permanent='no' SharedDllRefCount='no' Transitive='no'>
-            <File Id='ZLIB1.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='zlib1.dll' Source='ThirdParties\liblinphone\zlib1.dll' KeyPath='yes' />
+          <Component Id='com_ZLIB.DLL' Guid='394E8FFF-7338-4328-95DF-AA5A5CDD44ED' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+            <File Id='ZLIB.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='zlib.dll' Source='ThirdParties\liblinphone\zlib.dll' KeyPath='yes' />
           </Component>
           <Component Id='com_BELLESIP.DLL' Guid='F2AD22BC-8A70-4A34-AC0D-D71D734E5C57' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='BELLESIP.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='bellesip.dll' Source='ThirdParties\liblinphone\bellesip.dll' KeyPath='yes' />
@@ -132,13 +132,19 @@
           <Component Id='com_MSVCR120D.DLL' Guid='D95D4E57-CE4E-496A-A5A3-D59B5A5F18CF' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='MSVCR120D.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='msvcr120d.dll' Source='ThirdParties\liblinphone\msvcr120d.dll' KeyPath='yes' />
           </Component>
-	  <Component Id='com_CUSTOMACTIONS.CA.DLL' Guid='E7C4B276-CE9B-43d9-B70D-0F4B732564A4' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+          <Component Id='com_CUSTOMACTIONS.CA.DLL' Guid='E7C4B276-CE9B-43d9-B70D-0F4B732564A4' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='VATRP.CUSTOMACTIONS.CA.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='VATRP.CustomActions.CA.dll' Source='VATRP.CustomActions\bin\$(var.Configuration)\VATRP.CustomActions.CA.dll' KeyPath='yes' />
           </Component>
-		  <Component Id='com_CUSTOMACTIONS.DLL' Guid='F9E12919-5D41-4b53-B142-65A825E6D9EA' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+          <Component Id='com_CUSTOMACTIONS.DLL' Guid='F9E12919-5D41-4b53-B142-65A825E6D9EA' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='VATRP.CUSTOMACTIONS.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='VATRP.CustomActions.dll' Source='VATRP.CustomActions\bin\$(var.Configuration)\VATRP.CustomActions.dll' KeyPath='yes' />
           </Component>
-	  
+          <Component Id='com_ROOTCA.PEM' Guid='6C868ABD-552D-4c6f-9B83-778137FA15B0' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+            <File Id='ROOTCA.PEM' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='rootca.pem' Source='ThirdParties\rootca.pem' KeyPath='yes' />
+          </Component>
+          <Component Id='com_LEGALRELEASE.TXT' Guid='E5D2417C-9EF0-4D6D-8D02-C891BDA61502' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+            <File Id='LEGALRELEASE.TXT' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='legal_release.txt' Source='ThirdParties\legal_release.txt' KeyPath='yes' />
+          </Component>
+  
         </Directory>
 
       </Directory>
@@ -181,7 +187,7 @@
       <ComponentRef Id='com_INTL.DLL' />
       <ComponentRef Id='com_LINPHONE.DLL' />
       <ComponentRef Id='com_XML2.DLL' />
-      <ComponentRef Id='com_ZLIB1.DLL' />
+      <ComponentRef Id='com_ZLIB.DLL' />
       <ComponentRef Id='com_BELLESIP.DLL' />
       <ComponentRef Id='com_LINPHONEWRAPPER.DLL' />
       <ComponentRef Id='com_OPUS.DLL' />
@@ -210,6 +216,8 @@
       <ComponentRef Id='com_MSVCR120D.DLL'/>
       <ComponentRef Id='com_CUSTOMACTIONS.CA.DLL'/>
       <ComponentRef Id='com_CUSTOMACTIONS.DLL'/>
+      <ComponentRef Id='com_ROOTCA.PEM'/>
+      <ComponentRef Id='com_LEGALRELEASE.TXT'/>
     </ComponentGroup>
     <!-- The composite feature of the installation package. -->
     <Feature Id='CompleteInstall' Title='All Files' Level='1'>
@@ -478,7 +486,7 @@
       </RadioButtonGroup>
       <Dialog Id='FolderForm' X='50' Y='50' Width='373' Height='287' Title='[ProductName]' TrackDiskSpace='yes'>
         <Control Id='NextButton' Type='PushButton' X='300' Y='261' Width='66' Height='18' Text='{\VSI_MS_Sans_Serif13.0_0_0}&amp;Next &gt;' TabSkip='no' Default='yes'>
-          <Publish Event='SetTargetPath' Value='TARGETDIR'><![CDATA[1]]></Publish>
+          <Publish Event='SetTargetPath' Value='INSTALLFOLDER'><![CDATA[1]]></Publish>
           <Publish Event='SpawnDialog' Value='DiskCost'><![CDATA[OutOfDiskSpace=1]]></Publish>
           <Publish Event='EndDialog' Value='Return'><![CDATA[FolderForm_NextArgs="" AND OutOfDiskSpace<>1]]></Publish>
           <Publish Event='NewDialog' Value='[FolderForm_NextArgs]'><![CDATA[FolderForm_NextArgs<>"" AND OutOfDiskSpace<>1]]></Publish>
@@ -489,11 +497,11 @@
         <Control Id='FolderLabel' Type='Text' X='18' Y='114' Width='348' Height='12' Text='{\VSI_MS_Sans_Serif13.0_0_0}&amp;Folder:' TabSkip='no' />
         <Control Id='FolderEdit' Type='PathEdit' X='18' Y='126' Width='252' Height='18' Property='INSTALLFOLDER' Text='{\VSI_MS_Sans_Serif13.0_0_0}MsiPathEdit' TabSkip='no' Sunken='yes' Disabled='no' />
         <Control Id='BrowseButton' Type='PushButton' X='276' Y='126' Width='90' Height='18' Text='{\VSI_MS_Sans_Serif13.0_0_0}B&amp;rowse...' TabSkip='no' Disabled='no'>
-          <Publish Property='SelectFolderDialog_Property' Value='TARGETDIR'><![CDATA[1]]></Publish>
+          <Publish Property='SelectFolderDialog_Property' Value='INSTALLFOLDER'><![CDATA[1]]></Publish>
           <Publish Event='SpawnDialog' Value='SelectFolderDialog'><![CDATA[1]]></Publish>
         </Control>
         <Control Id='DiskCostButton' Type='PushButton' X='276' Y='150' Width='90' Height='18' Text='{\VSI_MS_Sans_Serif13.0_0_0}&amp;Disk Cost...' TabSkip='no'>
-          <Publish Event='SetTargetPath' Value='TARGETDIR'><![CDATA[1]]></Publish>
+          <Publish Event='SetTargetPath' Value='INSTALLFOLDER'><![CDATA[1]]></Publish>
           <Publish Event='SpawnDialog' Value='DiskCost'><![CDATA[1]]></Publish>
         </Control>
         <Control Id='AllUsersRadioGroup' Type='RadioButtonGroup' X='24' Y='210' Width='342' Height='42' Property='FolderForm_AllUsers' Text='{\VSI_MS_Sans_Serif13.0_0_0}MsiRadioButtonGroup' TabSkip='no'>

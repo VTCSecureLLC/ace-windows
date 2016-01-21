@@ -124,6 +124,24 @@ namespace VATRP.Core.Services
             _isStopping = true;
             _isStopped = true;
 
+            // clear all empty accounts
+            bool saveAccounts = false;
+            do
+            {
+                var vatrpAccounts = this.accountsList;
+                IEnumerable<VATRPAccount> allAccounts = (from c in vatrpAccounts
+                                                         where c.Username == string.Empty
+                                                         select c).ToList();
+                VATRPAccount emptyAccount = allAccounts.FirstOrDefault();
+                if (emptyAccount == null)
+                    break;
+                DeleteAccount(emptyAccount);
+                saveAccounts = true;
+            } while (true);
+
+            if (saveAccounts)
+                ImmediateSave();
+
             if (ServiceStopped != null)
                 ServiceStopped(this, EventArgs.Empty);
             return true;
@@ -270,6 +288,18 @@ namespace VATRP.Core.Services
             IEnumerable<VATRPAccount> allAccounts = (from c in vatrpAccounts
                 where c.AccountID == accountUID
                 select c).ToList();
+            return allAccounts.FirstOrDefault();
+        }
+
+        public VATRPAccount FindAccount(string username, string hostname)
+        {
+            var vatrpAccounts = this.accountsList;
+            if (vatrpAccounts == null)
+                return null;
+            IEnumerable<VATRPAccount> allAccounts = (from c in vatrpAccounts
+                                                     where (c.Username == username) &&
+                                                     (c.ProxyHostname == hostname)
+                                                     select c).ToList();
             return allAccounts.FirstOrDefault();
         }
 

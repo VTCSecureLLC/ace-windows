@@ -9,12 +9,12 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>com.vtcsecure.ace.windows</RootNamespace>
     <AssemblyName>ACE</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <TargetFrameworkProfile />
-    <targetplatformversion>8.0</targetplatformversion>
+    <TargetPlatformVersion>8.0</TargetPlatformVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -69,6 +69,7 @@
     <Reference Include="System.Net" />
     <Reference Include="System.Runtime" />
     <Reference Include="System.Runtime.InteropServices.WindowsRuntime" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Runtime.WindowsRuntime, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETCore\v4.5\System.Runtime.WindowsRuntime.dll</HintPath>
@@ -85,6 +86,7 @@
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="Windows" />
+    <Reference Include="Windows.Devices" />
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -127,6 +129,15 @@
     <Compile Include="CustomControls\CallViewCtrl.xaml.cs">
       <DependentUpon>CallViewCtrl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\Resources\BaseResourcePanel.cs" />
+    <Compile Include="CustomControls\Resources\DeafHoHResourcesPanel.xaml.cs">
+      <DependentUpon>DeafHoHResourcesPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\Resources\ResourceInfo.cs" />
+    <Compile Include="CustomControls\Resources\ResourceMainCtrl.xaml.cs">
+      <DependentUpon>ResourceMainCtrl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\Resources\ResourcesType.cs" />
     <Compile Include="CustomControls\RTTCtrl.xaml.cs">
       <DependentUpon>RTTCtrl.xaml</DependentUpon>
     </Compile>
@@ -137,11 +148,23 @@
       <DependentUpon>MainSettingsCtrl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\UnifiedSettings\BaseUnifiedSettingsPanel.cs" />
+    <Compile Include="CustomControls\Resources\ResourcePanel.xaml.cs">
+      <DependentUpon>ResourcePanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsAdvancedCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsAdvancedCtrl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsAudioCtrl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioVideoCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsAudioVideoCtrl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsCallCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsCallCtrl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsDeviceCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsDeviceCtrl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsContentType.cs" />
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsCtrl.xaml.cs">
@@ -152,6 +175,9 @@
     </Compile>
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsMainCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsMainCtrl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsNetworkCtrl.xaml.cs">
+      <DependentUpon>UnifiedSettingsNetworkCtrl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsSummaryCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsSummaryCtrl.xaml</DependentUpon>
@@ -168,6 +194,8 @@
     <Compile Include="Enums\ACEMenuSettings.cs" />
     <Compile Include="Enums\VATRPSettings.cs" />
     <Compile Include="Model\ActionCommand.cs" />
+    <Compile Include="Services\Win32NativeAPI.cs" />
+    <Compile Include="Utilities\JsonDeserializer.cs" />
     <Compile Include="ViewModel\FeedbackViewModel.cs" />
     <Compile Include="ViewModel\ContactEditViewModel.cs" />
     <Compile Include="ViewModel\ContactsViewModel.cs" />
@@ -248,6 +276,9 @@
     <Compile Include="Views\Dialpad.xaml.cs">
       <DependentUpon>Dialpad.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\LegalReleaseWindow.xaml.cs">
+      <DependentUpon>LegalReleaseWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\MediaTextBox.xaml.cs">
       <DependentUpon>MediaTextBox.xaml</DependentUpon>
     </Compile>
@@ -281,6 +312,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="CustomControls\Resources\DeafHoHResourcesPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\Resources\ResourceMainCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="CustomControls\RTTCtrl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -302,11 +341,27 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="CustomControls\Resources\ResourcePanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsAdvancedCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioCtrl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsAudioVideoCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsCallCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsDeviceCtrl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -319,6 +374,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsMainCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\UnifiedSettingsNetworkCtrl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -435,6 +494,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Dialpad.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\LegalReleaseWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -610,9 +673,32 @@
   <ItemGroup>
     <Resource Include="Resources\export_vcards.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\plus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\caag_gr.png" />
+    <Resource Include="Resources\convovrs_gr.png" />
+    <Resource Include="Resources\globalvrs_gr.png" />
+    <Resource Include="Resources\purpleVRS_gr.png" />
+    <Resource Include="Resources\sorensonvrs_gr.png" />
+    <Resource Include="Resources\zvrs_gr.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\resources_books.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\about.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\fullscreen_off.png" />
+    <Resource Include="Resources\fullscreen_on.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /b "$(SolutionDir)thirdparties\liblinphone\*.dll" "$(TargetDir)"
+xcopy /b "$(SolutionDir)thirdparties\rootca.pem" "$(TargetDir)"
+xcopy /b "$(SolutionDir)thirdparties\legal_release.txt" "$(TargetDir)"
 mkdir "$(TargetDir)\lib"
 mkdir "$(TargetDir)\lib\mediastreamer"
 mkdir "$(TargetDir)\lib\mediastreamer\plugins"

@@ -34,53 +34,93 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         private UnifiedSettingsAudioCtrl _audioSettingsPanel;
         private UnifiedSettingsVideoCtrl _videoSettingsPanel;
+        private UnifiedSettingsCallCtrl _callSettingsPanel;
+        private UnifiedSettingsNetworkCtrl _networkSettingsPanel;
+        private UnifiedSettingsAdvancedCtrl _advancedSettingsPanel;
 
         private BaseUnifiedSettingsPanel _currentContent;
         private List<BaseUnifiedSettingsPanel> _previousContent;
 
+        private List<BaseUnifiedSettingsPanel> _allPanels;
+
         public UnifiedSettingsCtrl()
         {
             InitializeComponent();
+            _previousContent = new List<BaseUnifiedSettingsPanel>();
+            _allPanels = new List<BaseUnifiedSettingsPanel>();
+
+            BaseUnifiedSettingsPanel.EnableAdvancedSettings = false;
+            BaseUnifiedSettingsPanel.EnabledDebugSettings = false;
+            BaseUnifiedSettingsPanel.EnableSuperSettings = false;
 
             _mainPanel = new UnifiedSettingsMainCtrl();
-            _mainPanel.ContentChanging += HandleContentChanging;
-            _mainPanel.AccountChangeRequested += HandleAccountChangeRequested;
+            _mainPanel.ShowSettingsUpdate += HandleShowSettingsUpdate;
+            InitializePanelAndEvents(_mainPanel);
 
             _generalPanel = new UnifiedSettingsGeneralCtrl();
-            _generalPanel.ContentChanging += HandleContentChanging;
+            InitializePanelAndEvents(_generalPanel);
 
             _audioVideoPanel = new UnifiedSettingsAudioVideoCtrl();
-            _audioVideoPanel.ContentChanging += HandleContentChanging;
+            InitializePanelAndEvents(_audioVideoPanel);
 
             _themePanel = new UnifiedSettingsThemeCtrl();
-            _themePanel.ContentChanging += HandleContentChanging;
+            InitializePanelAndEvents(_themePanel);
 
             _textPanel = new UnifiedSettingsTextCtrl();
-            _textPanel.ContentChanging += HandleContentChanging;
+            InitializePanelAndEvents(_textPanel);
 
             _summaryPanel = new UnifiedSettingsSummaryCtrl();
-            _summaryPanel.ContentChanging += HandleContentChanging;
+            _summaryPanel.ShowSettingsUpdate += HandleShowSettingsUpdate;
+            InitializePanelAndEvents(_summaryPanel);
 
             _audioSettingsPanel = new UnifiedSettingsAudioCtrl();
-            _audioSettingsPanel.ContentChanging += HandleContentChanging;
+            InitializePanelAndEvents(_audioSettingsPanel);
 
             _videoSettingsPanel = new UnifiedSettingsVideoCtrl();
-            _videoSettingsPanel.ContentChanging += HandleContentChanging;
+            InitializePanelAndEvents(_videoSettingsPanel);
 
-            _previousContent = new List<BaseUnifiedSettingsPanel>();
+            _callSettingsPanel = new UnifiedSettingsCallCtrl();
+            InitializePanelAndEvents(_callSettingsPanel);
+
+            _networkSettingsPanel = new UnifiedSettingsNetworkCtrl();
+            InitializePanelAndEvents(_networkSettingsPanel);
+
+            _advancedSettingsPanel = new UnifiedSettingsAdvancedCtrl();
+            InitializePanelAndEvents(_advancedSettingsPanel);
+
             _currentContent = _mainPanel;
-
+#if DEBUG
+            HandleShowSettingsUpdate(UnifiedSettings_LevelToShow.Normal, true);
+#else
+            HandleShowSettingsUpdate(UnifiedSettings_LevelToShow.Normal, true);
+#endif
             UpdateContentInUI();
+        }
+
+        private void InitializePanelAndEvents(BaseUnifiedSettingsPanel panel)
+        {
+            if (panel == null)
+                return;
+            
+            if (!_allPanels.Contains(panel))
+            {
+                _allPanels.Add(panel);
+            }
+
+            panel.ContentChanging += HandleContentChanging;
+            panel.AccountChangeRequested += HandleAccountChangeRequested;
         }
 
         public void Initialize()
         {
             _mainPanel.Initialize();
+            // the other panels are initialized when they are shown
         }
 
         public void SetCallControl(CallViewCtrl callControl)
         {
             _callControl = callControl;
+            _textPanel.CallControl = _callControl;
             _audioSettingsPanel.CallControl = _callControl;
             _audioVideoPanel.CallControl = _callControl;
         }
@@ -139,6 +179,31 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             UpdateContentInUI();
         }
 
+        #region ShowSettingsLevel
+        public void HandleShowSettingsUpdate(UnifiedSettings_LevelToShow settingsType, bool show)
+        {
+            switch (settingsType)
+            {
+                case UnifiedSettings_LevelToShow.Advanced: BaseUnifiedSettingsPanel.EnableAdvancedSettings = show;
+                    break;
+                case UnifiedSettings_LevelToShow.Debug: BaseUnifiedSettingsPanel.EnabledDebugSettings = show;
+                    break;
+                case UnifiedSettings_LevelToShow.Normal: BaseUnifiedSettingsPanel.EnableAdvancedSettings = false;
+                                                         BaseUnifiedSettingsPanel.EnabledDebugSettings = false;
+                                                         BaseUnifiedSettingsPanel.EnableSuperSettings = false;
+                    break;
+                case UnifiedSettings_LevelToShow.Super: BaseUnifiedSettingsPanel.EnableSuperSettings = show;
+                    break;
+                default:
+                    break;
+            }
+            foreach (BaseUnifiedSettingsPanel panel in _allPanels)
+            {
+                panel.ShowSettings(settingsType, show);
+            }
+        }
+        #endregion
+
         #region panel navigation
         private void HandleContentChanging(UnifiedSettingsContentType newContentType)
         {
@@ -160,20 +225,16 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                     break;
                 case UnifiedSettingsContentType.SummaryContent: MoveToContentPanel(_summaryPanel);
                     break;
-//                case UnifiedSettingsContentType.TransportContent: MoveToContentPanel(_transportPanel);
-//                    break;
-//                case UnifiedSettingsContentType.TextSettingsContent: MoveToContentPanel(_textSettingsPanel);
-//                    break;
                 case UnifiedSettingsContentType.AudioSettingsContent: MoveToContentPanel(_audioSettingsPanel);
                     break;
                 case UnifiedSettingsContentType.VideoSettingsContent: MoveToContentPanel(_videoSettingsPanel);
                     break;
-//                case UnifiedSettingsContentType.CallSettingsContent: MoveToContentPanel(_callSettingsPanel);
-//                    break;
-//                case UnifiedSettingsContentType.NetworkSettingsContent: MoveToContentPanel(_networkSettingsPanel);
-//                    break;
-//                case UnifiedSettingsContentType.AdvancedSettingsContent: MoveToContentPanel(_advancedSettingsPanel);
-//                    break;
+                case UnifiedSettingsContentType.CallSettingsContent: MoveToContentPanel(_callSettingsPanel);
+                    break;
+                case UnifiedSettingsContentType.NetworkSettingsContent: MoveToContentPanel(_networkSettingsPanel);
+                    break;
+                case UnifiedSettingsContentType.AdvancedSettingsContent: MoveToContentPanel(_advancedSettingsPanel);
+                    break;
 
                 default: break;
             }
@@ -198,11 +259,24 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                     break;
                 case ACEMenuSettingsUpdateType.MuteSpeakerMenu: UpdateAudioSettingsIfOpen(menuSetting);
                     break;
+                case ACEMenuSettingsUpdateType.ShowSelfViewMenu: UpdateVideoSettingsIfOpen(menuSetting);
+                    break;
                 default:
                     break;
             }
         }
 
+        private void UpdateVideoSettingsIfOpen(ACEMenuSettingsUpdateType menuSetting)
+        {
+            if (_videoSettingsPanel.IsLoaded)
+            {
+                _videoSettingsPanel.UpdateForMenuSettingChange(menuSetting);
+            }
+            if (_audioVideoPanel.IsLoaded)
+            {
+                _audioVideoPanel.UpdateForMenuSettingChange(menuSetting);
+            }
+        }
         private void UpdateAudioSettingsIfOpen(ACEMenuSettingsUpdateType menuSetting)
         {
             if (_audioSettingsPanel.IsLoaded)

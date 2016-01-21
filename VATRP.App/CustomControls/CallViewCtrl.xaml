@@ -21,8 +21,6 @@
         <conv:IntToVisibilityConverter x:Key="ivc"/>
         <conv:CallStateToStringConverter x:Key="csts"/>
         <conv:CallDurationConverter x:Key="cdc"/>
-        <Image x:Key="InfoImage" Source="/ACE;component/Resources/icon_info.png" />
-        <Image x:Key="KeypadImage" Source="/ACE;component/Resources/keypad.png" />
 
     </UserControl.Resources>
     <Grid Background="{DynamicResource AppMainWindowBrush}">
@@ -76,40 +74,49 @@
         </StackPanel>
 
         <Grid Grid.Row="0" Visibility="{Binding ShowCallParams, Converter={StaticResource bvc}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-            <StackPanel HorizontalAlignment="Center" Orientation="Vertical" Margin="0,30">
-                <TextBlock   Foreground="{DynamicResource AppMainBorderBrush}"
+                <TextBlock Grid.Row="0" Margin="0,30" Foreground="{DynamicResource AppMainBorderBrush}"
 							HorizontalAlignment="Center"
 					   Text="{Binding CallerInfo}" FontSize="{Binding DisplayNameSize}" 
 					   Visibility="{Binding CallerInfo.Length, Converter={StaticResource oivc}}"
 					   />
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock Margin="10,0" 
+                <StackPanel Grid.Row="1" Orientation="Vertical" >
+                <TextBlock Margin="10,0" HorizontalAlignment="Center"
 						   Foreground="{DynamicResource AppMainBorderBrush}"
 						Text="{Binding CallState, Converter={StaticResource csts} }" 
 					   VerticalAlignment="Top" FontSize="{Binding InfoTextSize}" 
 					   Visibility="Visible"/>
                     <TextBlock  Margin="10,0" HorizontalAlignment="Center"
-						   Foreground="{DynamicResource AppMainBorderBrush}"
+						   Foreground="{StaticResource AppMainBorderBrush}"
 						Text="{Binding RingDuration, Converter={StaticResource cdc}}" 
 					   VerticalAlignment="Top" FontSize="{Binding InfoTextSize}" 
-					   Visibility="Visible"/>
+					   Visibility="{Binding ErrorMessage.Length, Converter={StaticResource ivc}}"/>
+                    <TextBlock  Margin="10,0" HorizontalAlignment="Center"
+						   Foreground="{StaticResource AppMainBorderBrush}"
+						Text="{Binding ErrorMessage}" 
+					   VerticalAlignment="Top" FontSize="18" 
+					   Visibility="{Binding ErrorMessage.Length, Converter={StaticResource oivc}}"/>
                 </StackPanel>
-            </StackPanel>
         </Grid>
 
-        <StackPanel Visibility="{Binding ShowCallParams, Converter={StaticResource ibvc}}"
-			Grid.Row="1" Grid.RowSpan="2" Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,0,40" HorizontalAlignment="Center">
+        <StackPanel Visibility="{Binding AutoAnswer, Converter={StaticResource oivc}}"
+			Grid.Row="1"  Orientation="Vertical" VerticalAlignment="Bottom" Margin="0,0,0,30" HorizontalAlignment="Center">
             <TextBlock HorizontalAlignment="Center" Margin="2" Text="{Binding AutoAnswer, StringFormat=AutoAnswer after {0} sec}" 
 					   VerticalAlignment="Center" FontSize="{Binding InfoTextSize}" 
 						   Foreground="{DynamicResource AppMainBorderBrush}"
-					   Visibility="{Binding AutoAnswer, Converter={StaticResource oivc}}"/>
+					   />
         </StackPanel>
 
-        <Grid Grid.Row="2" Height="70" Visibility="{Binding ShowOutgoingEndCall, Converter={StaticResource bvc}}" VerticalAlignment="Stretch">
+        <Grid Grid.Row="2" Height="70" Visibility="{Binding ShowOutgoingEndCall, Converter={StaticResource bvc}}" 
+              VerticalAlignment="Stretch">
             <Button Grid.Column="0"  Width="240" Click="OnEndCall"  
 					BorderThickness="0" HorizontalAlignment="Center" 
 					VerticalContentAlignment="Center"
+                    Visibility="{Binding ErrorMessage.Length, Converter={StaticResource ivc}}"
 					>
                 <Button.Resources>
                     <Grid x:Key="CallButtonNormal" 
@@ -160,7 +167,7 @@
             </Button>
         </Grid>
 
-        <Grid Grid.Row="2" Height="70" x:Name="IncomingPanel" 
+        <Grid Grid.Row="2" Height="70" x:Name="IncomingPanel" Margin="110,0"
               Visibility="{Binding ShowIncomingCallPanel, Converter={StaticResource bvc}}" 
               VerticalAlignment="Stretch"
               ZIndex="90">
@@ -273,7 +280,7 @@
 
         </Grid>
 
-        <StackPanel Grid.Row="0" Grid.RowSpan="3" x:Name="VideoContainer" VerticalAlignment="Center" 
+        <StackPanel Grid.Row="0" Grid.RowSpan="4" x:Name="VideoContainer" VerticalAlignment="Center" 
                     HorizontalAlignment="Center">
 
             <videoWrapper:VATRPOverlay Width="690" Height="690" 
@@ -301,52 +308,53 @@
 					   />
                     </StackPanel>
                 </StackPanel>
-                <ToggleButton x:Name="BtnInfo" Grid.Column="1"
-						  Click="OnToggleInfo" IsChecked="{Binding IsCallInfoOn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-						  HorizontalAlignment="Right" VerticalAlignment="Top">
+                        <StackPanel HorizontalAlignment="Right" Orientation="Vertical" Grid.Column="1" >
+                            <ToggleButton x:Name="BtnFullScreen" 
+						  Click="OnToggleFullScreen" IsChecked="{Binding IsFullScreenOn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+						  HorizontalAlignment="Right" VerticalAlignment="Top" Background="Transparent">
                     <ToggleButton.Resources>
-                        <Grid x:Key="InfoPressed">
+                        <Grid x:Key="FSPressed">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <Rectangle  Fill="{StaticResource CallBarNormalBg}" Grid.Row="0" Grid.RowSpan="2" >
+                            <Ellipse Width="28" Height="28" Fill="{StaticResource CallBarNormalBg}" Opacity="0.01" Grid.Row="0" Grid.RowSpan="2" >
 
-                            </Rectangle>
-                            <Rectangle Width="32" Height="32" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Grid.RowSpan="2">
+                            </Ellipse>
+                            <Rectangle Width="28" Height="28" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Grid.RowSpan="2">
                                 <Rectangle.OpacityMask>
-                                    <ImageBrush ImageSource="..\Resources\icon_info.png" />
+                                    <ImageBrush ImageSource="..\Resources\fullscreen_off.png" />
                                 </Rectangle.OpacityMask>
                             </Rectangle>
                         </Grid>
-                        <Grid x:Key="InfoNormal">
+                        <Grid x:Key="FSNormal">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <Rectangle  Fill="{StaticResource CallBarNormalBg}" Grid.Row="0" Grid.RowSpan="2">
+                            <Ellipse Width="28" Height="28" Fill="{StaticResource CallBarNormalBg}" Opacity="0.01" Grid.Row="0" Grid.RowSpan="2">
 
-                            </Rectangle>
-                            <Rectangle Width="32" Height="32" Margin="0" Fill="{StaticResource NavigationBarNormalButtonFont}" 
+                            </Ellipse>
+                            <Rectangle Width="28" Height="28" Margin="0" Fill="{StaticResource NavigationBarNormalButtonFont}" 
 											   VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Grid.RowSpan="2">
                                 <Rectangle.OpacityMask>
-                                    <ImageBrush ImageSource="..\Resources\icon_info.png" />
+                                    <ImageBrush ImageSource="..\Resources\fullscreen_on.png" />
                                 </Rectangle.OpacityMask>
                             </Rectangle>
                         </Grid>
                     </ToggleButton.Resources>
                     <ToggleButton.Style>
                         <Style TargetType="{x:Type ToggleButton}">
-                            <Setter Property="Opacity" Value="0.4" />
+                            <Setter Property="Opacity" Value="1" />
                             <Setter Property="BorderThickness" Value="0" />
                             <Setter Property="Padding" Value="0" />
                             <Setter Property="Margin" Value="1,0,0,0" />
                             <Setter Property="SnapsToDevicePixels" Value="True"/>
                             <Setter Property="VerticalAlignment" Value="Center"/>
                             <Setter Property="HorizontalAlignment" Value="Center"/>
-                            <Setter Property="Content" Value="{StaticResource InfoNormal}" />
+                            <Setter Property="Content" Value="{StaticResource FSNormal}" />
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="{x:Type ToggleButton}">
@@ -365,7 +373,7 @@
                                 </Trigger>
                                 <Trigger Property="IsChecked" Value="True">
                                     <Setter Property="Opacity" Value="0.8" />
-                                    <Setter Property="Content" Value="{StaticResource InfoPressed}" />
+                                    <Setter Property="Content" Value="{StaticResource FSPressed}" />
                                 </Trigger>
 
                                 <MultiDataTrigger>
@@ -375,13 +383,92 @@
                                     </MultiDataTrigger.Conditions>
 
                                     <Setter Property="Opacity" Value="0.9"/>
-                                    <Setter Property="Content" Value="{StaticResource InfoPressed}"/>
+                                    <Setter Property="Content" Value="{StaticResource FSPressed}"/>
                                 </MultiDataTrigger>
                             </Style.Triggers>
                         </Style>
                     </ToggleButton.Style>
                 </ToggleButton>
-            </Grid>
+
+                        <ToggleButton x:Name="BtnInfo" Margin="0,30,0,0" Background="Transparent"
+						  Click="OnToggleInfo" IsChecked="{Binding IsCallInfoOn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+						  HorizontalAlignment="Right" VerticalAlignment="Top">
+                            <ToggleButton.Resources>
+                                <Grid x:Key="InfoPressed">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Ellipse Width="32" Height="32" Fill="{StaticResource CallBarNormalBg}" Opacity="0.01" Grid.Row="0" Grid.RowSpan="2"/>
+
+                                    <Rectangle Width="32" Height="32" Fill="{StaticResource NavigationBarNormalButtonFont}" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Grid.RowSpan="2">
+                                        <Rectangle.OpacityMask>
+                                            <ImageBrush ImageSource="..\Resources\icon_info.png" />
+                                        </Rectangle.OpacityMask>
+                                    </Rectangle>
+                                </Grid>
+                                <Grid x:Key="InfoNormal">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                        <Ellipse Width="32" Height="32" Fill="{StaticResource CallBarNormalBg}" Opacity="0.01" Grid.Row="0" Grid.RowSpan="2"/>
+                                        <Rectangle Width="32" Height="32" Margin="0" Fill="{StaticResource NavigationBarNormalButtonFont}" 
+											   VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Grid.RowSpan="2">
+                                        <Rectangle.OpacityMask>
+                                            <ImageBrush ImageSource="..\Resources\icon_info.png" />
+                                        </Rectangle.OpacityMask>
+                                    </Rectangle>
+                                </Grid>
+                            </ToggleButton.Resources>
+                            <ToggleButton.Style>
+                                <Style TargetType="{x:Type ToggleButton}">
+                                    <Setter Property="Opacity" Value="0.4" />
+                                    <Setter Property="BorderThickness" Value="0" />
+                                    <Setter Property="Padding" Value="0" />
+                                    <Setter Property="Margin" Value="1,0,0,0" />
+                                    <Setter Property="SnapsToDevicePixels" Value="True"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter Property="Content" Value="{StaticResource InfoNormal}" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                                <Grid Background="Transparent">
+
+                                                    <Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
+                                                        <ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                                    </Border>
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Opacity" Value="0.5" />
+                                        </Trigger>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter Property="Opacity" Value="0.8" />
+                                            <Setter Property="Content" Value="{StaticResource InfoPressed}" />
+                                        </Trigger>
+
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" Value="True"/>
+                                            </MultiDataTrigger.Conditions>
+
+                                            <Setter Property="Opacity" Value="0.9"/>
+                                            <Setter Property="Content" Value="{StaticResource InfoPressed}"/>
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ToggleButton.Style>
+                        </ToggleButton>
+</StackPanel>
+                    </Grid>
 
                 </videoWrapper:VATRPOverlay.OverlayCallInfoChild >
 
@@ -1405,11 +1492,13 @@
 
                 <videoWrapper:ManagedVideoControl x:Name="ctrlVideo" Width="{Binding VideoWidth}" Height="{Binding VideoHeight}" 
 												  VerticalAlignment="Center" HorizontalAlignment="Center" 
-												  >
+											      MouseEnter="CtrlVideo_OnMouseEnter"
+                                                  MouseLeave="CtrlVideo_OnMouseLeave"
+                                                  MouseMove="CtrlVideo_OnMouseMove"
+                                                  >
                 </videoWrapper:ManagedVideoControl>
 
             </videoWrapper:VATRPOverlay>
         </StackPanel>
-
     </Grid>
 </UserControl>

@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Windows.Threading;
 using VATRP.Core.Enums;
 using VATRP.Core.Events;
 using VATRP.Core.Extensions;
@@ -163,20 +164,39 @@ namespace VATRP.Core.Services
             IntPtr friendPtr = LinphoneAPI.linphone_friend_new_with_address(fqdn);
             if (friendPtr != IntPtr.Zero)
             {
-                LinphoneAPI.linphone_core_add_friend(manager.LinphoneService.LinphoneCore, friendPtr);
                 LinphoneAPI.linphone_friend_enable_subscribes(friendPtr, false);
-                VATRPContact contact = new VATRPContact(new ContactID(sipAddress, IntPtr.Zero))
+                LinphoneAPI.linphone_core_add_friend(manager.LinphoneService.LinphoneCore, friendPtr);
+
+                var contactID = new ContactID(sipAddress, IntPtr.Zero);
+                VATRPContact contact = FindContact(contactID);
+                if (contact == null)
                 {
-                    DisplayName = name,
-                    Fullname = name,
-                    Gender = "male",
-                    SipUsername = username,
-                    RegistrationName = sipAddress,
-                    IsLinphoneContact = true
-                };
-                Contacts.Add(contact);
+                    contact = new VATRPContact(new ContactID(sipAddress, IntPtr.Zero))
+                    {
+                        DisplayName = name,
+                        Fullname = name,
+                        Gender = "male",
+                        SipUsername = username,
+                        RegistrationName = sipAddress,
+                        IsLinphoneContact = true
+                    };
+                    Contacts.Add(contact);
+                }
+                else
+                {
+                    contact.DisplayName = name;
+                    contact.Fullname = name;
+                    contact.IsLinphoneContact = true;
+                    contact.SipUsername = username;
+                }
+
                 if (ContactAdded != null)
-                    ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
+                {
+                    Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() =>
+                    {
+                        ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
+                    }));
+                }
             }
         }
 
@@ -328,7 +348,6 @@ namespace VATRP.Core.Services
                                         LinphoneAPI.linphone_core_remove_friend(manager.LinphoneService.LinphoneCore,
                                             curStruct.data);
                                         RemoveContact(cfgSipAddress, true);
-                                        return;
                                     }
                                 }
                             }
@@ -344,13 +363,19 @@ namespace VATRP.Core.Services
         {
             Contacts.Add(contact);
             if (ContactAdded != null)
-                ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
-
+            {   
+                Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() =>{
+                     ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
+                }));           
+            }
             if (contact.IsLoggedIn && LoggedInContactUpdated != null)
-                LoggedInContactUpdated(this, new ContactEventArgs(new ContactID(contact)));
-
+            {
+                Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() =>
+                {
+                    LoggedInContactUpdated(this, new ContactEventArgs(new ContactID(contact)));
+                }));
+            }
         }
-
         public VATRPContact FindContact(ContactID contactID)
         {
             if (contactID == null)

@@ -12,6 +12,7 @@ using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Model;
 using HockeyApp;
 using System.Threading;
+using com.vtcsecure.ace.windows.Views;
 
 namespace com.vtcsecure.ace.windows
 {
@@ -109,27 +110,46 @@ namespace com.vtcsecure.ace.windows
                 linphoneLibraryVersion));
 
             _log.Info("====================================================");
-            //try
-            //{
-                CurrentAccount = null;
-                AppDomain.CurrentDomain.SetData("DataDirectory",
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
-                this.StartupUri = new Uri("MainWindow.xaml", UriKind.RelativeOrAbsolute);
 
-                var culture = new CultureInfo("en-US");
-                System.Threading.Thread.CurrentThread.CurrentCulture = culture;
-                System.Threading.Thread.CurrentThread.CurrentUICulture = culture;
+            CurrentAccount = null;
+            AppDomain.CurrentDomain.SetData("DataDirectory",
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
 
-                if (!ServiceManager.Instance.Initialize())
+            var culture = new CultureInfo("en-US");
+            System.Threading.Thread.CurrentThread.CurrentCulture = culture;
+            System.Threading.Thread.CurrentThread.CurrentUICulture = culture;
+
+            if (!ServiceManager.Instance.Initialize())
+            {
+                MessageBox.Show("Failed to initialize service manager");
+                this.Shutdown();
+            }
+
+            ServiceManager.Instance.Start();
+            var mainWnd = new MainWindow();
+            this.MainWindow = mainWnd;
+
+            if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.SHOW_LEGAL_RELEASE, true))
+            {
+                LegalReleaseWindow lrWnd = new LegalReleaseWindow();
+                var dlgResult = lrWnd.ShowDialog();
+                if (dlgResult == null || (bool)!dlgResult)
                 {
-                    MessageBox.Show("Failed to initialize service manager");
+                    ServiceManager.Instance.Stop();
                     this.Shutdown();
+                    return;
                 }
-            //}
-            //catch (Exception error)
-            //{
-            //    MessageBox.Show("App Global error:" + error.Message);
-            //}
+                else
+                {
+                    ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                       Configuration.ConfEntry.SHOW_LEGAL_RELEASE, false);
+                    ServiceManager.Instance.ConfigurationService.SaveConfig();
+                }
+            }
+
+            mainWnd.InitializeMainWindow();
+            mainWnd.Show();
         }
 
         private void App_OnExit(object sender, ExitEventArgs e)

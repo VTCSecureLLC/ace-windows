@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -13,6 +14,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _isSelected;
         private SolidColorBrush backColor;
         private ImageSource _image;
+        private ImageSource _grayed_image;
         private string _label;
         private string _proxyHost;
 
@@ -65,42 +67,59 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
+        public ImageSource GrayedLogo
+        {
+            get { return _grayed_image; }
+            set
+            {
+                _grayed_image = value;
+                OnPropertyChanged("GrayedLogo");
+            }
+        }
         public ProviderViewModel()
         {
             _label = string.Empty;
             _isSelected = false;
         }
 
-        internal void LoadLogo()
+        internal void LoadLogo(bool grayed)
         {
-            var logoUri = "pack://application:,,,/ACE;component/Resources/zvrs.png";
+            var imgSuffix = grayed ? "_gr" : string.Empty;
+            var logoUri = string.Format( "pack://application:,,,/ACE;component/Resources/zvrs{0}.png",  imgSuffix);
             if ( Label == "Sorenson VRS")
-                logoUri = "pack://application:,,,/ACE;component/Resources/sorensonvrs.png";
+                logoUri = string.Format( "pack://application:,,,/ACE;component/Resources/sorensonvrs{0}.png", imgSuffix);
             else if ( Label == "Convo Relay")
             {
-                logoUri = "pack://application:,,,/ACE;component/Resources/convovrs.png";
+                logoUri = string.Format( "pack://application:,,,/ACE;component/Resources/convovrs{0}.png", imgSuffix);
             }
             else if ( Label == "Purple VRS")
             {
-                logoUri = "pack://application:,,,/ACE;component/Resources/purplevrs.png";
+                logoUri = string.Format( "pack://application:,,,/ACE;component/Resources/purplevrs{0}.png", imgSuffix);
             }
             else if (Label == "CAAG")
             {
-                logoUri = "pack://application:,,,/ACE;component/Resources/caag.png";
+                logoUri = string.Format( "pack://application:,,,/ACE;component/Resources/caag{0}.png", imgSuffix);
             }
             else if (Label == "Global VRS")
             {
-                logoUri = "pack://application:,,,/ACE;component/Resources/globalvrs.png";
+                logoUri = string.Format( "pack://application:,,,/ACE;component/Resources/globalvrs{0}.png", imgSuffix);
             }
 
             try
             {
-                Logo = new BitmapImage(new Uri(logoUri));
+                if (grayed)
+                {
+                    GrayedLogo = new BitmapImage(new Uri(logoUri));
+                }
+                else
+                {
+                    Logo = new BitmapImage(new Uri(logoUri));
+                }
                 // use public setter
             }
             catch (Exception ex)
             {
-
+                Debug.WriteLine("Error in load logo: " + ex.Message);
             }
         }
     }

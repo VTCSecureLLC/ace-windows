@@ -54,5 +54,11 @@ namespace com.vtcsecure.ace.windows.Views
             this.DialogResult = true;
             Close();
         }
+
+        private void ShowGAWarning(object sender, MouseButtonEventArgs e)
+        {
+            MessageBox.Show("Available in General Release", "ACE", MessageBoxButton.OK,
+                       MessageBoxImage.Warning);
+        }
     }
 }

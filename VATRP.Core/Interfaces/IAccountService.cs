@@ -7,14 +7,11 @@ namespace VATRP.Core.Interfaces
     {
         void Save();
         bool AddAccount(VATRPAccount account);
-
         bool DeleteAccount(VATRPAccount account);
-
         bool ContainsAccount(VATRPAccount account);
-
         int GetAccountsCount();
         void ClearAccounts();
-
         VATRPAccount FindAccount(string accountUID);
+        VATRPAccount FindAccount(string username, string hostname);
     }
 }
