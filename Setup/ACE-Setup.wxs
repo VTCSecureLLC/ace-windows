@@ -132,6 +132,9 @@
           <Component Id='com_MSVCR120D.DLL' Guid='D95D4E57-CE4E-496A-A5A3-D59B5A5F18CF' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='MSVCR120D.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='msvcr120d.dll' Source='ThirdParties\liblinphone\msvcr120d.dll' KeyPath='yes' />
           </Component>
+          <Component Id='com_MSVCP120.DLL' Guid='BC28483E-7D41-4B01-AE68-97F45FCE0D70' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+            <File Id='MSVCP120.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='msvcp120.dll' Source='ThirdParties\liblinphone\msvcp120.dll' KeyPath='yes' />
+          </Component>
           <Component Id='com_CUSTOMACTIONS.CA.DLL' Guid='E7C4B276-CE9B-43d9-B70D-0F4B732564A4' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='VATRP.CUSTOMACTIONS.CA.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='VATRP.CustomActions.CA.dll' Source='VATRP.CustomActions\bin\$(var.Configuration)\VATRP.CustomActions.CA.dll' KeyPath='yes' />
           </Component>
@@ -214,6 +217,7 @@
       <ComponentRef Id='com_UNINSTALL.EXE' />
       <ComponentRef Id='com_MSVCR120.DLL'/>
       <ComponentRef Id='com_MSVCR120D.DLL'/>
+      <ComponentRef Id='com_MSVCP120.DLL'/>
       <ComponentRef Id='com_CUSTOMACTIONS.CA.DLL'/>
       <ComponentRef Id='com_CUSTOMACTIONS.DLL'/>
       <ComponentRef Id='com_ROOTCA.PEM'/>
