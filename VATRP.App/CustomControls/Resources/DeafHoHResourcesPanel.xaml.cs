@@ -43,10 +43,21 @@ namespace com.vtcsecure.ace.windows.CustomControls.Resources
         // load resources from http://cdn.vatrp.net/numbers.json
         private void PopulateListOfResources()
         {
+
             List<ResourceInfo> resourceList = LoadListOfResources();
-            foreach (ResourceInfo item in resourceList)
+            if (resourceList != null && resourceList.Count>0)
             {
-                ResourceInfoListView.Items.Add(item);
+                ResourceInfoListView.Items.Clear();
+                foreach (ResourceInfo item in resourceList)
+                {
+                    ResourceInfoListView.Items.Add(item);
+                }
+
+            }         
+            else if (ResourceInfoListView.Items.Count<1)
+            {
+                //TODO: Add default customer care number in case of no reasources found
+                ResourceInfoListView.Items.Add(new ResourceInfo { name = "None Found", address = "" });
             }
 
         }
