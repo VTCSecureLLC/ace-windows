@@ -52,6 +52,8 @@ namespace VATRP.Core.Services
 
         public event EventHandler<ConversationEventArgs> NewConversationCreated;
 
+        public event EventHandler<EventArgs> RttReceived;
+		
         public bool IsRTTenabled { get; set; }
         public ChatsService(ServiceManagerBase mngBase)
         {
@@ -246,7 +248,18 @@ namespace VATRP.Core.Services
                         else
                             chat.UpdateLastMessage(false);
                         this.OnConversationUpdated(chat, true);
-                    }
+                    
+						if (string.IsNullOrEmpty(message.Content))
+							chat.DeleteMessage(message);
+						else
+							chat.UpdateLastMessage(false);
+						this.OnConversationUpdated(chat, true);
+
+						if (this.RttReceived != null)
+						{
+							this.RttReceived(this, EventArgs.Empty);
+						}
+					}
                 });
         }
 

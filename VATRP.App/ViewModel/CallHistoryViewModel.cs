@@ -160,9 +160,23 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 Calls.Add(new HistoryCallEventViewModel(callEvent, contact));
                 if (callEvent.Status == VATRPHistoryEvent.StatusType.Missed)
                 {
-                    _unseenMissedCallsCount++;
-                    if (MissedCallsCountChanged != null)
-                        MissedCallsCountChanged(callEvent, EventArgs.Empty);
+                    var lastSeenDate = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+    Configuration.ConfEntry.LAST_MISSED_CALL_DATE, string.Empty);
+
+                    DateTime dtLastSeenConfig;
+
+                    if ( !DateTime.TryParse(lastSeenDate, out dtLastSeenConfig) )
+                        dtLastSeenConfig = new DateTime(1970, 1, 1);
+
+                    if (callEvent.EndTime < dtLastSeenConfig)
+                    {
+                        _unseenMissedCallsCount++;
+
+                        if (MissedCallsCountChanged != null)
+                            MissedCallsCountChanged(callEvent, EventArgs.Empty);
+                        ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+    Configuration.ConfEntry.LAST_MISSED_CALL_DATE, dtLastSeenConfig.ToString());
+                    }
                 }
             }
 
@@ -310,6 +324,13 @@ namespace com.vtcsecure.ace.windows.ViewModel
         public int UnseenMissedCallsCount
         {
             get { return _unseenMissedCallsCount; }
+        }
+
+        public void ResetLastMissedCallTime()
+        {
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+    Configuration.ConfEntry.LAST_MISSED_CALL_DATE, DateTime.Now.ToString());
+            _unseenMissedCallsCount = 0;
         }
     }
 }
