@@ -588,6 +588,7 @@ namespace VATRP.Core.Model
             return false;
         }
 
+        public int CharsCountInBubble { get; set; } 
     }
 }
 

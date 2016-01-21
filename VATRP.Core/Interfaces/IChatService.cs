@@ -33,5 +33,6 @@ namespace VATRP.Core.Interfaces
 
         event EventHandler<ConversationEventArgs> NewConversationCreated;
 
+        event EventHandler<EventArgs> RttReceived;
     }
 }

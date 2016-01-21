@@ -570,11 +570,12 @@ namespace com.vtcsecure.ace.windows
                 _mainViewModel.IsCallHistoryDocked = false;
                 _mainViewModel.IsContactDocked = false;
                 _mainViewModel.IsMessagingDocked = false;
-                ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-        Configuration.ConfEntry.ACCOUNT_IN_USE, string.Empty);
-
+                
                 if (defaultConfigRequest)
                 {
+                    ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+        Configuration.ConfEntry.ACCOUNT_IN_USE, string.Empty);
+
                     defaultConfigRequest = false;
                     ServiceManager.Instance.AccountService.DeleteAccount(App.CurrentAccount);
                     ResetConfiguration();
