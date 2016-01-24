@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using log4net;
 using VATRP.Core.Enums;
+using VATRP.Core.Events;
 using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
@@ -103,7 +104,6 @@ namespace VATRP.Core.Services
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void LinphoneCoreCallLogUpdatedCb(IntPtr lc, IntPtr newcl);
-
 		#endregion
 
 		#region Events
@@ -136,6 +136,10 @@ namespace VATRP.Core.Services
 
         public delegate void OnCallLogUpdatedDelegate(IntPtr lc, IntPtr callPtr);
         public event OnCallLogUpdatedDelegate OnLinphoneCallLogUpdatedEvent;
+
+        public delegate void MWIReceivedDelegate(MWIEventArgs args);
+        public event MWIReceivedDelegate OnMWIReceivedEvent;
+
 		#endregion
 
 		#region Properties
@@ -1984,12 +1988,25 @@ namespace VATRP.Core.Services
 		    }
 		}
 
-		private void OnNotifyEventReceived(IntPtr lc, IntPtr lev, string notified_event, IntPtr body)
+		private void OnNotifyEventReceived(IntPtr lc, IntPtr eventPtr, string notified_event, IntPtr bodyPtr)
 		{
 			if (linphoneCore == IntPtr.Zero) return;
 
-			Debug.Print("linphoneService Notify:  " + notified_event);
-			if (NotifyReceivedEvent != null)
+		    if (bodyPtr != IntPtr.Zero)
+		    {
+		        IntPtr subTypePtr = LinphoneAPI.linphone_content_get_subtype(bodyPtr);
+		        if (subTypePtr != IntPtr.Zero)
+		        {
+		            if (Marshal.PtrToStringAnsi(subTypePtr) == "simple-message-summary")
+		            {
+		                if (OnMWIReceivedEvent != null)
+                            OnMWIReceivedEvent(new MWIEventArgs(1));
+		                return;
+		            }
+		        }
+		    }
+
+		    if (NotifyReceivedEvent != null)
 				NotifyReceivedEvent(notified_event);
 		}
 
