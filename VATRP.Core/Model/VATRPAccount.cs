@@ -170,6 +170,8 @@ namespace VATRP.Core.Model
         [Column]
         public bool UserNeedsAgentView { get; set; }
 
+        [Column]
+        public int VideoMailCount { get; set; }
 
         #endregion
 
@@ -207,6 +209,7 @@ namespace VATRP.Core.Model
             SelectedMicrophoneId = string.Empty;
             SelectedSpeakerId = string.Empty;
             UserNeedsAgentView = false;
+            VideoMailCount = 0;
         }
 
         #endregion
