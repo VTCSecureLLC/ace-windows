@@ -1253,6 +1253,16 @@ namespace VATRP.Core.Services
 			bool isSelfViewEnabled = LinphoneAPI.linphone_core_self_view_enabled(linphoneCore);
 			LinphoneAPI.linphone_core_enable_self_view(linphoneCore, !isSelfViewEnabled);
 		}
+        public bool SetPreviewVideoSizeByName(string name)
+        {
+            string[] supportedResolutions = { "1080p", "720p", "svga", "4cif", "vga", "cif", "qvga", "qcif" };
+
+            if (!supportedResolutions.Contains(name.ToLower()))
+                return false;
+
+            LinphoneAPI.linphone_core_set_preview_video_size_by_name(linphoneCore, name.ToLower());
+            return true;
+        }
 
 		public void SetVideoPreviewWindowHandle(IntPtr hWnd, bool reset = false)
 		{
@@ -1265,7 +1275,6 @@ namespace VATRP.Core.Services
 		    }
 		    else
 		    {
-		        LinphoneAPI.linphone_core_use_preview_window(linphoneCore, true); // use preview in separated window
 		        LinphoneAPI.linphone_core_set_native_preview_window_id(linphoneCore, hWnd.ToInt64());
 		    }
 		}
