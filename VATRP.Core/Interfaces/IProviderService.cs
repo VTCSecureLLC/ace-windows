@@ -17,5 +17,6 @@ namespace VATRP.Core.Interfaces
 
         string[] GetProviderList();
         VATRPServiceProvider FindProvider(string providerID);
+        VATRPServiceProvider FindProviderLooseSearch(string providerID);  // because the json domain does nto match our stored domains
     }
 }

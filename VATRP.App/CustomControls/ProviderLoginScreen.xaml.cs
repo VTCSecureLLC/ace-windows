@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Model;
+using com.vtcsecure.ace.windows.Utilities;
 
 namespace com.vtcsecure.ace.windows.CustomControls
 {
@@ -31,6 +32,34 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             _mainWnd = theMain;
             InitializeComponent();
+            Initialize();
+        }
+
+        public void Initialize()
+        {
+            string[] providerList = ServiceManager.Instance.ProviderService.GetProviderList();
+            ProviderComboBox.Items.Clear();
+            int indexToSelect = 0;
+            int currentIndex = 0;
+            foreach (string provider in providerList)
+            {
+                ProviderComboBox.Items.Add(provider);
+                if (provider.StartsWith("ACE"))
+                {
+                    indexToSelect = currentIndex;
+                }
+                currentIndex++;
+            }
+            ProviderComboBox.SelectedIndex = indexToSelect;
+            ProviderComboBox.SelectedItem = ProviderComboBox.Items[indexToSelect];
+            string providerName = (string)ProviderComboBox.SelectedItem;
+            // VATRP1271 - TODO - add a check to ensure that this has not changed prior to doign anything further.
+            VATRPServiceProvider serviceProvider = ServiceManager.Instance.ProviderService.FindProvider(providerName);
+            if (serviceProvider != null)
+            {
+                HostnameBox.Text = serviceProvider.Address;
+            }
+
         }
 
         public void InitializeToAccount(VATRPAccount account)
@@ -76,22 +105,48 @@ namespace com.vtcsecure.ace.windows.CustomControls
             
         }
 
-        private void OnAutoLogin(object sender, RoutedEventArgs e)
+        private void LoginCmd_Click(object sender, RoutedEventArgs e)
         {
-            bool autoLogin = AutoLoginBox.IsChecked ?? false;
-            if (autoLogin)
+            string providerName = (string)ProviderComboBox.SelectedItem;
+            string userName = LoginBox.Text;
+            if (string.IsNullOrWhiteSpace(userName))
             {
-                RememberPasswordBox.IsChecked = true;
-                RememberPasswordBox.IsEnabled = false;
+                MessageBox.Show("Please fill username field", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            string password = PasswdBox.Password;
+            if (string.IsNullOrEmpty(password))
+            {
+                MessageBox.Show("Please fill password field", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            
+            string address = HostnameBox.Text;
+            ACEConfig config = ConfigLookup.LookupConfig(address, userName, password);
+            if (config == null)
+            {
+                // login failed
+                MessageBox.Show("The login Failed. Please enter a vliad user name and password.", "Valid Login Required");
+                return;
+            }
+            var account = ServiceManager.Instance.AccountService.FindAccount(LoginBox.Text, HostnameBox.Text);
+            if (account != null)
+            {
+                App.CurrentAccount = account;
             }
             else
             {
-                RememberPasswordBox.IsEnabled = true;
+                ServiceManager.Instance.AccountService.AddAccount(App.CurrentAccount);
             }
+            config.UpdateVATRPAccountFromACEConfig(App.CurrentAccount);
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);
+            ServiceManager.Instance.AccountService.Save();
+            ServiceManager.Instance.RegisterNewAccount(App.CurrentAccount.AccountID);
         }
-        private void LoginCmd_Click(object sender, RoutedEventArgs e)
-        {
 
+        private void LoginCmd_Click_old(object sender, RoutedEventArgs e)
+        {
             string username = LoginBox.Text;
             if (string.IsNullOrWhiteSpace(username))
             {
@@ -136,17 +191,10 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
             App.CurrentAccount.AuthID = AuthIDBox.Text;
             App.CurrentAccount.Username = LoginBox.Text;
-            App.CurrentAccount.RememberPassword = RememberPasswordBox.IsChecked ?? false;
-            if (App.CurrentAccount.RememberPassword)
-            {
-                App.CurrentAccount.Password = PasswdBox.Password;
-            }
-            else
-            {
-                App.CurrentAccount.Password = "";
-            }
+            App.CurrentAccount.Password = PasswdBox.Password;
             App.CurrentAccount.ProxyHostname = HostnameBox.Text;
             App.CurrentAccount.ProxyPort = port;
+            App.CurrentAccount.RememberPassword = RememberPasswordBox.IsChecked ?? false;
 
             App.CurrentAccount.RegistrationPassword = PasswdBox.Password;
             App.CurrentAccount.RegistrationUser = LoginBox.Text;
@@ -190,5 +238,18 @@ namespace com.vtcsecure.ace.windows.CustomControls
                     break;
             }
         }
+
+        public void OnProviderChanged(object sender, SelectionChangedEventArgs args)
+        {
+            string providerName = (string)ProviderComboBox.SelectedItem;
+            // VATRP1271 - TODO - add a check to ensure that this has not changed prior to doign anything further.
+            VATRPServiceProvider provider = ServiceManager.Instance.ProviderService.FindProvider(providerName);
+            if (provider != null)
+            {
+                HostnameBox.Text = provider.Address;
+            }
+        }
+
+
     }
 }

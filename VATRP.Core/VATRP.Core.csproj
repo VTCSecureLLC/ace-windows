@@ -88,6 +88,7 @@
     <Compile Include="Interfaces\ILinphoneService.cs" />
     <Compile Include="Interfaces\ISoundService.cs" />
     <Compile Include="Interfaces\IVATRPservice.cs" />
+    <Compile Include="Model\ACEConfig.cs" />
     <Compile Include="Model\CallParams.cs" />
     <Compile Include="Model\Commands\CreateCallCommand.cs" />
     <Compile Include="Model\Commands\DeclineCallCommand.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="Model\Commands\PauseCallCommand.cs" />
     <Compile Include="Model\Commands\TerminateCallCommand.cs" />
     <Compile Include="Model\VATRPDevice.cs" />
+    <Compile Include="Model\VATRPDomain.cs" />
     <Compile Include="Model\VATRPServiceProvider.cs" />
     <Compile Include="Model\VATRPUserGroup.cs" />
     <Compile Include="Model\Utils\Time.cs" />
