@@ -58,6 +58,10 @@ namespace com.vtcsecure.ace.windows
         {
             Interval = TimeSpan.FromMilliseconds(2000),
         };
+        private readonly DispatcherTimer deferredShowPreviewTimer = new DispatcherTimer()
+        {
+            Interval = TimeSpan.FromMilliseconds(500),
+        };
         #endregion
 
         #region Properties
@@ -91,7 +95,8 @@ namespace com.vtcsecure.ace.windows
 
             ctrlSettings.SetCallControl(ctrlCall);
             ctrlCall.SettingsControl = ctrlSettings;
-            deferredHideTimer.Tick += DefferedHideOnError;
+            deferredHideTimer.Tick += DeferedHideOnError;
+            deferredShowPreviewTimer.Tick += DeferredShowPreview;
             CombinedUICallViewSize.Width = 700;
             CombinedUICallViewSize.Height = 700;
         }
@@ -817,7 +822,20 @@ namespace com.vtcsecure.ace.windows
         {
             if (_selfView != null)
             {
-                ToggleWindow(_selfView);
+                bool enabled = this.ShowSelfPreviewItem.IsChecked;
+                if (!enabled)
+                {
+                    _selfView.Hide();
+                }
+                else if (!_selfView.IsVisible)
+                {
+                    _selfView.Show();
+                    _selfView.Activate();
+                }
+            }
+            else
+            {
+                this.ShowSelfPreviewItem.IsChecked = false;
             }
         }
 

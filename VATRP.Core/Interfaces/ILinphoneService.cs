@@ -74,6 +74,7 @@ namespace VATRP.Core.Interfaces
         void SwitchSelfVideo();
         void SetVideoPreviewWindowHandle(IntPtr hWnd, bool reset = false);
         void SetPreviewVideoSize(MSVideoSize w, MSVideoSize h);
+        bool SetPreviewVideoSizeByName(string name);
         void SetVideoCallWindowHandle(IntPtr hWnd, bool reset = false);
         bool IsVideoEnabled(VATRPCall call);
         void UpdateMediaSettings(VATRPAccount account);
