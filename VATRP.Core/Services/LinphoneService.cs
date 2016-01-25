@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using log4net;
 using VATRP.Core.Enums;
+using VATRP.Core.Events;
 using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
@@ -103,7 +104,6 @@ namespace VATRP.Core.Services
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void LinphoneCoreCallLogUpdatedCb(IntPtr lc, IntPtr newcl);
-
 		#endregion
 
 		#region Events
@@ -136,6 +136,10 @@ namespace VATRP.Core.Services
 
         public delegate void OnCallLogUpdatedDelegate(IntPtr lc, IntPtr callPtr);
         public event OnCallLogUpdatedDelegate OnLinphoneCallLogUpdatedEvent;
+
+        public delegate void MWIReceivedDelegate(MWIEventArgs args);
+        public event MWIReceivedDelegate OnMWIReceivedEvent;
+
 		#endregion
 
 		#region Properties
@@ -1253,6 +1257,16 @@ namespace VATRP.Core.Services
 			bool isSelfViewEnabled = LinphoneAPI.linphone_core_self_view_enabled(linphoneCore);
 			LinphoneAPI.linphone_core_enable_self_view(linphoneCore, !isSelfViewEnabled);
 		}
+        public bool SetPreviewVideoSizeByName(string name)
+        {
+            string[] supportedResolutions = { "1080p", "720p", "svga", "4cif", "vga", "cif", "qvga", "qcif" };
+
+            if (!supportedResolutions.Contains(name.ToLower()))
+                return false;
+
+            LinphoneAPI.linphone_core_set_preview_video_size_by_name(linphoneCore, name.ToLower());
+            return true;
+        }
 
 		public void SetVideoPreviewWindowHandle(IntPtr hWnd, bool reset = false)
 		{
@@ -1265,7 +1279,6 @@ namespace VATRP.Core.Services
 		    }
 		    else
 		    {
-		        LinphoneAPI.linphone_core_use_preview_window(linphoneCore, true); // use preview in separated window
 		        LinphoneAPI.linphone_core_set_native_preview_window_id(linphoneCore, hWnd.ToInt64());
 		    }
 		}
@@ -1984,12 +1997,25 @@ namespace VATRP.Core.Services
 		    }
 		}
 
-		private void OnNotifyEventReceived(IntPtr lc, IntPtr lev, string notified_event, IntPtr body)
+		private void OnNotifyEventReceived(IntPtr lc, IntPtr eventPtr, string notified_event, IntPtr bodyPtr)
 		{
 			if (linphoneCore == IntPtr.Zero) return;
 
-			Debug.Print("linphoneService Notify:  " + notified_event);
-			if (NotifyReceivedEvent != null)
+		    if (bodyPtr != IntPtr.Zero)
+		    {
+		        IntPtr subTypePtr = LinphoneAPI.linphone_content_get_subtype(bodyPtr);
+		        if (subTypePtr != IntPtr.Zero)
+		        {
+		            if (Marshal.PtrToStringAnsi(subTypePtr) == "simple-message-summary")
+		            {
+		                if (OnMWIReceivedEvent != null)
+                            OnMWIReceivedEvent(new MWIEventArgs(1));
+		                return;
+		            }
+		        }
+		    }
+
+		    if (NotifyReceivedEvent != null)
 				NotifyReceivedEvent(notified_event);
 		}
 

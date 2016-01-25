@@ -22,7 +22,7 @@ namespace com.vtcsecure.ace.windows
 		private bool signOutRequest = false;
 		private bool defaultConfigRequest;
         
-	    private void DefferedHideOnError(object sender, EventArgs e)
+	    private void DeferedHideOnError(object sender, EventArgs e)
 	    {
 	        deferredHideTimer.Stop();
 
@@ -31,7 +31,17 @@ namespace com.vtcsecure.ace.windows
                 _mainViewModel.IsCallPanelDocked = false;
 	        }
 	    }
+        private void DeferredShowPreview(object sender, EventArgs e)
+        {
+            deferredShowPreviewTimer.Stop();
 
+            if (_selfView != null)
+            {
+                _selfView.Show();
+                _selfView.Activate();
+            }
+        }
+		
 	    private void OnCallStateChanged(VATRPCall call)
 		{
 			if (this.Dispatcher.Thread != Thread.CurrentThread)
@@ -135,7 +145,7 @@ namespace com.vtcsecure.ace.windows
 			        _mainViewModel.IsCallPanelDocked = true;
 					break;
 				case VATRPCallState.InProgress:
-                    
+			        this.ShowSelfPreviewItem.IsEnabled = false;
 					call.RemoteParty = call.From;
 					ServiceManager.Instance.SoundService.PlayRingTone();
 					_mainViewModel.IsCallPanelDocked = true;
@@ -158,6 +168,7 @@ namespace com.vtcsecure.ace.windows
 					Topmost = false;
 					break;
 				case VATRPCallState.Ringing:
+                    this.ShowSelfPreviewItem.IsEnabled = false;
 					callViewModel.OnRinging();
                     _mainViewModel.IsCallPanelDocked = true;
 					call.RemoteParty = call.To;
@@ -212,7 +223,11 @@ namespace com.vtcsecure.ace.windows
 					_callOverlayView.EndCallRequested = false;
 
                     if (_selfView.IsVisible)
+                    {
+                        _selfView.ResetNativePreviewHandle = false;
                         _selfView.Hide();
+                    }
+
 					ctrlCall.AddVideoControl();
                     ctrlCall.RestartInactivityDetectionTimer();
 			        ctrlCall.UpdateVideoSettingsIfOpen();
@@ -344,6 +359,7 @@ namespace com.vtcsecure.ace.windows
 					int callsCount = _mainViewModel.RemoveCalViewModel(callViewModel);
 					if (callsCount == 0)
 					{
+                        this.ShowSelfPreviewItem.IsEnabled = true;
 						_callInfoView.Hide();
 						ctrlCall.ctrlOverlay.StopCallTimer();
 						ShowCallOverlayWindow(false);
@@ -351,6 +367,12 @@ namespace com.vtcsecure.ace.windows
 						_mainViewModel.IsCallPanelDocked = false;
 						_mainViewModel.ActiveCallModel = null;
 					    OnFullScreenToggled(false); // restore main window to dashboard
+
+                        if (this.ShowSelfPreviewItem.IsChecked && !_selfView.ResetNativePreviewHandle)
+                        {
+                            _selfView.ResetNativePreviewHandle = true;
+                            deferredShowPreviewTimer.Start();
+					    }
 					}
 					else
 					{
@@ -402,6 +424,12 @@ namespace com.vtcsecure.ace.windows
 
 					if (_linphoneService.GetActiveCallsCount == 0)
 					{
+                        this.ShowSelfPreviewItem.IsEnabled = true;
+                        if (this.ShowSelfPreviewItem.IsChecked && !_selfView.ResetNativePreviewHandle)
+                        {
+                            _selfView.ResetNativePreviewHandle = true;
+                            deferredShowPreviewTimer.Start();
+                        }
 						_mainViewModel.RemoveCalViewModel(callViewModel);
 						_callInfoView.Hide();
 						ctrlCall.ctrlOverlay.StopCallTimer();
@@ -672,7 +700,8 @@ namespace com.vtcsecure.ace.windows
 				case VATRPWindowType.SETTINGS_VIEW:
 					break;
                 case VATRPWindowType.SELF_VIEW:
-                    this.ShowSelfPreviewItem.IsChecked = bShow;
+                    if (this.ShowSelfPreviewItem.IsEnabled)
+                        this.ShowSelfPreviewItem.IsChecked = bShow;
 			        break;
 			}
 		}

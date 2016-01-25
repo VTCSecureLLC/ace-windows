@@ -65,6 +65,7 @@
     <Compile Include="Enums\UserStatus.cs" />
     <Compile Include="Events\ConfigurationEventArgs.cs" />
     <Compile Include="Events\ContactBasedEventArgs.cs" />
+    <Compile Include="Events\MWIEventArgs.cs" />
     <Compile Include="Events\ContactEventArgs.cs" />
     <Compile Include="Events\ContactRemovedEventArgs.cs" />
     <Compile Include="Events\ContactStatusChangedEventArgs.cs" />
