@@ -21,6 +21,7 @@ namespace VATRP.Core.Interfaces
         event LinphoneService.OnMessageReceivedDelegate OnChatMessageReceivedEvent;
         event LinphoneService.OnMessageStatusChangedDelegate OnChatMessageStatusChangedEvent;
         event LinphoneService.OnCallLogUpdatedDelegate OnLinphoneCallLogUpdatedEvent;
+        event LinphoneService.MWIReceivedDelegate OnMWIReceivedEvent;
 
         #endregion
 

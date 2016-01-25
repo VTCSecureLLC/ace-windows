@@ -506,6 +506,7 @@ namespace com.vtcsecure.ace.windows
                 {
                     _mainViewModel.OfferServiceSelection = false;
                     _mainViewModel.IsAccountLogged = true;
+                    _mainViewModel.ContactModel.VideoMailCount = App.CurrentAccount.VideoMailCount;
                     // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
                     if (!App.CurrentAccount.UserNeedsAgentView)
                     {

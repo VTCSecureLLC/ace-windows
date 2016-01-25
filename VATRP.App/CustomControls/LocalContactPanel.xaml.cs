@@ -35,5 +35,13 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             
         }
+
+        private void ResetVideoMailCount(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel != null)
+            {
+                _viewModel.VideoMailCount = 0;
+            }
+        }
     }
 }
