@@ -69,8 +69,14 @@
           <Component Id='com_ZLIB.DLL' Guid='394E8FFF-7338-4328-95DF-AA5A5CDD44ED' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='ZLIB.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='zlib.dll' Source='ThirdParties\liblinphone\zlib.dll' KeyPath='yes' />
           </Component>
+          <Component Id='com_BELCARD.DLL' Guid='F2AD22BC-8A70-4A34-AC0D-D71D734E5C67' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+            <File Id='BELCARD.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='belcard.dll' Source='ThirdParties\liblinphone\belcard.dll' KeyPath='yes' />
+          </Component>
           <Component Id='com_BELLESIP.DLL' Guid='F2AD22BC-8A70-4A34-AC0D-D71D734E5C57' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='BELLESIP.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='bellesip.dll' Source='ThirdParties\liblinphone\bellesip.dll' KeyPath='yes' />
+          </Component>
+          <Component Id='com_BELR.DLL' Guid='F2AD22BC-8A70-4A34-AC0D-D71D734E5C47' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+            <File Id='BELR.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='belr.dll' Source='ThirdParties\liblinphone\belr.dll' KeyPath='yes' />
           </Component>
           <Component Id='com_LINPHONEWRAPPER.DLL' Guid='FBA2DCAA-CAAF-4A92-9DB4-9C065BC39286' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='LINPHONEWRAPPER.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='ACE.LinphoneWrapper.dll' Source='VATRP.Core\bin\$(var.Configuration)\ACE.LinphoneWrapper.dll' KeyPath='yes' />
@@ -188,7 +194,9 @@
       <ComponentRef Id='com_LINPHONE.DLL' />
       <ComponentRef Id='com_XML2.DLL' />
       <ComponentRef Id='com_ZLIB.DLL' />
+      <ComponentRef Id='com_BELCARD.DLL' />
       <ComponentRef Id='com_BELLESIP.DLL' />
+      <ComponentRef Id='com_BELR.DLL' />
       <ComponentRef Id='com_LINPHONEWRAPPER.DLL' />
       <ComponentRef Id='com_OPUS.DLL' />
       <ComponentRef Id='com_HOCKEYAPP.DLL' />
