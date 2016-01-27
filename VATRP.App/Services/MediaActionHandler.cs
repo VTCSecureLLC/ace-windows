@@ -43,7 +43,8 @@ namespace com.vtcsecure.ace.windows.Services
             VATRPCall.ParseSipAddress(remoteUri, out un, out host, out port);
             if (!host.NotBlank())
             {
-                target = string.Format("{0}@{1}", un, App.CurrentAccount.ProxyHostname);
+                if (App.CurrentAccount != null) 
+                    target = string.Format("{0}@{1}", un, App.CurrentAccount.ProxyHostname);
             }
             // update video policy settings prior to making a call
             _linphoneService.MakeCall(target, true, ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
