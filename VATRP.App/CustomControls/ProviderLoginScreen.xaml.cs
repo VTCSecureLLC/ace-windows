@@ -164,8 +164,14 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 return;
             }
             // otherwise the login was valid, proceed
+            // 
+            if (string.IsNullOrEmpty(config.sip_auth_password) || string.IsNullOrEmpty(config.sip_auth_username))
+            {
+                config.sip_auth_username = userName;
+                config.sip_auth_password = password;
+            }
 
-            var account = ServiceManager.Instance.AccountService.FindAccount(LoginBox.Text);//, HostnameBox.Text);
+            var account = ServiceManager.Instance.AccountService.FindAccount(config.sip_auth_username, config.sip_register_domain);//, HostnameBox.Text);
             if (account != null)
             {
                 App.CurrentAccount = account;
