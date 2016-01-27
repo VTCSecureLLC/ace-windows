@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
 using com.vtcsecure.ace.windows.CustomControls;
@@ -154,31 +155,34 @@ namespace com.vtcsecure.ace.windows.ViewModel
             if (FindCallEvent(callEvent) != null)
                 return;
 
+
+            long time_uts;
+            var lastSeenDate = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.LAST_MISSED_CALL_DATE, string.Empty);
+
+            if (!long.TryParse(lastSeenDate, out time_uts))
+            {
+                time_uts = 0;
+            }
+
             var contact = _contactService.FindContact(new ContactID(callEvent.RemoteParty.TrimSipPrefix(), IntPtr.Zero));
             lock (this.Calls)
             {
                 Calls.Add(new HistoryCallEventViewModel(callEvent, contact));
                 if (callEvent.Status == VATRPHistoryEvent.StatusType.Missed)
                 {
-                    var lastSeenDate = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-    Configuration.ConfEntry.LAST_MISSED_CALL_DATE, string.Empty);
-
-                    DateTime dtLastSeenConfig;
-
-                    if ( !DateTime.TryParse(lastSeenDate, out dtLastSeenConfig) )
-                        dtLastSeenConfig = new DateTime(1970, 1, 1);
-
-                    if (callEvent.EndTime < dtLastSeenConfig)
+                    if (callEvent.EndTime.Ticks > time_uts)
                     {
                         _unseenMissedCallsCount++;
 
                         if (MissedCallsCountChanged != null)
                             MissedCallsCountChanged(callEvent, EventArgs.Empty);
-                        ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-    Configuration.ConfEntry.LAST_MISSED_CALL_DATE, dtLastSeenConfig.ToString());
                     }
                 }
             }
+
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+    Configuration.ConfEntry.LAST_MISSED_CALL_DATE, DateTime.UtcNow.Ticks.ToString());
 
             if (refreshNow)
                 CallsListView.Refresh();
@@ -329,7 +333,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         public void ResetLastMissedCallTime()
         {
             ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-    Configuration.ConfEntry.LAST_MISSED_CALL_DATE, DateTime.Now.ToString());
+    Configuration.ConfEntry.LAST_MISSED_CALL_DATE, DateTime.UtcNow.Ticks.ToString());
             _unseenMissedCallsCount = 0;
         }
     }
