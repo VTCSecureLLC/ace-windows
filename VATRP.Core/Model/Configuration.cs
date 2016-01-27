@@ -51,8 +51,8 @@ namespace VATRP.Core.Model
             LAST_MISSED_CALL_DATE
         }
 
-        public static string LINPHONE_SIP_SERVER = "bc1.vatrp.net";
-		public static ushort LINPHONE_SIP_PORT = 5060;
+        public static string LINPHONE_SIP_SERVER = "acetest-registrar.vatrp.net";
+		public static ushort LINPHONE_SIP_PORT = 25060;
 		public static string DISPLAY_NAME = "John Doe";
 		public static string LINPHONE_USERAGENT = "VATRP";
         public static string DEFAULT_REQUEST = @"https://crm.videoremoteassistance.com/users/sign_in";
