@@ -26,6 +26,7 @@ using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using VATRP.LinphoneWrapper.Enums;
+using com.vtcsecure.ace.windows.Json;
 using HockeyApp;
 using com.vtcsecure.ace.windows.CustomControls.Resources;
 
@@ -377,7 +378,7 @@ namespace com.vtcsecure.ace.windows
         private void OnVideoRelaySelect(object sender, RoutedEventArgs e)
         {
             var wizardPage = new ProviderLoginScreen(this);
-            var newAccount = new VATRPAccount {AccountType = VATRPAccountType.VideoRelayService};
+            var newAccount = convertJsonToVATRPAccount(null, VATRPAccountType.VideoRelayService);
             App.CurrentAccount = newAccount;
             
             ChangeWizardPage(wizardPage);
@@ -404,10 +405,74 @@ namespace com.vtcsecure.ace.windows
             _mainViewModel.OfferServiceSelection = false;
         }
 
+        private VATRPAccount convertJsonToVATRPAccount(String url, VATRPAccountType account)
+        {
+            var newAccount = new VATRPAccount { AccountType = account };
+            var jsonAccount = JsonFactoryConfig.createConfigFromURL(url);
+            if (jsonAccount == null)
+            {
+                jsonAccount = JsonFactoryConfig.defaultConfig();
+            }
+            newAccount.EchoCancel = jsonAccount.enable_echo_cancellation;
+            newAccount.VideoAutomaticallyStart = jsonAccount.enable_video;
+            newAccount.EnableAVPF = jsonAccount.enable_adaptive_rate;
+            newAccount.EnubleSTUN = jsonAccount.enable_stun;
+            var stunServer = jsonAccount.stun_server.Split(':');
+            if (stunServer.Length>1)
+            {
+               newAccount.STUNAddress= stunServer[0];
+               newAccount.STUNPort = Convert.ToUInt16(stunServer[1]);
+            }
+            var username = jsonAccount.sip_auth_username;
+            if(!string.IsNullOrWhiteSpace(username)){
+              newAccount.RegistrationUser = newAccount.Username = username;
+            }
+
+            var password = jsonAccount.sip_auth_password;
+            if (!string.IsNullOrWhiteSpace(password))
+            {
+                newAccount.RegistrationPassword = newAccount.Password = password;
+            }
+            var domain = jsonAccount.sip_register_domain;
+            if (!string.IsNullOrWhiteSpace(domain))
+            {
+                newAccount.ProxyHostname = domain;
+            }
+
+            var port = jsonAccount.sip_register_port;
+            if (port>0)
+            {
+                newAccount.ProxyPort = (UInt16)port;
+            }
+            var transport = jsonAccount.sip_register_transport;
+            if (!string.IsNullOrWhiteSpace(transport))
+            {
+                newAccount.Transport = transport;
+            }
+
+            //implimment codec selection support
+            
+            /*
+            newAccount.MuteMicrophone //missing
+             *  public bool  enable_ice { get; set; } missing
+             *         public bool  enable_rtt { get; set; }     //missing
+             *         
+             *         public int version { get; set; }// missing
+             *          public string logging { get; set; } missing
+             *          public bool AutoLogin { get; set; //missing
+             *          sip_register_usernames //missing
+            */
+
+
+            return newAccount;
+
+
+                
+        }
         private void onIPRelaySelect(object sender, RoutedEventArgs e)
         {
             var wizardPage = new ProviderLoginScreen(this);
-            var newAccount = new VATRPAccount { AccountType = VATRPAccountType.IP_Relay };
+            var newAccount = convertJsonToVATRPAccount(null, VATRPAccountType.IP_Relay); 
             App.CurrentAccount = newAccount;
             
             ChangeWizardPage(wizardPage);
@@ -416,7 +481,7 @@ namespace com.vtcsecure.ace.windows
         private void onIPCTSSelect(object sender, RoutedEventArgs e)
         {
             var wizardPage = new ProviderLoginScreen(this);
-            var newAccount = new VATRPAccount { AccountType = VATRPAccountType.IP_CTS };
+            var newAccount = convertJsonToVATRPAccount(null, VATRPAccountType.IP_CTS );
             App.CurrentAccount = newAccount;
             ChangeWizardPage(wizardPage);
         }
