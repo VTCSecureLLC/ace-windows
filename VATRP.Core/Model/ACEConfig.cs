@@ -51,6 +51,8 @@ namespace VATRP.Core.Model
         public string sip_videomail_uri { get; set; }
         public string video_resolution_maximum { get; set; }
 
+        public bool user_is_agent { get; set; }
+
         public ACEConfig()
         {
             configStatus = ACEConfigStatusType.UNKNOWN;
@@ -104,8 +106,8 @@ namespace VATRP.Core.Model
 
             // on successful login, we need to update the following in config: (list in progress)
             // this.enable_rtt;
-            
-            
+
+            accountToUpdate.UserNeedsAgentView = user_is_agent;
 
 
             //implimment codec selection support

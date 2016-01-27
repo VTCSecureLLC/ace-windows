@@ -180,6 +180,16 @@ namespace com.vtcsecure.ace.windows.CustomControls
             {
                 ServiceManager.Instance.AccountService.AddAccount(App.CurrentAccount);
             }
+            // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
+            //  This will ultimately be set by the configuration resources from Ace Connect.
+            if (config.sip_auth_username.Equals("agent_1"))
+            {
+                config.user_is_agent = true;
+            }
+            else
+            {
+                config.user_is_agent = false;
+            }
             config.UpdateVATRPAccountFromACEConfig(App.CurrentAccount);
             ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);

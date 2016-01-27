@@ -1,4 +1,5 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,6 +13,8 @@ namespace com.vtcsecure.ace.windows.Utilities
 
     public class SRVLookup
     {
+        private static readonly log4net.ILog _log = LogManager.GetLogger(typeof(App));
+
         public const string NETWORK_SRV_ERROR_CONFIG_SERVICE = "Network SRV error: Config Service";
 
         public SRVLookup()
@@ -48,7 +51,9 @@ namespace com.vtcsecure.ace.windows.Utilities
                     }
                     else
                     {
-                        throw new Win32Exception(num1);
+                        Win32Exception ex = new Win32Exception(num1);
+                        _log.Error("SRVLookup.GetSRVRecords: an exception occured during lookup. Details: " + ex.Message);
+                        return new string[] { SRVLookup.NETWORK_SRV_ERROR_CONFIG_SERVICE };
                     }
                 }
                 for (ptr2 = ptr1; !ptr2.Equals(IntPtr.Zero); ptr2 = recSRV.pNext)
