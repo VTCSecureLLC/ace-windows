@@ -6,8 +6,20 @@ using System.Threading.Tasks;
 
 namespace VATRP.Core.Model
 {
+    public enum ACEConfigStatusType
+    {
+        LOGIN_SUCCEESSFUL,
+        LOGIN_UNAUTHORIZED,
+        SRV_RECORD_NOT_FOUND,
+        UNABLE_TO_PARSE,
+        CONNECTION_FAILED,
+        UNKNOWN
+    }
     public class ACEConfig
     {
+
+        public ACEConfigStatusType configStatus { get; set; }
+
         public int version { get; set; }
         public int expiration_time { get; set; }
 
@@ -41,7 +53,7 @@ namespace VATRP.Core.Model
 
         public ACEConfig()
         {
-
+            configStatus = ACEConfigStatusType.UNKNOWN;
         }
 
         public void UpdateVATRPAccountFromACEConfig(VATRPAccount accountToUpdate)

@@ -12,6 +12,8 @@ namespace com.vtcsecure.ace.windows.Utilities
 
     public class SRVLookup
     {
+        public const string NETWORK_SRV_ERROR_CONFIG_SERVICE = "Network SRV error: Config Service";
+
         public SRVLookup()
         {
         }
@@ -42,7 +44,7 @@ namespace com.vtcsecure.ace.windows.Utilities
                 {
                     if (num1 == 9003)
                     {
-                        list1.Add("DNS record does not exist");
+                        list1.Add(NETWORK_SRV_ERROR_CONFIG_SERVICE);
                     }
                     else
                     {

@@ -11,32 +11,24 @@ namespace com.vtcsecure.ace.windows.Utilities
     public static class ConfigLookup
     {
 
-        public static ACEConfig LookupConfig_works(string address)
-        {
-            // test
-            string testDomain = "_rueconfig._tls.acetest-registrar.vatrp.net";
-            string[] test = SRVLookup.GetSRVRecords(testDomain);
-            bool flag = false;
-            return null;
-        }
         public static ACEConfig LookupConfig(string address, string userName, string password)
         {
             string srvLookupUrl = "_rueconfig._tls.";
-            srvLookupUrl += address;
+            srvLookupUrl += address; // concat with selected domain
 
             string[] srvRecords = SRVLookup.GetSRVRecords(srvLookupUrl);
             
             if (srvRecords.Length > 0)
             {
                 string record = srvRecords[0];
-                if (!record.Contains("does not exist"))
+                if (!record.Equals(SRVLookup.NETWORK_SRV_ERROR_CONFIG_SERVICE))
                 {
                     string requestUrl = "https://" + srvRecords[0] + "/config/v1/config.json";
                     ACEConfig config = JsonFactoryConfig.createConfigFromURL(requestUrl, userName, password);
                     return config;
                 }
             }
-            return JsonFactoryConfig.defaultConfig();
+            return JsonFactoryConfig.defaultConfig(ACEConfigStatusType.SRV_RECORD_NOT_FOUND);
         }
 
     }

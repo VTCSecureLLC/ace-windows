@@ -15,7 +15,7 @@ namespace com.vtcsecure.ace.windows.Utilities
         // specified (T) class/type
         public static T MakeJsonWebRequestAuthenticated<T>(string webRequestUrl, string userName, string password)
         {
-                        WebResponse response = null;
+            WebResponse response = null;
             try
             {
                 // create a request
@@ -43,12 +43,12 @@ namespace com.vtcsecure.ace.windows.Utilities
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception("Failed to parse json response. Details: " + ex.Message);
+                    throw new JsonException(JsonExceptionType.DESERIALIZATION_FAILED,"Failed to parse json response. Details: " + ex.Message, ex);
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("Failed to get json information. Details: " + ex.Message);
+                throw new JsonException(JsonExceptionType.CONNECTION_FAILED, "Failed to get json information. Details: " + ex.Message, ex);
             }
             finally
             {
@@ -88,12 +88,12 @@ namespace com.vtcsecure.ace.windows.Utilities
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception("Failed to parse json response. Details: " + ex.Message);
+                    throw new JsonException(JsonExceptionType.DESERIALIZATION_FAILED, "Failed to parse json response. Details: " + ex.Message, ex);
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("Failed to get json information. Details: " + ex.Message);
+                throw new JsonException(JsonExceptionType.CONNECTION_FAILED, "Failed to get json information. Details: " + ex.Message, ex);
             }
             finally
             {

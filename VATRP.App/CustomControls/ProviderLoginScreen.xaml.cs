@@ -37,6 +37,11 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         public void Initialize()
         {
+            InitializeToProvider("ACE");
+        }
+
+        public void InitializeToProvider(string providerName)
+        {
             string[] providerList = ServiceManager.Instance.ProviderService.GetProviderList();
             ProviderComboBox.Items.Clear();
             int indexToSelect = 0;
@@ -44,7 +49,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             foreach (string provider in providerList)
             {
                 ProviderComboBox.Items.Add(provider);
-                if (provider.StartsWith("ACE"))
+                if (provider.StartsWith(providerName))
                 {
                     indexToSelect = currentIndex;
                 }
@@ -52,9 +57,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
             }
             ProviderComboBox.SelectedIndex = indexToSelect;
             ProviderComboBox.SelectedItem = ProviderComboBox.Items[indexToSelect];
-            string providerName = (string)ProviderComboBox.SelectedItem;
             // VATRP1271 - TODO - add a check to ensure that this has not changed prior to doign anything further.
-            VATRPServiceProvider serviceProvider = ServiceManager.Instance.ProviderService.FindProvider(providerName);
+            VATRPServiceProvider serviceProvider = ServiceManager.Instance.ProviderService.FindProviderLooseSearch(providerName);
             if (serviceProvider != null)
             {
                 HostnameBox.Text = serviceProvider.Address;
@@ -68,7 +72,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
             {
                 LoginBox.Text = account.Username;
                 this.AuthIDBox.Text = account.AuthID;
-                this.HostnameBox.Text = account.ProxyHostname;
+                //this.HostnameBox.Text = account.ProxyHostname;
+                InitializeToProvider(account.ProxyHostname);
                 this.HostPortBox.Text = account.ProxyPort.ToString();
                 RememberPasswordBox.IsChecked = account.RememberPassword;
                 AutoLoginBox.IsChecked = account.AutoLogin;
@@ -120,16 +125,47 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 MessageBox.Show("Please fill password field", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            
+
+            // VATRP1271 - TODO - add a check to ensure that this has not changed prior to doign anything further.
+            VATRPServiceProvider provider = ServiceManager.Instance.ProviderService.FindProvider(providerName);
+            if (provider != null)
+            {
+                HostnameBox.Text = provider.Address;
+            }
             string address = HostnameBox.Text;
             ACEConfig config = ConfigLookup.LookupConfig(address, userName, password);
-            if (config == null)
+            if ((config == null) || (config.configStatus == ACEConfigStatusType.LOGIN_UNAUTHORIZED))
             {
                 // login failed
-                MessageBox.Show("The login Failed. Please enter a vliad user name and password.", "Valid Login Required");
+                MessageBox.Show("The login Failed. Please enter a valid user name and password.", "Valid Login Required");
                 return;
             }
-            var account = ServiceManager.Instance.AccountService.FindAccount(LoginBox.Text, HostnameBox.Text);
+            // VATRP-1271: to do - handle ACEConfigStatusType Appropriately. For the moment (during devel & debug) show the resulting message to the user.
+            if (config.configStatus != ACEConfigStatusType.LOGIN_SUCCEESSFUL)
+            {
+                // there was some sort of error - expose information to user for now. Once ready, log and handle. In some cases we will still want a specific message
+                string message;
+                switch (config.configStatus)
+                {
+                        // ToDo note : the text here is a little bit different for each message - enough to let the developer know what to look for
+                        //   without being too much for the user. Once we have codes worked out we can use codes in our messages that will help
+                        //   in customer support.
+                    case ACEConfigStatusType.CONNECTION_FAILED: message = "Unable to obtain configuration information from the server.";
+                        break;
+                    case ACEConfigStatusType.SRV_RECORD_NOT_FOUND: message = "The SRV Record was not found.";
+                        break;
+                    case ACEConfigStatusType.UNABLE_TO_PARSE : message = "Unable to parse the configuration information.";
+                        break;
+                    default:
+                        message = "An error occured while obtaining the configuration. Status Type=" + config.configStatus.ToString();
+                        break;
+                }
+                MessageBox.Show(message, "Error Obtaining Configuration Status");
+                return;
+            }
+            // otherwise the login was valid, proceed
+
+            var account = ServiceManager.Instance.AccountService.FindAccount(LoginBox.Text);//, HostnameBox.Text);
             if (account != null)
             {
                 App.CurrentAccount = account;

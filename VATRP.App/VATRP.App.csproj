@@ -198,6 +198,7 @@
     <Compile Include="Services\Win32NativeAPI.cs" />
     <Compile Include="Utilities\ConfigLookup.cs" />
     <Compile Include="Utilities\JsonDeserializer.cs" />
+    <Compile Include="Utilities\JsonException.cs" />
     <Compile Include="Utilities\JsonWebRequest.cs" />
     <Compile Include="Utilities\SRVLookup.cs" />
     <Compile Include="ViewModel\FeedbackViewModel.cs" />
