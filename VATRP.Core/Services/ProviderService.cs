@@ -257,6 +257,18 @@ namespace VATRP.Core.Services
             return allproviders.FirstOrDefault();
         }
 
+        public VATRPServiceProvider FindProviderLooseSearch(string providerLabel)
+        {
+            foreach (VATRPServiceProvider provider in providersList)
+            {
+                if (provider.Label.Contains(providerLabel))
+                {
+                    return provider;
+                }
+            }
+            return null;
+        }
+
         public void Save()
         {
             this.DeferredSave();

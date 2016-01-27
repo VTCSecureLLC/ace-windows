@@ -20,6 +20,8 @@ namespace com.vtcsecure.ace.windows.Services
 {
     internal class ServiceManager : ServiceManagerBase
     {
+        private const string CDN_DOMAIN_URL = "http://cdn.vatrp.net/domains.json";
+
         #region Members
         private static readonly ILog LOG = LogManager.GetLogger(typeof(ServiceManager));
         private string _applicationDataPath;
@@ -180,28 +182,10 @@ namespace com.vtcsecure.ace.windows.Services
         private void OnConfigurationServiceStarted(object sender, EventArgs args)
         {
             App.CurrentAccount = LoadActiveAccount();
-            if (App.CurrentAccount != null)
-            {
-                // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
-                //  This will ultimately be set by the configuration resources from Ace Connect.
-                if (App.CurrentAccount.Username.Equals("agent_1"))
-                {
-                    App.CurrentAccount.UserNeedsAgentView = true;
-                }
-            }
         }
         private void OnAccountsServiceStarted(object sender, EventArgs args)
         {
             App.CurrentAccount = LoadActiveAccount();
-            if (App.CurrentAccount != null)
-            {
-                // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
-                //  This will ultimately be set by the configuration resources from Ace Connect.
-                if (App.CurrentAccount.Username.Equals("agent_1"))
-                {
-                    App.CurrentAccount.UserNeedsAgentView = true;
-                }
-            }
             AccountServiceStopped = false;
         }
         private void OnProviderServiceStarted(object sender, EventArgs args)
@@ -427,7 +411,10 @@ namespace com.vtcsecure.ace.windows.Services
         private void UpdateProvidersList()
         {
             // this list may be filled later
-
+            if (LoadJsonProviders())
+            {
+                return;
+            }
             string[] labels = { "Sorenson VRS", "Purple VRS", "ZVRS", "Convo Relay", "CAAG", "Global VRS" };
             foreach (var label in labels)
             {
@@ -437,6 +424,40 @@ namespace com.vtcsecure.ace.windows.Services
                         Label = label,
                         Address = "bc1.vatrp.net"
                     });
+            }
+        }
+
+        private bool LoadJsonProviders()
+        {
+            try
+            {
+                List<VATRPDomain> domains = com.vtcsecure.ace.windows.Utilities.JsonWebRequest.MakeJsonWebRequest<List<VATRPDomain>>(CDN_DOMAIN_URL);
+                // add these into the cache
+                foreach (VATRPDomain domain in domains)
+                {
+                    VATRPServiceProvider provider = ProviderService.FindProviderLooseSearch(domain.name);
+                    if (provider == null)
+                    {
+                        provider = new VATRPServiceProvider();
+                        provider.Label = domain.name;
+                        provider.Address = domain.domain;
+                        provider.ImagePath = domain.icon;
+                        ProviderService.AddProvider(provider);
+                    }
+                    else
+                    {
+                        // update the provider information
+                        provider.Label = domain.name;
+                        provider.Address = domain.domain;
+                        provider.ImagePath = domain.icon;
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // either the domains were mal-formed or we are not able to get to the internet. If this is the case, then allow the cached/defaults.
+                return false;
             }
         }
 

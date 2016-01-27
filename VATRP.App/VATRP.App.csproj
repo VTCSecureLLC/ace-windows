@@ -193,9 +193,14 @@
     </Compile>
     <Compile Include="Enums\ACEMenuSettings.cs" />
     <Compile Include="Enums\VATRPSettings.cs" />
+    <Compile Include="Json\JsonFactoryConfig.cs" />
     <Compile Include="Model\ActionCommand.cs" />
     <Compile Include="Services\Win32NativeAPI.cs" />
+    <Compile Include="Utilities\ConfigLookup.cs" />
     <Compile Include="Utilities\JsonDeserializer.cs" />
+    <Compile Include="Utilities\JsonException.cs" />
+    <Compile Include="Utilities\JsonWebRequest.cs" />
+    <Compile Include="Utilities\SRVLookup.cs" />
     <Compile Include="ViewModel\FeedbackViewModel.cs" />
     <Compile Include="ViewModel\ContactEditViewModel.cs" />
     <Compile Include="ViewModel\ContactsViewModel.cs" />
