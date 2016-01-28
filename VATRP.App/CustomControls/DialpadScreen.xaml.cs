@@ -161,12 +161,6 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 timerHold.Enabled = true;
         }
 
-        private void ShowGAWarning(object sender, MouseButtonEventArgs e)
-        {
-            MessageBox.Show("Available in General Release", "ACE", MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
-        }
-
         private void OnDialpadPreviewKeyup(object sender, KeyEventArgs e)
         {
             if (e.Key != Key.Enter)
