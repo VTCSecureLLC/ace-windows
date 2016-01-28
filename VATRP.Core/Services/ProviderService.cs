@@ -285,5 +285,10 @@ namespace VATRP.Core.Services
 
             return providers.ToArray();
         }
+
+        public List<VATRPServiceProvider> GetProviderListFullInfo()
+        {
+            return providersList;
+        }
     }
 }
