@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Model;
 using com.vtcsecure.ace.windows.Utilities;
+using System.Collections.ObjectModel;
 
 namespace com.vtcsecure.ace.windows.CustomControls
 {
@@ -23,8 +24,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
     public partial class ProviderLoginScreen : UserControl
     {
 
-        #region Memebers
-        
+        #region Members
+        public ObservableCollection<VATRPServiceProvider> ProviderList { get; private set; }
         private readonly MainWindow _mainWnd;
         #endregion
 
@@ -32,7 +33,9 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             _mainWnd = theMain;
             InitializeComponent();
+            ProviderList = new ObservableCollection<VATRPServiceProvider>();
             Initialize();
+            this.DataContext = this;
         }
 
         public void Initialize()
@@ -42,25 +45,19 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         public void InitializeToProvider(string providerName)
         {
-            string[] providerList = ServiceManager.Instance.ProviderService.GetProviderList();
-            ProviderComboBox.Items.Clear();
-            int indexToSelect = 0;
-            int currentIndex = 0;
-            foreach (string provider in providerList)
+            List<VATRPServiceProvider> serviceProviderList = ServiceManager.Instance.ProviderService.GetProviderListFullInfo();
+            // sort the list
+            serviceProviderList.Sort((a, b) =>  a.Label.CompareTo(b.Label));
+            ProviderList.Clear();
+            foreach (VATRPServiceProvider provider in serviceProviderList)
             {
-                ProviderComboBox.Items.Add(provider);
-                if (provider.StartsWith(providerName))
-                {
-                    indexToSelect = currentIndex;
-                }
-                currentIndex++;
+                ProviderList.Add(provider);
             }
-            ProviderComboBox.SelectedIndex = indexToSelect;
-            ProviderComboBox.SelectedItem = ProviderComboBox.Items[indexToSelect];
-            // VATRP1271 - TODO - add a check to ensure that this has not changed prior to doign anything further.
+            // VATRP1271 - TODO - add a check to ensure that this has not changed prior to doing anything further.
             VATRPServiceProvider serviceProvider = ServiceManager.Instance.ProviderService.FindProviderLooseSearch(providerName);
             if (serviceProvider != null)
             {
+                ProviderComboBox.SelectedItem = serviceProvider;
                 HostnameBox.Text = serviceProvider.Address;
             }
 
@@ -112,7 +109,6 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         private void LoginCmd_Click(object sender, RoutedEventArgs e)
         {
-            string providerName = (string)ProviderComboBox.SelectedItem;
             string userName = LoginBox.Text;
             if (string.IsNullOrWhiteSpace(userName))
             {
@@ -126,8 +122,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 return;
             }
 
-            // VATRP1271 - TODO - add a check to ensure that this has not changed prior to doign anything further.
-            VATRPServiceProvider provider = ServiceManager.Instance.ProviderService.FindProvider(providerName);
+            VATRPServiceProvider provider = (VATRPServiceProvider)ProviderComboBox.SelectedItem; 
             if (provider != null)
             {
                 HostnameBox.Text = provider.Address;
@@ -293,9 +288,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         public void OnProviderChanged(object sender, SelectionChangedEventArgs args)
         {
-            string providerName = (string)ProviderComboBox.SelectedItem;
             // VATRP1271 - TODO - add a check to ensure that this has not changed prior to doign anything further.
-            VATRPServiceProvider provider = ServiceManager.Instance.ProviderService.FindProvider(providerName);
+            VATRPServiceProvider provider = (VATRPServiceProvider)ProviderComboBox.SelectedItem;//ServiceManager.Instance.ProviderService.FindProvider(providerName);
             if (provider != null)
             {
                 HostnameBox.Text = provider.Address;
