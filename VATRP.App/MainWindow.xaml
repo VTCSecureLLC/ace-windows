@@ -15,7 +15,7 @@
 				   Closing="OnClosing" Closed="OnClosed" 
 				   SourceInitialized="OnSourceInitialized" 
 				   Loaded="OnLoaded"
-				   StateChanged="Window_StateChanged" 
+				   StateChanged="OnStateChanged" 
 				   LocationChanged="Window_LocationChanged" 
                    MinHeight="700"
 				   Unloaded="Window_Unloaded" Icon="Resources/vatrp.ico"
