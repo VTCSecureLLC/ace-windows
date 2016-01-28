@@ -5,7 +5,7 @@
     xmlns:core="clr-namespace:VATRP.Core.Model;assembly=ACE.Core"
     MessageText="custom text message"
     ContactSearchCriteria=""
-    ReceiverAddress="test@linphone.">
+    >
     <vm:MessagingViewModel.Contacts >
         <vm:ContactViewModel IsSelected="False">
             <vm:ContactViewModel.Contact>

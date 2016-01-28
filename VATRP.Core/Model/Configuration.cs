@@ -48,7 +48,8 @@ namespace VATRP.Core.Model
             CALL_DIAL_PREFIX,
             CALL_DIAL_ESCAPE_PLUS,
             SHOW_LEGAL_RELEASE,
-            LAST_MISSED_CALL_DATE
+            LAST_MISSED_CALL_DATE,
+            TEXT_SEND_MODE
         }
 
         public static string LINPHONE_SIP_SERVER = "acetest-registrar.vatrp.net";

@@ -39,6 +39,25 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         {
             this.EnableRealTimeTextCheckbox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.USE_RTT, true);
+
+            var textSendMode = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.TEXT_SEND_MODE, "Real Time Text");
+
+            foreach (var item in TextSendModeComboBox.Items)
+            {
+                var tb = item as TextBlock;
+                if (tb != null)
+                {
+                    string itemString = tb.Text;
+                    if (itemString.Equals(textSendMode))
+                    {
+                        TextSendModeComboBox.SelectedItem = item;
+                        break;
+                    }
+                }
+            }
+
+            TextSendModeComboBox.InvalidateVisual();
         }
 
         private void OnEnableRealTimeText(object sender, RoutedEventArgs e)
@@ -51,6 +70,18 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             if (CallControl != null && CallControl.IsLoaded)
                 CallControl.EnableRTTButton(enabled);
+        }
+
+        private void OnTextsendMode(object sender, SelectionChangedEventArgs e)
+        {
+            var textSendModeLabel = TextSendModeComboBox.SelectedItem as TextBlock;
+            if (textSendModeLabel != null)
+            {
+                ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                    Configuration.ConfEntry.TEXT_SEND_MODE, textSendModeLabel.Text);
+
+                ServiceManager.Instance.ConfigurationService.SaveConfig();
+            }
         }
     }
 }

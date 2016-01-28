@@ -248,18 +248,12 @@ namespace VATRP.Core.Services
                         else
                             chat.UpdateLastMessage(false);
                         this.OnConversationUpdated(chat, true);
-                    
-						if (string.IsNullOrEmpty(message.Content))
-							chat.DeleteMessage(message);
-						else
-							chat.UpdateLastMessage(false);
-						this.OnConversationUpdated(chat, true);
 
-						if (this.RttReceived != null)
-						{
-							this.RttReceived(this, EventArgs.Empty);
-						}
-					}
+                        if (this.RttReceived != null)
+                        {
+                            this.RttReceived(this, EventArgs.Empty);
+                        }
+                    }
                 });
         }
 
@@ -803,8 +797,6 @@ namespace VATRP.Core.Services
             {
                 return false;
             }
-
-            VATRPContact loggedContact = _contactSvc.FindLoggedInContact();
 
             var message = new VATRPChatMessage(MessageContentType.Text)
             {

@@ -25,7 +25,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         #region Members
 
-        private string _receiverAddress;
         private string _messageText;
         private VATRPChat _chat;
         private string _message;
@@ -47,6 +46,10 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private Queue<string> _inputTypingQueue = new Queue<string>();
         private static ManualResetEvent regulator = new ManualResetEvent(false);
 
+        private ObservableCollection<string> _textSendModes;
+        private string _selectedTextSendMode;
+        private string _sendButtonTitle;
+
         #endregion
 
         #region Events
@@ -60,12 +63,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             _messageText = string.Empty;
             _contactSearchCriteria = string.Empty;
-            _receiverAddress = string.Empty;
             this.ContactsListView = CollectionViewSource.GetDefaultView(this.Contacts);
             this.ContactsListView.Filter = new Predicate<object>(this.FilterContactsList);
             _isRunning = true;
+            TextSendModes.Add("Real Time Text");
+            TextSendModes.Add("SIP Simple");
             _inputProcessorThread = new Thread(ProcessInputCharacters) { IsBackground = true };
             _inputProcessorThread.Start();
+            SelectedTextSendMode = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.TEXT_SEND_MODE, "Real Time Text");
         }
 
         public MessagingViewModel(IChatService chatMng, IContactsService contactsMng):this()
@@ -80,6 +86,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
             this._chatsManager.ContactRemoved += OnChatContactRemoved;
             this._chatsManager.RttReceived += OnRttReceived;
             this._contactsManager.LoggedInContactUpdated += OnLoggedContactUpdated;
+            SelectedTextSendMode = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.TEXT_SEND_MODE, "Real Time Text");
         }
 
         private void OnRttReceived(object sender, EventArgs e)
@@ -155,7 +163,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 if (_contactViewModel != null && _contactViewModel.Contact == e.Conversation.Contact)
                 {
                     _contactViewModel = null;
-                    ReceiverAddress = string.Empty;
                 }
 
                 RemoveContact(contact);
@@ -282,8 +289,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
             var contactVM = FindContactViewModel(contact);
             if (contactVM == null)
             {
-
-                return;
+                contactVM = new ContactViewModel(contact);
+                this.Contacts.Add(contactVM);
             }
             
             if (_contactViewModel != null && _contactViewModel.Contact != contactVM.Contact)
@@ -315,7 +322,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     ListSortDirection.Ascending));
             }
 			
-            ReceiverAddress = contact.Fullname;
             OnPropertyChanged("Chat");
 			if (MessagesListView != null)
 			     MessagesListView.Refresh();
@@ -382,37 +388,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
             if (dispatcher != null)
                 dispatcher.BeginInvoke((Action) delegate()
                 {
-                    if (!ReadyToSend(message))
+                    if (!message.NotBlank())
                         return;
 
-                    _chatsManager.ComposeAndSendMessage(Chat, MessageText);
-                    MessageText = string.Empty;
+                    Debug.WriteLine("Sending message: Count - " + message.Length + " \r" + message);
+                    _chatsManager.ComposeAndSendMessage(Chat, message);
                 });
-        }
-
-        private bool ReadyToSend(string message)
-        {
-            if (!ReceiverAddress.NotBlank() || !message.NotBlank())
-                return false;
-
-            string un, host;
-            int port;
-            VATRPCall.ParseSipAddress(ReceiverAddress, out un, out host, out port);
-            var contactAddress = string.Format("{0}@{1}", un, host.NotBlank() ? host : App.CurrentAccount.ProxyHostname);
-            var contactId = new ContactID(contactAddress, IntPtr.Zero);
-            VATRPContact contact = _chatsManager.FindContact(contactId);
-            if (contact == null)
-            {
-                contact = new VATRPContact(contactId)
-                {
-                    Fullname = un,
-                    SipUsername = un,
-                    RegistrationName = contactAddress
-                };
-                _contactsManager.AddContact(contact, string.Empty);
-            }
-            SetActiveChatContact(contact, IntPtr.Zero);
-            return true;
         }
 
         public bool FilterContactsList(object item)
@@ -459,7 +440,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             if (Chat != null)
                 Chat.ClearRttMarkers(callPtr);
 
-            ReceiverAddress = string.Empty;
             if (MessagesListView != null)
                 MessagesListView.Refresh();
             OnPropertyChanged("Chat");
@@ -554,7 +534,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 OnPropertyChanged("TestMessages");
             }
         }
-
+		
+        public ObservableCollection<string> TextSendModes
+        {
+            get { return _textSendModes ?? (_textSendModes = new ObservableCollection<string>()); }
+        }
+		
         public ObservableCollection<ContactViewModel> Contacts
         {
             get { return _contacts ?? (_contacts = new ObservableCollection<ContactViewModel>()); }
@@ -587,22 +572,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     OnPropertyChanged("IsMessagesLoaded");
                 }
             }
-        }
-
-        public string ReceiverAddress
-        {
-            get { return _receiverAddress; }
-            set
-            {
-                _receiverAddress = value;
-                OnPropertyChanged("ReceiverAddress");
-                OnPropertyChanged("ShowReceiverHint");
-            }
-        }
-
-        public bool ShowReceiverHint
-        {
-            get { return !ReceiverAddress.NotBlank(); }
         }
 
         public bool ShowMessageHint
@@ -656,6 +625,32 @@ namespace com.vtcsecure.ace.windows.ViewModel
             get
             {
                 return _loggedInContactViewModel;
+            }
+        }
+
+        public bool IsSendingModeRTT
+        {
+            get { return _selectedTextSendMode.Equals("Real Time Text"); }
+        }
+
+        public string SelectedTextSendMode
+        {
+            get { return _selectedTextSendMode; }
+            set
+            {
+                _selectedTextSendMode = value;
+                OnPropertyChanged("SelectedTextSendMode");
+                SendButtonTitle = IsSendingModeRTT ? "Send (RTT)" : "Send (SIP)";
+            }
+        }
+
+        public string SendButtonTitle
+        {
+            get { return _sendButtonTitle; }
+            set
+            {
+                _sendButtonTitle = value;
+                OnPropertyChanged("SendButtonTitle");
             }
         }
 
