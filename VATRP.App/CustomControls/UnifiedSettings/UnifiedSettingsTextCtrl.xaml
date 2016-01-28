@@ -10,8 +10,10 @@
         <Grid  Background="{StaticResource RecentsPageMainBg}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="160*"/>
                 <ColumnDefinition Width="160*"/>
                 <ColumnDefinition Width="27*"/>
             </Grid.ColumnDefinitions>
@@ -19,7 +21,17 @@
             <Label Grid.Column="0" Grid.Row="0" Content="Enable Real Time Text" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="RealTimeTextLabel">
             </Label>
-            <CheckBox Grid.Column="1" Grid.Row="0" Checked="OnEnableRealTimeText" Unchecked="OnEnableRealTimeText" HorizontalAlignment="Center" VerticalAlignment="Center" Name="EnableRealTimeTextCheckbox"/>
+            <CheckBox Grid.Column="2" Grid.Row="0" Checked="OnEnableRealTimeText" Unchecked="OnEnableRealTimeText" HorizontalAlignment="Center" VerticalAlignment="Center" Name="EnableRealTimeTextCheckbox"/>
+
+            <Label Grid.Column="0" Grid.Row="1
+                   " Content="Text Send Mode" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left" Name="TextSendModeLabel">
+            </Label>
+            <ComboBox  Grid.Row="1" Grid.Column="1" x:Name="TextSendModeComboBox" FontSize="14" Margin="0,3,0,3" Width="120" Height="24" 
+                       VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="OnTextsendMode" >
+                <TextBlock Text="Real Time Text"/>
+                <TextBlock Text="SIP Simple"/>
+            </ComboBox>
         </Grid>
     </Grid>
 </local:BaseUnifiedSettingsPanel>
