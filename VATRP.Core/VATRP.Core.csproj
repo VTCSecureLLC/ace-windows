@@ -63,6 +63,7 @@
     <Compile Include="Enums\MessageDirection.cs" />
     <Compile Include="Enums\TypingAction.cs" />
     <Compile Include="Enums\UserStatus.cs" />
+    <Compile Include="Events\HttpDownloadEventArgs.cs" />
     <Compile Include="Events\ConfigurationEventArgs.cs" />
     <Compile Include="Events\ContactBasedEventArgs.cs" />
     <Compile Include="Events\MWIEventArgs.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="Model\Commands\ResumeCallCommand.cs" />
     <Compile Include="Model\Commands\PauseCallCommand.cs" />
     <Compile Include="Model\Commands\TerminateCallCommand.cs" />
+    <Compile Include="Model\Utils\HttpDownloadHelper.cs" />
     <Compile Include="Model\VATRPDevice.cs" />
     <Compile Include="Model\VATRPDomain.cs" />
     <Compile Include="Model\VATRPServiceProvider.cs" />
