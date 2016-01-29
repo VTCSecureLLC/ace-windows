@@ -501,6 +501,7 @@ namespace com.vtcsecure.ace.windows
             //ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
 
             ctrlResource.CallResourceRequested += OnCallResourceRequested;
+            ctrlLocalContact.CallResourceRequested += OnCallResourceRequested;
 
             if ((App.CurrentAccount != null) && App.CurrentAccount.AutoLogin && App.CurrentAccount.Password.NotBlank())
             {
@@ -512,7 +513,7 @@ namespace com.vtcsecure.ace.windows
                     _mainViewModel.OfferServiceSelection = false;
                     _mainViewModel.IsAccountLogged = true;
                     _mainViewModel.ContactModel.VideoMailCount = App.CurrentAccount.VideoMailCount;
-                    // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
+                    // VATRP-1899: This is a quick and dirty solution for POC. It will be functional, but not the end implementation we will want.
                     if (!App.CurrentAccount.UserNeedsAgentView)
                     {
                         OpenAnimated();
