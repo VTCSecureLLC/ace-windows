@@ -18,6 +18,7 @@ namespace VATRP.Linphone.VideoWrapper
         private VATRPTranslucentWindow callInfoWindow;
         private VATRPTranslucentWindow callsSwitchWindow;
         private VATRPTranslucentWindow newCallAcceptWindow;
+        private VATRPTranslucentWindow onHoldWindow;
 
         private System.Timers.Timer _timerCall;
         private int _foregroundCallDuration = 0;
@@ -30,6 +31,7 @@ namespace VATRP.Linphone.VideoWrapper
             callInfoWindow = new VATRPTranslucentWindow(this);
             callsSwitchWindow = new VATRPTranslucentWindow(this);
             newCallAcceptWindow = new VATRPTranslucentWindow(this);
+            onHoldWindow = new VATRPTranslucentWindow(this);
 
             _timerCall = new System.Timers.Timer
             {
@@ -304,7 +306,10 @@ namespace VATRP.Linphone.VideoWrapper
             var textBlock =
                 FindChild<TextBlock>(callInfoWindow.TransparentWindow, "CallStateLabel");
             if (textBlock != null)
+            {
                 textBlock.Text = callState;
+                ShowOnHoldWindow(callState.Equals("On Hold"));
+            }
         }
 
         public void StartCallTimer(int duration)
@@ -387,6 +392,100 @@ namespace VATRP.Linphone.VideoWrapper
                 if (callInfoWindow != null && callInfoWindow.TransparentWindow != null)
                 {
                     callInfoWindow.TransparentWindow.Content = value;
+                }
+            }
+        }
+
+        #endregion
+
+        #region onHoldWindow
+        public double OnHoldWindowLeftMargin
+        {
+            get
+            {
+                if (onHoldWindow != null)
+                    return onHoldWindow.WindowLeftMargin;
+                return 0;
+            }
+            set
+            {
+                if (onHoldWindow != null)
+                    onHoldWindow.WindowLeftMargin = value;
+            }
+        }
+        public double OnHoldWindowTopMargin
+        {
+            get
+            {
+                if (onHoldWindow != null)
+                    return onHoldWindow.WindowTopMargin;
+                return 0;
+            }
+            set
+            {
+                if (onHoldWindow != null)
+                    onHoldWindow.WindowTopMargin = value;
+            }
+        }
+
+        public int OnHoldOverlayWidth
+        {
+            get
+            {
+                if (onHoldWindow != null)
+                    return onHoldWindow.OverlayWidth;
+                return 0;
+            }
+            set
+            {
+                if (onHoldWindow != null)
+                    onHoldWindow.OverlayWidth = value;
+            }
+        }
+
+        public int OnHoldOverlayHeight
+        {
+            get
+            {
+                if (onHoldWindow != null)
+                    return onHoldWindow.OverlayHeight;
+                return 0;
+            }
+            set
+            {
+                if (onHoldWindow != null)
+                    onHoldWindow.OverlayHeight = value;
+            }
+        }
+
+        public void ShowOnHoldWindow(bool bshow)
+        {
+            onHoldWindow.ShowWindow = bshow;
+            onHoldWindow.Refresh();
+            if (bshow)
+            {
+                onHoldWindow.UpdateWindow();
+            }
+        }
+
+        public object OverlayOnHoldChild
+        {
+            get
+            {
+                if (onHoldWindow != null && onHoldWindow.TransparentWindow != null)
+                {
+                    return onHoldWindow.TransparentWindow.Content;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                if (onHoldWindow != null && onHoldWindow.TransparentWindow != null)
+                {
+                    onHoldWindow.TransparentWindow.Content = value;
                 }
             }
         }
@@ -659,6 +758,10 @@ namespace VATRP.Linphone.VideoWrapper
             get { return newCallAcceptWindow; }
         }
 
+        public VATRPTranslucentWindow OnHoldWindow
+        {
+            get { return onHoldWindow; }
+        }
         #endregion
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)

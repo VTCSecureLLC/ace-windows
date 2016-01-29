@@ -1490,6 +1490,13 @@
                     </Grid>
                 </videoWrapper:VATRPOverlay.OverlayCommandbarChild>
 
+                <videoWrapper:VATRPOverlay.OverlayOnHoldChild>
+                    <StackPanel x:Name="ImagePanel" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10,0,0,0">
+                        <Image Source="/ACE;component/Resources/hold.png" Width="100" Height="25"></Image>
+                    </StackPanel>
+                    
+                </videoWrapper:VATRPOverlay.OverlayOnHoldChild>
+                
                 <videoWrapper:ManagedVideoControl x:Name="ctrlVideo" Width="{Binding VideoWidth}" Height="{Binding VideoHeight}" 
 												  VerticalAlignment="Center" HorizontalAlignment="Center" 
 											      MouseEnter="CtrlVideo_OnMouseEnter"
@@ -1498,6 +1505,7 @@
                                                   >
                 </videoWrapper:ManagedVideoControl>
 
+                
             </videoWrapper:VATRPOverlay>
         </StackPanel>
     </Grid>

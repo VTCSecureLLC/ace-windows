@@ -263,6 +263,9 @@ namespace com.vtcsecure.ace.windows
                     ShowCallOverlayWindow(true);
                     ctrlCall.ctrlOverlay.SetCallerInfo(callViewModel.CallerInfo);
                     ctrlCall.ctrlOverlay.SetCallState("On Hold");
+       //******* 1-17 Liz E. Stopping point notes
+                    // VATRP-1768: we will need to ensure that the image Hold.png is presented to the user in the call control when this is triggered.
+                    //    it will then need to be removed (if shown) when the call resumes.
                     ctrlCall.UpdateControls();
 					break;
                 case VATRPCallState.LocalPausing:
@@ -522,7 +525,8 @@ namespace com.vtcsecure.ace.windows
 		        ctrlCall.ctrlVideo.Visibility = Visibility.Hidden;
                 ctrlCall.ctrlOverlay.ShowNewCallAcceptWindow(false);
                 ctrlCall.ctrlOverlay.ShowCallsSwitchWindow(false);
-		    }
+                ctrlCall.ctrlOverlay.ShowOnHoldWindow(false);
+            }
 		}
 
         private void ShowOverlayNewCallWindow(bool bShow)
