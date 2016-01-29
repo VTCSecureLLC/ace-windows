@@ -1,4 +1,6 @@
-﻿using System;
+﻿using com.vtcsecure.ace.windows.Utilities;
+using com.vtcsecure.ace.windows.Views;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -52,6 +54,10 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnMailTss(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Mail TSS Clicked");
+            string path = TechnicalSupportInfoBuilder.CreateAndGetTechnicalSupportInfoAsTextFile(true);
+            var feedbackView = new FeedbackView(path);
+            feedbackView.Show();
+
         }
         private void OnShowAdvanced(object sender, RoutedEventArgs e)
         {
