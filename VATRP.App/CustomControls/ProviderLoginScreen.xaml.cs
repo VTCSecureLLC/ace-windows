@@ -51,6 +51,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
             ProviderList.Clear();
             foreach (VATRPServiceProvider provider in serviceProviderList)
             {
+                if (provider.Address == "_nologo")
+                    continue;
                 ProviderList.Add(provider);
             }
             // VATRP1271 - TODO - add a check to ensure that this has not changed prior to doing anything further.
