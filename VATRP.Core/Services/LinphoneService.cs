@@ -61,6 +61,7 @@ namespace VATRP.Core.Services
         private LinphoneCoreCallLogUpdatedCb call_log_updated;
         private readonly string _chatLogPath;
         private readonly string _callLogPath;
+        private readonly string _contactsPath;
 
         private LinphoneRegistrationState currentRegistrationState;
         private IntPtr _linphoneAudioCodecsList = IntPtr.Zero;
@@ -219,6 +220,7 @@ namespace VATRP.Core.Services
 			_isStarted = false;
 		    _chatLogPath = manager.BuildStoragePath("chathistory.db");
 		    _callLogPath = manager.BuildStoragePath("callhistory.db");
+            _contactsPath = manager.BuildStoragePath("contacts.db");
 		}
 
         public bool Start(bool enableLogs)
@@ -315,6 +317,8 @@ namespace VATRP.Core.Services
 
                 LinphoneAPI.linphone_core_set_chat_database_path(linphoneCore, _chatLogPath);
                 LinphoneAPI.linphone_core_set_call_logs_database_path(linphoneCore, _callLogPath);
+                LinphoneAPI.linphone_core_set_friends_database_path(linphoneCore, _contactsPath);
+			    LinphoneAPI.linphone_core_migrate_friends_from_rc_to_db(linphoneCore);
 
 			    IntPtr defProxyCfg = LinphoneAPI.linphone_core_get_default_proxy_config(linphoneCore);
 			    if (defProxyCfg != IntPtr.Zero)
