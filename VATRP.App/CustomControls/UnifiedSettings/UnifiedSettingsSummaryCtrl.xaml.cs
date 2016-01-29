@@ -47,6 +47,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnViewTss(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("View TSS Clicked");
+            OnContentChanging(UnifiedSettingsContentType.ViewTSS);
         }
         private void OnMailTss(object sender, RoutedEventArgs e)
         {
