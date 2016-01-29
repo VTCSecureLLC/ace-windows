@@ -21,6 +21,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         VideoSettingsContent,
         CallSettingsContent,
         NetworkSettingsContent,
-        AdvancedSettingsContent
+        AdvancedSettingsContent,
+
+        //Summary
+        ViewTSS
     }
 }

@@ -186,12 +186,20 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 config.user_is_agent = false;
             }
             config.UpdateVATRPAccountFromACEConfig(App.CurrentAccount);
+            UpdateConfigServiceFromACEConfig(config);
             ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);
             ServiceManager.Instance.AccountService.Save();
             ServiceManager.Instance.RegisterNewAccount(App.CurrentAccount.AccountID);
         }
-
+        private void UpdateConfigServiceFromACEConfig(ACEConfig config)
+        {
+            if (config != null)
+            {
+                ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                    Configuration.ConfEntry.USE_RTT, config.enable_rtt);
+            }
+        }
         private void LoginCmd_Click_old(object sender, RoutedEventArgs e)
         {
             string username = LoginBox.Text;
