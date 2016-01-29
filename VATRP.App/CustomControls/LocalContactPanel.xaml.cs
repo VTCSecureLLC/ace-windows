@@ -7,6 +7,7 @@ using com.vtcsecure.ace.windows.Model;
 using com.vtcsecure.ace.windows.Services;
 using com.vtcsecure.ace.windows.ViewModel;
 using VATRP.Core.Interfaces;
+using com.vtcsecure.ace.windows.CustomControls.Resources;
 
 namespace com.vtcsecure.ace.windows.CustomControls
 {
@@ -15,6 +16,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
     /// </summary>
     public partial class LocalContactPanel : UserControl
     {
+        public Resources_CallResource CallResourceRequested;
+
         #region Members
 
         private LocalContactViewModel _viewModel;
@@ -41,6 +44,22 @@ namespace com.vtcsecure.ace.windows.CustomControls
             if (_viewModel != null)
             {
                 _viewModel.VideoMailCount = 0;
+            }
+        }
+
+        //OnCallVideoMail
+        private void OnCallVideoMail(object sender, RoutedEventArgs e)
+        {
+            if (CallResourceRequested != null)
+            {
+                // sanity check here.
+                if ((App.CurrentAccount != null) && !string.IsNullOrEmpty(App.CurrentAccount.VideoMailUri))
+                {
+                    ResourceInfo resourceInfo = new ResourceInfo();
+                    resourceInfo.address = App.CurrentAccount.VideoMailUri;
+                    resourceInfo.name = "Video Mail";
+                    CallResourceRequested(resourceInfo);
+                }
             }
         }
     }

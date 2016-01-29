@@ -22,14 +22,29 @@ namespace com.vtcsecure.ace.windows.Views
         private FeedbackViewModel _viewModel;
         public FeedbackView()
         {
+            Initialize();
+        }
+
+        public FeedbackView(string attachmentPath)
+        {
+            Initialize();
+            _viewModel.AttachmentFile = attachmentPath;
+        }
+
+        private void Initialize()
+        {
             InitializeComponent();
             _viewModel = new FeedbackViewModel();
             DataContext = _viewModel;
         }
-
         private void OnSendFeedback(object sender, RoutedEventArgs e)
         {
             _viewModel.SendFeedback(_viewModel);
+        }
+
+        public void AppendTextToBody(string text)
+        {
+            
         }
     }
 }

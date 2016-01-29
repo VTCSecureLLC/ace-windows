@@ -501,6 +501,7 @@ namespace com.vtcsecure.ace.windows
             //ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
 
             ctrlResource.CallResourceRequested += OnCallResourceRequested;
+            ctrlLocalContact.CallResourceRequested += OnCallResourceRequested;
 
             if ((App.CurrentAccount != null) && App.CurrentAccount.AutoLogin && App.CurrentAccount.Password.NotBlank())
             {
@@ -512,7 +513,7 @@ namespace com.vtcsecure.ace.windows
                     _mainViewModel.OfferServiceSelection = false;
                     _mainViewModel.IsAccountLogged = true;
                     _mainViewModel.ContactModel.VideoMailCount = App.CurrentAccount.VideoMailCount;
-                    // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
+                    // VATRP-1899: This is a quick and dirty solution for POC. It will be functional, but not the end implementation we will want.
                     if (!App.CurrentAccount.UserNeedsAgentView)
                     {
                         OpenAnimated();
@@ -584,7 +585,7 @@ namespace com.vtcsecure.ace.windows
                 CombinedUICallViewSize.Height = szDimensions.Height;
                 this.SizeToContent = SizeToContent.WidthAndHeight;
                 WindowState = System.Windows.WindowState.Normal;
-                this.ResizeMode = System.Windows.ResizeMode.NoResize;
+                this.ResizeMode = System.Windows.ResizeMode.CanMinimize;
                 this.Left = _lastWindowPosition.X;
                 this.Top = _lastWindowPosition.Y;
                 this.CallViewBorder.BorderThickness = new Thickness(1, 0, 1, 0);
@@ -642,6 +643,10 @@ namespace com.vtcsecure.ace.windows
 
             ctrlCall.ctrlOverlay.NewCallAcceptWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.NewCallAcceptOverlayWidth) / 2 + offset;
             ctrlCall.ctrlOverlay.NewCallAcceptWindowTopMargin = topleftInScreen.Y + (ctrlCall.ActualHeight - ctrlCall.ctrlOverlay.NewCallAcceptOverlayHeight) / 2;
+
+            ctrlCall.ctrlOverlay.OnHoldOverlayWidth = 100;// (int)callViewDimensions.Width - 30;
+            ctrlCall.ctrlOverlay.OnHoldWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.OnHoldOverlayWidth) / 2 + offset;
+            ctrlCall.ctrlOverlay.OnHoldWindowTopMargin = ctrlCall.ctrlOverlay.CallInfoOverlayHeight + ctrlCall.ctrlOverlay.CallInfoWindowTopMargin + 40;// topleftInScreen.Y + 40;
 
             ctrlCall.ctrlOverlay.Refresh();
         }

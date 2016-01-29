@@ -429,9 +429,10 @@ namespace com.vtcsecure.ace.windows.Services
 
         private bool LoadJsonProviders()
         {
+            var imgCachePath = BuildStoragePath("img");
             try
             {
-                List<VATRPDomain> domains = com.vtcsecure.ace.windows.Utilities.JsonWebRequest.MakeJsonWebRequest<List<VATRPDomain>>(CDN_DOMAIN_URL);
+                List<VATRPDomain> domains = Utilities.JsonWebRequest.MakeJsonWebRequest<List<VATRPDomain>>(CDN_DOMAIN_URL);
                 // add these into the cache
                 foreach (VATRPDomain domain in domains)
                 {
@@ -441,7 +442,8 @@ namespace com.vtcsecure.ace.windows.Services
                         provider = new VATRPServiceProvider();
                         provider.Label = domain.name;
                         provider.Address = domain.domain;
-                        provider.ImagePath = domain.icon;
+                        provider.ImageURI = domain.icon2x;
+                        provider.IconURI = domain.icon;
                         ProviderService.AddProvider(provider);
                     }
                     else
@@ -449,8 +451,22 @@ namespace com.vtcsecure.ace.windows.Services
                         // update the provider information
                         provider.Label = domain.name;
                         provider.Address = domain.domain;
-                        provider.ImagePath = domain.icon;
+                        provider.ImageURI = domain.icon2x;
+                        provider.IconURI = domain.icon;
                     }
+
+                    if (provider.ImageURI.NotBlank())
+                        provider.LoadImage(imgCachePath, false);
+                    if (provider.IconURI.NotBlank())
+                        provider.LoadImage(imgCachePath, true);
+
+                }
+
+                VATRPServiceProvider noLogoProvider = ProviderService.FindProviderLooseSearch("_nologo");
+                if (noLogoProvider == null)
+                {
+                    noLogoProvider = new VATRPServiceProvider();
+                    ProviderService.AddProvider(noLogoProvider);
                 }
                 return true;
             }

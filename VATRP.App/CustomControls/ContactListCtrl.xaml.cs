@@ -74,7 +74,6 @@ namespace com.vtcsecure.ace.windows.CustomControls
             {
                 ContactEditViewModel model = new ContactEditViewModel(false, contact.RegistrationName);
                 model.ContactName = contact.Fullname;
-                model.TrimSipUsername();
                 var contactEditView = new ContactEditView(model);
                 Nullable<bool> dialogResult = contactEditView.ShowDialog();
                 if (dialogResult != null && dialogResult.Value)

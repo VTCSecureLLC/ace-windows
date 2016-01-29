@@ -148,8 +148,6 @@ namespace com.vtcsecure.ace.windows
 			        this.ShowSelfPreviewItem.IsEnabled = false;
 					call.RemoteParty = call.From;
 					ServiceManager.Instance.SoundService.PlayRingTone();
-					_mainViewModel.IsCallPanelDocked = true;
-                    
                     callViewModel.OnIncomingCall();
 
 			        if (_linphoneService.GetActiveCallsCount == 2)
@@ -161,12 +159,18 @@ namespace com.vtcsecure.ace.windows
 			        {
 			            callViewModel.ShowIncomingCallPanel = true;
 			        }
-					
-					_flashWindowHelper.FlashWindow(_callView);
-					Topmost = true;
-					Activate();
-					Topmost = false;
-					break;
+
+                    if (WindowState != WindowState.Minimized)
+                        _mainViewModel.IsCallPanelDocked = true;
+
+					_flashWindowHelper.FlashWindow(this);
+			        if (WindowState != WindowState.Minimized)
+			        {
+			            Topmost = true;
+			            Activate();
+			            Topmost = false;
+			        }
+			        break;
 				case VATRPCallState.Ringing:
                     this.ShowSelfPreviewItem.IsEnabled = false;
 					callViewModel.OnRinging();
@@ -263,6 +267,9 @@ namespace com.vtcsecure.ace.windows
                     ShowCallOverlayWindow(true);
                     ctrlCall.ctrlOverlay.SetCallerInfo(callViewModel.CallerInfo);
                     ctrlCall.ctrlOverlay.SetCallState("On Hold");
+       //******* 1-17 Liz E. Stopping point notes
+                    // VATRP-1768: we will need to ensure that the image Hold.png is presented to the user in the call control when this is triggered.
+                    //    it will then need to be removed (if shown) when the call resumes.
                     ctrlCall.UpdateControls();
 					break;
                 case VATRPCallState.LocalPausing:
@@ -365,6 +372,7 @@ namespace com.vtcsecure.ace.windows
 						ShowCallOverlayWindow(false);
 						_mainViewModel.IsMessagingDocked = false;
 						_mainViewModel.IsCallPanelDocked = false;
+                        this.SizeToContent = SizeToContent.WidthAndHeight;
 						_mainViewModel.ActiveCallModel = null;
 					    OnFullScreenToggled(false); // restore main window to dashboard
 
@@ -522,7 +530,8 @@ namespace com.vtcsecure.ace.windows
 		        ctrlCall.ctrlVideo.Visibility = Visibility.Hidden;
                 ctrlCall.ctrlOverlay.ShowNewCallAcceptWindow(false);
                 ctrlCall.ctrlOverlay.ShowCallsSwitchWindow(false);
-		    }
+                ctrlCall.ctrlOverlay.ShowOnHoldWindow(false);
+            }
 		}
 
         private void ShowOverlayNewCallWindow(bool bShow)
@@ -773,5 +782,36 @@ namespace com.vtcsecure.ace.windows
 			}
 		}
 
+	    private void OnStateChanged(object sender, EventArgs e)
+	    {
+	        Window_StateChanged(sender, e);
+
+	        if (_mainViewModel.ActiveCallModel != null)
+	        {
+	            switch (WindowState)
+	            {
+	                case WindowState.Normal:
+	                    break;
+	                case WindowState.Minimized:
+                        this.SizeToContent = SizeToContent.Manual;
+                        if (_mainViewModel.ActiveCallModel.ActiveCall.CallState == VATRPCallState.InProgress)
+                            _flashWindowHelper.FlashWindow(this);
+	                    break;
+	                case WindowState.Maximized:
+                        
+	                    break;
+	            }
+	        }
+	        else
+	        {
+	            if (WindowState == WindowState.Normal)
+	            {
+	                _mainViewModel.IsCallPanelDocked = true;
+	                this.SizeToContent = SizeToContent.WidthAndHeight;
+                    UpdateLayout();
+                    _mainViewModel.IsCallPanelDocked = false;
+	            }
+	        }
+	    }
 	}
 }

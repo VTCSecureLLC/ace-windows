@@ -38,6 +38,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private UnifiedSettingsNetworkCtrl _networkSettingsPanel;
         private UnifiedSettingsAdvancedCtrl _advancedSettingsPanel;
 
+        private TechnicalSupportSheetCtrl _viewTechnicalSupportPanel;
+
         private BaseUnifiedSettingsPanel _currentContent;
         private List<BaseUnifiedSettingsPanel> _previousContent;
 
@@ -87,6 +89,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             _advancedSettingsPanel = new UnifiedSettingsAdvancedCtrl();
             InitializePanelAndEvents(_advancedSettingsPanel);
+
+            _viewTechnicalSupportPanel = new TechnicalSupportSheetCtrl();
+            InitializePanelAndEvents(_viewTechnicalSupportPanel);
 
             _currentContent = _mainPanel;
 #if DEBUG
@@ -236,6 +241,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 case UnifiedSettingsContentType.AdvancedSettingsContent: MoveToContentPanel(_advancedSettingsPanel);
                     break;
 
+                case UnifiedSettingsContentType.ViewTSS: MoveToContentPanel(_viewTechnicalSupportPanel);
+                    break;
                 default: break;
             }
         }
