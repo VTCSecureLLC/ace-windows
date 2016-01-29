@@ -127,13 +127,14 @@
 
             <!-- Row 13: Media Encryption -->
             <Label Grid.Column="0" Grid.Row="13" Content="Media Encryption" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left" Name="MediaEncryptionLabel" Visibility="Collapsed">
+                   HorizontalAlignment="Left" Name="MediaEncryptionLabel" >
             </Label>
             <ComboBox Grid.Row="13" Grid.Column="1" Grid.ColumnSpan="2" x:Name="MediaEncryptionComboBox" FontSize="14" Margin="0,3,0,3" Width="120" Height="24" 
-                           VerticalAlignment="Center" HorizontalAlignment="Right" SelectionChanged="OnMediaEncryptionChanged" Visibility="Collapsed">
-                <TextBlock >SRTP</TextBlock>
-                <TextBlock >ZRTP</TextBlock>
-                <TextBlock >DTLS</TextBlock>
+                           VerticalAlignment="Center" HorizontalAlignment="Right" SelectionChanged="OnMediaEncryptionChanged" >
+                <TextBlock >Unencrypted</TextBlock>
+                <TextBlock >Encrypted (SRTP)</TextBlock>
+                <TextBlock >Encrypted (ZRTP)</TextBlock>
+                <TextBlock >Encrypted (DTLS)</TextBlock>
             </ComboBox>
 
             <!-- Row 14: Push Notifications -->
