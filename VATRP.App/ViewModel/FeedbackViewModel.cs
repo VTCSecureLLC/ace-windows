@@ -109,7 +109,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 //                if (attachmentList.Count == 0)
 //                {
                 string attachmentText = "";
-                if (!string.IsNullOrEmpty(AttachmentFile) && AttachmentFile.EndsWith("txt"))
+                if (!string.IsNullOrEmpty(AttachmentFile) && (AttachmentFile.EndsWith("txt") || AttachmentFile.EndsWith("log")))
                 {
                     if (File.Exists(AttachmentFile))
                     attachmentText = File.ReadAllText(AttachmentFile);
@@ -141,7 +141,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 {
                     byte[] dataBytes = File.ReadAllBytes(AttachmentFile);
                     string contentType = "";
-                    if (AttachmentFile.EndsWith("txt"))
+                    if (AttachmentFile.EndsWith("txt") || AttachmentFile.EndsWith("log"))
                     {
                         contentType = "text/plain; charset=utf-8";
                     }
