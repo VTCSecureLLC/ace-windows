@@ -1,4 +1,5 @@
-﻿using System;
+﻿using com.vtcsecure.ace.windows.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -37,6 +38,14 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             UseIceServerCheckbox.IsChecked = App.CurrentAccount.EnableICE;
             IceServerTextBox.Text = App.CurrentAccount.ICEAddress;
             IceServerPortTextBox.Text = App.CurrentAccount.ICEPort.ToString();
+
+            foreach (TextBlock textBlock in MediaEncryptionComboBox.Items)
+            {
+                if (textBlock.Text.Equals(App.CurrentAccount.MediaEncryption))
+                {
+                    MediaEncryptionComboBox.SelectedItem = textBlock;
+                }
+            }
         }
 
         private void OnStunServerChecked(object sender, RoutedEventArgs e)
@@ -200,7 +209,15 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         }
         private void OnMediaEncryptionChanged(object sender, RoutedEventArgs e)
         {
-            // Placeholder - not yet indicated for Windows
+            TextBlock valueTB = (TextBlock)MediaEncryptionComboBox.SelectedItem;
+            string value = valueTB.Text;
+            if (App.CurrentAccount != null)
+            {
+                App.CurrentAccount.MediaEncryption = value;
+                // update media settings.
+                ServiceManager.Instance.ApplyMediaSettingsChanges();
+                ServiceManager.Instance.SaveAccountSettings();
+            }
 
         }
         private void OnPushNotifications(object sender, RoutedEventArgs e)
