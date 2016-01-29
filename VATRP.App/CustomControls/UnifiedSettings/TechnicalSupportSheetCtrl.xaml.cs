@@ -30,37 +30,14 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         public override void Initialize()
         {
             System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-            var version = assembly.GetName().Version;
+//            var version = assembly.GetName().Version;
 
             this.ACEVersionLabel.Content = assembly.GetName().Name + " Version: ";
-            this.ACEVersionInfoLabel.Content = string.Format("Version {0}.{1}.{2}", version.Major, version.Minor, version.Build);
-            OperatingSystem os = Environment.OSVersion;
+            this.ACEVersionInfoLabel.Content = TechnicalSupportInfoBuilder.GetACEVersion();// string.Format("Version {0}.{1}.{2}", version.Major, version.Minor, version.Build);
 
-            this.OperatingSystemInfoLabel.Text = FriendlyName() + " " + os.ServicePack;// Environment.OSVersion.VersionString;
+            this.OperatingSystemInfoLabel.Text = TechnicalSupportInfoBuilder.GetFriendlyOsNameWithServicePack();
 
             this.TechnicalSupprtInfoTextBlock.Text = TechnicalSupportInfoBuilder.GetStringForTechnicalSupprtString(false);
-        }
-        public string HKLM_GetString(string path, string key)
-        {
-            try
-            {
-                RegistryKey rk = Registry.LocalMachine.OpenSubKey(path);
-                if (rk == null) return "";
-                return (string)rk.GetValue(key);
-            }
-            catch { return ""; }
-        }
-
-        public string FriendlyName()
-        {
-            string ProductName = HKLM_GetString(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ProductName");
-            string CSDVersion = HKLM_GetString(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "CSDVersion");
-            if (ProductName != "")
-            {
-                return (ProductName.StartsWith("Microsoft") ? "" : "Microsoft ") + ProductName +
-                            (CSDVersion != "" ? " " + CSDVersion : "");
-            }
-            return "";
         }
     }
 }

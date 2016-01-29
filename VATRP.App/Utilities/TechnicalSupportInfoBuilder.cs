@@ -1,6 +1,8 @@
 ﻿using com.vtcsecure.ace.windows.Services;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +12,68 @@ namespace com.vtcsecure.ace.windows.Utilities
 {
     public static class TechnicalSupportInfoBuilder
     {
+        public const string TECHNICAL_SUPPORT_FILE_NAME = "TechnicalSupportSheet.txt";
+        public static string GetACEVersion()
+        {
+            System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            var version = assembly.GetName().Version;
 
+            return string.Format("Version {0}.{1}.{2}", version.Major, version.Minor, version.Build);
+        }
+
+        public static string GetLinphoneVersion()
+        {
+            return VATRP.LinphoneWrapper.LinphoneAPI.linphone_core_get_version_asString();
+        }
+
+        public static string CreateAndGetTechnicalSupportInfoAsTextFile(bool verbose)
+        {
+            string data = GetFullTechnicalSupportStringWithOs(verbose);
+            string technicalSupportFilePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            technicalSupportFilePath += Path.DirectorySeparatorChar + TECHNICAL_SUPPORT_FILE_NAME;
+            if (File.Exists(technicalSupportFilePath))
+            {
+                File.Delete(technicalSupportFilePath);
+            }
+            try
+            {
+                if (!File.Exists(technicalSupportFilePath))
+                {
+                    // Create a file to write to.
+                    using (StreamWriter sw = new StreamWriter(File.Open(technicalSupportFilePath, FileMode.Create), Encoding.UTF8))
+                    {
+                        sw.Write(data);
+                    }
+                }
+                return technicalSupportFilePath;
+            }
+            catch (Exception ex)
+            {
+                // unable to write the file
+                return ""; // we were unable to write the file
+            }
+        }
+
+        public static string GetFullTechnicalSupportStringWithOs(bool verbose)
+        {
+            StringBuilder tssString = new StringBuilder();
+            tssString.AppendLine("ACE Version: " + GetACEVersion());
+            tssString.AppendLine("Core Version: " + GetLinphoneVersion());
+            tssString.AppendLine("Operating System: " + GetFriendlyOsNameWithServicePack());
+            tssString.AppendLine("  Full Build Version: " + Environment.OSVersion.VersionString);
+            tssString.AppendLine("Configuration Information:");
+            tssString.AppendLine(GetStringForTechnicalSupprtString(true));
+
+            return tssString.ToString();
+        }
+
+        /// <summary>
+        /// Returns information about the system configuration. 
+        /// The Verbose flag will ultimately be used to help us determine how much information to include
+        /// in case we want different information in an email versus what we display on screen.
+        /// </summary>
+        /// <param name="verbose"></param>
+        /// <returns></returns>
         public static string GetStringForTechnicalSupprtString(bool verbose)
         {
             StringBuilder configString = new StringBuilder();
@@ -80,6 +143,39 @@ namespace com.vtcsecure.ace.windows.Utilities
                 //        public bool user_is_agent { get; set; } // do not include this yet - this is a POC feature at the moment
             }
             return configString.ToString();
+        }
+
+
+        // move these next two methods into builder class so that all of this information can readily be used to email the tss.
+        // also make an accessor for the friendly os name.
+        public static string HKLM_GetString(string path, string key)
+        {
+            try
+            {
+                RegistryKey rk = Registry.LocalMachine.OpenSubKey(path);
+                if (rk == null) return "";
+                return (string)rk.GetValue(key);
+            }
+            catch { return ""; }
+        }
+
+        public static string GetFriendlyOsName()
+        {
+            string ProductName = HKLM_GetString(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ProductName");
+            string CSDVersion = HKLM_GetString(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion", "CSDVersion");
+            if (ProductName != "")
+            {
+                return (ProductName.StartsWith("Microsoft") ? "" : "Microsoft ") + ProductName +
+                            (CSDVersion != "" ? " " + CSDVersion : "");
+            }
+            return "";
+        }
+
+        public static string GetFriendlyOsNameWithServicePack()
+        {
+             OperatingSystem os = Environment.OSVersion;
+             return TechnicalSupportInfoBuilder.GetFriendlyOsName() + " " + os.ServicePack;
+
         }
 
     }
