@@ -584,7 +584,7 @@ namespace com.vtcsecure.ace.windows
                 CombinedUICallViewSize.Height = szDimensions.Height;
                 this.SizeToContent = SizeToContent.WidthAndHeight;
                 WindowState = System.Windows.WindowState.Normal;
-                this.ResizeMode = System.Windows.ResizeMode.NoResize;
+                this.ResizeMode = System.Windows.ResizeMode.CanMinimize;
                 this.Left = _lastWindowPosition.X;
                 this.Top = _lastWindowPosition.Y;
                 this.CallViewBorder.BorderThickness = new Thickness(1, 0, 1, 0);

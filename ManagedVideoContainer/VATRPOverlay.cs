@@ -607,8 +607,7 @@ namespace VATRP.Linphone.VideoWrapper
         {
             callsSwitchWindow.ShowWindow = bshow;
             callsSwitchWindow.Refresh();
-            if (bshow)
-                callsSwitchWindow.UpdateWindow();
+            callsSwitchWindow.UpdateWindow();
         }
 
         public object OverlayCallsSwitchChild
