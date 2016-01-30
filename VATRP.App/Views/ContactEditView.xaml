@@ -26,15 +26,15 @@
 
         <ComboBox Grid.Column="1" Grid.Row="3" Margin="5, 5" SelectedItem="{Binding SelectedProvider, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="32" HorizontalAlignment="Left"
           ItemsSource="{Binding Providers}" Background="White" 
+                  BorderBrush="{StaticResource AppMainWindowBrush}"
                   Foreground="{StaticResource AppMainWindowBrush}" 
                   Style="{StaticResource ProviderComboStyle}" 
                   ItemContainerStyle="{StaticResource ContactProviderComboBoxItemStyle}"
-                  PreviewMouseDown="ShowGAWarning"
                   >
             <ComboBox.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Horizontal" >
-                        <Image Source="{Binding GrayedLogo}" Width="32" Height="32"/>
+                    <StackPanel Orientation="Horizontal" Margin="1">
+                        <Image Source="{Binding Provider.ImagePath}" Width="25" Height="25" Stretch="UniformToFill"/>
                     </StackPanel>
                 </DataTemplate>
             </ComboBox.ItemTemplate>

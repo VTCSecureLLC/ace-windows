@@ -140,9 +140,9 @@
         <ComboBox Grid.Column="0" Grid.Row="5" Margin="0,0.5,0.5,0" SelectedItem="{Binding SelectedProvider, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                   ItemContainerStyle="{StaticResource DialpadProviderComboBoxItemStyle}"
           ItemsSource="{Binding Providers}" Style="{StaticResource ProviderComboStyle}" 
+                  BorderBrush="{StaticResource AppMainWindowBrush}" 
                   Background="{StaticResource AppMainWindowBrush}" 
                   Foreground="{StaticResource AppMainBorderBrush}"
-                  PreviewMouseDown="ShowGAWarning"
                   >
             <ComboBox.Resources>
             </ComboBox.Resources>
@@ -150,7 +150,7 @@
             <ComboBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <Image Source="{Binding GrayedLogo}" Width="53" Height="53" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Image Source="{Binding Provider.ImagePath}" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="UniformToFill"/>
                     </StackPanel>
                 </DataTemplate>
             </ComboBox.ItemTemplate>

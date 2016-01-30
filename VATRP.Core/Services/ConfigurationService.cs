@@ -164,7 +164,6 @@ namespace VATRP.Core.Services
 
             lock (this.sections)
             {
-                LOG.Debug("Saving configuration...");
                 try
                 {
                     using (StreamWriter writer = new StreamWriter(this.fileFullPath))

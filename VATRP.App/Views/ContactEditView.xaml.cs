@@ -41,6 +41,7 @@ namespace com.vtcsecure.ace.windows.Views
                 return;
             }
 
+            _viewModel.UpdateContactAddress();
             if (!_viewModel.ValidateUsername(_viewModel.ContactSipUsername))
             {
                 if (!_viewModel.ValidateAddress(_viewModel.ContactSipUsername))
@@ -53,12 +54,6 @@ namespace com.vtcsecure.ace.windows.Views
             }
             this.DialogResult = true;
             Close();
-        }
-
-        private void ShowGAWarning(object sender, MouseButtonEventArgs e)
-        {
-            MessageBox.Show("Available in General Release", "ACE", MessageBoxButton.OK,
-                       MessageBoxImage.Warning);
         }
     }
 }
