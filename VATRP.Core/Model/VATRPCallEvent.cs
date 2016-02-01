@@ -45,7 +45,8 @@ namespace VATRP.Core.Model
             {
                 this.endTime = value;
                 NotifyPropertyChanged("EndTime");
-                _duration = (this.endTime - this.startTime).Seconds;
+                TimeSpan timeSpan = this.endTime - this.startTime;
+                _duration = (int)timeSpan.TotalSeconds;
                 NotifyPropertyChanged("Duration");
             }
         }
