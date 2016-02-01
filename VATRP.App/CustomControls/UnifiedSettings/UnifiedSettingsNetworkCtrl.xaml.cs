@@ -74,19 +74,18 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         public void OnStunServerPortChanged(Object sender, RoutedEventArgs args)
         {
             string newStunServerPort = StunServerPortTextBox.Text;
-            if (string.IsNullOrEmpty(newStunServerPort))
-            {
-                string oldStunServerPort = App.CurrentAccount.STUNPort.ToString();
-                StunServerPortTextBox.Text = oldStunServerPort;
-            }
-            else
+            if (App.CurrentAccount != null)
             {
                 ushort port = 0;
                 ushort.TryParse(newStunServerPort, out port);
                 if (port < 1 || port > 65535)
                 {
-                    MessageBox.Show("Incorrect STUN port", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
+                    if (App.CurrentAccount.EnableSTUN)
+                    {
+                        MessageBox.Show("Incorrect STUN port", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
+                        StunServerPortTextBox.Text = App.CurrentAccount.STUNPort.ToString();
+                        return;
+                    }
                 } 
                 App.CurrentAccount.STUNPort = port;
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
