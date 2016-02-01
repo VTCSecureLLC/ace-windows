@@ -188,6 +188,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 config.user_is_agent = false;
             }
             config.UpdateVATRPAccountFromACEConfig(App.CurrentAccount);
+            App.CurrentAccount.AutoLogin = this.AutoLoginBox.IsChecked ?? false;
             UpdateConfigServiceFromACEConfig(config);
             ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);
