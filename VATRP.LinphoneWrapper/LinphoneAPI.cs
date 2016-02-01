@@ -133,7 +133,8 @@ namespace VATRP.LinphoneWrapper
         public static extern IntPtr linphone_core_create_default_call_parameters(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_call_params_add_custom_header(IntPtr cp, string header_name, string header_value);
+        public static extern void linphone_call_params_add_custom_header(IntPtr cp, string header_name,
+            string header_value);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_call_params_enable_video(IntPtr cp, bool enabled);
@@ -2291,6 +2292,7 @@ namespace VATRP.LinphoneWrapper
  * @param data data to insert into the list
  * @return first element of the list
 **/
+
         [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr ms_list_append(IntPtr list, IntPtr data);
 
@@ -2299,6 +2301,7 @@ namespace VATRP.LinphoneWrapper
  * @param new_elem element to append
  * @return first element of the list
 **/
+
         [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr ms_list_append_link(IntPtr list, IntPtr new_elem);
 
@@ -2307,6 +2310,7 @@ namespace VATRP.LinphoneWrapper
  * @param data data to insert into the list
  * @return first element of the list - the one which was just created.
 **/
+
         [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr ms_list_prepend(IntPtr list, IntPtr data);
 
@@ -2316,6 +2320,7 @@ namespace VATRP.LinphoneWrapper
  * @param list object to free.
  * @return NULL
 **/
+
         [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr ms_list_free(IntPtr list);
 
@@ -2324,6 +2329,7 @@ namespace VATRP.LinphoneWrapper
  * @param second Second list to append at the end of first list.
  * @return first element of the merged list
 **/
+
         [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr ms_list_concat(IntPtr first, IntPtr second);
 
@@ -2332,6 +2338,7 @@ namespace VATRP.LinphoneWrapper
  * @param data Data to remove
  * @return first element of the modified list
 **/
+
         [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr ms_list_remove(IntPtr list, IntPtr data);
 
@@ -2339,6 +2346,7 @@ namespace VATRP.LinphoneWrapper
  * @param list List to measure
  * @return Size of list
 **/
+
         [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int ms_list_size(IntPtr list);
 
@@ -2347,6 +2355,7 @@ namespace VATRP.LinphoneWrapper
  * @param element element to remove
  * @return first element of the modified list
 **/
+
         [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr ms_list_remove_link(IntPtr list, IntPtr elem);
 
@@ -2355,6 +2364,7 @@ namespace VATRP.LinphoneWrapper
  * @param data data to find
  * @return element containing data, or NULL if not found
 **/
+
         [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr ms_list_find(IntPtr list, IntPtr data);
 
@@ -2363,6 +2373,7 @@ namespace VATRP.LinphoneWrapper
  * @param index data index which must be returned.
  * @return Element at the given index. NULL if index is invalid (negative or greater or equal to ms_list_size).
 **/
+
         [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr ms_list_nth_data(IntPtr list, int index);
 
@@ -2371,6 +2382,7 @@ namespace VATRP.LinphoneWrapper
  * @param elem Element to search for.
  * @return Index of the given element. -1 if not found.
 **/
+
         [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int ms_list_position(IntPtr list, IntPtr elem);
 
@@ -2379,6 +2391,7 @@ namespace VATRP.LinphoneWrapper
  * @param data Data to search for.
  * @return Index of the element containing data. -1 if not found.
 **/
+
         [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int ms_list_index(IntPtr list, IntPtr data);
 
@@ -2388,6 +2401,7 @@ namespace VATRP.LinphoneWrapper
  * @param data data to insert into the list
  * @return first element of the modified list.
 **/
+
         [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr ms_list_insert(IntPtr list, IntPtr before, IntPtr data);
 
@@ -2395,6 +2409,7 @@ namespace VATRP.LinphoneWrapper
  * @param list list to copy
  * @return Newly created list
 **/
+
         [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr ms_list_copy(IntPtr list);
 
@@ -2528,6 +2543,125 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_content_set_name(IntPtr content, IntPtr name);
+
+        #endregion
+
+        #region VCARD
+
+        /**
+ * Creates a LinphoneVCard object that has a pointer to an empty vCard
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_vcard_new();
+
+/**
+ * Deletes a LinphoneVCard object properly
+ * @param[in] vCard the LinphoneVCard to destroy
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_vcard_free(IntPtr vCard);
+
+/**
+ * Uses belcard to parse the content of a file and returns all the vcards it contains as LinphoneVCards, or NULL if it contains none.
+ * @param[in] file the path to the file to parse
+ * @return \mslist{LinphoneVCard}
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_vcard_list_from_vcard4_file(string file);
+
+/**
+ * Uses belcard to parse the content of a buffer and returns all the vcards it contains as LinphoneVCards, or NULL if it contains none.
+ * @param[in] buffer the buffer to parse
+ * @return \mslist{LinphoneVCard}
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_vcard_list_from_vcard4_buffer(string buffer);
+
+/**
+ * Uses belcard to parse the content of a buffer and returns one vCard if possible, or NULL otherwise.
+ * @param[in] buffer the buffer to parse
+ * @return a LinphoneVCard if one could be parsed, or NULL otherwise
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_vcard_new_from_vcard4_buffer(string buffer);
+
+/**
+ * Returns the vCard4 representation of the LinphoneVCard.
+ * @param[in] vCard the LinphoneVCard
+ * @return a string that represents the vCard
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_vcard_as_vcard4_string(IntPtr vCard);
+
+/**
+ * Sets the FN attribute of the vCard (which is mandatory).
+ * @param[in] vCard the LinphoneVCard
+ * @param[in] name the display name to set for the vCard
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_vcard_set_full_name(IntPtr vCard, string name);
+
+/**
+ * Returns the FN attribute of the vCard, or NULL if it isn't set yet.
+ * @param[in] vCard the LinphoneVCard
+ * @return the display name of the vCard, or NULL
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_vcard_get_full_name(IntPtr vCard);
+
+/**
+ * Adds a SIP address in the vCard, using the IMPP property
+ * @param[in] vCard the LinphoneVCard
+ * @param[in] sip_address the SIP address to add
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_vcard_add_sip_address(IntPtr vCard, string sip_address);
+
+/**
+ * Removes a SIP address in the vCard (if it exists), using the IMPP property
+ * @param[in] vCard the LinphoneVCard
+ * @param[in] sip_address the SIP address to remove
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_vcard_remove_sip_address(IntPtr vCard, string sip_address);
+
+/**
+ * Edits the preferred SIP address in the vCard (or the first one), using the IMPP property
+ * @param[in] vCard the LinphoneVCard
+ * @param[in] sip_address the new SIP address
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_vcard_edit_main_sip_address(IntPtr vCard, string sip_address);
+
+/**
+ * Returns the list of SIP addresses (as string) in the vCard (all the IMPP attributes that has an URI value starting by "sip:") or NULL
+ * @param[in] vCard the LinphoneVCard
+ * @return \mslist{string}
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_vcard_get_sip_addresses(IntPtr vCard);
+
+/**
+ * Generates a random unique id for the vCard.
+ * If is required to be able to synchronize the vCard with a CardDAV server
+ * @param[in] vCard the LinphoneVCard
+ * @return TRUE if operation is successful, otherwise FALSE (for example if it already has an unique ID)
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_vcard_generate_unique_id(IntPtr vCard);
 
         #endregion
     }
