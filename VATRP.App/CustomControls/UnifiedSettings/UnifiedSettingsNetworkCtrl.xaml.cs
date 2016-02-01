@@ -68,12 +68,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         public void OnStunServerChanged(Object sender, RoutedEventArgs args)
         {
             string newStunServer = StunServerTextBox.Text;
-            if (string.IsNullOrEmpty(newStunServer))
-            {
-                string oldStunServer = App.CurrentAccount.STUNAddress;
-                StunServerTextBox.Text = oldStunServer;
-            }
-            else
+            // VATRP-1949: removed check for empty stun server. However - maybe we want a test here so that if the user has
+            //  Stun Server checkbox enabled we prompt the user if the value does not look like a valid address?
+            if (App.CurrentAccount != null)
             {
                 App.CurrentAccount.STUNAddress = newStunServer;
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
