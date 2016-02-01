@@ -82,7 +82,7 @@
             </Grid>
             <Button Margin="20,10" x:Name="LoginCmd" FontSize="14" Height="25" Width="150" Content="Login" Click="LoginCmd_Click"/>
             <StackPanel Width="150" HorizontalAlignment="Center" Margin="20,5">
-                <CheckBox Margin="5,5" Foreground="{StaticResource AppMainBorderBrush}" Content="Remember Password" x:Name="RememberPasswordBox"/>
+                <CheckBox Margin="5,5" Foreground="{StaticResource AppMainBorderBrush}" Content="Remember Password" x:Name="RememberPasswordBox" Visibility="Collapsed"/>
                 <CheckBox Margin="5,5" Foreground="{StaticResource AppMainBorderBrush}" Content="Auto-Login" x:Name="AutoLoginBox"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
