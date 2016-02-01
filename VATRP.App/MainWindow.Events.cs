@@ -678,7 +678,8 @@ namespace com.vtcsecure.ace.windows
             {
                 SetToUserAgentView(true);
             }
-			ServiceManager.Instance.UpdateLoggedinContact();
+            this.SelfViewItem.IsChecked = App.CurrentAccount.ShowSelfView;
+            ServiceManager.Instance.UpdateLoggedinContact();
 		    ServiceManager.Instance.StartupLinphoneCore();
 		}
 
