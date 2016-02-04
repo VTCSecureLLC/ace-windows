@@ -554,18 +554,10 @@ namespace com.vtcsecure.ace.windows.Services
             //LinphoneAVPFMode avpfMode = LinphoneAVPFMode.LinphoneAVPFEnabled;
             // Note: we could make the RTCP also be a bool, but using this method in case we need to handle something differently in the future.
             //    eg - is there something that happens if we want rtcp off and avpf on?
-            if (rtcpFeedback.Equals("Off"))
-            {
-                LinphoneService.SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFDisabled, LinphoneRTCPMode.LinphoneRTCPDisabled);
-            }
-            else if (rtcpFeedback.Equals("Implicit"))
-            {
-                LinphoneService.SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFDisabled, LinphoneRTCPMode.LinphoneRTCPEnabled);
-            }
-            else if (rtcpFeedback.Equals("Explicit"))
-            {
-                LinphoneService.SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFEnabled, LinphoneRTCPMode.LinphoneRTCPEnabled);
-            }
+
+            LinphoneService.SetRTCPFeedback(rtcpFeedback);
+            
+            
             // commenting this in case we need somethinghere from the compiler debug statement
 
 //            var mode = LinphoneAVPFMode.LinphoneAVPFEnabled;

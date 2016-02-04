@@ -111,14 +111,14 @@
                    HorizontalAlignment="Left">
                 </Label>
                 <TextBox Grid.Column="1" Grid.Row="9" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Name="UserNameTextBox"  LostFocus="OnUserNameChanged"/>
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Name="UserNameTextBox"  LostFocus="OnUserNameChanged" IsEnabled="false"/>
 
                 <!-- Row 10: User Id text box -->
                 <Label Grid.Column="0" Grid.Row="10" Content="User Id" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Visibility="Collapsed" Name="UserIdLabel">
                 </Label>
                 <TextBox Grid.Column="1" Grid.Row="10" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Visibility="Collapsed" Name="UserIdTextBox" />
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Visibility="Collapsed" Name="UserIdTextBox" IsEnabled="false"/>
 
 
             <!-- Row 11: Password text box -->
@@ -133,19 +133,19 @@
                    HorizontalAlignment="Left">
                 </Label>
                 <TextBox Grid.Column="1" Grid.Row="12" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Name="DomainTextBox" LostFocus="OnDomainChanged"/>
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Name="DomainTextBox" LostFocus="OnDomainChanged" IsEnabled="false"/>
 
                 <!-- Row 13: Proxy Domain Text box -->
                 <Label Grid.Column="0" Grid.Row="13" Content="Port" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Visibility="Collapsed" Name="ProxyLabel">
                 </Label>
                 <TextBox Grid.Column="1" Grid.Row="13" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Visibility="Collapsed" Name="ProxyTextBox" LostFocus="OnProxyPortChanged"/>
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Visibility="Collapsed" Name="ProxyTextBox" LostFocus="OnProxyPortChanged" IsEnabled="false"/>
 
                 <!-- Row 14: Save Account -->
                 <Button Grid.Column="1" Grid.Row="14" Grid.ColumnSpan="1" Content="Save Account" Margin="0,2" 
                         BorderThickness="0"  Click="OnSaveAccount"
-                        VerticalContentAlignment="Center">
+                        VerticalContentAlignment="Center" Visibility="Collapsed">
                 </Button>
 
                 <!-- Row 15: Transport -->

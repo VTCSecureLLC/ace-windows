@@ -150,8 +150,79 @@ namespace VATRP.Core.Model
             // this.enable_rtt;
 
             accountToUpdate.UserNeedsAgentView = user_is_agent;
+            // not working, commenting out to get the other items in
+            /*
+            // update available codecs
+            accountToUpdate.AvailableAudioCodecsList.Clear();
+            accountToUpdate.AvailableVideoCodecsList.Clear();
+            bool pcmuAvailable = false;
+            bool pcmaAvailable = false;
+            foreach (VATRPCodec codec in accountToUpdate.AudioCodecsList)
+            {
+                if (codec.CodecName.ToLower().Equals("pcmu"))
+                {
+                    pcmuAvailable = true;
+                }
+                if (codec.CodecName.ToLower().Equals("pcma"))
+                {
+                    pcmaAvailable = true;
+                }
 
+                foreach (string enabled_codec in enabled_codecs)
+                {
+                    string codecName = enabled_codec.Replace(".", "");
+                    if (!string.IsNullOrEmpty(codecName))
+                    {
+                        if (codecName.ToLower().Equals(codec.CodecName.ToLower()))
+                        {
+                            accountToUpdate.AvailableAudioCodecsList.Add(codec);
+                        }
+                    }
+                }
+            }
+            // handle special cases
+            if (pcmuAvailable && pcmaAvailable)
+            {
+                // add the g711 codec for display
+                VATRPCodec newCodec = new VATRPCodec();
+                newCodec.CodecName = "G711";
+                newCodec.Description = "";
+                newCodec.Channels = 0;
+                newCodec.IPBitRate = 0;
+                newCodec.IsUsable = false;
+                newCodec.Priority = -1;
+                newCodec.Rate = 0;
+                if (accountToUpdate.AvailableAudioCodecsList.Count > 0)
+                {
+                    int index = 0;
+                    foreach (VATRPCodec codec in accountToUpdate.AvailableAudioCodecsList)
+                    {
+                        index++;
+                        if (codec.CodecName.ToLower().Equals("g722"))
+                        {
+                            accountToUpdate.AvailableAudioCodecsList.Insert(index, newCodec);
+                        }
+                    }
+                }
+                else
+                {
+                    accountToUpdate.AvailableAudioCodecsList.Add(newCodec);
+                }
+            }
 
+            foreach (VATRPCodec codec in accountToUpdate.VideoCodecsList)
+            {
+                foreach (string enabled_codec in enabled_codecs)
+                {
+                    string codecName = enabled_codec.Replace(".", "");
+                    if (codecName.ToLower().Equals(codec.CodecName.ToLower()))
+                    {
+                        accountToUpdate.AvailableVideoCodecsList.Add(codec);
+                    }
+                }
+            }
+
+            */
             //implimment codec selection support
 
             /*

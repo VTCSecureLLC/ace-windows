@@ -1800,6 +1800,8 @@ namespace VATRP.Core.Services
 	        if (proxy_cfg != IntPtr.Zero)
 	        {
                 LinphoneAPI.linphone_proxy_config_set_avpf_mode(proxy_cfg, mode);
+                LinphoneAPI.linphone_proxy_config_set_avpf_rr_interval(proxy_cfg, 3);
+                LinphoneAPI.linphone_core_set_avpf_rr_interval(linphoneCore, 3);
 	        }
 
 	        IntPtr coreConfig = LinphoneAPI.linphone_core_get_config(linphoneCore);
@@ -1816,6 +1818,22 @@ namespace VATRP.Core.Services
                 return (int) LinphoneAVPFMode.LinphoneAVPFDefault;
 
             return LinphoneAPI.linphone_core_get_avpf_mode(linphoneCore);
+        }
+
+        public void SetRTCPFeedback(string settingValue)
+        {
+            if (settingValue.Equals("Off"))
+            {
+                SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFDisabled, LinphoneRTCPMode.LinphoneRTCPDisabled);
+            }
+            else if (settingValue.Equals("Implicit"))
+            {
+                SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFDisabled, LinphoneRTCPMode.LinphoneRTCPEnabled);
+            }
+            else if (settingValue.Equals("Explicit"))
+            {
+                SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFEnabled, LinphoneRTCPMode.LinphoneRTCPEnabled);
+            }
         }
 
         #endregion
