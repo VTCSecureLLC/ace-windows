@@ -20,7 +20,7 @@
                 <ColumnDefinition Width="27*"/>
             </Grid.ColumnDefinitions>
             <!-- Row 0: General Video Settings Label -->
-            <Label Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Content="In Call Settings" VerticalContentAlignment="Center"  Background="Gray">
+            <Label Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Content="In Call Settings" VerticalContentAlignment="Center"  Background="Gray" Visibility="Collapsed">
             </Label>
             <!-- Row 1: Mute Microphone checkbox -->
             <Label Grid.Column="0" Grid.Row="1" Content="Mute Microphone" VerticalContentAlignment="Center" 
@@ -30,9 +30,9 @@
 
             <!-- Row 2: Mute Speaker checkbox -->
             <Label Grid.Column="0" Grid.Row="2" Content="Mute Speaker" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left" Name="MuteSpeakerLabel">
+                   HorizontalAlignment="Left" Name="MuteSpeakerLabel" Visibility="Collapsed">
             </Label>
-            <CheckBox Grid.Column="2" Grid.Row="2" Checked="OnMuteSpeaker" Unchecked="OnMuteSpeaker" HorizontalAlignment="Center" VerticalAlignment="Center" Name="MuteSpeakerCheckBox"/>
+            <CheckBox Grid.Column="2" Grid.Row="2" Checked="OnMuteSpeaker" Unchecked="OnMuteSpeaker" HorizontalAlignment="Center" VerticalAlignment="Center" Name="MuteSpeakerCheckBox" Visibility="Collapsed"/>
 
             <!-- Row 3: Audio Codecs Label -->
             <Label Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3"  Content="Audio Codecs" VerticalContentAlignment="Center"  Background="Gray">

@@ -168,6 +168,8 @@ namespace VATRP.Core.Model
             }
         }
 
+        //public List<VATRPCodec> AvailableAudioCodecsList = new List<VATRPCodec>();
+        //public List<VATRPCodec> AvailableVideoCodecsList = new List<VATRPCodec>();
         public List<VATRPCodec> AudioCodecsList = new List<VATRPCodec>();
         public List<VATRPCodec> VideoCodecsList = new List<VATRPCodec>();
 
