@@ -68,12 +68,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         public void OnStunServerChanged(Object sender, RoutedEventArgs args)
         {
             string newStunServer = StunServerTextBox.Text;
-            if (string.IsNullOrEmpty(newStunServer))
-            {
-                string oldStunServer = App.CurrentAccount.STUNAddress;
-                StunServerTextBox.Text = oldStunServer;
-            }
-            else
+            // VATRP-1949: removed check for empty stun server. However - maybe we want a test here so that if the user has
+            //  Stun Server checkbox enabled we prompt the user if the value does not look like a valid address?
+            if (App.CurrentAccount != null)
             {
                 App.CurrentAccount.STUNAddress = newStunServer;
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
@@ -83,19 +80,18 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         public void OnStunServerPortChanged(Object sender, RoutedEventArgs args)
         {
             string newStunServerPort = StunServerPortTextBox.Text;
-            if (string.IsNullOrEmpty(newStunServerPort))
-            {
-                string oldStunServerPort = App.CurrentAccount.STUNPort.ToString();
-                StunServerPortTextBox.Text = oldStunServerPort;
-            }
-            else
+            if (App.CurrentAccount != null)
             {
                 ushort port = 0;
                 ushort.TryParse(newStunServerPort, out port);
                 if (port < 1 || port > 65535)
                 {
-                    MessageBox.Show("Incorrect STUN port", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
+                    if (App.CurrentAccount.EnableSTUN)
+                    {
+                        MessageBox.Show("Incorrect STUN port", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
+                        StunServerPortTextBox.Text = App.CurrentAccount.STUNPort.ToString();
+                        return;
+                    }
                 } 
                 App.CurrentAccount.STUNPort = port;
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
