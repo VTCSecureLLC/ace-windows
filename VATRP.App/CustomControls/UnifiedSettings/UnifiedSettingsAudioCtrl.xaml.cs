@@ -96,7 +96,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             return changed;
         }
 
-        public override void SaveData()
+        public override void SaveData() // called when we leave this page
         {
             if (App.CurrentAccount == null)
                 return;
@@ -106,6 +106,16 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 var cfgCodec = item as VATRPCodec;
                 if (cfgCodec != null)
                 {
+                    // not working, commenting out to get the other items in
+                    // TODO: this is ugly too - handling the fact that we are displaying a different set than linphone is providing.
+                    //foreach (var availableAccountCodec in App.CurrentAccount.AudioCodecsList)
+                    //{
+                    //    if (availableAccountCodec.CodecName == cfgCodec.CodecName && availableAccountCodec.Channels == cfgCodec.Channels &&
+                    //        availableAccountCodec.Rate == cfgCodec.Rate && availableAccountCodec.Status != cfgCodec.Status)
+                    //    {
+                    //        availableAccountCodec.Status = cfgCodec.Status;
+                    //    }
+                    //}
                     foreach (var accountCodec in App.CurrentAccount.AudioCodecsList)
                     {
                         if (accountCodec.CodecName == cfgCodec.CodecName && accountCodec.Channels == cfgCodec.Channels &&
@@ -113,6 +123,20 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                         {
                             accountCodec.Status = cfgCodec.Status;
                         }
+                        // not working, commenting out to get the other items in
+                        // ToDO: Note: this is very ugly, but will get the job done immediately and is working over a short list.
+                        //   a central settings handler like set up on Mac would isolate this logic away from the ui.
+                        //if (cfgCodec.CodecName.Equals("G711"))
+                       // {
+                            // find and set the pcma && pcmu to match the g711
+                         //   foreach (var existingAccountCodec in App.CurrentAccount.AudioCodecsList)
+                           // {
+                             //   if (existingAccountCodec.CodecName.ToLower().Equals("pcmu") || existingAccountCodec.CodecName.ToLower().Equals("pcma"))
+                               // {
+                                 //   existingAccountCodec.Status = cfgCodec.Status;
+                             //   }
+                           // }
+                       // }
                     }
                 }
             }

@@ -57,10 +57,10 @@
 
             <!-- Row 5: Preferred Video Size -->
             <Label Grid.Column="0" Grid.Row="5" Content="Preferred Video Size" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left" Name="PreferredVideoSizeLabel">
+                   HorizontalAlignment="Left" Name="PreferredVideoSizeLabel" Visibility="Collapsed">
             </Label>
             <ComboBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" x:Name="PreferredVideoSizeComboBox" FontSize="14" Margin="0,3,0,3" Width="120" Height="24" 
-                       VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="OnPreferredVideoSize">
+                       VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="OnPreferredVideoSize" Visibility="Collapsed">
                 <TextBlock >qcif (176x144 )</TextBlock>
                 <TextBlock >cif (352x288 )</TextBlock>
                 <TextBlock >4cif (704x576 )</TextBlock>

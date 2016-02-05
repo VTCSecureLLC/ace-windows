@@ -115,6 +115,8 @@ namespace VATRP.Core.Interfaces
         void SetSpeakers(string deviceId);
         VATRPDevice GetSelectedSpeakers();
 
+
+        void SetRTCPFeedback(string settingValue);
         #endregion
 
 
