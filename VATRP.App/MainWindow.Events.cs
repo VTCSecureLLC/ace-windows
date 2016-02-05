@@ -789,6 +789,9 @@ namespace com.vtcsecure.ace.windows
 	            switch (WindowState)
 	            {
 	                case WindowState.Normal:
+                        this.SizeToContent = SizeToContent.WidthAndHeight;
+                        UpdateLayout();
+                        _mainViewModel.IsCallPanelDocked = true;
 	                    break;
 	                case WindowState.Minimized:
                         this.SizeToContent = SizeToContent.Manual;
