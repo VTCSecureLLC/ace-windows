@@ -66,6 +66,8 @@ namespace VATRP.Core.Services
         private LinphoneRegistrationState currentRegistrationState;
         private IntPtr _linphoneAudioCodecsList = IntPtr.Zero;
         private IntPtr _linphoneVideoCodecsList = IntPtr.Zero;
+        private List<IntPtr> _declinedCallsList = new List<IntPtr>();
+        
         #endregion
 
 		#region Delegates
@@ -1941,6 +1943,10 @@ namespace VATRP.Core.Services
                     removeCall = true;
 					break;
 				case LinphoneCallState.LinphoneCallReleased:
+			        if (_declinedCallsList.Contains(callPtr))
+			        {
+			            _declinedCallsList.Remove(callPtr);
+			        }
 			        return;
 			}
 
@@ -1948,58 +1954,74 @@ namespace VATRP.Core.Services
 		    {
 		        VATRPCall call = FindCall(callPtr);
 
-		        if (call == null && !removeCall)
+		        if (call == null)
 		        {
-		            LOG.Info("Call not found. Adding new call into list. ID - " + callPtr + " Calls count: " + callsList.Count);
-		            call = new VATRPCall(callPtr) {CallState = newstate, CallDirection = direction};
-		            CallParams from = direction == LinphoneCallDir.LinphoneCallIncoming ? call.From : call.To;
-		            CallParams to = direction == LinphoneCallDir.LinphoneCallIncoming ? call.To : call.From;
+		            if (_declinedCallsList.Contains(callPtr))
+		                return;
 
-		            if (
-		                !VATRPCall.ParseSipAddressEx(remoteParty, out from.DisplayName, out from.Username,
-		                    out from.HostAddress,
-		                    out from.HostPort))
-		                from.Username = "Unknown user";
-
-		            if (
-		                !VATRPCall.ParseSipAddressEx(remoteParty, out to.DisplayName, out to.Username, out to.HostAddress,
-		                    out to.HostPort))
-		                to.Username = "Unknown user";
-                    
-                    IntPtr chatPtr = LinphoneAPI.linphone_call_get_chat_room(callPtr);
-
-		            if (chatPtr != IntPtr.Zero)
+		            if (GetActiveCallsCount > 1)
 		            {
-		                VATRPContact contact;
-		                var contactAddress = string.Empty;
-		                if (direction == LinphoneCallDir.LinphoneCallIncoming)
-		                {
-		                    contactAddress = string.Format("{0}@{1}", from.Username, from.HostAddress);
-		                    contact = new VATRPContact(new ContactID(contactAddress, chatPtr))
-		                    {
-		                        DisplayName = from.DisplayName,
-		                        Fullname = from.Username,
-		                        SipUsername = from.Username
-		                    };
-		                }
-		                else
-		                {
-		                    contactAddress = string.Format("{0}@{1}", to.Username, to.HostAddress);
-		                    contact = new VATRPContact(new ContactID(contactAddress, chatPtr))
-		                    {
-		                        DisplayName = to.DisplayName,
-		                        Fullname = to.Username,
-		                        SipUsername = to.Username
-		                    };
-		                }
-		                contact.RegistrationName = contactAddress;
-		                call.ChatRoom = new VATRPChat(contact, "rtt");
-		                var loggedContact = manager.ContactService.FindLoggedInContact();
-		                if (loggedContact != null)
-		                    call.ChatRoom.AddContact(loggedContact);
+		                var cmd = new DeclineCallCommand(callPtr, LinphoneReason.LinphoneReasonDeclined);
+		                commandQueue.Enqueue(cmd);
+                        _declinedCallsList.Add(callPtr);
+		                return;
 		            }
 
-		            callsList.Add(call);
+		            if (!removeCall)
+		            {
+		                LOG.Info("Call not found. Adding new call into list. ID - " + callPtr + " Calls count: " +
+		                         callsList.Count);
+
+		                call = new VATRPCall(callPtr) {CallState = newstate, CallDirection = direction};
+		                CallParams from = direction == LinphoneCallDir.LinphoneCallIncoming ? call.From : call.To;
+		                CallParams to = direction == LinphoneCallDir.LinphoneCallIncoming ? call.To : call.From;
+
+		                if (
+		                    !VATRPCall.ParseSipAddressEx(remoteParty, out from.DisplayName, out from.Username,
+		                        out from.HostAddress,
+		                        out from.HostPort))
+		                    from.Username = "Unknown user";
+
+		                if (
+		                    !VATRPCall.ParseSipAddressEx(remoteParty, out to.DisplayName, out to.Username, out to.HostAddress,
+		                        out to.HostPort))
+		                    to.Username = "Unknown user";
+
+		                IntPtr chatPtr = LinphoneAPI.linphone_call_get_chat_room(callPtr);
+
+		                if (chatPtr != IntPtr.Zero)
+		                {
+		                    VATRPContact contact;
+		                    var contactAddress = string.Empty;
+		                    if (direction == LinphoneCallDir.LinphoneCallIncoming)
+		                    {
+		                        contactAddress = string.Format("{0}@{1}", from.Username, from.HostAddress);
+		                        contact = new VATRPContact(new ContactID(contactAddress, chatPtr))
+		                        {
+		                            DisplayName = from.DisplayName,
+		                            Fullname = from.Username,
+		                            SipUsername = from.Username
+		                        };
+		                    }
+		                    else
+		                    {
+		                        contactAddress = string.Format("{0}@{1}", to.Username, to.HostAddress);
+		                        contact = new VATRPContact(new ContactID(contactAddress, chatPtr))
+		                        {
+		                            DisplayName = to.DisplayName,
+		                            Fullname = to.Username,
+		                            SipUsername = to.Username
+		                        };
+		                    }
+		                    contact.RegistrationName = contactAddress;
+		                    call.ChatRoom = new VATRPChat(contact, "rtt");
+		                    var loggedContact = manager.ContactService.FindLoggedInContact();
+		                    if (loggedContact != null)
+		                        call.ChatRoom.AddContact(loggedContact);
+		                }
+
+		                callsList.Add(call);
+		            }
 		        }
 
 		        if (call != null)
