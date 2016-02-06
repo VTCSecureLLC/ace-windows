@@ -1190,7 +1190,7 @@ namespace VATRP.LinphoneWrapper
         public static extern float linphone_call_stats_get_receiver_interarrival_jitter(IntPtr stats, IntPtr call);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_call_stats_get_rtp_stats(IntPtr stats);
+        public static extern RtpStats linphone_call_stats_get_rtp_stats(IntPtr stats);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern UInt64 linphone_call_stats_get_late_packets_cumulative_number(IntPtr stats, IntPtr call);
