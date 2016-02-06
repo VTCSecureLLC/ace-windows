@@ -62,16 +62,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 }
             }
 
-            foreach (var item in PreferredVideoSizeComboBox.Items)
-            {
-                var tb = item as TextBlock;
-                if (GetPreferredVideoSizeId(tb).Equals(App.CurrentAccount.PreferredVideoId))
-                {
-                    PreferredVideoSizeComboBox.SelectedItem = item;
-                    break;
-                }
-            }
-
             VideoCodecsListView.ItemsSource = App.CurrentAccount.VideoCodecsList;
             _codecsView = (CollectionView)CollectionViewSource.GetDefaultView(VideoCodecsListView.ItemsSource);
             if (_codecsView != null)
@@ -131,12 +121,6 @@ Default value = 1
                 return true;
             }
 
-            if (IsPreferredVideoSizeChanged())
-            {
-                return true;
-            }
-
-
             // video codecs
             foreach (var item in VideoCodecsListView.Items)
             {
@@ -173,21 +157,6 @@ Default value = 1
             return false;
         }
 
-        private bool IsPreferredVideoSizeChanged()
-        {
-            if (App.CurrentAccount == null)
-                return false;
-
-            var tb = PreferredVideoSizeComboBox.SelectedItem as TextBlock;
-            string str = GetPreferredVideoSizeId(tb);
-            if ((string.IsNullOrWhiteSpace(str) && !string.IsNullOrWhiteSpace(App.CurrentAccount.PreferredVideoId)) ||
-                (!string.IsNullOrWhiteSpace(str) && string.IsNullOrWhiteSpace(App.CurrentAccount.PreferredVideoId)))
-                return true;
-            if ((!string.IsNullOrWhiteSpace(str) && !string.IsNullOrWhiteSpace(App.CurrentAccount.PreferredVideoId)) &&
-                (!str.Equals(App.CurrentAccount.PreferredVideoId)))
-                return true;
-            return false;
-        }
 
         private bool IsRtcpFeedbackChanged()
         {
@@ -219,15 +188,6 @@ Default value = 1
                 return null;
             }
             return value;
-        }
-
-        private string GetPreferredVideoSizeId(TextBlock tb)
-        {
-            if (tb == null)
-                return string.Empty;
-
-            var index = tb.Text.IndexOf(" (", System.StringComparison.Ordinal);
-            return index != -1 ? tb.Text.Substring(0, index).Trim() : string.Empty;
         }
 
         #endregion
@@ -298,29 +258,6 @@ Default value = 1
                 }
                 
                 App.CurrentAccount.VideoPreset = str;
-            }
-            ServiceManager.Instance.ApplyMediaSettingsChanges();
-            ServiceManager.Instance.SaveAccountSettings();
-        }
-
-        private void OnPreferredVideoSize(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Preferred Video Size Clicked");
-            if (App.CurrentAccount == null)
-                return;
-            if (!IsPreferredVideoSizeChanged())
-            {
-                return;
-            }
-
-            var tb = PreferredVideoSizeComboBox.SelectedItem as TextBlock;
-            if (tb != null)
-            {
-                string str = GetPreferredVideoSizeId(tb);
-                if (string.IsNullOrWhiteSpace(str))
-                    return;
-                // check to see if the value changed
-                App.CurrentAccount.PreferredVideoId = str;
             }
             ServiceManager.Instance.ApplyMediaSettingsChanges();
             ServiceManager.Instance.SaveAccountSettings();
