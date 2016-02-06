@@ -54,6 +54,7 @@ namespace com.vtcsecure.ace.windows
         private readonly MainControllerViewModel _mainViewModel;
         private Size CombinedUICallViewSize = new Size(700, 700);
         private Point _lastWindowPosition;
+        private bool _playRegisterNotify = true;
         private readonly DispatcherTimer deferredHideTimer = new DispatcherTimer()
         {
             Interval = TimeSpan.FromMilliseconds(2000),

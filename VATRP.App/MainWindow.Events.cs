@@ -561,10 +561,15 @@ namespace com.vtcsecure.ace.windows
 					this.BtnSettings.IsEnabled = false;
 			        return;
 				case LinphoneRegistrationState.LinphoneRegistrationOk:
-					ServiceManager.Instance.SoundService.PlayConnectionChanged(true);
+			        if (_playRegisterNotify)
+			        {
+			            _playRegisterNotify = false;
+			            ServiceManager.Instance.SoundService.PlayConnectionChanged(true);
+			        }
 					break;
 				case LinphoneRegistrationState.LinphoneRegistrationFailed:
 					ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
+			        _playRegisterNotify = true;
                     if (signOutRequest || defaultConfigRequest)
                     {
                         processSignOut = true;
@@ -573,6 +578,7 @@ namespace com.vtcsecure.ace.windows
 				case LinphoneRegistrationState.LinphoneRegistrationCleared:
 					
 					ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
+			        _playRegisterNotify = true;
 					if (registerRequested)
 					{
 						registerRequested = false;
