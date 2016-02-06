@@ -177,8 +177,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
                     config.sip_register_port = port;
 
                 config.sip_register_transport = string.IsNullOrEmpty(TransportComboBox.Text)
-                    ? "tcp"
-                    : TransportComboBox.Text.ToLower();
+                    ? "TCP"
+                    : TransportComboBox.Text;
             }
 
             // otherwise the login was valid, proceed
