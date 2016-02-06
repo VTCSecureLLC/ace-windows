@@ -119,12 +119,12 @@ namespace com.vtcsecure.ace.windows
                         _mainViewModel.IsCallPanelDocked = true;
 
 					_flashWindowHelper.FlashWindow(this);
-			        if (WindowState != WindowState.Minimized)
-			        {
-			            Topmost = true;
-			            Activate();
-			            Topmost = false;
-			        }
+			        if (WindowState == WindowState.Minimized)
+                        this.WindowState = WindowState.Normal;
+                    
+                    Topmost = true;
+                    Activate();
+                    Topmost = false;
 			        break;
 				case VATRPCallState.Ringing:
                     this.ShowSelfPreviewItem.IsEnabled = false;
