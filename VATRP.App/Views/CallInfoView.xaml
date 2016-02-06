@@ -9,13 +9,13 @@
                    StateChanged="Window_StateChanged" 
                    LocationChanged="Window_LocationChanged" 
                    SourceInitialized="Window_Initialized"
-                   Unloaded="Window_Unloaded">
+                   Unloaded="Window_Unloaded" SizeToContent="WidthAndHeight" Icon="/ACE;component/Resources/vatrp.ico">
     <Window.Resources>
         <converters:CallQualityConverter x:Key="cqc"/>
     </Window.Resources>
-    <Grid>
+    <Grid Margin="10">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>

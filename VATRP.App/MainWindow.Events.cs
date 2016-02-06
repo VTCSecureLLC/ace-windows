@@ -67,58 +67,13 @@ namespace com.vtcsecure.ace.windows
 
                 callViewModel.VideoWidth = (int)CombinedUICallViewSize.Width;
 			    callViewModel.VideoHeight = (int)CombinedUICallViewSize.Height;
-#if false
-				switch (App.CurrentAccount.PreferredVideoId.ToLower())
-				{
-					case "qcif":
-						callViewModel.VideoWidth = (int)MSVideoSize.MS_VIDEO_SIZE_QCIF_W;
-						callViewModel.VideoHeight = (int)MSVideoSize.MS_VIDEO_SIZE_QCIF_H;
-						break;
-					case "cif":
-						callViewModel.VideoWidth = (int)MSVideoSize.MS_VIDEO_SIZE_CIF_W;
-						callViewModel.VideoHeight = (int)MSVideoSize.MS_VIDEO_SIZE_CIF_H;
-						break;
-					case "4cif":
-						callViewModel.VideoWidth = (int)MSVideoSize.MS_VIDEO_SIZE_4CIF_W;
-						callViewModel.VideoHeight = (int)MSVideoSize.MS_VIDEO_SIZE_4CIF_H;
-						break;
-					case "vga":
-						callViewModel.VideoWidth = (int)MSVideoSize.MS_VIDEO_SIZE_VGA_W;
-						callViewModel.VideoHeight = (int)MSVideoSize.MS_VIDEO_SIZE_VGA_H;
-						break;
-					case "svga":
-						callViewModel.VideoWidth = (int)MSVideoSize.MS_VIDEO_SIZE_SVGA_W;
-						callViewModel.VideoHeight = (int)MSVideoSize.MS_VIDEO_SIZE_SVGA_H;
-						break;
-					default:
-						callViewModel.VideoWidth = (int)MSVideoSize.MS_VIDEO_SIZE_CIF_W;
-						callViewModel.VideoHeight = (int)MSVideoSize.MS_VIDEO_SIZE_CIF_H;
-						break;
-				}
-#endif
 				_mainViewModel.AddCalViewModel(callViewModel);
 			}
 
-		    if (call.CallState == VATRPCallState.InProgress)
+		    if ((call.CallState == VATRPCallState.InProgress) ||
+                (call.CallState == VATRPCallState.StreamsRunning))
 		    {
-		        if (_linphoneService.GetActiveCallsCount == 2)
-		        {
-		            // check to ensure we have not ringing call
-		            CallViewModel nextCall = _mainViewModel.GetNextViewModel(callViewModel);
-		            if (nextCall != null && (nextCall.ActiveCall.CallState == VATRPCallState.InProgress ||
-		                                     nextCall.ActiveCall.CallState == VATRPCallState.Ringing))
-		            {
-		                // decline call
-                        callViewModel.Declined = true;
-		                callViewModel.DeclineCall(true);
-		                return;
-		            }
-		        }
 		        _mainViewModel.ActiveCallModel = callViewModel;
-		    }
-		    else if (call.CallState == VATRPCallState.StreamsRunning)
-		    {
-                _mainViewModel.ActiveCallModel = callViewModel;
 		    }
 
 		    if (callViewModel.Declined)
@@ -164,12 +119,12 @@ namespace com.vtcsecure.ace.windows
                         _mainViewModel.IsCallPanelDocked = true;
 
 					_flashWindowHelper.FlashWindow(this);
-			        if (WindowState != WindowState.Minimized)
-			        {
-			            Topmost = true;
-			            Activate();
-			            Topmost = false;
-			        }
+			        if (WindowState == WindowState.Minimized)
+                        this.WindowState = WindowState.Normal;
+                    
+                    Topmost = true;
+                    Activate();
+                    Topmost = false;
 			        break;
 				case VATRPCallState.Ringing:
                     this.ShowSelfPreviewItem.IsEnabled = false;
@@ -561,10 +516,15 @@ namespace com.vtcsecure.ace.windows
 					this.BtnSettings.IsEnabled = false;
 			        return;
 				case LinphoneRegistrationState.LinphoneRegistrationOk:
-					ServiceManager.Instance.SoundService.PlayConnectionChanged(true);
+			        if (_playRegisterNotify)
+			        {
+			            _playRegisterNotify = false;
+			            ServiceManager.Instance.SoundService.PlayConnectionChanged(true);
+			        }
 					break;
 				case LinphoneRegistrationState.LinphoneRegistrationFailed:
 					ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
+			        _playRegisterNotify = true;
                     if (signOutRequest || defaultConfigRequest)
                     {
                         processSignOut = true;
@@ -573,6 +533,7 @@ namespace com.vtcsecure.ace.windows
 				case LinphoneRegistrationState.LinphoneRegistrationCleared:
 					
 					ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
+			        _playRegisterNotify = true;
 					if (registerRequested)
 					{
 						registerRequested = false;
