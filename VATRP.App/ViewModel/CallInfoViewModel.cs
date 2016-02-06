@@ -30,6 +30,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private string _rtpProfile;
         private float _quality;
         private bool _avpfenabled = false;
+        private LinphoneCallStats _audioStats;
+        private LinphoneCallStats _videoStats;
         #endregion
 
         public CallInfoViewModel()
@@ -198,8 +200,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
 
             ServiceManager.Instance.LinphoneService.LockCalls();
-            LinphoneCallStats audioStats = ServiceManager.Instance.LinphoneService.GetCallAudioStats(call.NativeCallPtr);
-            LinphoneCallStats videoStats = ServiceManager.Instance.LinphoneService.GetCallVideoStats(call.NativeCallPtr);
+            ServiceManager.Instance.LinphoneService.GetCallAudioStats(call.NativeCallPtr, ref _audioStats);
+            ServiceManager.Instance.LinphoneService.GetCallVideoStats(call.NativeCallPtr, ref _videoStats);
 
             IntPtr curparams = ServiceManager.Instance.LinphoneService.GetCallParams(call.NativeCallPtr);
             if (curparams != IntPtr.Zero)
@@ -241,12 +243,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     {
                         VideoCodec = videoCodecName;
                         UploadBandwidth = string.Format("{0:0.##} kbit/s a {1:0.##} kbit/s v {2:0.##} kbit/s",
-                            audioStats.upload_bandwidth + videoStats.upload_bandwidth, audioStats.upload_bandwidth,
-                            videoStats.upload_bandwidth);
+                            _audioStats.upload_bandwidth + _videoStats.upload_bandwidth, _audioStats.upload_bandwidth,
+                            _videoStats.upload_bandwidth);
 
                         DownloadBandwidth = string.Format("{0:0.##} kbit/s a {1:0.##} kbit/s v {2:0.##} kbit/s",
-                            audioStats.download_bandwidth + videoStats.download_bandwidth, audioStats.download_bandwidth,
-                            videoStats.download_bandwidth);
+                            _audioStats.download_bandwidth + _videoStats.download_bandwidth, _audioStats.download_bandwidth,
+                            _videoStats.download_bandwidth);
                         ReceivingFPS = ServiceManager.Instance.LinphoneService.GetFrameRate(curparams, false);
                         SendingFPS = ServiceManager.Instance.LinphoneService.GetFrameRate(curparams, true);
                         var vs = ServiceManager.Instance.LinphoneService.GetVideoSize(curparams, false);
@@ -261,12 +263,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
                         VideoCodec = "Not used";
                         ReceivingFPS = 0;
                         SendingFPS = 0;
-                        UploadBandwidth = string.Format("a {0:0.##} kbit/s", audioStats.upload_bandwidth);
-                        DownloadBandwidth = string.Format("a {0:0.##} kbit/s", audioStats.download_bandwidth);
+                        UploadBandwidth = string.Format("a {0:0.##} kbit/s", _audioStats.upload_bandwidth);
+                        DownloadBandwidth = string.Format("a {0:0.##} kbit/s", _audioStats.download_bandwidth);
                         ReceivingVideoResolution = "N/A";
                         SendingVideoResolution = "N/A";
                     }
-                    switch ((LinphoneIceState)audioStats.ice_state)
+                    switch ((LinphoneIceState)_audioStats.ice_state)
                     {
                         case LinphoneIceState.LinphoneIceStateNotActivated:
                             IceSetup = "Not Activated";
@@ -326,11 +328,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
             AVPFEnabled = false;
         }
 
-        internal void OnCallStatisticsChanged(VATRPCall call, LinphoneCallStats stats)
+        internal void OnCallStatisticsChanged(VATRPCall call)
         {
             if (ServiceManager.Instance.Dispatcher.Thread != Thread.CurrentThread)
             {
-                ServiceManager.Instance.Dispatcher.BeginInvoke((Action)(() => this.OnCallStatisticsChanged(call, stats)));
+                ServiceManager.Instance.Dispatcher.BeginInvoke((Action)(() => this.OnCallStatisticsChanged(call)));
                 return;
             }
             
