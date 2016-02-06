@@ -123,7 +123,7 @@ namespace VATRP.Core.Services
 		public delegate void NotifyReceivedDelegate(string notify_event);
 		public event NotifyReceivedDelegate NotifyReceivedEvent;
 
-        public delegate void CallStatisticsChangedDelegate(VATRPCall call, LinphoneCallStats stats);
+        public delegate void CallStatisticsChangedDelegate(VATRPCall call);
         public event CallStatisticsChangedDelegate CallStatisticsChangedEvent;
 
         public delegate void IsComposingReceivedDelegate(string remoteUser, IntPtr chatPtr, uint rttCode);
@@ -2050,10 +2050,8 @@ namespace VATRP.Core.Services
                 VATRPCall call = FindCall(callPtr);
                 if (call != null)
                 {
-                    var callStats =
-                        (LinphoneCallStats) Marshal.PtrToStructure(statsPtr, typeof (LinphoneCallStats));
                     if (CallStatisticsChangedEvent != null)
-                        CallStatisticsChangedEvent(call, callStats);
+                        CallStatisticsChangedEvent(call);
                 }
             }
         }
@@ -2229,7 +2227,7 @@ namespace VATRP.Core.Services
             return (LinphoneMediaEncryption)LinphoneAPI.linphone_call_params_get_media_encryption(curparams);
         }
 
-	    public LinphoneCallStats GetCallAudioStats(IntPtr callPtr)
+	    public void GetCallAudioStats(IntPtr callPtr, ref LinphoneCallStats stat)
 	    {
 	        lock (callLock)
 	        {
@@ -2241,14 +2239,18 @@ namespace VATRP.Core.Services
 
 	                if (statsPtr != IntPtr.Zero)
 	                {
-	                    return (LinphoneCallStats) Marshal.PtrToStructure(statsPtr, typeof (LinphoneCallStats));
+                        stat.download_bandwidth = LinphoneAPI.linphone_call_stats_get_download_bandwidth(statsPtr);
+                        stat.upload_bandwidth = LinphoneAPI.linphone_call_stats_get_upload_bandwidth(statsPtr);
+                        stat.ice_state = LinphoneAPI.linphone_call_stats_get_ice_state(statsPtr);
+                        stat.upnp_state = LinphoneAPI.linphone_call_stats_get_upnp_state(statsPtr);
+                        stat.total_late_packets = LinphoneAPI.linphone_call_stats_get_late_packets_cumulative_number(statsPtr, callPtr);
+                        stat.rtp_stats = LinphoneAPI.linphone_call_stats_get_rtp_stats(statsPtr);
 	                }
 	            }
 	        }
-	        return new LinphoneCallStats(); 
         }
 
-        public LinphoneCallStats GetCallVideoStats(IntPtr callPtr)
+        public void GetCallVideoStats(IntPtr callPtr, ref LinphoneCallStats stat)
         {
             lock (callLock)
             {
@@ -2260,11 +2262,15 @@ namespace VATRP.Core.Services
 
                     if (statsPtr != IntPtr.Zero)
                     {
-                        return (LinphoneCallStats) Marshal.PtrToStructure(statsPtr, typeof (LinphoneCallStats));
+                        stat.download_bandwidth = LinphoneAPI.linphone_call_stats_get_download_bandwidth(statsPtr);
+                        stat.upload_bandwidth = LinphoneAPI.linphone_call_stats_get_upload_bandwidth(statsPtr);
+                        stat.ice_state = LinphoneAPI.linphone_call_stats_get_ice_state(statsPtr);
+                        stat.upnp_state = LinphoneAPI.linphone_call_stats_get_upnp_state(statsPtr);
+                        stat.total_late_packets = LinphoneAPI.linphone_call_stats_get_late_packets_cumulative_number(statsPtr, callPtr);
+                        stat.rtp_stats = LinphoneAPI.linphone_call_stats_get_rtp_stats(statsPtr);
                     }
                 }
             }
-            return new LinphoneCallStats();
         }
 
         public void GetUsedPorts(out int sipPort, out int rtpPort)
@@ -2345,7 +2351,6 @@ namespace VATRP.Core.Services
         }
 
         #endregion
-
 
         #region IVATRPInterface
 
