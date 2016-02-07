@@ -189,6 +189,20 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 {
                     config.user_is_agent = false;
                 }
+                
+
+                //Allow user override of transport 
+                var transportText = TransportComboBox.SelectedItem as TextBlock;
+                if (transportText != null && config.sip_register_transport.ToLower() != transportText.Text.ToLower())
+                {
+                    config.sip_register_transport = transportText.Text;
+                }
+                //Allow user override of proxy port
+                ushort port;
+                if (ushort.TryParse(HostPortBox.Text, out port) && config.sip_register_port != port)
+                {
+                    config.sip_register_port = port;
+                }
                 config.UpdateVATRPAccountFromACEConfig(App.CurrentAccount);
                 App.CurrentAccount.AutoLogin = this.AutoLoginBox.IsChecked ?? false;
                 UpdateConfigServiceFromACEConfig(config);
