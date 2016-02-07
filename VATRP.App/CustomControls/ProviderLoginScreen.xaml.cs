@@ -129,88 +129,93 @@ namespace com.vtcsecure.ace.windows.CustomControls
             //{
             //    HostnameBox.Text = provider.Address; //Don't change field value during login click
             //}
-            string address = HostnameBox.Text;
-            ACEConfig config = ConfigLookup.LookupConfig(address, userName, password);
-            if ((config == null) || (config.configStatus == ACEConfigStatusType.LOGIN_UNAUTHORIZED))
+            var transportText = TransportComboBox.SelectedItem as TextBlock;
+            if (transportText.Text.ToLower() != "tls") //TLS login with autofig is currently failing so revert to old login logic for TLS
             {
-                // login failed
-                MessageBox.Show("The login Failed. Please enter a valid user name and password.", "Valid Login Required");
-                return;
-            }
-            // VATRP-1271: to do - handle ACEConfigStatusType Appropriately. For the moment (during devel & debug) show the resulting message to the user.
-            if (config.configStatus != ACEConfigStatusType.LOGIN_SUCCEESSFUL)
-            {
-                // there was some sort of error - expose information to user for now. Once ready, log and handle. In some cases we will still want a specific message
-                string message;
-                switch (config.configStatus)
+                string address = HostnameBox.Text;
+                ACEConfig config = ConfigLookup.LookupConfig(address, userName, password);
+                if ((config == null) || (config.configStatus == ACEConfigStatusType.LOGIN_UNAUTHORIZED))
                 {
+                    // login failed
+                    MessageBox.Show("The login Failed. Please enter a valid user name and password.", "Valid Login Required");
+                    return;
+                }
+                // VATRP-1271: to do - handle ACEConfigStatusType Appropriately. For the moment (during devel & debug) show the resulting message to the user.
+                if (config.configStatus != ACEConfigStatusType.LOGIN_SUCCEESSFUL)
+                {
+                    // there was some sort of error - expose information to user for now. Once ready, log and handle. In some cases we will still want a specific message
+                    string message;
+                    switch (config.configStatus)
+                    {
                         // ToDo note : the text here is a little bit different for each message - enough to let the developer know what to look for
                         //   without being too much for the user. Once we have codes worked out we can use codes in our messages that will help
                         //   in customer support.
-                    case ACEConfigStatusType.CONNECTION_FAILED: message = "Unable to obtain configuration information from the server.";
-                        break;
-                    case ACEConfigStatusType.SRV_RECORD_NOT_FOUND: message = "The SRV Record was not found.";
-                        break;
-                    case ACEConfigStatusType.UNABLE_TO_PARSE : message = "Unable to parse the configuration information.";
-                        break;
-                    default:
-                        message = "An error occured while obtaining the configuration. Status Type=" + config.configStatus.ToString();
-                        break;
-                }
-                MessageBox.Show(message, "Error Obtaining Configuration Status");
-                //return;  //Continue attempting manual registration if configuration failed
-                Login_old();
-            }
-            else { 
-                // otherwise the login was valid, proceed
-                // 
-                if (string.IsNullOrEmpty(config.sip_auth_password) || string.IsNullOrEmpty(config.sip_auth_username))
-                {
-                    config.sip_auth_username = userName;
-                    config.sip_auth_password = password;
-                }
-
-                var account = ServiceManager.Instance.AccountService.FindAccount(config.sip_auth_username, config.sip_register_domain);//, HostnameBox.Text);
-                if (account != null)
-                {
-                    App.CurrentAccount = account;
+                        case ACEConfigStatusType.CONNECTION_FAILED: message = "Unable to obtain configuration information from the server.";
+                            break;
+                        case ACEConfigStatusType.SRV_RECORD_NOT_FOUND: message = "The SRV Record was not found.";
+                            break;
+                        case ACEConfigStatusType.UNABLE_TO_PARSE: message = "Unable to parse the configuration information.";
+                            break;
+                        default:
+                            message = "An error occured while obtaining the configuration. Status Type=" + config.configStatus.ToString();
+                            break;
+                    }
+                    MessageBox.Show(message, "Error Obtaining Configuration Status");
+                    //return;  //Continue attempting manual registration if configuration failed
+                    Login_old();
                 }
                 else
                 {
-                    ServiceManager.Instance.AccountService.AddAccount(App.CurrentAccount);
-                }
-                // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
-                //  This will ultimately be set by the configuration resources from Ace Connect.
-                if (config.sip_auth_username.Equals("agent_1"))
-                {
-                    config.user_is_agent = true;
-                }
-                else
-                {
-                    config.user_is_agent = false;
-                }
-                
+                    // otherwise the login was valid, proceed
+                    // 
+                    if (string.IsNullOrEmpty(config.sip_auth_password) || string.IsNullOrEmpty(config.sip_auth_username))
+                    {
+                        config.sip_auth_username = userName;
+                        config.sip_auth_password = password;
+                    }
+                    //Allow user override of transport                     
+                    if (transportText != null && config.sip_register_transport.ToLower() != transportText.Text.ToLower())
+                    {
+                        config.sip_register_transport = transportText.Text;
+                    }
+                    //Allow user override of proxy port
+                    ushort port;
+                    if (ushort.TryParse(HostPortBox.Text, out port) && config.sip_register_port != port)
+                    {
+                        config.sip_register_port = port;
+                    }
 
-                //Allow user override of transport 
-                var transportText = TransportComboBox.SelectedItem as TextBlock;
-                if (transportText != null && config.sip_register_transport.ToLower() != transportText.Text.ToLower())
-                {
-                    config.sip_register_transport = transportText.Text;
+                    var account = ServiceManager.Instance.AccountService.FindAccount(config.sip_auth_username, config.sip_register_domain);//, HostnameBox.Text);
+                    if (account != null)
+                    {
+                        App.CurrentAccount = account;
+                    }
+                    else
+                    {
+                        ServiceManager.Instance.AccountService.AddAccount(App.CurrentAccount);
+                    }
+                    // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
+                    //  This will ultimately be set by the configuration resources from Ace Connect.
+                    if (config.sip_auth_username.Equals("agent_1"))
+                    {
+                        config.user_is_agent = true;
+                    }
+                    else
+                    {
+                        config.user_is_agent = false;
+                    }
+                    config.UpdateVATRPAccountFromACEConfig(App.CurrentAccount);
+                    App.CurrentAccount.AutoLogin = this.AutoLoginBox.IsChecked ?? false;
+                    UpdateConfigServiceFromACEConfig(config);
+                    ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                        Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);
+                    ServiceManager.Instance.AccountService.Save();
+                    ServiceManager.Instance.RegisterNewAccount(App.CurrentAccount.AccountID);
+
                 }
-                //Allow user override of proxy port
-                ushort port;
-                if (ushort.TryParse(HostPortBox.Text, out port) && config.sip_register_port != port)
-                {
-                    config.sip_register_port = port;
-                }
-                config.UpdateVATRPAccountFromACEConfig(App.CurrentAccount);
-                App.CurrentAccount.AutoLogin = this.AutoLoginBox.IsChecked ?? false;
-                UpdateConfigServiceFromACEConfig(config);
-                ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-                    Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);
-                ServiceManager.Instance.AccountService.Save();
-                ServiceManager.Instance.RegisterNewAccount(App.CurrentAccount.AccountID);
             }
+            else
+            { Login_old(); }
         }
         private void UpdateConfigServiceFromACEConfig(ACEConfig config)
         {
