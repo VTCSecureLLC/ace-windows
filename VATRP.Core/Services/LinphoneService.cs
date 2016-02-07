@@ -59,6 +59,7 @@ namespace VATRP.Core.Services
         private LinphoneCoreMessageReceivedCb message_received;
         private LinphoneChatMessageCbsMsgStateChangedCb message_status_changed;
         private LinphoneCoreCallLogUpdatedCb call_log_updated;
+        private LinphoneCoreInfoReceivedCb info_received;
         private readonly string _chatLogPath;
         private readonly string _callLogPath;
         private readonly string _contactsPath;
@@ -107,6 +108,9 @@ namespace VATRP.Core.Services
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void LinphoneCoreCallLogUpdatedCb(IntPtr lc, IntPtr newcl);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void LinphoneCoreInfoReceivedCb(IntPtr lc, IntPtr call, IntPtr msg);
 		#endregion
 
 		#region Events
@@ -142,6 +146,9 @@ namespace VATRP.Core.Services
 
         public delegate void MWIReceivedDelegate(MWIEventArgs args);
         public event MWIReceivedDelegate OnMWIReceivedEvent;
+
+        public delegate void InfoReceivedDelegate(InfoEventBaseArgs args);
+        public event InfoReceivedDelegate OnCameraMuteEvent;
 
 		#endregion
 
@@ -253,6 +260,8 @@ namespace VATRP.Core.Services
             message_received = new LinphoneCoreMessageReceivedCb(OnMessageReceived);
             message_status_changed = new LinphoneChatMessageCbsMsgStateChangedCb(OnMessageStatusChanged);
             call_log_updated = new LinphoneCoreCallLogUpdatedCb(OnCallLogUpdated);
+            info_received = new LinphoneCoreInfoReceivedCb(OnInfoEventReceived);
+
 			vtable = new LinphoneCoreVTable()
 			{
 				global_state_changed = Marshal.GetFunctionPointerForDelegate(global_state_changed),
@@ -270,7 +279,7 @@ namespace VATRP.Core.Services
 				transfer_state_changed = IntPtr.Zero,
 				buddy_info_updated = IntPtr.Zero,
                 call_stats_updated = Marshal.GetFunctionPointerForDelegate(call_stats_updated),
-				info_received = IntPtr.Zero,
+				info_received = Marshal.GetFunctionPointerForDelegate(info_received),
 				subscription_state_changed = IntPtr.Zero,
 				notify_received = Marshal.GetFunctionPointerForDelegate(notify_received),
 				publish_state_changed = IntPtr.Zero,
@@ -461,6 +470,7 @@ namespace VATRP.Core.Services
             registration_state_changed = null;
             call_state_changed = null;
             notify_received = null;
+            info_received = null;
             message_received = null;
             message_status_changed = null;
             call_log_updated = null;
@@ -967,6 +977,31 @@ namespace VATRP.Core.Services
             // ToDo VATRP-842: Set static image instead of using default
             // LinphoneAPI.linphone_core_set_static_picture(linphoneCore, "Resources\\contacts.png");
             LinphoneAPI.linphone_call_enable_camera(callPtr, enableVideo);
+        }
+
+        public void SendCameraSwtichAsInfo(IntPtr callPtr, bool muteCamera)
+        {
+            if (linphoneCore == IntPtr.Zero)
+                return;
+
+            if (callPtr == IntPtr.Zero)
+            {
+                LOG.Error("LinphoneService.SendCameraSwtichAsInfo: Attempting to switch camera but the call pointer is null. Returing without modifying call.");
+                return;
+            }
+
+            LOG.Info("Send Mute Camera info. Call- " + callPtr + " Mute: " + muteCamera);
+
+            IntPtr im = LinphoneAPI.linphone_core_create_info_message(linphoneCore);
+            if (im == IntPtr.Zero)
+            {
+                LOG.Error("LinphoneService.SendCameraSwtichAsInfo: Failed to create info message");
+                return;
+            }
+            
+            LinphoneAPI.linphone_info_message_add_header(im, "action", !muteCamera ? "camera_mute_on" : "camera_mute_off");
+            LinphoneAPI.linphone_call_send_info_message(callPtr, im);
+            LinphoneAPI.linphone_info_message_destroy(im);
         }
 
         public void SendDtmf(VATRPCall call, char dtmf)
@@ -2061,6 +2096,32 @@ namespace VATRP.Core.Services
 
 		    if (NotifyReceivedEvent != null)
 				NotifyReceivedEvent(notified_event);
+		}
+		
+        private void OnInfoEventReceived(IntPtr lc, IntPtr callPtr, IntPtr msgPtr)
+		{
+			if (linphoneCore == IntPtr.Zero) 
+                return;
+            
+		    if (msgPtr != IntPtr.Zero)
+		    {
+		        lock (callLock)
+		        {
+                    VATRPCall call = FindCall(callPtr);
+
+		            if (call != null)
+		            {
+		                IntPtr valuePtr = LinphoneAPI.linphone_info_message_get_header(msgPtr, "action");
+		                if (valuePtr != IntPtr.Zero)
+		                {
+		                    string val = Marshal.PtrToStringAnsi(valuePtr);
+                            if (val == "camera_mute_on" || val == "camera_mute_off")
+                                if (OnCameraMuteEvent != null)
+                                    OnCameraMuteEvent(new CameraMuteEventArgs(call, val == "camera_mute_off"));
+		                }
+		            }
+		        }
+		    }
 		}
 
         private void OnCallStatsUpdated(IntPtr lc, IntPtr callPtr, IntPtr statsPtr)
