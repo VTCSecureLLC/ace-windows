@@ -124,11 +124,11 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 return;
             }
 
-            VATRPServiceProvider provider = (VATRPServiceProvider)ProviderComboBox.SelectedItem; 
-            if (provider != null)
-            {
-                HostnameBox.Text = provider.Address;
-            }
+            //VATRPServiceProvider provider = (VATRPServiceProvider)ProviderComboBox.SelectedItem; 
+            //if (provider != null)
+            //{
+            //    HostnameBox.Text = provider.Address; //Don't change field value during login click
+            //}
             string address = HostnameBox.Text;
             ACEConfig config = ConfigLookup.LookupConfig(address, userName, password);
             if ((config == null) || (config.configStatus == ACEConfigStatusType.LOGIN_UNAUTHORIZED))
@@ -158,42 +158,45 @@ namespace com.vtcsecure.ace.windows.CustomControls
                         break;
                 }
                 MessageBox.Show(message, "Error Obtaining Configuration Status");
-                return;
+                //return;  //Continue attempting manual registration if configuration failed
+                Login_old();
             }
-            // otherwise the login was valid, proceed
-            // 
-            if (string.IsNullOrEmpty(config.sip_auth_password) || string.IsNullOrEmpty(config.sip_auth_username))
-            {
-                config.sip_auth_username = userName;
-                config.sip_auth_password = password;
-            }
+            else { 
+                // otherwise the login was valid, proceed
+                // 
+                if (string.IsNullOrEmpty(config.sip_auth_password) || string.IsNullOrEmpty(config.sip_auth_username))
+                {
+                    config.sip_auth_username = userName;
+                    config.sip_auth_password = password;
+                }
 
-            var account = ServiceManager.Instance.AccountService.FindAccount(config.sip_auth_username, config.sip_register_domain);//, HostnameBox.Text);
-            if (account != null)
-            {
-                App.CurrentAccount = account;
+                var account = ServiceManager.Instance.AccountService.FindAccount(config.sip_auth_username, config.sip_register_domain);//, HostnameBox.Text);
+                if (account != null)
+                {
+                    App.CurrentAccount = account;
+                }
+                else
+                {
+                    ServiceManager.Instance.AccountService.AddAccount(App.CurrentAccount);
+                }
+                // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
+                //  This will ultimately be set by the configuration resources from Ace Connect.
+                if (config.sip_auth_username.Equals("agent_1"))
+                {
+                    config.user_is_agent = true;
+                }
+                else
+                {
+                    config.user_is_agent = false;
+                }
+                config.UpdateVATRPAccountFromACEConfig(App.CurrentAccount);
+                App.CurrentAccount.AutoLogin = this.AutoLoginBox.IsChecked ?? false;
+                UpdateConfigServiceFromACEConfig(config);
+                ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                    Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);
+                ServiceManager.Instance.AccountService.Save();
+                ServiceManager.Instance.RegisterNewAccount(App.CurrentAccount.AccountID);
             }
-            else
-            {
-                ServiceManager.Instance.AccountService.AddAccount(App.CurrentAccount);
-            }
-            // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
-            //  This will ultimately be set by the configuration resources from Ace Connect.
-            if (config.sip_auth_username.Equals("agent_1"))
-            {
-                config.user_is_agent = true;
-            }
-            else
-            {
-                config.user_is_agent = false;
-            }
-            config.UpdateVATRPAccountFromACEConfig(App.CurrentAccount);
-            App.CurrentAccount.AutoLogin = this.AutoLoginBox.IsChecked ?? false;
-            UpdateConfigServiceFromACEConfig(config);
-            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);
-            ServiceManager.Instance.AccountService.Save();
-            ServiceManager.Instance.RegisterNewAccount(App.CurrentAccount.AccountID);
         }
         private void UpdateConfigServiceFromACEConfig(ACEConfig config)
         {
@@ -204,6 +207,11 @@ namespace com.vtcsecure.ace.windows.CustomControls
             }
         }
         private void LoginCmd_Click_old(object sender, RoutedEventArgs e)
+        {
+            Login_old();
+        }
+
+        private void Login_old()
         {
             string username = LoginBox.Text;
             if (string.IsNullOrWhiteSpace(username))
