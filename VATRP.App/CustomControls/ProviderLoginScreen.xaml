@@ -74,7 +74,7 @@
                 <TextBlock Margin="3,2,3,2" Foreground="{StaticResource AppMainBorderBrush}" Text="Transport" FontSize="13" Grid.Row="6" Grid.Column="0" VerticalAlignment="Center"/>
 
                 <ComboBox Grid.Row="6" Grid.Column="1"  x:Name="TransportComboBox" FontSize="13"  Height="32" Margin="3" Width="165"
-                           VerticalAlignment="Center" HorizontalAlignment="Left" >
+                           VerticalAlignment="Center" HorizontalAlignment="Left" SelectedIndex="0" >
                     <TextBlock VerticalAlignment="Center">TCP</TextBlock>
                     <TextBlock VerticalAlignment="Center">TLS</TextBlock>
                 </ComboBox>
