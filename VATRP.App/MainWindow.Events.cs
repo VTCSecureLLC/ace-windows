@@ -10,6 +10,7 @@ using com.vtcsecure.ace.windows.Model;
 using com.vtcsecure.ace.windows.Services;
 using com.vtcsecure.ace.windows.ViewModel;
 using com.vtcsecure.ace.windows.Views;
+using VATRP.Core.Events;
 using VATRP.Core.Model;
 using VATRP.LinphoneWrapper;
 using VATRP.LinphoneWrapper.Enums;
@@ -187,6 +188,7 @@ namespace com.vtcsecure.ace.windows
                         _selfView.Hide();
                     }
 
+                    ctrlCall.ctrlVideo.DrawCameraImage = false;
 					ctrlCall.AddVideoControl();
                     ctrlCall.RestartInactivityDetectionTimer();
 			        ctrlCall.UpdateVideoSettingsIfOpen();
@@ -298,6 +300,7 @@ namespace com.vtcsecure.ace.windows
 			        {
 			            ShowOverlaySwitchCallWindow(false);
 			        }
+                    ctrlCall.ctrlVideo.DrawCameraImage = false;
 					ctrlCall.AddVideoControl();
                     break;
                 case VATRPCallState.Closed:
@@ -775,5 +778,40 @@ namespace com.vtcsecure.ace.windows
 	            }
 	        }
 	    }
+
+        private void OnLinphoneCoreStarted(object sender, EventArgs e)
+        {
+            ServiceManager.Instance.LinphoneService.OnCameraMuteEvent += OnCameraMuted;
+        }
+
+        private void OnCameraMuted(InfoEventBaseArgs args)
+        {
+            if (this.Dispatcher.Thread != Thread.CurrentThread)
+            {
+                this.Dispatcher.BeginInvoke((Action)(() => this.OnCameraMuted(args)));
+                return;
+            }
+
+            var cameraMuteArgs = args as CameraMuteEventArgs;
+            if (cameraMuteArgs != null)
+            {
+                if (_mainViewModel.ActiveCallModel.ActiveCall != null && 
+                    (_mainViewModel.ActiveCallModel != null && 
+                    _mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr == cameraMuteArgs.ActiveCall.NativeCallPtr))
+                {
+                    LOG.Info(string.Format("Remote side {0} camera", cameraMuteArgs.IsMuted ? "muted" : "unmuted"));
+                    if (cameraMuteArgs.IsMuted)
+                    {
+                        ServiceManager.Instance.LinphoneService.SetVideoCallWindowHandle(IntPtr.Zero, true);
+                        ctrlCall.ctrlVideo.DrawCameraImage = true;
+                    }
+                    else
+                    {
+                        ctrlCall.ctrlVideo.DrawCameraImage = false;
+                        ctrlCall.AddVideoControl();
+                    }
+                }
+            }
+        }
 	}
 }
