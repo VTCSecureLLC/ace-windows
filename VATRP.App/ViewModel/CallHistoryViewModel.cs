@@ -241,7 +241,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     return;
 
                 ServiceManager.Instance.ContactService.AddLinphoneContact(model.ContactName, model.ContactSipUsername,
-                    model.ContactSipAddress);
+                    model.ContactSipAddress, IntPtr.Zero);
             }
         }
 
