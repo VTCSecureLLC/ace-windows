@@ -8,6 +8,7 @@ namespace VATRP.Linphone.VideoWrapper
     public class ManagedVideoControl : WindowsFormsHost
     {
         private Point lastMouseCoordinate;
+
         public ManagedVideoControl()
         {
             lastMouseCoordinate = new Point(0,0);
@@ -49,6 +50,16 @@ namespace VATRP.Linphone.VideoWrapper
         {
             get { return ((VideoControlWrapper)Child).RenderContent; }
             set { ((VideoControlWrapper)Child).RenderContent = value; }
+        }
+
+        public bool DrawCameraImage
+        {
+            get { return ((VideoControlWrapper)Child).DrawCameraImage; }
+            set
+            {
+                ((VideoControlWrapper)Child).DrawCameraImage = value; 
+                ((VideoControlWrapper)Child).Refresh();
+            }
         }
 
         public IntPtr GetVideoControlPtr
