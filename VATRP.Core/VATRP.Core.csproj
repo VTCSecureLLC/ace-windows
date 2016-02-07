@@ -63,9 +63,12 @@
     <Compile Include="Enums\MessageDirection.cs" />
     <Compile Include="Enums\TypingAction.cs" />
     <Compile Include="Enums\UserStatus.cs" />
+    <Compile Include="Events\InfoEventArgs.cs" />
     <Compile Include="Events\HttpDownloadEventArgs.cs" />
     <Compile Include="Events\ConfigurationEventArgs.cs" />
     <Compile Include="Events\ContactBasedEventArgs.cs" />
+    <Compile Include="Events\CameraMuteEventArgs.cs" />
+    <Compile Include="Events\InfoEventBaseArgs.cs" />
     <Compile Include="Events\MWIEventArgs.cs" />
     <Compile Include="Events\ContactEventArgs.cs" />
     <Compile Include="Events\ContactRemovedEventArgs.cs" />
