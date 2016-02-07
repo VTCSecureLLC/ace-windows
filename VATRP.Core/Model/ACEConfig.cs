@@ -145,7 +145,6 @@ namespace VATRP.Core.Model
 
 
 
-
             // on successful login, we need to update the following in config: (list in progress)
             // this.enable_rtt;
 
