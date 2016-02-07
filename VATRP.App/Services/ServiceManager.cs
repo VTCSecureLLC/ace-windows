@@ -45,6 +45,9 @@ namespace com.vtcsecure.ace.windows.Services
         #region Event
         public delegate void NewAccountRegisteredDelegate(string accountId);
         public event NewAccountRegisteredDelegate NewAccountRegisteredEvent;
+
+        public event EventHandler LinphoneCoreStartedEvent;
+        public event EventHandler LinphoneCoreStoppedEvent;
         #endregion
 
         public static ServiceManager Instance
@@ -209,6 +212,8 @@ namespace com.vtcsecure.ace.windows.Services
             LinphoneCoreStopped = false;
             HistoryService.Start();
             ContactService.Start();
+            if ( LinphoneCoreStartedEvent != null)
+                LinphoneCoreStartedEvent(this, EventArgs.Empty);
         }
         
         private void OnContactserviecStarted(object sender, EventArgs e)
@@ -236,6 +241,8 @@ namespace com.vtcsecure.ace.windows.Services
         private void OnLinphoneServiceStopped(object sender, EventArgs args)
         {
             LinphoneCoreStopped = true;
+            if (LinphoneCoreStoppedEvent != null)
+                LinphoneCoreStoppedEvent(this, EventArgs.Empty);
         }
 
         private void OnHistoryServiceStopped(object sender, EventArgs args)
