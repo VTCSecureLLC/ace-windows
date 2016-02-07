@@ -129,7 +129,6 @@ namespace VATRP.Core.Services
 
                         if (!string.IsNullOrWhiteSpace(un))
                         {
-
                             var cfgSipaddress = string.Format("{0}@{1}", un, host);
                             VATRPContact contact = new VATRPContact(new ContactID(cfgSipaddress, IntPtr.Zero))
                             {
@@ -363,17 +362,11 @@ namespace VATRP.Core.Services
         {
             Contacts.Add(contact);
             if (ContactAdded != null)
-            {   
-                Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() =>{
-                     ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
-                }));           
-            }
+                ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
+
             if (contact.IsLoggedIn && LoggedInContactUpdated != null)
             {
-                Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() =>
-                {
-                    LoggedInContactUpdated(this, new ContactEventArgs(new ContactID(contact)));
-                }));
+                LoggedInContactUpdated(this, new ContactEventArgs(new ContactID(contact)));
             }
         }
         public VATRPContact FindContact(ContactID contactID)

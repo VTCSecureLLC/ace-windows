@@ -140,13 +140,18 @@ namespace com.vtcsecure.ace.windows
 					callViewModel.OnEarlyMedia();
 					break;
 				case VATRPCallState.Connected:
-					if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-						Configuration.ConfEntry.USE_RTT, true))
-					{
-                        ctrlRTT.SetViewModel(_mainViewModel.MessagingModel);
-						_mainViewModel.MessagingModel.CreateRttConversation(call.RemoteParty.Username, call.NativeCallPtr);
-					}
-					
+			        if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+			            Configuration.ConfEntry.USE_RTT, true))
+			        {
+			            _mainViewModel.IsRTTViewEnabled = true;
+			            ctrlRTT.SetViewModel(_mainViewModel.RttMessagingModel);
+			            _mainViewModel.RttMessagingModel.CreateRttConversation(call.RemoteParty.Username, call.NativeCallPtr);
+			        }
+			        else
+			        {
+                        _mainViewModel.IsRTTViewEnabled = false;
+			        }
+
 					callViewModel.OnConnected();
 					_flashWindowHelper.StopFlashing();
 					stopPlayback = true;
@@ -288,7 +293,7 @@ namespace com.vtcsecure.ace.windows
                             if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                         Configuration.ConfEntry.USE_RTT, true))
                             {
-                                _mainViewModel.MessagingModel.CreateRttConversation(call.RemoteParty.Username, call.NativeCallPtr);
+                                _mainViewModel.RttMessagingModel.CreateRttConversation(call.RemoteParty.Username, call.NativeCallPtr);
                             }
 			            }
 			            else
@@ -311,7 +316,7 @@ namespace com.vtcsecure.ace.windows
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                        Configuration.ConfEntry.USE_RTT, true))
                     {
-                        _mainViewModel.MessagingModel.ClearRTTConversation(call.NativeCallPtr);
+                        _mainViewModel.RttMessagingModel.ClearRTTConversation(call.NativeCallPtr);
                         ctrlRTT.SetViewModel(null);
                     }
                     ShowOverlayNewCallWindow(false);
@@ -321,6 +326,7 @@ namespace com.vtcsecure.ace.windows
 					int callsCount = _mainViewModel.RemoveCalViewModel(callViewModel);
 					if (callsCount == 0)
 					{
+                        _mainViewModel.IsRTTViewEnabled = false;
                         this.ShowSelfPreviewItem.IsEnabled = true;
 						_callInfoView.Hide();
 						ctrlCall.ctrlOverlay.StopCallTimer();
@@ -343,13 +349,18 @@ namespace com.vtcsecure.ace.windows
 					    if (nextVM != null)
 					    {
                             _mainViewModel.ActiveCallModel = nextVM;
-                            if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                        Configuration.ConfEntry.USE_RTT, true))
-                            {
-                                ctrlRTT.SetViewModel(_mainViewModel.MessagingModel);
-                                _mainViewModel.MessagingModel.CreateRttConversation(
-                                    nextVM.ActiveCall.RemoteParty.Username, nextVM.ActiveCall.NativeCallPtr);
-                            }
+					        if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+					            Configuration.ConfEntry.USE_RTT, true))
+					        {
+					            _mainViewModel.IsRTTViewEnabled = true;
+					            ctrlRTT.SetViewModel(_mainViewModel.RttMessagingModel);
+					            _mainViewModel.RttMessagingModel.CreateRttConversation(
+					                nextVM.ActiveCall.RemoteParty.Username, nextVM.ActiveCall.NativeCallPtr);
+					        }
+					        else
+					        {
+                                _mainViewModel.IsRTTViewEnabled = false;
+					        }
                             ShowCallOverlayWindow(true);
                             ctrlCall.ctrlOverlay.SetCallerInfo(nextVM.CallerInfo);
                             ctrlCall.ctrlOverlay.ForegroundCallDuration = _mainViewModel.ActiveCallModel.CallDuration;
@@ -381,12 +392,13 @@ namespace com.vtcsecure.ace.windows
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                        Configuration.ConfEntry.USE_RTT, true))
                     {
-                        _mainViewModel.MessagingModel.ClearRTTConversation(call.NativeCallPtr);
+                        _mainViewModel.RttMessagingModel.ClearRTTConversation(call.NativeCallPtr);
                         ctrlRTT.SetViewModel(null);
                     }
 
 					if (_linphoneService.GetActiveCallsCount == 0)
 					{
+                        _mainViewModel.IsRTTViewEnabled = false;
                         this.ShowSelfPreviewItem.IsEnabled = true;
                         if (this.ShowSelfPreviewItem.IsChecked && !_selfView.ResetNativePreviewHandle)
                         {
@@ -461,7 +473,7 @@ namespace com.vtcsecure.ace.windows
 	            if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
 	                Configuration.ConfEntry.USE_RTT, true))
 	            {
-	                _mainViewModel.MessagingModel.CreateRttConversation(callViewModel.ActiveCall.RemoteParty.Username,
+	                _mainViewModel.RttMessagingModel.CreateRttConversation(callViewModel.ActiveCall.RemoteParty.Username,
 	                    callViewModel.ActiveCall.NativeCallPtr);
 	            }
 	        }
@@ -658,7 +670,8 @@ namespace com.vtcsecure.ace.windows
 					BtnContacts.IsChecked = bShow;
 					break;
 				case VATRPWindowType.MESSAGE_VIEW:
-					BtnResourcesView.IsChecked = bShow;
+                    if (this.ShowMessagingViewItem.IsEnabled)
+                        this.ShowMessagingViewItem.IsChecked = bShow;
 					break;
 				case VATRPWindowType.RECENTS_VIEW:
 					BtnRecents.IsChecked = bShow;

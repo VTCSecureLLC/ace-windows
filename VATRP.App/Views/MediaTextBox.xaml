@@ -289,7 +289,7 @@
                                      VerticalContentAlignment="Center"
 									 Background="Transparent" 
 									 BorderBrush="{StaticResource AppMainBorderBrush}"
-                                     PreviewKeyDown="OnKeyDown" PreviewTextInput="OnTextInpput"
+                                     PreviewKeyDown="OnKeyDown" 
                                      />
                         </Grid>
                         <Border Grid.Column ="1" Background="{StaticResource AppMainWindowBrush}" BorderBrush="{StaticResource ChatPageMainBg}" 

@@ -63,12 +63,30 @@ namespace VATRP.Core.Services
             this._contactSvc.ContactAdded += OnContactAdded;
             this._contactSvc.ContactRemoved += OnContactRemoved;
             this._contactSvc.ContactsChanged += OnContactsChanged;
+            this._contactSvc.ContactsLoadCompleted += OnContactsLoadCompleted;
             this._chatItems = new ObservableCollection<VATRPChat>();
 
             this._linphoneSvc.IsComposingReceivedEvent += OnChatMessageComposing;
             this._linphoneSvc.OnChatMessageReceivedEvent += OnChatMessageReceived;
             this._linphoneSvc.OnChatMessageStatusChangedEvent += OnChatStatusChanged;
             IsRTTenabled = true;
+        }
+
+        private void OnContactsLoadCompleted(object sender, EventArgs e)
+        {
+            if (_contactSvc.Contacts == null)
+                return;
+
+            foreach (var contact in _contactSvc.Contacts)
+            {
+                if (contact.IsLoggedIn)
+                    continue;
+                VATRPChat chat = AddChat(contact, string.Empty);
+                Contacts.Add(contact);
+                if (ContactAdded != null)
+                    ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
+            }
+            new Thread((ThreadStart)LoadLinphoneChatEvents).Start();
         }
 
         private void OnContactAdded(object sender, ContactEventArgs e)
@@ -229,7 +247,8 @@ namespace VATRP.Core.Services
                                     message.IsIncompleteMessage = false;
                                     break;
                                 case '\b':
-                                    sb.Remove(sb.Length - 1, 1);
+                                    if (sb.Length > 0)
+                                        sb.Remove(sb.Length - 1, 1);
                                     break;
                                 default:
                                     sb.Append(rttCodeArray[i]);
@@ -951,8 +970,7 @@ namespace VATRP.Core.Services
         #region IVATRPService
         public bool Start()
         {
-            new Thread((ThreadStart)LoadLinphoneChatEvents).Start();
-           
+          
             return true;
         }
 
@@ -1117,6 +1135,7 @@ namespace VATRP.Core.Services
                                                 Content = messageString,
                                                 IsRTTMessage = false,
                                                 IsRead = LinphoneAPI.linphone_chat_message_is_read(msMessagePtr.data),
+                                                Status = LinphoneAPI.linphone_chat_message_get_state(msMessagePtr.data),
                                                 Chat = chat
                                             };
 
