@@ -134,7 +134,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             if ((config == null) || (config.configStatus == ACEConfigStatusType.LOGIN_UNAUTHORIZED))
             {
                 // login failed
-                MessageBox.Show("The login Failed. Please enter a valid user name and password.", "Valid Login Required");
+                MessageBox.Show("The login Failed. Please enter a valid user name and password.", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             // VATRP-1271: to do - handle ACEConfigStatusType Appropriately. For the moment (during devel & debug) show the resulting message to the user.
@@ -144,22 +144,43 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 string message;
                 switch (config.configStatus)
                 {
-                        // ToDo note : the text here is a little bit different for each message - enough to let the developer know what to look for
-                        //   without being too much for the user. Once we have codes worked out we can use codes in our messages that will help
-                        //   in customer support.
-                    case ACEConfigStatusType.CONNECTION_FAILED: message = "Unable to obtain configuration information from the server.";
+                    // ToDo note : the text here is a little bit different for each message - enough to let the developer know what to look for
+                    //   without being too much for the user. Once we have codes worked out we can use codes in our messages that will help
+                    //   in customer support.
+                    case ACEConfigStatusType.CONNECTION_FAILED:
+                        message = "Unable to obtain configuration information from the server.";
                         break;
-                    case ACEConfigStatusType.SRV_RECORD_NOT_FOUND: message = "The SRV Record was not found.";
+                    case ACEConfigStatusType.SRV_RECORD_NOT_FOUND:
+                        message = "The SRV Record was not found.";
                         break;
-                    case ACEConfigStatusType.UNABLE_TO_PARSE : message = "Unable to parse the configuration information.";
+                    case ACEConfigStatusType.UNABLE_TO_PARSE:
+                        message = "Unable to parse the configuration information.";
                         break;
                     default:
-                        message = "An error occured while obtaining the configuration. Status Type=" + config.configStatus.ToString();
+                        message = "An error occurred while obtaining the configuration. Status Type=" +
+                                  config.configStatus.ToString();
                         break;
                 }
-                MessageBox.Show(message, "Error Obtaining Configuration Status");
-                return;
+
+                if (config.configStatus != ACEConfigStatusType.SRV_RECORD_NOT_FOUND)
+                {
+                    MessageBox.Show(message, "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // VATRP-2352
+                config.sip_auth_username = userName;
+                config.sip_auth_password = password;
+                config.sip_register_domain = address;
+                int port;
+                if (int.TryParse(HostPortBox.Text, out port))
+                    config.sip_register_port = port;
+
+                config.sip_register_transport = string.IsNullOrEmpty(TransportComboBox.Text)
+                    ? "TCP"
+                    : TransportComboBox.Text;
             }
+
             // otherwise the login was valid, proceed
             // 
             if (string.IsNullOrEmpty(config.sip_auth_password) || string.IsNullOrEmpty(config.sip_auth_username))

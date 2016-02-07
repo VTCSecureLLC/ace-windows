@@ -129,8 +129,8 @@ namespace VATRP.Core.Model
             //       public bool enable_stun { get; set; }
             accountToUpdate.EnableSTUN = this.enable_stun;
             //       public string stun_server { get; set; }
-            accountToUpdate.STUNAddress = this.stun_server;
-            var stunServer = this.stun_server.Split(':');
+            accountToUpdate.STUNAddress = this.stun_server ?? string.Empty;
+            var stunServer = accountToUpdate.STUNAddress.Split(':');
             if (stunServer.Length > 1)
             {
                 accountToUpdate.STUNAddress = stunServer[0];
@@ -140,7 +140,7 @@ namespace VATRP.Core.Model
             accountToUpdate.EnableICE = this.enable_ice;
 
             //       public string sip_videomail_uri { get; set; }
-            accountToUpdate.VideoMailUri = sip_videomail_uri;
+            accountToUpdate.VideoMailUri = sip_videomail_uri ?? string.Empty;
 
 
 
