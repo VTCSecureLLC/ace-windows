@@ -192,6 +192,7 @@ namespace com.vtcsecure.ace.windows
 					ctrlCall.AddVideoControl();
                     ctrlCall.RestartInactivityDetectionTimer();
 			        ctrlCall.UpdateVideoSettingsIfOpen();
+                    ctrlCall.UpdateMuteSettingsIfOpen();
 
 //                    MuteCall(createCmd.MuteMicrophone);
 //                    MuteSpeaker(createCmd.MuteSpeaker);
