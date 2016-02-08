@@ -47,12 +47,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EWSoftware.PDI">
-      <HintPath>..\packages\EWSoftware.PDI.2015.1.19.0\lib\net40\EWSoftware.PDI.dll</HintPath>
-    </Reference>
-    <Reference Include="EWSoftware.PDI.Data">
-      <HintPath>..\packages\EWSoftware.PDI.Data.2015.1.19.0\lib\net40\EWSoftware.PDI.Data.dll</HintPath>
-    </Reference>
     <Reference Include="log4net">
       <HintPath>..\ThirdParties\log4net.dll</HintPath>
     </Reference>
@@ -173,7 +167,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="Resources\ring.wav" />
   </ItemGroup>
   <ItemGroup>

@@ -5,7 +5,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using log4net;
 using VATRP.Core.Extensions;
-using EWSoftware.PDI.Parser;
 
 namespace VATRP.Core.Model
 {
