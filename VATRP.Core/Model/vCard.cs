@@ -29,6 +29,9 @@ namespace VATRP.Core.Model
 
         public string ProdId { get; set; }
         public DateTime Rev { get; set; }
+        public string IMPP { get; set; }
+        public string TEL { get; set; }
+        public string URI { get; set; }
         #endregion
 
         public vCard()
@@ -42,6 +45,9 @@ namespace VATRP.Core.Model
             Title = string.Empty;
             Rev = DateTime.Now;
             ProdId = string.Empty;
+            IMPP = string.Empty;
+            TEL = string.Empty;
+            URI = string.Empty;
         }
     }
 
@@ -115,7 +121,8 @@ namespace VATRP.Core.Model
         }
 
         private void Parse(string lines)
-        {
+        {           
+
             vCard card = new vCard();
             RegexOptions options = RegexOptions.IgnoreCase | RegexOptions.Multiline |
                                    RegexOptions.IgnorePatternWhitespace;
@@ -144,11 +151,21 @@ namespace VATRP.Core.Model
                 card.Suffix = m.Groups["strSuffix"].Value;
             }
 
-            // TITLE
-            regex = new Regex(@"(?<strElement>(TITLE))   (:(?<strTITLE>[^\n\r]*))", options);
+            // IMPP
+            regex = new Regex(@"(?<strElement>(IMPP))((:|;TYPE=.*sip:)(?<strIMPP>[^\n\r]*))", options);
             m = regex.Match(lines);
             if (m.Success)
-                card.Title = m.Groups["strTITLE"].Value;
+                card.IMPP = m.Groups["strIMPP"].Value;
+
+            regex = new Regex(@"(?<strElement>(TEL))(:|;TYPE=.*sip:)(?<strTEL>[^\n\r]*)", options);
+            m = regex.Match(lines);
+            if (m.Success)
+                card.TEL = m.Groups["strTEL"].Value;
+
+            regex = new Regex(@"(?<strElement>(URI))   (:(?<strURI>[^\n\r]*))", options);
+            m = regex.Match(lines);
+            if (m.Success)
+                card.URI = m.Groups["strURI"].Value;
 
             // PRODID
             regex = new Regex(@"(?<strElement>(PRODID))   (:(?<strPRODID>[^\n\r]*))", options);
@@ -165,7 +182,7 @@ namespace VATRP.Core.Model
                 card.Rev = DateTime.ParseExact(m.Groups["strREV"].Value, expectedFormats, null, System.Globalization.DateTimeStyles.AllowWhiteSpaces);
             }
 
-            if (card.Title.NotBlank() && card.FormattedName.NotBlank())
+            if (card.FormattedName.NotBlank())
                 vCards.Add(card);
         }
     }
