@@ -129,7 +129,6 @@ namespace VATRP.Core.Services
 
                         if (!string.IsNullOrWhiteSpace(un))
                         {
-
                             var cfgSipaddress = string.Format("{0}@{1}", un, host);
                             VATRPContact contact = new VATRPContact(new ContactID(cfgSipaddress, IntPtr.Zero))
                             {
@@ -140,7 +139,21 @@ namespace VATRP.Core.Services
                                 RegistrationName = cfgSipaddress,
                                 IsLinphoneContact = true
                             };
+                            
+                            // create vcard in linphone
+                            IntPtr vcardPtr = LinphoneAPI.linphone_friend_get_vcard(curStruct.data);
+                            if (vcardPtr == IntPtr.Zero)
+                            {
+                                vcardPtr = LinphoneAPI.linphone_vcard_new();
+                            }
 
+                            if (vcardPtr != IntPtr.Zero)
+                            {
+                                LinphoneAPI.linphone_friend_set_vcard(curStruct.data, vcardPtr);
+                                LinphoneAPI.linphone_vcard_set_full_name(vcardPtr, contact.Fullname);
+                                LinphoneAPI.linphone_vcard_add_sip_address(vcardPtr, contact.RegistrationName);
+                            }
+                           
                             Contacts.Add(contact);
                         }
                     }
@@ -152,8 +165,81 @@ namespace VATRP.Core.Services
             if ( ContactsLoadCompleted != null)
                 ContactsLoadCompleted(this, EventArgs.Empty);
         }
-        
-        public void AddLinphoneContact(string name, string username,  string sipAddress)
+
+        #region VCARD
+
+        public int ImportVCards(string vcardPath)
+        {
+            if (manager.LinphoneService.LinphoneCore == IntPtr.Zero)
+                return 0;
+            IntPtr vcardsList = LinphoneAPI.linphone_vcard_list_from_vcard4_file(vcardPath);
+
+            if (vcardsList != IntPtr.Zero)
+            {
+                MSList curStruct;
+                do
+                {
+                    curStruct.next = IntPtr.Zero;
+                    curStruct.prev = IntPtr.Zero;
+                    curStruct.data = IntPtr.Zero;
+
+                    curStruct = (MSList)Marshal.PtrToStructure(vcardsList, typeof(MSList));
+                    if (curStruct.data != IntPtr.Zero)
+                    {
+                        string fullname = string.Empty;
+                        IntPtr tmpPtr = LinphoneAPI.linphone_vcard_get_full_name(curStruct.data);
+                        if (tmpPtr != IntPtr.Zero)
+                        {
+                            fullname = Marshal.PtrToStringAnsi(tmpPtr);
+                        }
+
+                        IntPtr addressListPtr = LinphoneAPI.linphone_vcard_get_sip_addresses(curStruct.data);
+
+                        if (addressListPtr == IntPtr.Zero)
+                            continue;
+                        MSList addressdata;
+                        string sipAddress = "";
+                        do
+                        {
+                            addressdata.next = IntPtr.Zero;
+                            addressdata.prev = IntPtr.Zero;
+                            addressdata.data = IntPtr.Zero;
+
+                            addressdata = (MSList)Marshal.PtrToStructure(addressListPtr, typeof(MSList));
+                            if (addressdata.data != IntPtr.Zero)
+                            {
+                                sipAddress = Marshal.PtrToStringAnsi(tmpPtr);
+
+                                break;
+                            }
+                            addressListPtr = addressdata.next;
+                        } while (addressdata.data != IntPtr.Zero);
+
+
+                        if (!string.IsNullOrWhiteSpace(sipAddress) && !string.IsNullOrEmpty(fullname))
+                        {
+                            string un, host;
+                            int port;
+                            if ( VATRPCall.ParseSipAddress(sipAddress, out un, out host, out port) )
+                                AddLinphoneContact(fullname, un, sipAddress, curStruct.data);
+                        }
+                    }
+                    vcardsList = curStruct.next;
+                } while (curStruct.next != IntPtr.Zero);
+            }
+            return 0;
+        }
+
+        public void ExportVCards(string vcardPath)
+        {
+            if (manager.LinphoneService.LinphoneCore == IntPtr.Zero)
+                return;
+            LinphoneAPI.linphone_core_export_friends_as_vcard4_file(manager.LinphoneService.LinphoneCore, vcardPath);
+        }
+
+        #endregion
+
+        public void AddLinphoneContact(string name, string username, string sipAddress, IntPtr vcardPtr)
         {
             if (manager.LinphoneService.LinphoneCore == IntPtr.Zero)
                 return;
@@ -189,6 +275,18 @@ namespace VATRP.Core.Services
                     contact.IsLinphoneContact = true;
                     contact.SipUsername = username;
                 }
+
+                if (vcardPtr == IntPtr.Zero)
+                {
+                    vcardPtr = LinphoneAPI.linphone_vcard_new();
+
+                    if (vcardPtr != IntPtr.Zero)
+                    {
+                        LinphoneAPI.linphone_vcard_set_full_name(vcardPtr, contact.Fullname);
+                        LinphoneAPI.linphone_vcard_add_sip_address(vcardPtr, contact.RegistrationName);
+                    }
+                }
+                LinphoneAPI.linphone_friend_set_vcard(friendPtr, vcardPtr);
 
                 if (ContactAdded != null)
                 {
