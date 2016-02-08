@@ -82,6 +82,7 @@ namespace com.vtcsecure.ace.windows
             _linphoneService.CallStateChangedEvent += OnCallStateChanged;
             _linphoneService.GlobalStateChangedEvent += OnGlobalStateChanged;
             ServiceManager.Instance.NewAccountRegisteredEvent += OnNewAccountRegistered;
+            ServiceManager.Instance.LinphoneCoreStartedEvent += OnLinphoneCoreStarted;
             InitializeComponent();
             DataContext = _mainViewModel;
             ctrlHistory.SetDataContext(_mainViewModel.HistoryModel);
@@ -483,6 +484,7 @@ namespace com.vtcsecure.ace.windows
             ctrlCall.RttToggled += OnRttToggled;
             ctrlCall.FullScreenOnToggled += OnFullScreenToggled;
             ctrlCall.SwitchHoldCallsRequested += OnSwitchHoldCallsRequested;
+            ctrlCall.VideoOnToggled += OnCameraSwitched;
 
             _callOverlayView.CallManagerView = _callView;
             ctrlHistory.MakeCallRequested += OnMakeCallRequested;
@@ -650,6 +652,12 @@ namespace com.vtcsecure.ace.windows
             ctrlCall.ctrlOverlay.OnHoldWindowTopMargin = ctrlCall.ctrlOverlay.CallInfoOverlayHeight + ctrlCall.ctrlOverlay.CallInfoWindowTopMargin + 40;// topleftInScreen.Y + 40;
 
             ctrlCall.ctrlOverlay.Refresh();
+        }
+
+        private void OnCameraSwitched(bool switch_on)
+        {
+            if (_mainViewModel.ActiveCallModel != null && _mainViewModel.ActiveCallModel.ActiveCall != null)
+                ServiceManager.Instance.LinphoneService.SendCameraSwtichAsInfo(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr, switch_on);
         }
 
         private void OnRttToggled(bool switch_on)

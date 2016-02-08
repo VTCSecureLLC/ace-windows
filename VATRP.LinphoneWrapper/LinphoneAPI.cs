@@ -2546,6 +2546,7 @@ namespace VATRP.LinphoneWrapper
 
         #endregion
 
+<<<<<<< HEAD
         #region VCARD
 
         /**
@@ -2662,6 +2663,33 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_vcard_generate_unique_id(IntPtr vCard);
+=======
+        #region Info message
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_create_info_message(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_call_send_info_message(IntPtr call, IntPtr info);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_info_message_add_header(IntPtr im, string name, string value);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_info_message_get_header(IntPtr im, string name);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_info_message_set_content(IntPtr im, IntPtr content);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_info_message_get_content(IntPtr im);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_info_message_destroy(IntPtr im);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_info_message_copy(IntPtr orig);
+>>>>>>> 54f576d305371600e2d0695df7949477e8959cb7
 
         #endregion
     }

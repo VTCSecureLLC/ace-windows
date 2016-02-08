@@ -22,6 +22,7 @@ namespace VATRP.Core.Interfaces
         event LinphoneService.OnMessageStatusChangedDelegate OnChatMessageStatusChangedEvent;
         event LinphoneService.OnCallLogUpdatedDelegate OnLinphoneCallLogUpdatedEvent;
         event LinphoneService.MWIReceivedDelegate OnMWIReceivedEvent;
+        event LinphoneService.InfoReceivedDelegate OnCameraMuteEvent;
 
         #endregion
 
@@ -115,11 +116,10 @@ namespace VATRP.Core.Interfaces
         List<VATRPDevice> GetAvailableSpeakers();
         void SetSpeakers(string deviceId);
         VATRPDevice GetSelectedSpeakers();
-
-
         void SetRTCPFeedback(string settingValue);
+        void SendCameraSwtichAsInfo(IntPtr callPtr, bool muteCamera);
+
         #endregion
-
-
+        
     }
 }
