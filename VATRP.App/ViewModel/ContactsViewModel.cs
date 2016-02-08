@@ -16,11 +16,13 @@ using com.vtcsecure.ace.windows.Model;
 using com.vtcsecure.ace.windows.Views;
 using Microsoft.Win32;
 using VATRP.Core.Extensions;
+using log4net;
 
 namespace com.vtcsecure.ace.windows.ViewModel
 {
     public class ContactsViewModel : ViewModelBase
     {
+        private static readonly ILog LOG = LogManager.GetLogger(typeof(ContactsViewModel));
         private ICollectionView _contactsListView;
         private IContactsService _contactsService;
         private ObservableCollection<ContactViewModel> _contactsList;
@@ -79,25 +81,28 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         private void ExecuteImportCommand(object obj)
         {
-            var openDlg = new OpenFileDialog()
+            try
             {
-                CheckFileExists = true,
-                CheckPathExists = true,
-                Filter = "vCard Files (*.VCF, *.vcard)|*.VCF;*vcard",
-                FilterIndex = 0,
+                var openDlg = new OpenFileDialog()
+                {
+                    CheckFileExists = true,
+                    CheckPathExists = true,
+                    Filter = "vCard Files (*.VCF, *.vcard)|*.VCF;*vcard",
+                    FilterIndex = 0,
 
-                ShowReadOnly = false,
-            };
+                    ShowReadOnly = false,
+                };
 
-            if (openDlg.ShowDialog() != true)
-                return;
+                if (openDlg.ShowDialog() != true)
+                    return;
 
-            if (ServiceManager.Instance.LinphoneService.VCardSupported)
-            {
-                var recordsImported = ServiceManager.Instance.ContactService.ImportVCards(openDlg.FileName);
-            }
-            else
-            {
+                //if (ServiceManager.Instance.LinphoneService.VCardSupported)  //TODO linphone VCard import not working
+                //{
+                //    var recordsImported = ServiceManager.Instance.ContactService.ImportVCards(openDlg.FileName);
+                //}
+                //else
+                //{
+
                 var cardReader = new vCardReader(openDlg.FileName);
 
                 string un, host;
@@ -105,7 +110,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
                 foreach (var card in cardReader.vCards)
                 {
-                    var remoteParty = card.Title.TrimSipPrefix();
+                    //If empty, prioritize IMPP then URI then TEL
+                    var remoteParty = card.IMPP.TrimSipPrefix() != string.Empty ? card.IMPP.TrimSipPrefix() : (card.URI.TrimSipPrefix() != string.Empty ? card.URI.TrimSipPrefix() : card.TEL.TrimSipPrefix());
                     var contact =
                         ServiceManager.Instance.ContactService.FindContact(new ContactID(remoteParty, IntPtr.Zero));
                     if (contact != null && contact.Fullname == card.FormattedName)
@@ -122,6 +128,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
                         remoteParty, IntPtr.Zero);
                 }
             }
+            catch(Exception ex)
+            {
+                LOG.Error("Import exception:",ex);
+            }
+            //}
         }
 
         private bool CanExecuteImport(object arg)
