@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using VATRP.Core.Extensions;
 using VATRP.Core.Model;
+using VATRP.Core.Services;
 
 namespace com.vtcsecure.ace.windows.ViewModel
 {
@@ -17,7 +18,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private string _contactSipUsername;
         private ObservableCollection<ProviderViewModel> _providers;
         private ProviderViewModel _selectedProvider;
-
+        private ProviderViewModel _currentProvider;
+        private ProviderViewModel _nologoProvider;
         public ContactEditViewModel(bool addMode, string address)
         {
             _isAddMode = addMode;
@@ -112,71 +114,56 @@ namespace com.vtcsecure.ace.windows.ViewModel
             set
             {
                 _selectedProvider = value;
-                TrimSipUsername();
-                ContactSipUsername = ContactSipUsername + vrsLogoToAddress(_selectedProvider.Label);
-                TrimSipUsername();
+                UpdateContactAddress();
                 OnPropertyChanged("SelectedProvider");
 
             }
         }
 
+        public ProviderViewModel AccountProvider
+        {
+            get { return _currentProvider; }
+        }
+
         private bool isValidLabel(string Label)
         {
-
-            if (Label == "@Sorenson.vatrp.net" || Label == "@convo.vatrp.net" || Label == "@purple.vatrp.net" || Label == "@caag.vatrp.net" || Label == "@bc1.vatrp.net" ||Label == "@zvrs.vatrp.net")
-                return true;
-
+            foreach (var providerVM in _providers)
+            {
+                if (providerVM.Provider.Address == Label)
+                    return true;
+            }
             return false;
         }
         #endregion
-        private string vrsLogoToAddress(string Label) {
-
-            string logoUri = "@zvrs.vatrp.net";
-            if (Label == "Sorenson VRS")
-                logoUri = "@Sorenson.vatrp.net";
-            else if (Label == "Convo Relay")
-            {
-                logoUri = "@convo.vatrp.net";
-            }
-            else if (Label == "Purple VRS")
-            {
-                logoUri = "@purple.vatrp.net";
-            }
-            else if (Label == "CAAG")
-            {
-                logoUri = "@caag.vatrp.net";
-            }
-            else if (Label == "Global VRS")
-            {
-                logoUri = "@bc1.vatrp.net";
-            }
-            else if (Label == "Global VRS")
-            {
-                logoUri = "@bc1.vatrp.net";
-            }
-
-            return logoUri;
-        }
 
         private void LoadProviders()
         {
-            var providersList = ServiceManager.Instance.ProviderService.GetProviderList();
-            var domain = ValidateAddress(_contactSipUsername) ? "@" + _contactSipUsername.Split('@')[1] : null;
+            var providersList = ServiceManager.Instance.ProviderService.GetProviderListFullInfo();
+            providersList.Sort((a, b) => a.Label.CompareTo(b.Label));
+            string domain = ValidateAddress(_contactSipUsername) ? _contactSipUsername.Split('@')[1] : string.Empty;
+            ProviderViewModel selectedProvider = null;
             foreach (var s in providersList)
             {
-                var providerModel = new ProviderViewModel {Label = s};
-                providerModel.LoadLogo(true);
-                providerModel.LoadLogo(false);
+                if (s.Address == "_nologo")
+                    continue;
+                var providerModel = new ProviderViewModel(s);
                 Providers.Add(providerModel);
-                if (vrsLogoToAddress(s) ==  domain )
-                    _selectedProvider = providerModel;
+                if (s.Address == domain && domain.NotBlank())
+                    selectedProvider = providerModel;
+                if (App.CurrentAccount != null && s.Address == App.CurrentAccount.ProxyHostname)
+                    _currentProvider = providerModel;
             }
 
-            if (_selectedProvider == null)
-                if (Providers != null && Providers.Count > 0)
-                {
-                    _selectedProvider = Providers[0];
-                }
+            var nlp = ServiceManager.Instance.ProviderService.FindProviderLooseSearch("_nologo");
+            if (nlp != null)
+            {
+                _nologoProvider = new ProviderViewModel(nlp);
+            }
+
+            if (_isAddMode)
+                SelectedProvider = _currentProvider;
+            else
+                SelectedProvider = selectedProvider ?? _nologoProvider;
         }
 
         internal bool ValidateName()
@@ -214,12 +201,28 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         internal void TrimSipUsername()
         {
-            var domain = ValidateAddress(_contactSipUsername) ? "@" + _contactSipUsername.Split('@')[1] : "";
+            var domain = ValidateAddress(_contactSipUsername) ? _contactSipUsername.Split('@')[1] : "";
             var name  = isValidLabel(domain.Trim());
             if (name)
-                _contactSipUsername = _contactSipUsername.Remove(_contactSipUsername.IndexOf(domain));
+                _contactSipUsername = _contactSipUsername.Remove(_contactSipUsername.IndexOf(domain) - 1);
 
             OnPropertyChanged("ContactSipUsername");
+        }
+
+        internal void UpdateContactAddress()
+        {
+            TrimSipUsername();
+            if (_selectedProvider.Provider.Address != _nologoProvider.Provider.Address)
+            {
+                int index = _contactSipUsername.IndexOf("@");
+                if (index != -1)
+                    _contactSipUsername = _contactSipUsername.Remove(index);
+                if (_contactSipUsername.NotBlank())
+                    ContactSipUsername = String.Format("{0}@{1}", _contactSipUsername, _selectedProvider.Provider.Address);
+            }
+
+            if (AccountProvider != null && AccountProvider.Provider.Address == _selectedProvider.Provider.Address)
+                TrimSipUsername();
         }
     }
 }

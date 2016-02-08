@@ -17,7 +17,6 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="120"/>
@@ -55,24 +54,11 @@
                 <TextBlock >high-fps</TextBlock>
             </ComboBox>
 
-            <!-- Row 5: Preferred Video Size -->
-            <Label Grid.Column="0" Grid.Row="5" Content="Preferred Video Size" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left" Name="PreferredVideoSizeLabel">
-            </Label>
-            <ComboBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" x:Name="PreferredVideoSizeComboBox" FontSize="14" Margin="0,3,0,3" Width="120" Height="24" 
-                       VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="OnPreferredVideoSize">
-                <TextBlock >qcif (176x144 )</TextBlock>
-                <TextBlock >cif (352x288 )</TextBlock>
-                <TextBlock >4cif (704x576 )</TextBlock>
-                <TextBlock >vga (640x480 )</TextBlock>
-                <TextBlock >svga (800x600 )</TextBlock>
-            </ComboBox>
-
             <!-- Row 6: RTCP Feedback -->
-            <Label Grid.Column="0" Grid.Row="6" Content="RTCP Feedback" VerticalContentAlignment="Center" 
+            <Label Grid.Column="0" Grid.Row="5" Content="RTCP Feedback" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="RtcpFeedbackLabel">
             </Label>
-            <ComboBox  Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" x:Name="RtcpFeedbackComboBox" FontSize="14" Margin="0,3,0,3" Width="120" Height="24" 
+            <ComboBox  Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" x:Name="RtcpFeedbackComboBox" FontSize="14" Margin="0,3,0,3" Width="120" Height="24" 
                        VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="OnRtcpFeedback" >
                 <TextBlock >Off</TextBlock>
                 <TextBlock >Explicit</TextBlock>
@@ -80,10 +66,10 @@
             </ComboBox>
 
             <!-- Row 7: Video Codecs Label -->
-            <Label Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="3"  Content="Video Codecs" VerticalContentAlignment="Center"  Background="Gray">
+            <Label Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="3"  Content="Video Codecs" VerticalContentAlignment="Center"  Background="Gray">
             </Label>
 
-            <ListView Background="{StaticResource RecentsPageMainBg}" Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="3" Height="200" Width="280" HorizontalAlignment="Left"
+            <ListView Background="{StaticResource RecentsPageMainBg}" Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="3" Height="200" Width="280" HorizontalAlignment="Left"
                       x:Name="VideoCodecsListView" SelectionMode="Single" SelectionChanged="VideoCodecsListView_SelectionChanged">
                 <ListView.View>
                     <GridView>

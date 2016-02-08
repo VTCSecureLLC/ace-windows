@@ -21,6 +21,8 @@ namespace VATRP.Core.Interfaces
         event LinphoneService.OnMessageReceivedDelegate OnChatMessageReceivedEvent;
         event LinphoneService.OnMessageStatusChangedDelegate OnChatMessageStatusChangedEvent;
         event LinphoneService.OnCallLogUpdatedDelegate OnLinphoneCallLogUpdatedEvent;
+        event LinphoneService.MWIReceivedDelegate OnMWIReceivedEvent;
+        event LinphoneService.InfoReceivedDelegate OnCameraMuteEvent;
 
         #endregion
 
@@ -73,6 +75,7 @@ namespace VATRP.Core.Interfaces
         void SwitchSelfVideo();
         void SetVideoPreviewWindowHandle(IntPtr hWnd, bool reset = false);
         void SetPreviewVideoSize(MSVideoSize w, MSVideoSize h);
+        bool SetPreviewVideoSizeByName(string name);
         void SetVideoCallWindowHandle(IntPtr hWnd, bool reset = false);
         bool IsVideoEnabled(VATRPCall call);
         void UpdateMediaSettings(VATRPAccount account);
@@ -89,8 +92,8 @@ namespace VATRP.Core.Interfaces
         MSVideoSizeDef GetVideoSize(IntPtr curparams, bool sending);
         float GetFrameRate(IntPtr curparams, bool sending);
         LinphoneMediaEncryption GetMediaEncryption(IntPtr curparams);
-        LinphoneCallStats GetCallAudioStats(IntPtr callPtr);
-        LinphoneCallStats GetCallVideoStats(IntPtr callPtr);
+        void GetCallAudioStats(IntPtr callPtr, ref LinphoneCallStats stat);
+        void GetCallVideoStats(IntPtr callPtr, ref LinphoneCallStats stat);
         void GetUsedPorts(out int sipPort, out int rtpPort);
         LinphoneChatMessageState GetMessageStatus(IntPtr intPtr);
         bool SendChatMessage(VATRPChat chat, string message, ref IntPtr msgPtr);
@@ -112,9 +115,10 @@ namespace VATRP.Core.Interfaces
         List<VATRPDevice> GetAvailableSpeakers();
         void SetSpeakers(string deviceId);
         VATRPDevice GetSelectedSpeakers();
+        void SetRTCPFeedback(string settingValue);
+        void SendCameraSwtichAsInfo(IntPtr callPtr, bool muteCamera);
 
         #endregion
-
-
+        
     }
 }

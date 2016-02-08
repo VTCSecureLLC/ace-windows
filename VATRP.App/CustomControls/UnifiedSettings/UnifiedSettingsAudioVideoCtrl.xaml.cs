@@ -73,6 +73,15 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 Cameras = cameraNames.ToArray();
             }
 */
+            foreach (var item in PreferredVideoSizeComboBox.Items)
+            {
+                var tb = item as TextBlock;
+                if (GetPreferredVideoSizeId(tb).Equals(App.CurrentAccount.PreferredVideoId))
+                {
+                    PreferredVideoSizeComboBox.SelectedItem = item;
+                    break;
+                }
+            }
 
             MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
             MuteSpeakerCheckBox.IsChecked = App.CurrentAccount.MuteSpeaker;
@@ -405,5 +414,53 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
 */        }
         #endregion
+
+        private bool IsPreferredVideoSizeChanged()
+        {
+            if (App.CurrentAccount == null)
+                return false;
+
+            var tb = PreferredVideoSizeComboBox.SelectedItem as TextBlock;
+            string str = GetPreferredVideoSizeId(tb);
+            if ((string.IsNullOrWhiteSpace(str) && !string.IsNullOrWhiteSpace(App.CurrentAccount.PreferredVideoId)) ||
+                (!string.IsNullOrWhiteSpace(str) && string.IsNullOrWhiteSpace(App.CurrentAccount.PreferredVideoId)))
+                return true;
+            if ((!string.IsNullOrWhiteSpace(str) && !string.IsNullOrWhiteSpace(App.CurrentAccount.PreferredVideoId)) &&
+                (!str.Equals(App.CurrentAccount.PreferredVideoId)))
+                return true;
+            return false;
+        }
+
+        private string GetPreferredVideoSizeId(TextBlock tb)
+        {
+            if (tb == null)
+                return string.Empty;
+
+            var index = tb.Text.IndexOf(" (", System.StringComparison.Ordinal);
+            return index != -1 ? tb.Text.Substring(0, index).Trim() : string.Empty;
+        }
+
+        private void OnPreferredVideoSize(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Preferred Video Size Clicked");
+            if (App.CurrentAccount == null)
+                return;
+            if (!IsPreferredVideoSizeChanged())
+            {
+                return;
+            }
+
+            var tb = PreferredVideoSizeComboBox.SelectedItem as TextBlock;
+            if (tb != null)
+            {
+                string str = GetPreferredVideoSizeId(tb);
+                if (string.IsNullOrWhiteSpace(str))
+                    return;
+                // check to see if the value changed
+                App.CurrentAccount.PreferredVideoId = str;
+            }
+            ServiceManager.Instance.ApplyMediaSettingsChanges();
+            ServiceManager.Instance.SaveAccountSettings();
+        }
     }
 }

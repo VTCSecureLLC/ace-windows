@@ -90,6 +90,9 @@ namespace com.vtcsecure.ace.windows.CustomControls
             ctrlOverlay.CallsSwitchOverlayWidth = 190;
             ctrlOverlay.CallsSwitchOverlayHeight = 200;
 
+            ctrlOverlay.OnHoldOverlayWidth = 660;
+            ctrlOverlay.OnHoldOverlayHeight = 200;
+
             _mouseInactivityTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(3),
@@ -643,6 +646,13 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 _mouseInactivityTimer.Start();
                 _inactivityTimerStopped = false;
             }
+        }
+        
+        public void CheckRttButton()
+        {
+            _viewModel.IsRttOn = true;
+            BtnRTT.IsChecked = _viewModel.IsRttOn;
+            _viewModel.SavedIsRttOn = BtnRTT.IsChecked ?? false;
         }
     }
 }

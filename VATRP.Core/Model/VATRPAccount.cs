@@ -15,6 +15,10 @@ namespace VATRP.Core.Model
         private string _transport;
         private string _mediaEncryption;
 
+        // I do not think that we want to write this out locally, we will be looking it up.
+        //   Stashing it here for now so that we can reference it for the technical support sheet.
+        //   Also, I think that we may wind up referencing this instead of copying the information over as we proceed.
+        public ACEConfig configuration;
         #endregion
 
         #region Properties
@@ -164,12 +168,16 @@ namespace VATRP.Core.Model
             }
         }
 
+        //public List<VATRPCodec> AvailableAudioCodecsList = new List<VATRPCodec>();
+        //public List<VATRPCodec> AvailableVideoCodecsList = new List<VATRPCodec>();
         public List<VATRPCodec> AudioCodecsList = new List<VATRPCodec>();
         public List<VATRPCodec> VideoCodecsList = new List<VATRPCodec>();
 
         [Column]
         public bool UserNeedsAgentView { get; set; }
 
+        [Column]
+        public int VideoMailCount { get; set; }
 
         #endregion
 
@@ -207,6 +215,7 @@ namespace VATRP.Core.Model
             SelectedMicrophoneId = string.Empty;
             SelectedSpeakerId = string.Empty;
             UserNeedsAgentView = false;
+            VideoMailCount = 0;
         }
 
         #endregion

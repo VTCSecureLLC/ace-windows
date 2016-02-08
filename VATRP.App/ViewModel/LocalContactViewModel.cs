@@ -1,7 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Threading;
 using System.Windows.Media;
+using System.Windows.Threading;
+using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Enums;
+using VATRP.Core.Events;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using VATRP.LinphoneWrapper.Enums;
@@ -13,9 +17,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private VATRPContact _contact;
         private IContactsService _contactService;
         private LinphoneRegistrationState _registrationState;
+        private int _videoMailCount;
 
         public LocalContactViewModel()
         {
+            _videoMailCount = 0;
             _registrationState = LinphoneRegistrationState.LinphoneRegistrationCleared;
         }
 
@@ -23,11 +29,22 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             this._contactService = contactSvc;
             this._contactService.LoggedInContactUpdated += OnLocalContactChanged;
+            ServiceManager.Instance.LinphoneService.OnMWIReceivedEvent += OnVideoMailCountChanged;
         }
 
         private void OnLocalContactChanged(object sender, VATRP.Core.Events.ContactEventArgs e)
         {
             Contact = this._contactService.FindContact(e.Contact);
+        }
+
+        private void OnVideoMailCountChanged(MWIEventArgs args)
+        {
+            if (ServiceManager.Instance.Dispatcher.Thread != Thread.CurrentThread)
+            {
+                ServiceManager.Instance.Dispatcher.BeginInvoke((Action)(() => this.OnVideoMailCountChanged(args)));
+                return;
+            }
+            VideoMailCount++;
         }
 
         public VATRPContact Contact
@@ -47,6 +64,23 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 _registrationState = value;
                 OnPropertyChanged("RegistrationState");
+            }
+        }
+
+        public int VideoMailCount
+        {
+            get { return _videoMailCount; }
+            set
+            {
+                _videoMailCount = value;
+
+                if (App.CurrentAccount != null)
+                {
+                    App.CurrentAccount.VideoMailCount = value;
+                    ServiceManager.Instance.AccountService.Save();
+                }
+
+                OnPropertyChanged("VideoMailCount");
             }
         }
     }

@@ -69,8 +69,14 @@
           <Component Id='com_ZLIB.DLL' Guid='394E8FFF-7338-4328-95DF-AA5A5CDD44ED' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='ZLIB.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='zlib.dll' Source='ThirdParties\liblinphone\zlib.dll' KeyPath='yes' />
           </Component>
+          <Component Id='com_BELCARD.DLL' Guid='F2AD22BC-8A70-4A34-AC0D-D71D734E5C67' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+            <File Id='BELCARD.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='belcard.dll' Source='ThirdParties\liblinphone\belcard.dll' KeyPath='yes' />
+          </Component>
           <Component Id='com_BELLESIP.DLL' Guid='F2AD22BC-8A70-4A34-AC0D-D71D734E5C57' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='BELLESIP.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='bellesip.dll' Source='ThirdParties\liblinphone\bellesip.dll' KeyPath='yes' />
+          </Component>
+          <Component Id='com_BELR.DLL' Guid='F2AD22BC-8A70-4A34-AC0D-D71D734E5C47' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+            <File Id='BELR.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='belr.dll' Source='ThirdParties\liblinphone\belr.dll' KeyPath='yes' />
           </Component>
           <Component Id='com_LINPHONEWRAPPER.DLL' Guid='FBA2DCAA-CAAF-4A92-9DB4-9C065BC39286' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='LINPHONEWRAPPER.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='ACE.LinphoneWrapper.dll' Source='VATRP.Core\bin\$(var.Configuration)\ACE.LinphoneWrapper.dll' KeyPath='yes' />
@@ -132,6 +138,9 @@
           <Component Id='com_MSVCR120D.DLL' Guid='D95D4E57-CE4E-496A-A5A3-D59B5A5F18CF' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='MSVCR120D.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='msvcr120d.dll' Source='ThirdParties\liblinphone\msvcr120d.dll' KeyPath='yes' />
           </Component>
+          <Component Id='com_MSVCP120.DLL' Guid='BC28483E-7D41-4B01-AE68-97F45FCE0D70' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+            <File Id='MSVCP120.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='msvcp120.dll' Source='ThirdParties\liblinphone\msvcp120.dll' KeyPath='yes' />
+          </Component>
           <Component Id='com_CUSTOMACTIONS.CA.DLL' Guid='E7C4B276-CE9B-43d9-B70D-0F4B732564A4' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='VATRP.CUSTOMACTIONS.CA.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='VATRP.CustomActions.CA.dll' Source='VATRP.CustomActions\bin\$(var.Configuration)\VATRP.CustomActions.CA.dll' KeyPath='yes' />
           </Component>
@@ -188,7 +197,9 @@
       <ComponentRef Id='com_LINPHONE.DLL' />
       <ComponentRef Id='com_XML2.DLL' />
       <ComponentRef Id='com_ZLIB.DLL' />
+      <ComponentRef Id='com_BELCARD.DLL' />
       <ComponentRef Id='com_BELLESIP.DLL' />
+      <ComponentRef Id='com_BELR.DLL' />
       <ComponentRef Id='com_LINPHONEWRAPPER.DLL' />
       <ComponentRef Id='com_OPUS.DLL' />
       <ComponentRef Id='com_HOCKEYAPP.DLL' />
@@ -214,6 +225,7 @@
       <ComponentRef Id='com_UNINSTALL.EXE' />
       <ComponentRef Id='com_MSVCR120.DLL'/>
       <ComponentRef Id='com_MSVCR120D.DLL'/>
+      <ComponentRef Id='com_MSVCP120.DLL'/>
       <ComponentRef Id='com_CUSTOMACTIONS.CA.DLL'/>
       <ComponentRef Id='com_CUSTOMACTIONS.DLL'/>
       <ComponentRef Id='com_ROOTCA.PEM'/>

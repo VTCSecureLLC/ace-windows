@@ -682,8 +682,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 isUserAgent = App.CurrentAccount.UserNeedsAgentView;
             }
-            if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.AUTO_ANSWER, false) || isUserAgent)
+            if ((ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.AUTO_ANSWER, false) || isUserAgent) && 
+                (ServiceManager.Instance.LinphoneService.GetActiveCallsCount == 1) )
             {
                 if (autoAnswerTimer != null)
                 {

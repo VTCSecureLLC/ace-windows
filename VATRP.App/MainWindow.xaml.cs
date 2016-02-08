@@ -54,9 +54,14 @@ namespace com.vtcsecure.ace.windows
         private readonly MainControllerViewModel _mainViewModel;
         private Size CombinedUICallViewSize = new Size(700, 700);
         private Point _lastWindowPosition;
+        private bool _playRegisterNotify = true;
         private readonly DispatcherTimer deferredHideTimer = new DispatcherTimer()
         {
             Interval = TimeSpan.FromMilliseconds(2000),
+        };
+        private readonly DispatcherTimer deferredShowPreviewTimer = new DispatcherTimer()
+        {
+            Interval = TimeSpan.FromMilliseconds(500),
         };
         #endregion
 
@@ -77,6 +82,7 @@ namespace com.vtcsecure.ace.windows
             _linphoneService.CallStateChangedEvent += OnCallStateChanged;
             _linphoneService.GlobalStateChangedEvent += OnGlobalStateChanged;
             ServiceManager.Instance.NewAccountRegisteredEvent += OnNewAccountRegistered;
+            ServiceManager.Instance.LinphoneCoreStartedEvent += OnLinphoneCoreStarted;
             InitializeComponent();
             DataContext = _mainViewModel;
             ctrlHistory.SetDataContext(_mainViewModel.HistoryModel);
@@ -91,7 +97,8 @@ namespace com.vtcsecure.ace.windows
 
             ctrlSettings.SetCallControl(ctrlCall);
             ctrlCall.SettingsControl = ctrlSettings;
-            deferredHideTimer.Tick += DefferedHideOnError;
+            deferredHideTimer.Tick += DeferedHideOnError;
+            deferredShowPreviewTimer.Tick += DeferredShowPreview;
             CombinedUICallViewSize.Width = 700;
             CombinedUICallViewSize.Height = 700;
         }
@@ -106,6 +113,8 @@ namespace com.vtcsecure.ace.windows
                 _mainViewModel.IsContactDocked = false;
                 _mainViewModel.IsSettingsDocked = false;
                 _mainViewModel.IsResourceDocked = false;
+                _mainViewModel.HistoryModel.ResetLastMissedCallTime();
+                _mainViewModel.UIMissedCallsCount = 0;
             }
             _mainViewModel.IsCallHistoryDocked = isChecked;
         }
@@ -361,6 +370,7 @@ namespace com.vtcsecure.ace.windows
             {
                 ProviderLoginScreen wizardPage = new ProviderLoginScreen(this);
                 currentAccount.Password = ""; // clear password for logout
+                ServiceManager.Instance.AccountService.Save();
                 wizardPage.InitializeToAccount(currentAccount);
                 ChangeWizardPage(wizardPage);
             } // else let it go to the front by default to set up a new account with new service selection
@@ -420,13 +430,30 @@ namespace com.vtcsecure.ace.windows
 
         public void InitializeMainWindow()
         {
+            // this method does not take into account the two checkboxes that allow the user to select whether or not to
+            //   remember the password and whether or not to automatically login.
+
             ServiceManager.Instance.UpdateLoggedinContact();
-            ServiceManager.Instance.StartupLinphoneCore();
 
             if (App.CurrentAccount == null || !App.CurrentAccount.Username.NotBlank())
             {
                 if (_mainViewModel.ActivateWizardPage)
                     OnVideoRelaySelect(this, null);
+            }
+            else
+            {
+                if (!App.CurrentAccount.AutoLogin || string.IsNullOrEmpty(App.CurrentAccount.Password))
+                {
+                    var wizardPage = new ProviderLoginScreen(this);
+                    wizardPage.InitializeToAccount(App.CurrentAccount);
+
+                    ChangeWizardPage(wizardPage);
+                }
+                else
+                {
+                    // if the user has selected not to log in automatically, make sure that we move to the 
+                    ServiceManager.Instance.StartupLinphoneCore();
+                }
             }
         }
 
@@ -457,6 +484,7 @@ namespace com.vtcsecure.ace.windows
             ctrlCall.RttToggled += OnRttToggled;
             ctrlCall.FullScreenOnToggled += OnFullScreenToggled;
             ctrlCall.SwitchHoldCallsRequested += OnSwitchHoldCallsRequested;
+            ctrlCall.VideoOnToggled += OnCameraSwitched;
 
             _callOverlayView.CallManagerView = _callView;
             ctrlHistory.MakeCallRequested += OnMakeCallRequested;
@@ -464,6 +492,8 @@ namespace com.vtcsecure.ace.windows
             ctrlCall.KeypadCtrl = _keypadCtrl;
             ctrlDialpad.KeypadPressed += OnDialpadClicked;
             _mainViewModel.DialpadHeight = ctrlDialpad.ActualHeight;
+
+            _mainViewModel.MessagingModel.RttReceived += OnRttReceived;
 
             // Liz E. - ToDo unified Settings
             ctrlSettings.AccountChangeRequested += OnAccountChangeRequested;
@@ -474,8 +504,9 @@ namespace com.vtcsecure.ace.windows
             //ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
 
             ctrlResource.CallResourceRequested += OnCallResourceRequested;
+            ctrlLocalContact.CallResourceRequested += OnCallResourceRequested;
 
-            if (App.CurrentAccount != null)
+            if ((App.CurrentAccount != null) && App.CurrentAccount.AutoLogin && App.CurrentAccount.Password.NotBlank())
             {
                 if (!string.IsNullOrEmpty(App.CurrentAccount.ProxyHostname) &&
                     !string.IsNullOrEmpty(App.CurrentAccount.RegistrationPassword) &&
@@ -484,7 +515,8 @@ namespace com.vtcsecure.ace.windows
                 {
                     _mainViewModel.OfferServiceSelection = false;
                     _mainViewModel.IsAccountLogged = true;
-                    // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
+                    _mainViewModel.ContactModel.VideoMailCount = App.CurrentAccount.VideoMailCount;
+                    // VATRP-1899: This is a quick and dirty solution for POC. It will be functional, but not the end implementation we will want.
                     if (!App.CurrentAccount.UserNeedsAgentView)
                     {
                         OpenAnimated();
@@ -556,7 +588,7 @@ namespace com.vtcsecure.ace.windows
                 CombinedUICallViewSize.Height = szDimensions.Height;
                 this.SizeToContent = SizeToContent.WidthAndHeight;
                 WindowState = System.Windows.WindowState.Normal;
-                this.ResizeMode = System.Windows.ResizeMode.NoResize;
+                this.ResizeMode = System.Windows.ResizeMode.CanMinimize;
                 this.Left = _lastWindowPosition.X;
                 this.Top = _lastWindowPosition.Y;
                 this.CallViewBorder.BorderThickness = new Thickness(1, 0, 1, 0);
@@ -615,7 +647,17 @@ namespace com.vtcsecure.ace.windows
             ctrlCall.ctrlOverlay.NewCallAcceptWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.NewCallAcceptOverlayWidth) / 2 + offset;
             ctrlCall.ctrlOverlay.NewCallAcceptWindowTopMargin = topleftInScreen.Y + (ctrlCall.ActualHeight - ctrlCall.ctrlOverlay.NewCallAcceptOverlayHeight) / 2;
 
+            ctrlCall.ctrlOverlay.OnHoldOverlayWidth = 100;// (int)callViewDimensions.Width - 30;
+            ctrlCall.ctrlOverlay.OnHoldWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.OnHoldOverlayWidth) / 2 + offset;
+            ctrlCall.ctrlOverlay.OnHoldWindowTopMargin = ctrlCall.ctrlOverlay.CallInfoOverlayHeight + ctrlCall.ctrlOverlay.CallInfoWindowTopMargin + 40;// topleftInScreen.Y + 40;
+
             ctrlCall.ctrlOverlay.Refresh();
+        }
+
+        private void OnCameraSwitched(bool switch_on)
+        {
+            if (_mainViewModel.ActiveCallModel != null && _mainViewModel.ActiveCallModel.ActiveCall != null)
+                ServiceManager.Instance.LinphoneService.SendCameraSwtichAsInfo(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr, switch_on);
         }
 
         private void OnRttToggled(bool switch_on)
@@ -628,6 +670,15 @@ namespace com.vtcsecure.ace.windows
             if (_mainViewModel.IsInCallFullScreen)
             {
                 RearrangeUICallView(GetCallViewSize());
+            }
+        }
+
+        private void OnRttReceived(object sender, EventArgs e)
+        {
+            if (!_mainViewModel.IsMessagingDocked)
+            {
+                ctrlCall.CheckRttButton();
+                OnRttToggled(true);
             }
         }
 
@@ -701,9 +752,7 @@ namespace com.vtcsecure.ace.windows
                     _mainViewModel.IsCallHistoryDocked = false;
                     _mainViewModel.IsContactDocked = false;
                     _mainViewModel.IsMessagingDocked = false;
-                    ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-                        Configuration.ConfEntry.ACCOUNT_IN_USE, string.Empty);
-
+                    
                     this.Wizard_HandleLogout();
                 }
                     break;
@@ -787,7 +836,20 @@ namespace com.vtcsecure.ace.windows
         {
             if (_selfView != null)
             {
-                ToggleWindow(_selfView);
+                bool enabled = this.ShowSelfPreviewItem.IsChecked;
+                if (!enabled)
+                {
+                    _selfView.Hide();
+                }
+                else if (!_selfView.IsVisible)
+                {
+                    _selfView.Show();
+                    _selfView.Activate();
+                }
+            }
+            else
+            {
+                this.ShowSelfPreviewItem.IsChecked = false;
             }
         }
 

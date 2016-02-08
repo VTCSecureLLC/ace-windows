@@ -1190,7 +1190,7 @@ namespace VATRP.LinphoneWrapper
         public static extern float linphone_call_stats_get_receiver_interarrival_jitter(IntPtr stats, IntPtr call);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_call_stats_get_rtp_stats(IntPtr stats);
+        public static extern RtpStats linphone_call_stats_get_rtp_stats(IntPtr stats);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern UInt64 linphone_call_stats_get_late_packets_cumulative_number(IntPtr stats, IntPtr call);
@@ -2180,6 +2180,85 @@ namespace VATRP.LinphoneWrapper
         [DllImport("ortp.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void ortp_free(IntPtr p);
 
+        #region Contacts
+
+        /**
+ * Returns the vCard object associated to this friend, if any
+ * @param[in] fr LinphoneFriend object
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_get_vcard(IntPtr fr);
+
+/**
+ * Binds a vCard object to a friend
+ * @param[in] fr LinphoneFriend object
+ * @param[in] vcard The vCard object to bind
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_friend_set_vcard(IntPtr fr, IntPtr vcard);
+
+/**
+ * Creates a vCard object associated to this friend if there isn't one yet and if the full name is available, either by the parameter or the one in the friend's SIP URI
+ * @param[in] fr LinphoneFriend object
+ * @param[in] name The full name of the friend or NULL to use the one from the friend's SIP URI
+ * @return true if the vCard has been created, false if it wasn't possible (for exemple if name and the friend's SIP URI are null or if the friend's SIP URI doesn't have a display name), or if there is already one vcard
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_friend_create_vcard(IntPtr fr, string name);
+
+/**
+ * Contructor same as linphone_friend_new() + linphone_friend_set_address()
+ * @param vcard a vCard object
+ * @return a new #LinphoneFriend with \link linphone_friend_get_vcard() vCard initialized \endlink
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_new_from_vcard(IntPtr vcard);
+
+/**
+ * Creates and adds LinphoneFriend objects to LinphoneCore from a file that contains the vCard(s) to parse
+ * @param[in] lc the LinphoneCore object
+ * @param[in] vcard_file the path to a file that contains the vCard(s) to parse
+ * @return the amount of linphone friends created
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_import_friends_from_vcard4_file(IntPtr lc, string vcard_file);
+
+/**
+ * Creates and export LinphoneFriend objects from LinphoneCore to a file using vCard 4 format
+ * @param[in] lc the LinphoneCore object
+ * @param[in] vcard_file the path to a file that will contain the vCards
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_export_friends_as_vcard4_file(IntPtr lc, string vcard_file);
+
+/**
+ * Sets the database filename where friends will be stored.
+ * If the file does not exist, it will be created.
+ * @ingroup initializing
+ * @param lc the linphone core
+ * @param path filesystem path
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_friends_database_path(IntPtr lc, string path);
+
+/**
+ * Migrates the friends from the linphonerc to the database if not done yet
+ * @ingroup initializing
+ * @param lc the linphone core
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_migrate_friends_from_rc_to_db(IntPtr lc);
+
+        #endregion
+
         #region Configuration
 
         /**void linphone_proxy_config_set_dial_prefix (LinphoneProxyConfig* cfg, const char* prefix)
@@ -2318,6 +2397,165 @@ namespace VATRP.LinphoneWrapper
 **/
         [DllImport("mediastreamer_base.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr ms_list_copy(IntPtr list);
+
+        #endregion
+
+        #region Content
+
+        /**
+ * Get the mime type of the content data.
+ * @param[in] content LinphoneContent object.
+ * @return The mime type of the content data, for example "application".
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_content_get_type(IntPtr content);
+
+/**
+ * Set the mime type of the content data.
+ * @param[in] content LinphoneContent object.
+ * @param[in] type The mime type of the content data, for example "application".
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_content_set_type(IntPtr content, IntPtr type);
+
+/**
+ * Get the mime subtype of the content data.
+ * @param[in] content LinphoneContent object.
+ * @return The mime subtype of the content data, for example "html".
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_content_get_subtype(IntPtr content);
+
+/**
+ * Set the mime subtype of the content data.
+ * @param[in] content LinphoneContent object.
+ * @param[in] subtype The mime subtype of the content data, for example "html".
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_content_set_subtype(IntPtr content, IntPtr subtype);
+
+/**
+ * Get the content data buffer, usually a string.
+ * @param[in] content LinphoneContent object.
+ * @return The content data buffer.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_content_get_buffer(IntPtr content);
+
+/**
+ * Set the content data buffer, usually a string.
+ * @param[in] content LinphoneContent object.
+ * @param[in] buffer The content data buffer.
+ * @param[in] size The size of the content data buffer.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_content_set_buffer(IntPtr content, IntPtr buffer, uint size);
+
+/**
+ * Get the string content data buffer.
+ * @param[in] content LinphoneContent object
+ * @return The string content data buffer.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_content_get_string_buffer(IntPtr content);
+
+/**
+ * Set the string content data buffer.
+ * @param[in] content LinphoneContent object.
+ * @param[in] buffer The string content data buffer.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_content_set_string_buffer(IntPtr content, IntPtr buffer);
+
+/**
+ * Get the content data buffer size, excluding null character despite null character is always set for convenience.
+ * @param[in] content LinphoneContent object.
+ * @return The content data buffer size.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern uint linphone_content_get_size(IntPtr content);
+
+/**
+ * Set the content data size, excluding null character despite null character is always set for convenience.
+ * @param[in] content LinphoneContent object
+ * @param[in] size The content data buffer size.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_content_set_size(IntPtr content, uint size);
+
+/**
+ * Get the encoding of the data buffer, for example "gzip".
+ * @param[in] content LinphoneContent object.
+ * @return The encoding of the data buffer.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_content_get_encoding(IntPtr content);
+
+/**
+ * Set the encoding of the data buffer, for example "gzip".
+ * @param[in] content LinphoneContent object.
+ * @param[in] encoding The encoding of the data buffer.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_content_set_encoding(IntPtr content, IntPtr encoding);
+
+/**
+ * Get the name associated with a RCS file transfer message. It is used to store the original filename of the file to be downloaded from server.
+ * @param[in] content LinphoneContent object.
+ * @return The name of the content.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_content_get_name(IntPtr content);
+
+/**
+ * Set the name associated with a RCS file transfer message. It is used to store the original filename of the file to be downloaded from server.
+ * @param[in] content LinphoneContent object.
+ * @param[in] name The name of the content.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_content_set_name(IntPtr content, IntPtr name);
+
+        #endregion
+
+        #region Info message
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_create_info_message(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_call_send_info_message(IntPtr call, IntPtr info);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_info_message_add_header(IntPtr im, string name, string value);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_info_message_get_header(IntPtr im, string name);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_info_message_set_content(IntPtr im, IntPtr content);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_info_message_get_content(IntPtr im);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_info_message_destroy(IntPtr im);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_info_message_copy(IntPtr orig);
 
         #endregion
     }

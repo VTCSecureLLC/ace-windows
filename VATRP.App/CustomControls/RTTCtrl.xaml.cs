@@ -9,6 +9,7 @@ using com.vtcsecure.ace.windows.ViewModel;
 using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 using System.Threading;
+using System.Windows.Threading;
 using VATRP.Core.Model;
 
 namespace com.vtcsecure.ace.windows.CustomControls
@@ -19,13 +20,65 @@ namespace com.vtcsecure.ace.windows.CustomControls
     public partial class RTTCtrl : UserControl
     {
         #region Members
+
+        private string pasteText = string.Empty;
         private MessagingViewModel _viewModel;
+        private readonly DispatcherTimer pasteHandlerTimer = new DispatcherTimer()
+        {
+            Interval = TimeSpan.FromMilliseconds(20),
+        };
+
         #endregion
 
         public RTTCtrl()
         {
             InitializeComponent();
+            pasteHandlerTimer.Tick += OnCheckPastedText;
+            DataObject.AddPastingHandler(MessageTextBox, PasteHandler);
             ServiceManager.Instance.ChatService.ConversationUpdated += ChatManagerOnConversationUpdated;
+        }
+
+        private void OnCheckPastedText(object sender, EventArgs e)
+        {
+            pasteHandlerTimer.Stop();
+            if (!ServiceManager.Instance.IsRttAvailable || !_viewModel.IsSendingModeRTT)
+            {
+                if (_viewModel.MessageText == "\r")
+                {
+                    _viewModel.SendMessage(_viewModel.MessageText);
+                }
+                else
+                {
+                    string msgText = MessageTextBox.Text;
+                    if (msgText.Length > 199)
+                    {
+                        _viewModel.SendMessage(msgText.Substring(0, 200));
+                        _viewModel.MessageText = msgText.Remove(0, 200);
+                        MessageTextBox.CaretIndex = _viewModel.MessageText.Length;
+                    }
+                }
+            }
+            else
+            {
+                _viewModel.EnqueueInput(pasteText);
+            }
+        }
+
+        private void PasteHandler(object sender, DataObjectPastingEventArgs e)
+        {
+            TextBox tb = sender as TextBox;
+
+            if (e.DataObject.GetDataPresent(typeof(string)))
+            {
+                pasteText = e.DataObject.GetData(typeof(string)) as string;
+
+                if (string.IsNullOrEmpty(pasteText))
+                    return;
+
+                if (pasteHandlerTimer.IsEnabled)
+                    pasteHandlerTimer.Stop();
+                pasteHandlerTimer.Start();
+            }
         }
 
         public void SetViewModel(MessagingViewModel viewModel)
@@ -82,7 +135,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             if (_viewModel != null)
             {
-                if (!ServiceManager.Instance.IsRttAvailable)
+                if (!ServiceManager.Instance.IsRttAvailable || !_viewModel.IsSendingModeRTT)
                 {
                     _viewModel.SendMessage(_viewModel.MessageText);
                 }
@@ -95,8 +148,28 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         private void OnTextInput(object sender, TextCompositionEventArgs e)
         {
-            if (_viewModel != null) 
-                _viewModel.EnqueueInput(e.Text);
+            if (_viewModel != null)
+            {
+                if (_viewModel.IsSendingModeRTT)
+                    _viewModel.EnqueueInput(e.Text);
+                else if (!string.IsNullOrEmpty(e.Text) )
+                {
+                    if (e.Text == "\r")
+                    {
+                        _viewModel.SendMessage(_viewModel.MessageText);
+                        _viewModel.MessageText = string.Empty;
+                    }
+                    else
+                    {
+                        if (_viewModel.MessageText.Length > 199)
+                        {
+                            _viewModel.SendMessage(_viewModel.MessageText.Substring(0, 200));
+                            _viewModel.MessageText = _viewModel.MessageText.Remove(0, 200);
+                            MessageTextBox.CaretIndex = _viewModel.MessageText.Length;
+                        }
+                    }
+                }
+            }
         }
 
         private void OnPreviewKeyDown(object sender, KeyEventArgs e)
@@ -128,8 +201,13 @@ namespace com.vtcsecure.ace.windows.CustomControls
             }
             if (inputKey != Char.MinValue)
             {
-                if (_viewModel != null) 
-                    _viewModel.EnqueueInput(inputKey.ToString());
+                if (_viewModel != null)
+                {
+                    if (_viewModel.IsSendingModeRTT)
+                    {
+                        _viewModel.EnqueueInput(inputKey.ToString());
+                    }
+                }
             }
         }
     }

@@ -63,8 +63,13 @@
     <Compile Include="Enums\MessageDirection.cs" />
     <Compile Include="Enums\TypingAction.cs" />
     <Compile Include="Enums\UserStatus.cs" />
+    <Compile Include="Events\InfoEventArgs.cs" />
+    <Compile Include="Events\HttpDownloadEventArgs.cs" />
     <Compile Include="Events\ConfigurationEventArgs.cs" />
     <Compile Include="Events\ContactBasedEventArgs.cs" />
+    <Compile Include="Events\CameraMuteEventArgs.cs" />
+    <Compile Include="Events\InfoEventBaseArgs.cs" />
+    <Compile Include="Events\MWIEventArgs.cs" />
     <Compile Include="Events\ContactEventArgs.cs" />
     <Compile Include="Events\ContactRemovedEventArgs.cs" />
     <Compile Include="Events\ContactStatusChangedEventArgs.cs" />
@@ -87,6 +92,7 @@
     <Compile Include="Interfaces\ILinphoneService.cs" />
     <Compile Include="Interfaces\ISoundService.cs" />
     <Compile Include="Interfaces\IVATRPservice.cs" />
+    <Compile Include="Model\ACEConfig.cs" />
     <Compile Include="Model\CallParams.cs" />
     <Compile Include="Model\Commands\CreateCallCommand.cs" />
     <Compile Include="Model\Commands\DeclineCallCommand.cs" />
@@ -96,7 +102,9 @@
     <Compile Include="Model\Commands\ResumeCallCommand.cs" />
     <Compile Include="Model\Commands\PauseCallCommand.cs" />
     <Compile Include="Model\Commands\TerminateCallCommand.cs" />
+    <Compile Include="Model\Utils\HttpDownloadHelper.cs" />
     <Compile Include="Model\VATRPDevice.cs" />
+    <Compile Include="Model\VATRPDomain.cs" />
     <Compile Include="Model\VATRPServiceProvider.cs" />
     <Compile Include="Model\VATRPUserGroup.cs" />
     <Compile Include="Model\Utils\Time.cs" />

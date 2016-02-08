@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Microsoft.Deployment.WindowsInstaller;
+using Microsoft.Win32;
 
 namespace VATRP.CustomActions
 {
@@ -33,6 +34,21 @@ namespace VATRP.CustomActions
             catch (Exception ex)
             {
                 session.Log("exception on RemoveUserData: " + ex.Message);
+            }
+
+            // Remove auto start key from registry if set
+            try
+            {
+                using (
+                    RegistryKey key =
+                        Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
+                {
+                    key.DeleteValue("ACE", false);
+                }
+            }
+            catch (Exception)
+            {
+                
             }
             return ActionResult.Success;
         }

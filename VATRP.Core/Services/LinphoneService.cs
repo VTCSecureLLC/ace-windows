@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using log4net;
 using VATRP.Core.Enums;
+using VATRP.Core.Events;
 using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
@@ -58,12 +59,16 @@ namespace VATRP.Core.Services
         private LinphoneCoreMessageReceivedCb message_received;
         private LinphoneChatMessageCbsMsgStateChangedCb message_status_changed;
         private LinphoneCoreCallLogUpdatedCb call_log_updated;
+        private LinphoneCoreInfoReceivedCb info_received;
         private readonly string _chatLogPath;
         private readonly string _callLogPath;
+        private readonly string _contactsPath;
 
         private LinphoneRegistrationState currentRegistrationState;
         private IntPtr _linphoneAudioCodecsList = IntPtr.Zero;
         private IntPtr _linphoneVideoCodecsList = IntPtr.Zero;
+        private List<IntPtr> _declinedCallsList = new List<IntPtr>();
+        
         #endregion
 
 		#region Delegates
@@ -104,6 +109,8 @@ namespace VATRP.Core.Services
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void LinphoneCoreCallLogUpdatedCb(IntPtr lc, IntPtr newcl);
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void LinphoneCoreInfoReceivedCb(IntPtr lc, IntPtr call, IntPtr msg);
 		#endregion
 
 		#region Events
@@ -122,7 +129,7 @@ namespace VATRP.Core.Services
 		public delegate void NotifyReceivedDelegate(string notify_event);
 		public event NotifyReceivedDelegate NotifyReceivedEvent;
 
-        public delegate void CallStatisticsChangedDelegate(VATRPCall call, LinphoneCallStats stats);
+        public delegate void CallStatisticsChangedDelegate(VATRPCall call);
         public event CallStatisticsChangedDelegate CallStatisticsChangedEvent;
 
         public delegate void IsComposingReceivedDelegate(string remoteUser, IntPtr chatPtr, uint rttCode);
@@ -136,6 +143,13 @@ namespace VATRP.Core.Services
 
         public delegate void OnCallLogUpdatedDelegate(IntPtr lc, IntPtr callPtr);
         public event OnCallLogUpdatedDelegate OnLinphoneCallLogUpdatedEvent;
+
+        public delegate void MWIReceivedDelegate(MWIEventArgs args);
+        public event MWIReceivedDelegate OnMWIReceivedEvent;
+
+        public delegate void InfoReceivedDelegate(InfoEventBaseArgs args);
+        public event InfoReceivedDelegate OnCameraMuteEvent;
+
 		#endregion
 
 		#region Properties
@@ -215,6 +229,7 @@ namespace VATRP.Core.Services
 			_isStarted = false;
 		    _chatLogPath = manager.BuildStoragePath("chathistory.db");
 		    _callLogPath = manager.BuildStoragePath("callhistory.db");
+            _contactsPath = manager.BuildStoragePath("contacts.db");
 		}
 
         public bool Start(bool enableLogs)
@@ -245,6 +260,8 @@ namespace VATRP.Core.Services
             message_received = new LinphoneCoreMessageReceivedCb(OnMessageReceived);
             message_status_changed = new LinphoneChatMessageCbsMsgStateChangedCb(OnMessageStatusChanged);
             call_log_updated = new LinphoneCoreCallLogUpdatedCb(OnCallLogUpdated);
+            info_received = new LinphoneCoreInfoReceivedCb(OnInfoEventReceived);
+
 			vtable = new LinphoneCoreVTable()
 			{
 				global_state_changed = Marshal.GetFunctionPointerForDelegate(global_state_changed),
@@ -262,7 +279,7 @@ namespace VATRP.Core.Services
 				transfer_state_changed = IntPtr.Zero,
 				buddy_info_updated = IntPtr.Zero,
                 call_stats_updated = Marshal.GetFunctionPointerForDelegate(call_stats_updated),
-				info_received = IntPtr.Zero,
+				info_received = Marshal.GetFunctionPointerForDelegate(info_received),
 				subscription_state_changed = IntPtr.Zero,
 				notify_received = Marshal.GetFunctionPointerForDelegate(notify_received),
 				publish_state_changed = IntPtr.Zero,
@@ -311,6 +328,8 @@ namespace VATRP.Core.Services
 
                 LinphoneAPI.linphone_core_set_chat_database_path(linphoneCore, _chatLogPath);
                 LinphoneAPI.linphone_core_set_call_logs_database_path(linphoneCore, _callLogPath);
+                LinphoneAPI.linphone_core_set_friends_database_path(linphoneCore, _contactsPath);
+			    LinphoneAPI.linphone_core_migrate_friends_from_rc_to_db(linphoneCore);
 
 			    IntPtr defProxyCfg = LinphoneAPI.linphone_core_get_default_proxy_config(linphoneCore);
 			    if (defProxyCfg != IntPtr.Zero)
@@ -451,6 +470,7 @@ namespace VATRP.Core.Services
             registration_state_changed = null;
             call_state_changed = null;
             notify_received = null;
+            info_received = null;
             message_received = null;
             message_status_changed = null;
             call_log_updated = null;
@@ -959,6 +979,31 @@ namespace VATRP.Core.Services
             LinphoneAPI.linphone_call_enable_camera(callPtr, enableVideo);
         }
 
+        public void SendCameraSwtichAsInfo(IntPtr callPtr, bool muteCamera)
+        {
+            if (linphoneCore == IntPtr.Zero)
+                return;
+
+            if (callPtr == IntPtr.Zero)
+            {
+                LOG.Error("LinphoneService.SendCameraSwtichAsInfo: Attempting to switch camera but the call pointer is null. Returing without modifying call.");
+                return;
+            }
+
+            LOG.Info("Send Mute Camera info. Call- " + callPtr + " Mute: " + muteCamera);
+
+            IntPtr im = LinphoneAPI.linphone_core_create_info_message(linphoneCore);
+            if (im == IntPtr.Zero)
+            {
+                LOG.Error("LinphoneService.SendCameraSwtichAsInfo: Failed to create info message");
+                return;
+            }
+            
+            LinphoneAPI.linphone_info_message_add_header(im, "action", !muteCamera ? "camera_mute_on" : "camera_mute_off");
+            LinphoneAPI.linphone_call_send_info_message(callPtr, im);
+            LinphoneAPI.linphone_info_message_destroy(im);
+        }
+
         public void SendDtmf(VATRPCall call, char dtmf)
         {
             if (call == null)
@@ -1253,6 +1298,16 @@ namespace VATRP.Core.Services
 			bool isSelfViewEnabled = LinphoneAPI.linphone_core_self_view_enabled(linphoneCore);
 			LinphoneAPI.linphone_core_enable_self_view(linphoneCore, !isSelfViewEnabled);
 		}
+        public bool SetPreviewVideoSizeByName(string name)
+        {
+            string[] supportedResolutions = { "1080p", "720p", "svga", "4cif", "vga", "cif", "qvga", "qcif" };
+
+            if (!supportedResolutions.Contains(name.ToLower()))
+                return false;
+
+            LinphoneAPI.linphone_core_set_preview_video_size_by_name(linphoneCore, name.ToLower());
+            return true;
+        }
 
 		public void SetVideoPreviewWindowHandle(IntPtr hWnd, bool reset = false)
 		{
@@ -1265,7 +1320,6 @@ namespace VATRP.Core.Services
 		    }
 		    else
 		    {
-		        LinphoneAPI.linphone_core_use_preview_window(linphoneCore, true); // use preview in separated window
 		        LinphoneAPI.linphone_core_set_native_preview_window_id(linphoneCore, hWnd.ToInt64());
 		    }
 		}
@@ -1783,6 +1837,8 @@ namespace VATRP.Core.Services
 	        if (proxy_cfg != IntPtr.Zero)
 	        {
                 LinphoneAPI.linphone_proxy_config_set_avpf_mode(proxy_cfg, mode);
+                LinphoneAPI.linphone_proxy_config_set_avpf_rr_interval(proxy_cfg, 3);
+                LinphoneAPI.linphone_core_set_avpf_rr_interval(linphoneCore, 3);
 	        }
 
 	        IntPtr coreConfig = LinphoneAPI.linphone_core_get_config(linphoneCore);
@@ -1799,6 +1855,22 @@ namespace VATRP.Core.Services
                 return (int) LinphoneAVPFMode.LinphoneAVPFDefault;
 
             return LinphoneAPI.linphone_core_get_avpf_mode(linphoneCore);
+        }
+
+        public void SetRTCPFeedback(string settingValue)
+        {
+            if (settingValue.Equals("Off"))
+            {
+                SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFDisabled, LinphoneRTCPMode.LinphoneRTCPDisabled);
+            }
+            else if (settingValue.Equals("Implicit"))
+            {
+                SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFDisabled, LinphoneRTCPMode.LinphoneRTCPEnabled);
+            }
+            else if (settingValue.Equals("Explicit"))
+            {
+                SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFEnabled, LinphoneRTCPMode.LinphoneRTCPEnabled);
+            }
         }
 
         #endregion
@@ -1906,6 +1978,10 @@ namespace VATRP.Core.Services
                     removeCall = true;
 					break;
 				case LinphoneCallState.LinphoneCallReleased:
+			        if (_declinedCallsList.Contains(callPtr))
+			        {
+			            _declinedCallsList.Remove(callPtr);
+			        }
 			        return;
 			}
 
@@ -1913,58 +1989,74 @@ namespace VATRP.Core.Services
 		    {
 		        VATRPCall call = FindCall(callPtr);
 
-		        if (call == null && !removeCall)
+		        if (call == null)
 		        {
-		            LOG.Info("Call not found. Adding new call into list. ID - " + callPtr + " Calls count: " + callsList.Count);
-		            call = new VATRPCall(callPtr) {CallState = newstate, CallDirection = direction};
-		            CallParams from = direction == LinphoneCallDir.LinphoneCallIncoming ? call.From : call.To;
-		            CallParams to = direction == LinphoneCallDir.LinphoneCallIncoming ? call.To : call.From;
+		            if (_declinedCallsList.Contains(callPtr))
+		                return;
 
-		            if (
-		                !VATRPCall.ParseSipAddressEx(remoteParty, out from.DisplayName, out from.Username,
-		                    out from.HostAddress,
-		                    out from.HostPort))
-		                from.Username = "Unknown user";
-
-		            if (
-		                !VATRPCall.ParseSipAddressEx(remoteParty, out to.DisplayName, out to.Username, out to.HostAddress,
-		                    out to.HostPort))
-		                to.Username = "Unknown user";
-                    
-                    IntPtr chatPtr = LinphoneAPI.linphone_call_get_chat_room(callPtr);
-
-		            if (chatPtr != IntPtr.Zero)
+		            if (GetActiveCallsCount > 1)
 		            {
-		                VATRPContact contact;
-		                var contactAddress = string.Empty;
-		                if (direction == LinphoneCallDir.LinphoneCallIncoming)
-		                {
-		                    contactAddress = string.Format("{0}@{1}", from.Username, from.HostAddress);
-		                    contact = new VATRPContact(new ContactID(contactAddress, chatPtr))
-		                    {
-		                        DisplayName = from.DisplayName,
-		                        Fullname = from.Username,
-		                        SipUsername = from.Username
-		                    };
-		                }
-		                else
-		                {
-		                    contactAddress = string.Format("{0}@{1}", to.Username, to.HostAddress);
-		                    contact = new VATRPContact(new ContactID(contactAddress, chatPtr))
-		                    {
-		                        DisplayName = to.DisplayName,
-		                        Fullname = to.Username,
-		                        SipUsername = to.Username
-		                    };
-		                }
-		                contact.RegistrationName = contactAddress;
-		                call.ChatRoom = new VATRPChat(contact, "rtt");
-		                var loggedContact = manager.ContactService.FindLoggedInContact();
-		                if (loggedContact != null)
-		                    call.ChatRoom.AddContact(loggedContact);
+		                var cmd = new DeclineCallCommand(callPtr, LinphoneReason.LinphoneReasonDeclined);
+		                commandQueue.Enqueue(cmd);
+                        _declinedCallsList.Add(callPtr);
+		                return;
 		            }
 
-		            callsList.Add(call);
+		            if (!removeCall)
+		            {
+		                LOG.Info("Call not found. Adding new call into list. ID - " + callPtr + " Calls count: " +
+		                         callsList.Count);
+
+		                call = new VATRPCall(callPtr) {CallState = newstate, CallDirection = direction};
+		                CallParams from = direction == LinphoneCallDir.LinphoneCallIncoming ? call.From : call.To;
+		                CallParams to = direction == LinphoneCallDir.LinphoneCallIncoming ? call.To : call.From;
+
+		                if (
+		                    !VATRPCall.ParseSipAddressEx(remoteParty, out from.DisplayName, out from.Username,
+		                        out from.HostAddress,
+		                        out from.HostPort))
+		                    from.Username = "Unknown user";
+
+		                if (
+		                    !VATRPCall.ParseSipAddressEx(remoteParty, out to.DisplayName, out to.Username, out to.HostAddress,
+		                        out to.HostPort))
+		                    to.Username = "Unknown user";
+
+		                IntPtr chatPtr = LinphoneAPI.linphone_call_get_chat_room(callPtr);
+
+		                if (chatPtr != IntPtr.Zero)
+		                {
+		                    VATRPContact contact;
+		                    var contactAddress = string.Empty;
+		                    if (direction == LinphoneCallDir.LinphoneCallIncoming)
+		                    {
+		                        contactAddress = string.Format("{0}@{1}", from.Username, from.HostAddress);
+		                        contact = new VATRPContact(new ContactID(contactAddress, chatPtr))
+		                        {
+		                            DisplayName = from.DisplayName,
+		                            Fullname = from.Username,
+		                            SipUsername = from.Username
+		                        };
+		                    }
+		                    else
+		                    {
+		                        contactAddress = string.Format("{0}@{1}", to.Username, to.HostAddress);
+		                        contact = new VATRPContact(new ContactID(contactAddress, chatPtr))
+		                        {
+		                            DisplayName = to.DisplayName,
+		                            Fullname = to.Username,
+		                            SipUsername = to.Username
+		                        };
+		                    }
+		                    contact.RegistrationName = contactAddress;
+		                    call.ChatRoom = new VATRPChat(contact, "rtt");
+		                    var loggedContact = manager.ContactService.FindLoggedInContact();
+		                    if (loggedContact != null)
+		                        call.ChatRoom.AddContact(loggedContact);
+		                }
+
+		                callsList.Add(call);
+		            }
 		        }
 
 		        if (call != null)
@@ -1984,13 +2076,52 @@ namespace VATRP.Core.Services
 		    }
 		}
 
-		private void OnNotifyEventReceived(IntPtr lc, IntPtr lev, string notified_event, IntPtr body)
+		private void OnNotifyEventReceived(IntPtr lc, IntPtr eventPtr, string notified_event, IntPtr bodyPtr)
 		{
 			if (linphoneCore == IntPtr.Zero) return;
 
-			Debug.Print("linphoneService Notify:  " + notified_event);
-			if (NotifyReceivedEvent != null)
+		    if (bodyPtr != IntPtr.Zero)
+		    {
+		        IntPtr subTypePtr = LinphoneAPI.linphone_content_get_subtype(bodyPtr);
+		        if (subTypePtr != IntPtr.Zero)
+		        {
+		            if (Marshal.PtrToStringAnsi(subTypePtr) == "simple-message-summary")
+		            {
+		                if (OnMWIReceivedEvent != null)
+                            OnMWIReceivedEvent(new MWIEventArgs(1));
+		                return;
+		            }
+		        }
+		    }
+
+		    if (NotifyReceivedEvent != null)
 				NotifyReceivedEvent(notified_event);
+		}
+		
+        private void OnInfoEventReceived(IntPtr lc, IntPtr callPtr, IntPtr msgPtr)
+		{
+			if (linphoneCore == IntPtr.Zero) 
+                return;
+            
+		    if (msgPtr != IntPtr.Zero)
+		    {
+		        lock (callLock)
+		        {
+                    VATRPCall call = FindCall(callPtr);
+
+		            if (call != null)
+		            {
+		                IntPtr valuePtr = LinphoneAPI.linphone_info_message_get_header(msgPtr, "action");
+		                if (valuePtr != IntPtr.Zero)
+		                {
+		                    string val = Marshal.PtrToStringAnsi(valuePtr);
+                            if (val == "camera_mute_on" || val == "camera_mute_off")
+                                if (OnCameraMuteEvent != null)
+                                    OnCameraMuteEvent(new CameraMuteEventArgs(call, val == "camera_mute_off"));
+		                }
+		            }
+		        }
+		    }
 		}
 
         private void OnCallStatsUpdated(IntPtr lc, IntPtr callPtr, IntPtr statsPtr)
@@ -2002,10 +2133,8 @@ namespace VATRP.Core.Services
                 VATRPCall call = FindCall(callPtr);
                 if (call != null)
                 {
-                    var callStats =
-                        (LinphoneCallStats) Marshal.PtrToStructure(statsPtr, typeof (LinphoneCallStats));
                     if (CallStatisticsChangedEvent != null)
-                        CallStatisticsChangedEvent(call, callStats);
+                        CallStatisticsChangedEvent(call);
                 }
             }
         }
@@ -2181,7 +2310,7 @@ namespace VATRP.Core.Services
             return (LinphoneMediaEncryption)LinphoneAPI.linphone_call_params_get_media_encryption(curparams);
         }
 
-	    public LinphoneCallStats GetCallAudioStats(IntPtr callPtr)
+	    public void GetCallAudioStats(IntPtr callPtr, ref LinphoneCallStats stat)
 	    {
 	        lock (callLock)
 	        {
@@ -2193,14 +2322,18 @@ namespace VATRP.Core.Services
 
 	                if (statsPtr != IntPtr.Zero)
 	                {
-	                    return (LinphoneCallStats) Marshal.PtrToStructure(statsPtr, typeof (LinphoneCallStats));
+                        stat.download_bandwidth = LinphoneAPI.linphone_call_stats_get_download_bandwidth(statsPtr);
+                        stat.upload_bandwidth = LinphoneAPI.linphone_call_stats_get_upload_bandwidth(statsPtr);
+                        stat.ice_state = LinphoneAPI.linphone_call_stats_get_ice_state(statsPtr);
+                        stat.upnp_state = LinphoneAPI.linphone_call_stats_get_upnp_state(statsPtr);
+                        stat.total_late_packets = LinphoneAPI.linphone_call_stats_get_late_packets_cumulative_number(statsPtr, callPtr);
+                        stat.rtp_stats = LinphoneAPI.linphone_call_stats_get_rtp_stats(statsPtr);
 	                }
 	            }
 	        }
-	        return new LinphoneCallStats(); 
         }
 
-        public LinphoneCallStats GetCallVideoStats(IntPtr callPtr)
+        public void GetCallVideoStats(IntPtr callPtr, ref LinphoneCallStats stat)
         {
             lock (callLock)
             {
@@ -2212,11 +2345,15 @@ namespace VATRP.Core.Services
 
                     if (statsPtr != IntPtr.Zero)
                     {
-                        return (LinphoneCallStats) Marshal.PtrToStructure(statsPtr, typeof (LinphoneCallStats));
+                        stat.download_bandwidth = LinphoneAPI.linphone_call_stats_get_download_bandwidth(statsPtr);
+                        stat.upload_bandwidth = LinphoneAPI.linphone_call_stats_get_upload_bandwidth(statsPtr);
+                        stat.ice_state = LinphoneAPI.linphone_call_stats_get_ice_state(statsPtr);
+                        stat.upnp_state = LinphoneAPI.linphone_call_stats_get_upnp_state(statsPtr);
+                        stat.total_late_packets = LinphoneAPI.linphone_call_stats_get_late_packets_cumulative_number(statsPtr, callPtr);
+                        stat.rtp_stats = LinphoneAPI.linphone_call_stats_get_rtp_stats(statsPtr);
                     }
                 }
             }
-            return new LinphoneCallStats();
         }
 
         public void GetUsedPorts(out int sipPort, out int rtpPort)
@@ -2297,7 +2434,6 @@ namespace VATRP.Core.Services
         }
 
         #endregion
-
 
         #region IVATRPInterface
 

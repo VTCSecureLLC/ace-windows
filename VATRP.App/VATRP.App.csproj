@@ -151,6 +151,9 @@
     <Compile Include="CustomControls\Resources\ResourcePanel.xaml.cs">
       <DependentUpon>ResourcePanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\TechnicalSupportSheetCtrl.xaml.cs">
+      <DependentUpon>TechnicalSupportSheetCtrl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\UnifiedSettings\UnifiedSettingsAdvancedCtrl.xaml.cs">
       <DependentUpon>UnifiedSettingsAdvancedCtrl.xaml</DependentUpon>
     </Compile>
@@ -193,9 +196,15 @@
     </Compile>
     <Compile Include="Enums\ACEMenuSettings.cs" />
     <Compile Include="Enums\VATRPSettings.cs" />
+    <Compile Include="Json\JsonFactoryConfig.cs" />
     <Compile Include="Model\ActionCommand.cs" />
     <Compile Include="Services\Win32NativeAPI.cs" />
+    <Compile Include="Utilities\ConfigLookup.cs" />
     <Compile Include="Utilities\JsonDeserializer.cs" />
+    <Compile Include="Utilities\JsonException.cs" />
+    <Compile Include="Utilities\JsonWebRequest.cs" />
+    <Compile Include="Utilities\SRVLookup.cs" />
+    <Compile Include="Utilities\TechnicalSupportInfoBuilder.cs" />
     <Compile Include="ViewModel\FeedbackViewModel.cs" />
     <Compile Include="ViewModel\ContactEditViewModel.cs" />
     <Compile Include="ViewModel\ContactsViewModel.cs" />
@@ -342,6 +351,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="CustomControls\Resources\ResourcePanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\TechnicalSupportSheetCtrl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -693,6 +706,9 @@
   <ItemGroup>
     <Resource Include="Resources\fullscreen_off.png" />
     <Resource Include="Resources\fullscreen_on.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\hold.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

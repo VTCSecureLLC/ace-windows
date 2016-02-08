@@ -20,6 +20,8 @@ namespace com.vtcsecure.ace.windows.Services
 {
     internal class ServiceManager : ServiceManagerBase
     {
+        private const string CDN_DOMAIN_URL = "http://cdn.vatrp.net/domains.json";
+
         #region Members
         private static readonly ILog LOG = LogManager.GetLogger(typeof(ServiceManager));
         private string _applicationDataPath;
@@ -43,6 +45,9 @@ namespace com.vtcsecure.ace.windows.Services
         #region Event
         public delegate void NewAccountRegisteredDelegate(string accountId);
         public event NewAccountRegisteredDelegate NewAccountRegisteredEvent;
+
+        public event EventHandler LinphoneCoreStartedEvent;
+        public event EventHandler LinphoneCoreStoppedEvent;
         #endregion
 
         public static ServiceManager Instance
@@ -180,28 +185,10 @@ namespace com.vtcsecure.ace.windows.Services
         private void OnConfigurationServiceStarted(object sender, EventArgs args)
         {
             App.CurrentAccount = LoadActiveAccount();
-            if (App.CurrentAccount != null)
-            {
-                // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
-                //  This will ultimately be set by the configuration resources from Ace Connect.
-                if (App.CurrentAccount.Username.Equals("agent_1"))
-                {
-                    App.CurrentAccount.UserNeedsAgentView = true;
-                }
-            }
         }
         private void OnAccountsServiceStarted(object sender, EventArgs args)
         {
             App.CurrentAccount = LoadActiveAccount();
-            if (App.CurrentAccount != null)
-            {
-                // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
-                //  This will ultimately be set by the configuration resources from Ace Connect.
-                if (App.CurrentAccount.Username.Equals("agent_1"))
-                {
-                    App.CurrentAccount.UserNeedsAgentView = true;
-                }
-            }
             AccountServiceStopped = false;
         }
         private void OnProviderServiceStarted(object sender, EventArgs args)
@@ -225,6 +212,8 @@ namespace com.vtcsecure.ace.windows.Services
             LinphoneCoreStopped = false;
             HistoryService.Start();
             ContactService.Start();
+            if ( LinphoneCoreStartedEvent != null)
+                LinphoneCoreStartedEvent(this, EventArgs.Empty);
         }
         
         private void OnContactserviecStarted(object sender, EventArgs e)
@@ -252,6 +241,8 @@ namespace com.vtcsecure.ace.windows.Services
         private void OnLinphoneServiceStopped(object sender, EventArgs args)
         {
             LinphoneCoreStopped = true;
+            if (LinphoneCoreStoppedEvent != null)
+                LinphoneCoreStoppedEvent(this, EventArgs.Empty);
         }
 
         private void OnHistoryServiceStopped(object sender, EventArgs args)
@@ -427,7 +418,10 @@ namespace com.vtcsecure.ace.windows.Services
         private void UpdateProvidersList()
         {
             // this list may be filled later
-
+            if (LoadJsonProviders())
+            {
+                return;
+            }
             string[] labels = { "Sorenson VRS", "Purple VRS", "ZVRS", "Convo Relay", "CAAG", "Global VRS" };
             foreach (var label in labels)
             {
@@ -437,6 +431,56 @@ namespace com.vtcsecure.ace.windows.Services
                         Label = label,
                         Address = "bc1.vatrp.net"
                     });
+            }
+        }
+
+        private bool LoadJsonProviders()
+        {
+            var imgCachePath = BuildStoragePath("img");
+            try
+            {
+                List<VATRPDomain> domains = Utilities.JsonWebRequest.MakeJsonWebRequest<List<VATRPDomain>>(CDN_DOMAIN_URL);
+                // add these into the cache
+                foreach (VATRPDomain domain in domains)
+                {
+                    VATRPServiceProvider provider = ProviderService.FindProviderLooseSearch(domain.name);
+                    if (provider == null)
+                    {
+                        provider = new VATRPServiceProvider();
+                        provider.Label = domain.name;
+                        provider.Address = domain.domain;
+                        provider.ImageURI = domain.icon2x;
+                        provider.IconURI = domain.icon;
+                        ProviderService.AddProvider(provider);
+                    }
+                    else
+                    {
+                        // update the provider information
+                        provider.Label = domain.name;
+                        provider.Address = domain.domain;
+                        provider.ImageURI = domain.icon2x;
+                        provider.IconURI = domain.icon;
+                    }
+
+                    if (provider.ImageURI.NotBlank())
+                        provider.LoadImage(imgCachePath, false);
+                    if (provider.IconURI.NotBlank())
+                        provider.LoadImage(imgCachePath, true);
+
+                }
+
+                VATRPServiceProvider noLogoProvider = ProviderService.FindProviderLooseSearch("_nologo");
+                if (noLogoProvider == null)
+                {
+                    noLogoProvider = new VATRPServiceProvider();
+                    ProviderService.AddProvider(noLogoProvider);
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // either the domains were mal-formed or we are not able to get to the internet. If this is the case, then allow the cached/defaults.
+                return false;
             }
         }
 
@@ -480,7 +524,7 @@ namespace com.vtcsecure.ace.windows.Services
 
         internal void Register()
         {
-            if(App.CurrentAccount != null && !string.IsNullOrEmpty(App.CurrentAccount.Username) )
+            if(App.CurrentAccount != null && !string.IsNullOrEmpty(App.CurrentAccount.Username))
                 LinphoneService.Register();
         }
 
@@ -517,18 +561,10 @@ namespace com.vtcsecure.ace.windows.Services
             //LinphoneAVPFMode avpfMode = LinphoneAVPFMode.LinphoneAVPFEnabled;
             // Note: we could make the RTCP also be a bool, but using this method in case we need to handle something differently in the future.
             //    eg - is there something that happens if we want rtcp off and avpf on?
-            if (rtcpFeedback.Equals("Off"))
-            {
-                LinphoneService.SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFDisabled, LinphoneRTCPMode.LinphoneRTCPDisabled);
-            }
-            else if (rtcpFeedback.Equals("Implicit"))
-            {
-                LinphoneService.SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFDisabled, LinphoneRTCPMode.LinphoneRTCPEnabled);
-            }
-            else if (rtcpFeedback.Equals("Explicit"))
-            {
-                LinphoneService.SetAVPFMode(LinphoneAVPFMode.LinphoneAVPFEnabled, LinphoneRTCPMode.LinphoneRTCPEnabled);
-            }
+
+            LinphoneService.SetRTCPFeedback(rtcpFeedback);
+            
+            
             // commenting this in case we need somethinghere from the compiler debug statement
 
 //            var mode = LinphoneAVPFMode.LinphoneAVPFEnabled;

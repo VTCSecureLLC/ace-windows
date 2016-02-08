@@ -444,7 +444,7 @@
 								   HorizontalAlignment="Left" Margin="10,0,0,0"
 					   Visibility="{Binding ShowMessageHint, Converter={StaticResource bvc}}" />
 
-                    <TextBox BorderThickness="0" Height="40" TextAlignment="Left" FontSize="18"
+                    <TextBox x:Name="MessageTextBox" BorderThickness="0" Height="40" TextAlignment="Left" FontSize="18"
 									 Foreground="{StaticResource AppMainBorderBrush}" CaretBrush="{StaticResource AppMainBorderBrush}"
 								 HorizontalAlignment="Stretch"  
 									 VerticalContentAlignment="Center"
@@ -458,19 +458,85 @@
         </Border>
         <Border Grid.Row="2" Background="{StaticResource AppMainWindowBrush}" BorderBrush="{StaticResource AppMainBorderBrush}" 
 		   BorderThickness="0,0,0,1">
-            <Button Height="50" Background="{StaticResource AppMainWindowBrush}"  
-									BorderThickness="0" Click="OnSendButtonClicked">
-                <Button.Content>
-                    <StackPanel Orientation="Horizontal" >
-                        <TextBlock Text="Send" Foreground="White" FontSize="26" HorizontalAlignment="Center"/>
-                        <Rectangle Margin="10,0" Width="32" Height="33" Fill="{StaticResource AppMainBorderBrush}">
-                            <Rectangle.OpacityMask>
-                                <ImageBrush ImageSource="/ACE;component/Resources/send_message.png"/>
-                            </Rectangle.OpacityMask>
-                        </Rectangle>
-                    </StackPanel>
-                </Button.Content>
-            </Button>
+            <Grid>
+            <ComboBox  Height="50" Margin="30, 0" SelectedItem="{Binding SelectedTextSendMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                  ItemContainerStyle="{StaticResource TextSendModeComboBoxItemStyle}"
+          ItemsSource="{Binding TextSendModes}" Style="{StaticResource TextSendModeComboStyle}" 
+                  Background="{StaticResource AppMainWindowBrush}" 
+                  Foreground="{StaticResource AppMainBorderBrush}"
+                  >
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                           <TextBlock Text="{Binding}" FontSize="16" Margin="2" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+
+                <Button Height="50" Margin="30,0, 50, 0" Background="{StaticResource AppMainWindowBrush}"  
+									BorderThickness="0" Click="OnSendButtonClicked" Visibility="Visible" Cursor="Hand">
+                    <Button.Resources>
+                        <Grid x:Key="SendButtonNormal" >
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"  
+                                        Grid.Column="0"
+                                        Orientation="Horizontal">
+                                <Rectangle Margin="5,0,10,0" Width="25" Height="25"   Fill="{DynamicResource AppMainBorderBrush}" VerticalAlignment="Center" >
+                                    <Rectangle.OpacityMask>
+                                        <ImageBrush ImageSource="..\Resources\send_message.png" />
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>
+                            
+
+                            <TextBlock Text="{Binding SendButtonTitle}" HorizontalAlignment="Left" 
+                                       FontSize="28" 
+                                       VerticalAlignment="Center" Margin ="0,-3,0,0" 
+                               Foreground="{DynamicResource AppMainBorderBrush}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Button.Resources>
+
+                    <Button.Style>
+                        <Style TargetType="{x:Type Button}">
+                            <Setter Property="Opacity" Value="1" />
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="SnapsToDevicePixels" Value="True"/>
+                            <Setter Property="VerticalAlignment" Value="Stretch"/>
+                            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                            <Setter Property="Content" Value="{StaticResource SendButtonNormal}" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type Button}">
+                                        <Grid Background="Transparent">
+
+                                            <Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
+                                                <ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                            </Border>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Content" Value="{DynamicResource SendButtonNormal}" />
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter Property="Content" Value="{DynamicResource SendButtonNormal}" />
+                                </Trigger>
+
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                        <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsPressed}" Value="True"/>
+                                    </MultiDataTrigger.Conditions>
+
+                                    <Setter Property="Opacity" Value="0.7"/>
+                                    <Setter Property="Content" Value="{DynamicResource SendButtonNormal}"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </Grid>
         </Border>
     </Grid>
 </UserControl>

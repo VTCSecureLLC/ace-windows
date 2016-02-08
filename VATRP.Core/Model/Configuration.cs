@@ -47,11 +47,13 @@ namespace VATRP.Core.Model
             CURRENT_PROVIDER,
             CALL_DIAL_PREFIX,
             CALL_DIAL_ESCAPE_PLUS,
-            SHOW_LEGAL_RELEASE
+            SHOW_LEGAL_RELEASE,
+            LAST_MISSED_CALL_DATE,
+            TEXT_SEND_MODE
         }
 
-        public static string LINPHONE_SIP_SERVER = "bc1.vatrp.net";
-		public static ushort LINPHONE_SIP_PORT = 5060;
+        public static string LINPHONE_SIP_SERVER = "acetest-registrar.vatrp.net";
+		public static ushort LINPHONE_SIP_PORT = 25060;
 		public static string DISPLAY_NAME = "John Doe";
 		public static string LINPHONE_USERAGENT = "VATRP";
         public static string DEFAULT_REQUEST = @"https://crm.videoremoteassistance.com/users/sign_in";

@@ -15,7 +15,7 @@
     <UserControl.Resources>
         <conv:RegistrationStateToBrushConverter x:Key="rstc"/>
     </UserControl.Resources>
-    <Grid x:Name="ContentPanel" >
+    <Grid x:Name="ContentPanel"  >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="4*"/>
@@ -41,11 +41,64 @@
                 <RowDefinition Height="2*"/>
                 <RowDefinition Height="2*"/>
             </Grid.RowDefinitions>
-            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" >
-            <Image Source="/ACE;component/Resources/video_mail.png" HorizontalAlignment="Center" VerticalAlignment="Top" Stretch="None"/>
 
-                <TextBlock Text="{Binding Contact.UnreadMsgCount}" VerticalAlignment="Top" Foreground="{DynamicResource AppMainBorderBrush}" FontSize="14" Margin="2,-5,0,0"></TextBlock>
-            </StackPanel>
+            <Button x:Name="BtnVideoMail" Margin="3,0" Grid.Row="1" Width="60" Height="20" HorizontalAlignment="Right" 
+                    Click="ResetVideoMailCount" >
+                <Button.Resources>
+                    <Grid x:Key="MWINormal" Background="{StaticResource AppMainWindowBrush}" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Image Source="/ACE;component/Resources/video_mail.png" Grid.Column="0" Width="28" Height="12" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" MouseDown="OnCallVideoMail" TouchDown="OnCallVideoMail"/>
+                        <TextBlock Text="{Binding VideoMailCount}" Grid.Column="1" VerticalAlignment="Top" Foreground="{DynamicResource AppMainBorderBrush}" HorizontalAlignment="Right" FontSize="14" Margin="3,0"></TextBlock>
+
+                    </Grid>
+                </Button.Resources>
+
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Opacity" Value="1" />
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="SnapsToDevicePixels" Value="True"/>
+                        <Setter Property="VerticalAlignment" Value="Stretch"/>
+                        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                        <Setter Property="Content" Value="{StaticResource MWINormal}" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type Button}">
+                                    <Grid Background="Transparent">
+
+                                        <Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
+                                            <ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                        </Border>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Content" Value="{DynamicResource MWINormal}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Content" Value="{DynamicResource MWINormal}" />
+                            </Trigger>
+
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsPressed}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+
+                                <Setter Property="Opacity" Value="1"/>
+                                <Setter Property="Content" Value="{DynamicResource MWINormal}"/>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+
+</Button>
         </Grid>
     </Grid>
 </UserControl>

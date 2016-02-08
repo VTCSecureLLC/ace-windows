@@ -222,7 +222,12 @@ namespace com.vtcsecure.ace.windows.Model
                 case VATRPWindowType.DIALPAD_VIEW:
                     return new Point() { X = 100, Y = 100 };
                 case VATRPWindowType.MAIN_VIEW:
-                    return new Point() { X = 300, Y = 400 };
+                {
+                    int top = (int)(SystemParameters.PrimaryScreenHeight - 720)/2;
+                    if (top < 0)
+                        top = 0;
+                    return new Point() { X = 300, Y = top };
+                }
                 case VATRPWindowType.MESSAGE_VIEW:
                     return new Point() { X = 300, Y = 100 };
                 case VATRPWindowType.RECENTS_VIEW:

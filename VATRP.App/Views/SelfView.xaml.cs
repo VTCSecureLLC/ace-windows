@@ -21,6 +21,7 @@ namespace com.vtcsecure.ace.windows.Views
     /// </summary>
     public partial class SelfView 
     {
+        public bool ResetNativePreviewHandle { get; set; }
         public SelfView() : base(VATRPWindowType.SELF_VIEW)
         {
             InitializeComponent();
@@ -38,10 +39,12 @@ namespace com.vtcsecure.ace.windows.Views
                 return;
             if (!bOn)
             {
-                _linphone.SetVideoPreviewWindowHandle(IntPtr.Zero, true);
+                if (ResetNativePreviewHandle)
+                    _linphone.SetVideoPreviewWindowHandle(IntPtr.Zero, true);
             }
             else
             {
+                _linphone.SetPreviewVideoSizeByName("cif");
                 var source = GetWindow(this);
                 if (source != null)
                 {
@@ -52,8 +55,8 @@ namespace com.vtcsecure.ace.windows.Views
                     {
                         _linphone.SetVideoPreviewWindowHandle(hWnd);
                     }
-
                 }
+                ResetNativePreviewHandle = true;
             }
         }
     }

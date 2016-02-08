@@ -34,7 +34,21 @@ namespace VATRP.Linphone.VideoWrapper
             //will confuse user.
             _window.Focusable = false;
             _window.PreviewMouseDown += OnPreviewMouseDown;
+            _window.IsVisibleChanged += OnVisibilityChanged;
 
+        }
+
+        private void OnVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if ((bool) e.NewValue != ShowWindow)
+            {
+                if (ShowWindow)
+                    _window.Show();
+                else
+                {
+                    _window.Hide();
+                }
+            }
         }
 
         void OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -133,6 +147,11 @@ namespace VATRP.Linphone.VideoWrapper
                 _window.Width = OverlayWidth;
                 _window.Height = OverlayHeight;
             }
+
+            if (ShowWindow)
+                _window.Show();
+            else
+                _window.Hide();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿
+using System.Collections.Generic;
 using VATRP.Core.Model;
 
 namespace VATRP.Core.Interfaces
@@ -16,6 +17,9 @@ namespace VATRP.Core.Interfaces
         void ClearProvidersList();
 
         string[] GetProviderList();
+        List<VATRPServiceProvider> GetProviderListFullInfo();
+
         VATRPServiceProvider FindProvider(string providerID);
+        VATRPServiceProvider FindProviderLooseSearch(string providerID);  // because the json domain does nto match our stored domains
     }
 }

@@ -105,6 +105,36 @@ namespace com.vtcsecure.ace.windows
             _log.Info("====================================================");
             _log.Info(String.Format("============== Starting VATRP v{0} =============",
                 System.Reflection.Assembly.GetEntryAssembly().GetName().Version));
+            var currentDirectory = System.IO.Directory.GetCurrentDirectory();
+            try
+            {
+                var appDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+                if (string.IsNullOrEmpty(appDirectory))
+                {
+                    MessageBox.Show("Current directory is null", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Application.Current.Shutdown(1);
+                    return;
+                }
+
+                if (currentDirectory != appDirectory )
+                {
+                    try
+                    {
+                        System.IO.Directory.SetCurrentDirectory(appDirectory);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Failed to change application directory" + Environment.NewLine + ex.Message, "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
+                        Application.Current.Shutdown(1);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to get application directory" + Environment.NewLine + ex.Message, "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
+                Application.Current.Shutdown(1);
+            }
+
             string linphoneLibraryVersion = VATRP.LinphoneWrapper.LinphoneAPI.linphone_core_get_version_asString();
             _log.Info(String.Format("======= LinphoneLib Version v{0} =======",
                 linphoneLibraryVersion));
