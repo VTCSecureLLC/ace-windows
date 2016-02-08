@@ -10,6 +10,7 @@ using VATRP.Core.Events;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using System.Windows.Data;
+using com.vtcsecure.ace.windows.Model;
 using VATRP.Core.Extensions;
 
 namespace com.vtcsecure.ace.windows.ViewModel
@@ -25,10 +26,13 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private double _historyPaneHeight;
         private HistoryCallEventViewModel _selectedCallEvent;
         private int _activeTab;
+        private int _unseenMissedCallsCount;
+        public event EventHandler MissedCallsCountChanged;
 
         public CallHistoryViewModel()
         {
             _activeTab = 0; // All tab is active by default
+            _unseenMissedCallsCount = 0;
             _callsListView = CollectionViewSource.GetDefaultView(this.Calls);
             _callsListView.SortDescriptions.Add(new SortDescription("SortDate", ListSortDirection.Descending));
             _callsListView.Filter = new Predicate<object>(this.FilterEventsList);
@@ -154,6 +158,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
             lock (this.Calls)
             {
                 Calls.Add(new HistoryCallEventViewModel(callEvent, contact));
+                if (callEvent.Status == VATRPHistoryEvent.StatusType.Missed)
+                {
+                    _unseenMissedCallsCount++;
+                    if (MissedCallsCountChanged != null)
+                        MissedCallsCountChanged(callEvent, EventArgs.Empty);
+                }
             }
 
             if (refreshNow)
@@ -184,6 +194,14 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     if (call.CallEvent == callEvent)
                     {
                         Calls.Remove(call);
+                        if (callEvent.Status == VATRPHistoryEvent.StatusType.Missed)
+                        {
+                            _unseenMissedCallsCount--;
+                            if (_unseenMissedCallsCount < 0)
+                                _unseenMissedCallsCount = 0;
+                            if (MissedCallsCountChanged != null)
+                                MissedCallsCountChanged(null, EventArgs.Empty);
+                        }
                         CallsListView.Refresh();
                         break;
                     }
@@ -287,6 +305,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 CallsListView.Refresh();
                 OnPropertyChanged("ActiveTab");
             }
+        }
+
+        public int UnseenMissedCallsCount
+        {
+            get { return _unseenMissedCallsCount; }
         }
     }
 }

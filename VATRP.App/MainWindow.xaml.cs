@@ -53,6 +53,7 @@ namespace com.vtcsecure.ace.windows
         private FlashWindowHelper _flashWindowHelper = new FlashWindowHelper();
         private readonly MainControllerViewModel _mainViewModel;
         private Size CombinedUICallViewSize = new Size(700, 700);
+        private Point _lastWindowPosition;
         private readonly DispatcherTimer deferredHideTimer = new DispatcherTimer()
         {
             Interval = TimeSpan.FromMilliseconds(2000),
@@ -91,6 +92,8 @@ namespace com.vtcsecure.ace.windows
             ctrlSettings.SetCallControl(ctrlCall);
             ctrlCall.SettingsControl = ctrlSettings;
             deferredHideTimer.Tick += DefferedHideOnError;
+            CombinedUICallViewSize.Width = 700;
+            CombinedUICallViewSize.Height = 700;
         }
 
         private void btnRecents_Click(object sender, RoutedEventArgs e)
@@ -452,6 +455,7 @@ namespace com.vtcsecure.ace.windows
 
             ctrlCall.KeypadClicked += OnKeypadClicked;
             ctrlCall.RttToggled += OnRttToggled;
+            ctrlCall.FullScreenOnToggled += OnFullScreenToggled;
             ctrlCall.SwitchHoldCallsRequested += OnSwitchHoldCallsRequested;
 
             _callOverlayView.CallManagerView = _callView;
@@ -487,6 +491,7 @@ namespace com.vtcsecure.ace.windows
                         _mainViewModel.IsCallHistoryDocked = true;
                         _mainViewModel.DialpadModel.UpdateProvider();
                         SetToUserAgentView(false);
+                        RearrangeUICallView(GetCallViewSize());
                     }
                     else
                     {
@@ -496,10 +501,134 @@ namespace com.vtcsecure.ace.windows
             }
         }
 
+        private Size GetCallViewSize()
+        {
+            Size dimensions = new Size(700,700);
+            if (_mainViewModel.IsInCallFullScreen)
+            {
+                System.Windows.Forms.Screen currentScreen = System.Windows.Forms.Screen.FromHandle(new System.Windows.Interop.WindowInteropHelper(this).Handle);
+                dimensions.Width = currentScreen.Bounds.Width;
+                dimensions.Height = currentScreen.Bounds.Height;
+            }
+            return dimensions;
+        }
+
+        private void OnFullScreenToggled(bool switch_on)
+        {
+            if (_mainViewModel.IsInCallFullScreen == switch_on)
+                return;
+
+            _mainViewModel.IsInCallFullScreen = switch_on;
+            WindowState = WindowState.Normal;
+
+            Size szDimensions = GetCallViewSize();
+            if (switch_on)
+            {
+                System.Windows.Forms.Screen currentScreen = System.Windows.Forms.Screen.FromHandle(new System.Windows.Interop.WindowInteropHelper(this).Handle);
+                _lastWindowPosition.X = this.Left;
+                _lastWindowPosition.Y = this.Top;
+              
+                this.CallViewBorder.BorderThickness = new Thickness(0);
+
+                this.ResizeMode = System.Windows.ResizeMode.NoResize;
+                this.SizeToContent = SizeToContent.Manual;
+                this.WindowStyle = WindowStyle.None;
+                this.MaxHeight = szDimensions.Height;
+                this.MaxWidth = szDimensions.Width;
+                this.Height = szDimensions.Height;
+                this.Width = szDimensions.Width;
+                this.Left = currentScreen.Bounds.Left;
+                this.Top = currentScreen.Bounds.Top;
+
+                CombinedUICallViewSize.Height = this.Height;
+                CombinedUICallViewSize.Width = this.Width - (_mainViewModel.IsMessagingDocked ? ctrlRTT.ActualWidth : 0);
+                this.MessageViewBorder.BorderThickness = _mainViewModel.IsMessagingDocked
+                    ? new Thickness(1, 0, 0, 0)
+                    : new Thickness(0);
+            }
+            else
+            {
+                this.WindowStyle = WindowStyle.SingleBorderWindow;
+                this.MaxHeight = 700;
+                this.MaxWidth = Double.PositiveInfinity;
+                
+                CombinedUICallViewSize.Width = szDimensions.Width;
+                CombinedUICallViewSize.Height = szDimensions.Height;
+                this.SizeToContent = SizeToContent.WidthAndHeight;
+                WindowState = System.Windows.WindowState.Normal;
+                this.ResizeMode = System.Windows.ResizeMode.NoResize;
+                this.Left = _lastWindowPosition.X;
+                this.Top = _lastWindowPosition.Y;
+                this.CallViewBorder.BorderThickness = new Thickness(1, 0, 1, 0);
+                if (_mainViewModel.IsMessagingDocked)
+                {
+                    this.MessageViewBorder.BorderThickness = new Thickness(1, 0, 0, 0);
+                }
+            }
+            RearrangeUICallView(szDimensions);
+        }
+
+        private void RearrangeUICallView(Size callViewDimensions)
+        {
+            Point topleftInScreen = new Point(0, 0);
+
+            int offset = 0;
+            if (!_mainViewModel.IsInCallFullScreen)
+            {
+                topleftInScreen = ctrlCall.PointToScreen(new Point(0, 0));
+                topleftInScreen = this.PointFromScreen(topleftInScreen);
+                topleftInScreen.Y += SystemParameters.CaptionHeight;
+                offset = 8;
+            }
+
+            if (_mainViewModel.IsMessagingDocked && _mainViewModel.IsInCallFullScreen)
+            {
+                callViewDimensions.Width -= ctrlRTT.ActualWidth;
+            }
+
+            CombinedUICallViewSize = callViewDimensions;
+
+            ctrlCall.Width = callViewDimensions.Width;
+
+            ctrlCall.ctrlOverlay.Width = callViewDimensions.Width;
+            ctrlCall.ctrlOverlay.Height = callViewDimensions.Height;
+
+            if (_mainViewModel.ActiveCallModel != null)
+            {
+                _mainViewModel.ActiveCallModel.VideoWidth = (int)CombinedUICallViewSize.Width;
+                _mainViewModel.ActiveCallModel.VideoHeight = (int)ctrlCall.ActualHeight;
+            }
+
+            ctrlCall.ctrlOverlay.CommandWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.CommandOverlayWidth) / 2 + offset;
+            ctrlCall.ctrlOverlay.CommandWindowTopMargin = topleftInScreen.Y + (ctrlCall.ActualHeight - 40 - ctrlCall.ctrlOverlay.CommandOverlayHeight);
+
+            ctrlCall.ctrlOverlay.NumpadWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.NumpadOverlayWidth) / 2 + offset;
+            ctrlCall.ctrlOverlay.NumpadWindowTopMargin = ctrlCall.ctrlOverlay.CommandWindowTopMargin - ctrlCall.ctrlOverlay.NumpadOverlayHeight;
+
+            ctrlCall.ctrlOverlay.CallInfoOverlayWidth = (int)callViewDimensions.Width - 30;
+            ctrlCall.ctrlOverlay.CallInfoWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.CallInfoOverlayWidth) / 2 + offset;
+            ctrlCall.ctrlOverlay.CallInfoWindowTopMargin = topleftInScreen.Y + 40;
+
+            ctrlCall.ctrlOverlay.CallsSwitchWindowLeftMargin = topleftInScreen.X + 10;
+            ctrlCall.ctrlOverlay.CallsSwitchWindowTopMargin = topleftInScreen.Y + 10;
+
+            ctrlCall.ctrlOverlay.NewCallAcceptWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.NewCallAcceptOverlayWidth) / 2 + offset;
+            ctrlCall.ctrlOverlay.NewCallAcceptWindowTopMargin = topleftInScreen.Y + (ctrlCall.ActualHeight - ctrlCall.ctrlOverlay.NewCallAcceptOverlayHeight) / 2;
+
+            ctrlCall.ctrlOverlay.Refresh();
+        }
+
         private void OnRttToggled(bool switch_on)
         {
             _mainViewModel.IsMessagingDocked = switch_on;
             ShowRTTView.IsChecked = switch_on;
+            this.MessageViewBorder.BorderThickness = _mainViewModel.IsMessagingDocked
+                ? new Thickness(1, 0, 0, 0)
+                : new Thickness(0);
+            if (_mainViewModel.IsInCallFullScreen)
+            {
+                RearrangeUICallView(GetCallViewSize());
+            }
         }
 
         internal void ResetToggleButton(VATRPWindowType wndType)

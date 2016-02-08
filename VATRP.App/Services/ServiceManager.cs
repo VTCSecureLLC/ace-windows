@@ -492,10 +492,10 @@ namespace com.vtcsecure.ace.windows.Services
 
         internal void ApplyCodecChanges()
         {
-            var retValue = LinphoneService.UpdateNativeCodecs(App.CurrentAccount,
+            var retValue = LinphoneService.UpdateCodecsAccessibility(App.CurrentAccount,
                 CodecType.Audio);
 
-            retValue &= LinphoneService.UpdateNativeCodecs(App.CurrentAccount, CodecType.Video);
+            retValue &= LinphoneService.UpdateCodecsAccessibility(App.CurrentAccount, CodecType.Video);
 
             if (!retValue)
                 SaveAccountSettings();

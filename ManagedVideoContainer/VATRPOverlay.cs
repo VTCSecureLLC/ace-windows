@@ -677,7 +677,7 @@ namespace VATRP.Linphone.VideoWrapper
             Refresh();
         }
 
-        private void Refresh()
+        public void Refresh()
         {
             commandBarWindow.Refresh();
             numpadWindow.Refresh();
