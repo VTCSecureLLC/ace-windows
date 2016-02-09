@@ -53,6 +53,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         private void OnContactRemoved(object sender, ContactRemovedEventArgs e)
         {
+            if (ServiceManager.Instance.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
+            {
+                ServiceManager.Instance.Dispatcher.BeginInvoke((Action)(() => this.OnContactRemoved(sender, e)));
+                return;
+            }
+
             lock (this.Calls)
             {
                 foreach (var call in Calls)
@@ -69,6 +75,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         private void OnNewContactAdded(object sender, ContactEventArgs e)
         {
+            if (ServiceManager.Instance.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
+            {
+                ServiceManager.Instance.Dispatcher.BeginInvoke((Action)(() => this.OnNewContactAdded(sender, e)));
+                return;
+            }
+
             // search and update all items
             var contact = _contactService.FindContact(new ContactID(e.Contact));
             if (contact != null && contact.IsLinphoneContact)

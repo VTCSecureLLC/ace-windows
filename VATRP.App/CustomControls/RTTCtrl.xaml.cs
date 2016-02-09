@@ -22,7 +22,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
         #region Members
 
         private string pasteText = string.Empty;
-        private MessagingViewModel _viewModel;
+        private InCallMessagingViewModel _viewModel;
         private readonly DispatcherTimer pasteHandlerTimer = new DispatcherTimer()
         {
             Interval = TimeSpan.FromMilliseconds(20),
@@ -81,7 +81,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             }
         }
 
-        public void SetViewModel(MessagingViewModel viewModel)
+        public void SetViewModel(InCallMessagingViewModel viewModel)
         {
             if (_viewModel != null && _viewModel != viewModel)
             {
@@ -135,7 +135,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             if (_viewModel != null)
             {
-                if (!ServiceManager.Instance.IsRttAvailable || !_viewModel.IsSendingModeRTT)
+                if (!ServiceManager.Instance.IsRttAvailable /*|| !_viewModel.IsSendingModeRTT*/)
                 {
                     _viewModel.SendMessage(_viewModel.MessageText);
                 }

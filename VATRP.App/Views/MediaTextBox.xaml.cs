@@ -26,8 +26,9 @@ namespace com.vtcsecure.ace.windows.Views
     /// </summary>
     public partial class MediaTextWindow
     {
-        private MessagingViewModel _viewModel;
-        public MediaTextWindow(MessagingViewModel vm) : base(VATRPWindowType.MESSAGE_VIEW)
+        private SimpleMessagingViewModel _viewModel;
+        public MediaTextWindow(SimpleMessagingViewModel vm)
+            : base(VATRPWindowType.MESSAGE_VIEW)
         {
             _viewModel = vm;
             DataContext = vm;
@@ -54,73 +55,47 @@ namespace com.vtcsecure.ace.windows.Views
 
         private void OnChatSelected(object sender, SelectionChangedEventArgs e)
         {
-            if (ContactsList.SelectedItem != null)
-            {
-                var contactModel = ContactsList.SelectedItem as ContactViewModel;
+            var contactModel = ContactsList.SelectedItem as ContactViewModel;
 
-                if (contactModel != null)
-                {
-                    _viewModel.SetActiveChatContact(contactModel.Contact, IntPtr.Zero);
-                    ScrollToEnd();
-                }
+            if (contactModel != null)
+            {
+                _viewModel.SetActiveChatContact(contactModel.Contact, IntPtr.Zero);
+                if (contactModel.Contact != null)
+                    _viewModel.ReceiverAddress = contactModel.Contact.RegistrationName;
+                ScrollToEnd();
             }
         }
 
         private void OnSendButtonClicked(object sender, RoutedEventArgs e)
         {
-            if (!ServiceManager.Instance.IsRttAvailable)
+            SendSimpleMessage();
+        }
+
+        private void SendSimpleMessage()
+        {
+            if (_viewModel.CheckReceiverContact())
             {
+                var contactModel = ContactsList.SelectedItem as ContactViewModel;
+                if (contactModel != null && contactModel.Contact != _viewModel.Contact.Contact)
+                    ContactsList.SelectedItem = _viewModel.Contact;
+
                 _viewModel.SendMessage(_viewModel.MessageText);
             }
             else
             {
-                _viewModel.EnqueueInput("\r");
+                MessageBox.Show("Can't send message to " + _viewModel.ReceiverAddress, "ACE", MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
             }
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            Char inputKey = Char.MinValue;
             switch (e.Key)
             {
-                case Key.None:
-                    break;
-                case Key.Back:
-                    inputKey = '\b';
-                    break;
-                case Key.Tab:
-                    inputKey = '\t';
-                    break;
-                case Key.LineFeed:
-                    inputKey = '\n';
-                    break;
-                case Key.Clear:
-                    break;
                 case Key.Return:
-                    inputKey = '\r';
+                    SendSimpleMessage();
                     break;
-                case Key.Space:
-                    inputKey = ' ';
-                    break;
-                default:
-                    break;
-            }
-            if (inputKey != Char.MinValue)
-            {
-                _viewModel.EnqueueInput(inputKey.ToString());
             }
         }
-
-        private void OnTextInpput(object sender, TextCompositionEventArgs e)
-        {
-            _viewModel.EnqueueInput(e.Text);
-            if (!ServiceManager.Instance.IsRttAvailable )
-            {
-                if (e.Text.Length > 0 && e.Text[e.Text.Length - 1] == '\r')
-                    _viewModel.SendMessage(_viewModel.MessageText);
-                return;
-            }
-        }
-       
     }
 }

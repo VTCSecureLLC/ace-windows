@@ -34,6 +34,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         private void OnLocalContactChanged(object sender, VATRP.Core.Events.ContactEventArgs e)
         {
+            if (ServiceManager.Instance.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
+            {
+                ServiceManager.Instance.Dispatcher.BeginInvoke((Action)(() => this.OnLocalContactChanged(sender, e)));
+                return;
+            }
             Contact = this._contactService.FindContact(e.Contact);
         }
 
