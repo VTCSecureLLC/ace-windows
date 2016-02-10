@@ -44,16 +44,21 @@
             </Label>
             <CheckBox Grid.Column="2" Grid.Row="3" Checked="OnShowSelfView" Unchecked="OnShowSelfView" HorizontalAlignment="Center" VerticalAlignment="Center" Name="ShowSelfViewCheckBox"/>
 
-            <!-- Row 4: Video Preset -->
+            <!-- Row 4: Preferred FPS -->
+            <Label Grid.Column="0" Grid.Row="4" Content="Preferred FPS" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left" Name="PreferredFPSLabels">
+            </Label>
+            <TextBox Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Name="PreferredFPSTextBox"  LostFocus="OnPreferredFPS" />
+            <!-- this row hidden-->
             <Label Grid.Column="0" Grid.Row="4" Content="Video Preset" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left" Name="VideoPresetLabel">
+                   HorizontalAlignment="Left" Name="VideoPresetLabel" Visibility="Collapsed">
             </Label>
             <ComboBox  Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" x:Name="VideoPresetComboBox" FontSize="14" Margin="0,3,0,3" Width="120" Height="24" 
-                       VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="OnVideoPreset" >
+                       VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="OnVideoPreset" Visibility="Collapsed">
                 <TextBlock >default</TextBlock>
                 <TextBlock >high-fps</TextBlock>
             </ComboBox>
-
             <!-- Row 6: RTCP Feedback -->
             <Label Grid.Column="0" Grid.Row="5" Content="RTCP Feedback" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="RtcpFeedbackLabel">
