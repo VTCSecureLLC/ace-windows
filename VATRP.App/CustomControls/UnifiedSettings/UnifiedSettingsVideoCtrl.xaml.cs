@@ -62,6 +62,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 }
             }
 
+            float preferredFPS = App.CurrentAccount.PreferredFPS;
+            PreferredFPSTextBox.Text = Convert.ToString(preferredFPS);
+
             VideoCodecsListView.ItemsSource = App.CurrentAccount.VideoCodecsList;
             _codecsView = (CollectionView)CollectionViewSource.GetDefaultView(VideoCodecsListView.ItemsSource);
             if (_codecsView != null)
@@ -235,6 +238,22 @@ Default value = 1
                 ServiceManager.Instance.SaveAccountSettings();
 
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.ShowSelfViewChanged);
+            }
+        }
+
+        public void OnPreferredFPS(Object sender, RoutedEventArgs args)
+        {
+            if ((App.CurrentAccount == null) || !this.IsVisible)
+                return;
+            // then get and set the preferred fps.
+            string stringValue = PreferredFPSTextBox.Text;
+            if (!string.IsNullOrEmpty(stringValue))
+            {
+                float floatValue = float.Parse(stringValue);
+                App.CurrentAccount.PreferredFPS = floatValue;
+                // set the preferred fps in linphone
+                ServiceManager.Instance.ApplyMediaSettingsChanges();
+                ServiceManager.Instance.SaveAccountSettings();
             }
         }
 

@@ -1381,7 +1381,8 @@ namespace VATRP.Core.Services
             //    for Linphone API as default.
             LOG.Info("Set preferred video size by name: " + account.VideoPreset);
             LinphoneAPI.linphone_core_set_video_preset(linphoneCore, account.VideoPreset);
-
+            LinphoneAPI.linphone_core_set_preferred_framerate(linphoneCore, account.PreferredFPS);
+            
             IntPtr namePtr = LinphoneAPI.linphone_core_get_preferred_video_size_name(linphoneCore);
             if (namePtr != IntPtr.Zero)
             {
