@@ -463,7 +463,7 @@
                   ItemContainerStyle="{StaticResource TextSendModeComboBoxItemStyle}"
           ItemsSource="{Binding TextSendModes}" Style="{StaticResource TextSendModeComboStyle}" 
                   Background="{StaticResource AppMainWindowBrush}" 
-                  Foreground="{StaticResource AppMainBorderBrush}"
+                  Foreground="{StaticResource AppMainBorderBrush}" Visibility="Collapsed"
                   >
                 <ComboBox.ItemTemplate>
                     <DataTemplate>

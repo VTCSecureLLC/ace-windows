@@ -28,13 +28,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private DialpadViewModel _dialPadViewModel;
         private CallHistoryViewModel _historyViewModel;
         private LocalContactViewModel _contactViewModel;
-        private MessagingViewModel _messageViewModel;
+        private InCallMessagingViewModel _inCallMessageViewModel;
+        private SimpleMessagingViewModel _simpleMessageViewModel;
         private SettingsViewModel _settingsViewModel;
         private ObservableCollection<CallViewModel> _callsViewModelList;
         private CallViewModel _activeCallViewModel;
         private ContactsViewModel _contactsViewModel;
         private ILinphoneService _linphoneService;
         private int _uiMissedCallsCount;
+        private bool _isRttViewEnabled;
 
 
         public MainControllerViewModel()
@@ -53,7 +55,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _historyViewModel = new CallHistoryViewModel(ServiceManager.Instance.HistoryService, _dialPadViewModel);
             _contactsViewModel = new ContactsViewModel(ServiceManager.Instance.ContactService, _dialPadViewModel);
             _contactViewModel = new LocalContactViewModel(ServiceManager.Instance.ContactService);
-            _messageViewModel = new MessagingViewModel(ServiceManager.Instance.ChatService,
+            _inCallMessageViewModel = new InCallMessagingViewModel(ServiceManager.Instance.ChatService,
+                ServiceManager.Instance.ContactService);
+            _simpleMessageViewModel = new SimpleMessagingViewModel(ServiceManager.Instance.ChatService,
                 ServiceManager.Instance.ContactService);
             _settingsViewModel = new SettingsViewModel();
             _historyViewModel.MissedCallsCountChanged += OnMissedCallsCountChanged;
@@ -194,6 +198,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
+        public bool IsRTTViewEnabled
+        {
+            get { return _isRttViewEnabled; }
+            set
+            {
+                _isRttViewEnabled = value;
+                OnPropertyChanged("IsRTTViewEnabled");
+            }
+        }
+
         public bool ActivateWizardPage
         {
             get
@@ -237,9 +251,14 @@ namespace com.vtcsecure.ace.windows.ViewModel
             get { return _contactViewModel; }
         }
 
-        public MessagingViewModel MessagingModel
+        public InCallMessagingViewModel RttMessagingModel
         {
-            get { return _messageViewModel; }
+            get { return _inCallMessageViewModel; }
+        }
+
+        public SimpleMessagingViewModel SipSimpleMessagingModel
+        {
+            get { return _simpleMessageViewModel; }
         }
 
         public SettingsViewModel SettingsModel

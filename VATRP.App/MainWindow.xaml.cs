@@ -88,7 +88,7 @@ namespace com.vtcsecure.ace.windows
             ctrlHistory.SetDataContext(_mainViewModel.HistoryModel);
             ctrlContacts.SetDataContext(_mainViewModel.ContactsModel);
             _dialpadBox = new Dialpad(_mainViewModel.DialpadModel);
-            _messagingWindow = new MediaTextWindow(_mainViewModel.MessagingModel);
+            _messagingWindow = new MediaTextWindow(_mainViewModel.SipSimpleMessagingModel);
             ctrlDialpad.SetViewModel(_mainViewModel.DialpadModel);
             ctrlLocalContact.SetDataContext(_mainViewModel.ContactModel);
             ctrlCall.ParentViewModel =_mainViewModel;
@@ -346,7 +346,7 @@ namespace com.vtcsecure.ace.windows
             App.AllowDestroyWindows = true;
             registerRequested = false;
             base.Window_Closing(sender, e);
-            _mainViewModel.MessagingModel.StopInputProcessor();
+            _mainViewModel.RttMessagingModel.StopInputProcessor();
             ServiceManager.Instance.Stop();
         }
 
@@ -493,7 +493,7 @@ namespace com.vtcsecure.ace.windows
             ctrlDialpad.KeypadPressed += OnDialpadClicked;
             _mainViewModel.DialpadHeight = ctrlDialpad.ActualHeight;
 
-            _mainViewModel.MessagingModel.RttReceived += OnRttReceived;
+            _mainViewModel.RttMessagingModel.RttReceived += OnRttReceived;
 
             // Liz E. - ToDo unified Settings
             ctrlSettings.AccountChangeRequested += OnAccountChangeRequested;
@@ -850,6 +850,27 @@ namespace com.vtcsecure.ace.windows
             else
             {
                 this.ShowSelfPreviewItem.IsChecked = false;
+            }
+        }
+
+        private void OnShowMessagingWindow(object sender, RoutedEventArgs e)
+        {
+            if (_messagingWindow != null)
+            {
+                bool enabled = this.ShowMessagingViewItem.IsChecked;
+                if (!enabled)
+                {
+                    _messagingWindow.Hide();
+                }
+                else if (!_messagingWindow.IsVisible)
+                {
+                    _messagingWindow.Show();
+                    _messagingWindow.Activate();
+                }
+            }
+            else
+            {
+                this.ShowMessagingViewItem.IsChecked = false;
             }
         }
 
