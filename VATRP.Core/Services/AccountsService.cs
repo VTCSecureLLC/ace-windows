@@ -198,16 +198,23 @@ namespace VATRP.Core.Services
             if (account.AccountType == VATRPAccountType.Unknown)
                 return false;
 
-            var query = from record in this.accountsList where 
-                            record.AccountID == account.AccountID &&
-                            record.AccountType == account.AccountType
-                        select record;
-
-            if (query.Any())
+            if (this.accountsList != null)
             {
-                return true;
-            }
+                var query = from record in this.accountsList
+                    where
+                        record.AccountID == account.AccountID &&
+                        record.AccountType == account.AccountType
+                    select record;
 
+                if (query.Any())
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                accountsList = new List<VATRPAccount>();
+            }
             this.accountsList.Insert(0, account);
             this.DeferredSave();
             return true;
