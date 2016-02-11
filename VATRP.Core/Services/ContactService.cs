@@ -127,9 +127,12 @@ namespace VATRP.Core.Services
                             host = Marshal.PtrToStringAnsi(tmpPtr);
                         }
 
+                        int port = LinphoneAPI.linphone_address_get_port(addressPtr);
+
                         if (!string.IsNullOrWhiteSpace(un))
                         {
-                            var cfgSipaddress = string.Format("{0}@{1}", un, host);
+                            var cfgSipaddress = port == 0 ? string.Format("{0}@{1}", un, host):
+                                string.Format("{0}@{1}:{2}", un, host, port);
                             VATRPContact contact = new VATRPContact(new ContactID(cfgSipaddress, IntPtr.Zero))
                             {
                                 DisplayName = dn,
@@ -245,15 +248,14 @@ namespace VATRP.Core.Services
                                     host = Marshal.PtrToStringAnsi(tmpPtr);
                                 }
 
-                                var fqdn = string.Format("sip:{0}@{1}", un, host);
-                                var cfgSipAddress = string.Format("{0}@{1}", un, host);
+                                int port = LinphoneAPI.linphone_address_get_port(addressPtr);
 
+                                var cfgSipAddress = port == 0 ? string.Format("{0}@{1}", un, host):
+                                    string.Format("{0}@{1}:{2}", un, host, port);
 
+                                var fqdn = string.Format("sip:{0}", cfgSipAddress);
                                 newsipassdress.TrimSipPrefix();
-
                                 var newfqdn = string.Format("sip:{0}", newsipassdress);
-
-                                int port;
                                 VATRPCall.ParseSipAddress(newsipassdress, out un, out host, out port);
 
                                 if (string.Compare(oldsipAddress, cfgSipAddress, StringComparison.InvariantCultureIgnoreCase) == 0)

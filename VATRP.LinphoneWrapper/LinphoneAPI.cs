@@ -2154,6 +2154,8 @@ namespace VATRP.LinphoneWrapper
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_address_get_domain(IntPtr u);
 
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_address_get_port(IntPtr u);
         #endregion
 
         #region Security
