@@ -94,6 +94,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             {
                 VATRPDevice selectedCamera = ServiceManager.Instance.GetSelectedCamera();
                 SelectedCameraLabel.Content = selectedCamera.displayName;
+                SelectedCameraLabel.ToolTip = selectedCamera.displayName;
             }
             else
             {
@@ -102,6 +103,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                     if (!string.IsNullOrEmpty(selectedCameraId) && selectedCameraId.Equals(camera.deviceId))
                     {
                         SelectedCameraLabel.Content = camera.displayName;
+                        SelectedCameraLabel.ToolTip = camera.displayName;
                     }
                 }
             }
@@ -112,6 +114,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             {
                 VATRPDevice selectedMicrophone = ServiceManager.Instance.GetSelectedMicrophone();
                 SelectedMicrophoneLabel.Content = selectedMicrophone.displayName;
+                SelectedMicrophoneLabel.ToolTip = selectedMicrophone.displayName;
             }
             else
             {
@@ -120,6 +123,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                     if (!string.IsNullOrEmpty(selectedMicrophoneId) && selectedMicrophoneId.Equals(microphone.deviceId))
                     {
                         SelectedMicrophoneLabel.Content = microphone.displayName;
+                        SelectedMicrophoneLabel.ToolTip = microphone.displayName;
                     }
                 }
             }
@@ -130,6 +134,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             {
                 VATRPDevice selectedSpeaker = ServiceManager.Instance.GetSelectedSpeakers();
                 SelectedSpeakerLabel.Content = selectedSpeaker.displayName;
+                SelectedSpeakerLabel.ToolTip = selectedSpeaker.displayName;
             }
             else
             {
@@ -138,6 +143,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                     if (!string.IsNullOrEmpty(selectedSpeakerId) && selectedSpeakerId.Equals(speaker.deviceId))
                     {
                         SelectedSpeakerLabel.Content = speaker.displayName;
+                        SelectedSpeakerLabel.ToolTip = speaker.displayName;
                     }
                 }
             }
