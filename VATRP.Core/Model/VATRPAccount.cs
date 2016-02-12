@@ -179,20 +179,22 @@ namespace VATRP.Core.Model
         [Column]
         public int VideoMailCount { get; set; }
 
-        #endregion
-
+        [Column]
+        public float PreferredFPS { get; set; }
         #region Methods
 
         public VATRPAccount()
         {
+
             AccountID = Guid.NewGuid().ToString();
             ProxyPort = Configuration.LINPHONE_SIP_PORT;
             ProxyHostname = Configuration.LINPHONE_SIP_SERVER;
             Transport = "TCP";
             MediaEncryption = "Unencrypted";
-            EnableAVPF = true;
+            EnableAVPF = false;
             PreferredVideoId = "cif";
-            STUNAddress = string.Empty;
+            STUNAddress = "bc1.vatrp.net";
+            STUNPort = 3478;
             AuthID = string.Empty;
             Username = string.Empty;
             Password = string.Empty;
@@ -208,7 +210,7 @@ namespace VATRP.Core.Model
             VideoPreset = null;
             MuteMicrophone = false;
             MuteSpeaker = false;
-            EchoCancel = false;
+            EchoCancel = true;
             UseOutboundProxy = false;
             VideoPreset = "high-fps";
             SelectedCameraId = string.Empty;
@@ -216,6 +218,8 @@ namespace VATRP.Core.Model
             SelectedSpeakerId = string.Empty;
             UserNeedsAgentView = false;
             VideoMailCount = 0;
+            //PreferredFPS = 30;
+            EnableICE = true;
         }
 
         #endregion

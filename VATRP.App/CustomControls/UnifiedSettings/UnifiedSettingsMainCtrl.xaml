@@ -101,7 +101,7 @@
                 </Button>
 
                 <!-- Row 8: Clear Account -->
-                <Button Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="3" Content="Clear Account" Margin="0,2" 
+                <Button Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="3" Content="Clear Settings" Margin="0,2" 
                     BorderThickness="0"  Click="OnClearAccount"
                     VerticalContentAlignment="Center" Name="ClearAccountButton">
                 </Button>

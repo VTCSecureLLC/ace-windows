@@ -192,7 +192,7 @@ namespace com.vtcsecure.ace.windows
         {
             switch (changeType)
             {
-                case Enums.ACEMenuSettingsUpdateType.ClearAccount: ClearAccountAndUpdateUI();
+                case Enums.ACEMenuSettingsUpdateType.ClearSettings: ClearSettingsAndUpdateUI();
                     break;
                 case Enums.ACEMenuSettingsUpdateType.Logout:
                     break;
@@ -247,7 +247,7 @@ namespace com.vtcsecure.ace.windows
             ServiceManager.Instance.ClearAccountInformation();
         }
 
-        private void ClearAccountAndUpdateUI()
+        private void ClearSettingsAndUpdateUI()
         {
             OnResetToDefaultConfiguration();
         }

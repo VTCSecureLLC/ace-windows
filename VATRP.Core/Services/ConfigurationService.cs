@@ -260,6 +260,7 @@ namespace VATRP.Core.Services
             {
                 this.sections.Clear();
                 this.ImmediateSave();
+                // add in the default values that we will need
             }
             catch (System.UnauthorizedAccessException e)
             {
