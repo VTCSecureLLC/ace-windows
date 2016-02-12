@@ -1385,6 +1385,7 @@ namespace VATRP.Core.Services
             LinphoneAPI.linphone_core_set_preferred_framerate(linphoneCore, account.PreferredFPS);
             
             IntPtr namePtr = LinphoneAPI.linphone_core_get_preferred_video_size_name(linphoneCore);
+            MSVideoSize preferredVideoSize = LinphoneAPI.linphone_core_get_preferred_video_size(linphoneCore);
             if (namePtr != IntPtr.Zero)
             {
                 string name = Marshal.PtrToStringAnsi(namePtr);
@@ -1392,21 +1393,22 @@ namespace VATRP.Core.Services
                 {
                     LOG.Info("Set preferred video size by name: " + account.PreferredVideoId);
                     LinphoneAPI.linphone_core_set_preferred_video_size_by_name(linphoneCore, account.PreferredVideoId);
+                    MSVideoSize preferredVideoSizeAfterChange = LinphoneAPI.linphone_core_get_preferred_video_size(linphoneCore);
 
                     int bandwidth = 512;
                     switch (account.PreferredVideoId)
                     {
                         case "720p":
-                            bandwidth = 1024 + 128;
+                            bandwidth = 2000;
                             break;
                         case "svga":
-                            bandwidth = 860;
+                            bandwidth = 2000;
                             break;
                         case "vga":
-                            bandwidth = 660;
+                            bandwidth = 1500;
                             break;
                         case "cif":
-                            bandwidth = 460;
+                            bandwidth = 660;
                             break;
                         case "qvga":
                             bandwidth = 410;
