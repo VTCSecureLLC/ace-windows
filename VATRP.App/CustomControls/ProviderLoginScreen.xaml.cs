@@ -165,7 +165,10 @@ namespace com.vtcsecure.ace.windows.CustomControls
                             message = "An error occured while obtaining the configuration. Status Type=" + config.configStatus.ToString();
                             break;
                     }
-                    MessageBox.Show(message, "Error Obtaining Configuration Status");
+                    if (!string.IsNullOrEmpty(message))
+                    {
+                        MessageBox.Show(message, "Error Obtaining Configuration Status");
+                    }
                     //return;  //Continue attempting manual registration if configuration failed
                     Login_old();
                 }

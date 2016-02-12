@@ -80,16 +80,22 @@ namespace com.vtcsecure.ace.windows.Utilities
             if (App.CurrentAccount != null)
             {
                 ACEConfig config = App.CurrentAccount.configuration;
-                if (config == null)
-                {
-                    return "";
-                }
                 // Liz E. Note: Commenting out the items that are not yet being stored above. Uncomment and access correct information as needed
                 //  (rather than printing items that are not yet in use stored)
                 //        public int version { get; set; }
-                configString.AppendLine("Configuration Version: " + config.version);
+                if (config != null)
+                {
+                    configString.AppendLine("Configuration Version: " + config.version);
+                    configString.AppendLine("Expiration Time: " + config.expiration_time); // this should be converted to date time, I am sure
+                    //       public List<string> sip_register_usernames { get; set; }
+                    configString.AppendLine("SIP Register Usernames: " + string.Join(", ", config.sip_register_usernames.ToArray()));
+                }
+                else
+                {
+                    configString.AppendLine("Configuration Version: defaults used - no config found");
+                    configString.AppendLine("Expiration Time: n/a"); // this should be converted to date time, I am sure
+                }
                 //         public int expiration_time { get; set; }
-                configString.AppendLine("Expiration Time: " + config.expiration_time); // this should be converted to date time, I am sure
 
                 // not sure we want auth information printed in the technical spec sheet. name maybe, but not password.
                 //       public string configuration_auth_password { get; set; }
@@ -97,8 +103,7 @@ namespace com.vtcsecure.ace.windows.Utilities
 
                 //       public int sip_registration_maximum_threshold { get; set; }
                 //configString.AppendLine("SIP Registration Maximum Threshold: " + config.sip_registration_maximum_threshold);
-                //       public List<string> sip_register_usernames { get; set; }
-                configString.AppendLine("SIP Register Usernames: " + string.Join(", ", config.sip_register_usernames.ToArray()));
+
                 //       public string sip_auth_username { get; set; }
                 configString.AppendLine("Username: " + App.CurrentAccount.Username);
                 //       public string sip_auth_password { get; set; }
@@ -123,6 +128,7 @@ namespace com.vtcsecure.ace.windows.Utilities
                 configString.AppendLine("Enable STUN: " + App.CurrentAccount.EnableSTUN.ToString());
                 //       public string stun_server { get; set; }
                 configString.AppendLine("STUN Server: " + App.CurrentAccount.STUNAddress);
+                configString.AppendLine("STUN Port: " + App.CurrentAccount.STUNPort);
                 //       public bool enable_ice { get; set; }
                 configString.AppendLine("Enable ICE: " + App.CurrentAccount.EnableICE.ToString());
 
