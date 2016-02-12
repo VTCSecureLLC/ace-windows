@@ -49,7 +49,7 @@
                    HorizontalAlignment="Left" Name="VideoMailUriLabel">
             </Label>
             <TextBox Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" Foreground="Blue" Name="VideoMailUriTextBox"  LostFocus="OnVideoMailUriChanged"/>
+                     Height="23" Margin="0,0,0,0" Text=""  VerticalAlignment="Center" Foreground="Blue" Name="VideoMailUriTextBox"  LostFocus="OnVideoMailUriChanged"/>
 
         </Grid>
 

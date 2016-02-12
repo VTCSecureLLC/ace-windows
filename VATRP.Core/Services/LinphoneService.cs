@@ -68,7 +68,8 @@ namespace VATRP.Core.Services
         private IntPtr _linphoneAudioCodecsList = IntPtr.Zero;
         private IntPtr _linphoneVideoCodecsList = IntPtr.Zero;
         private List<IntPtr> _declinedCallsList = new List<IntPtr>();
-        
+        private IntPtr _videoMWiSubscription;
+		
         #endregion
 
 		#region Delegates
@@ -2432,6 +2433,22 @@ namespace VATRP.Core.Services
                 }
                 historyListPtr = curStruct.next;
             } while (curStruct.next != IntPtr.Zero);
+        }
+
+        #endregion
+
+        #region Subscriptions
+
+        public bool SubscribeForVideoMWI(string newVideoMailUri)
+        {
+            IntPtr mwiAddressPtr = LinphoneAPI.linphone_core_create_address(linphoneCore, newVideoMailUri);
+            if (_videoMWiSubscription != IntPtr.Zero)
+                LinphoneAPI.linphone_event_terminate(_videoMWiSubscription);
+
+            if (mwiAddressPtr != IntPtr.Zero)
+                _videoMWiSubscription = LinphoneAPI.linphone_core_subscribe(linphoneCore, mwiAddressPtr, "message-summary", 1800, IntPtr.Zero);
+
+            return _videoMWiSubscription != IntPtr.Zero;
         }
 
         #endregion
