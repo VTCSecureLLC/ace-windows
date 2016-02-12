@@ -349,33 +349,37 @@ namespace com.vtcsecure.ace.windows
 						var nextVM = _mainViewModel.GetNextViewModel(null);
 					    if (nextVM != null)
 					    {
-                            _mainViewModel.ActiveCallModel = nextVM;
-					        if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-					            Configuration.ConfEntry.USE_RTT, true))
-					        {
-					            _mainViewModel.IsRTTViewEnabled = true;
-					            ctrlRTT.SetViewModel(_mainViewModel.RttMessagingModel);
-					            _mainViewModel.RttMessagingModel.CreateRttConversation(
-					                nextVM.ActiveCall.RemoteParty.Username, nextVM.ActiveCall.NativeCallPtr);
-					        }
-					        else
-					        {
-                                _mainViewModel.IsRTTViewEnabled = false;
-					        }
-                            ShowCallOverlayWindow(true);
-                            ctrlCall.ctrlOverlay.SetCallerInfo(nextVM.CallerInfo);
-                            ctrlCall.ctrlOverlay.ForegroundCallDuration = _mainViewModel.ActiveCallModel.CallDuration;
-                            ctrlCall.SetCallViewModel(_mainViewModel.ActiveCallModel);
-                            ctrlCall.UpdateControls();
-					        if (nextVM.ActiveCall.CallState == VATRPCallState.LocalPaused )
-					        {
-					            if (!nextVM.PauseRequest)
-					                _mainViewModel.ResumeCall(nextVM);
-					            else
-					            {
-                                    ctrlCall.ctrlOverlay.SetCallState("On Hold");
-					            }
-					        }
+                            // defensive coding here- do not try to operate on an errored call state object
+                            if (nextVM.CallState != VATRPCallState.Error)
+                            {
+                                _mainViewModel.ActiveCallModel = nextVM;
+                                if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                                    Configuration.ConfEntry.USE_RTT, true))
+                                {
+                                    _mainViewModel.IsRTTViewEnabled = true;
+                                    ctrlRTT.SetViewModel(_mainViewModel.RttMessagingModel);
+                                    _mainViewModel.RttMessagingModel.CreateRttConversation(
+                                        nextVM.ActiveCall.RemoteParty.Username, nextVM.ActiveCall.NativeCallPtr);
+                                }
+                                else
+                                {
+                                    _mainViewModel.IsRTTViewEnabled = false;
+                                }
+                                ShowCallOverlayWindow(true);
+                                ctrlCall.ctrlOverlay.SetCallerInfo(nextVM.CallerInfo);
+                                ctrlCall.ctrlOverlay.ForegroundCallDuration = _mainViewModel.ActiveCallModel.CallDuration;
+                                ctrlCall.SetCallViewModel(_mainViewModel.ActiveCallModel);
+                                ctrlCall.UpdateControls();
+                                if (nextVM.ActiveCall.CallState == VATRPCallState.LocalPaused)
+                                {
+                                    if (!nextVM.PauseRequest)
+                                        _mainViewModel.ResumeCall(nextVM);
+                                    else
+                                    {
+                                        ctrlCall.ctrlOverlay.SetCallState("On Hold");
+                                    }
+                                }
+                            }
 					    }
 					}
 					
@@ -417,6 +421,10 @@ namespace com.vtcsecure.ace.windows
                         _mainViewModel.ActiveCallModel = null;
                         OnFullScreenToggled(false); // restore main window to dashboard
 					}
+                    else
+                    {
+                        _mainViewModel.RemoveCalViewModel(callViewModel);
+                    }
 					
 					break;
 				default:

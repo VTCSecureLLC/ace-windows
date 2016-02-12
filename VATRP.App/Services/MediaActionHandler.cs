@@ -27,6 +27,15 @@ namespace com.vtcsecure.ace.windows.Services
                     MessageBoxImage.Error);
                 return false;
             }
+            // VATRP-2506, 2496: check to see if there is currently a call in progress. IF there is a call in progress, prevent 
+            //   an outgoing call. 
+            int callCount = ServiceManager.Instance.LinphoneService.GetActiveCallsCount;
+            if (callCount > 0)
+            {
+                return false;  // i think this can be a quiet failure - the user is already in a call.
+            }
+
+
             bool muteMicrophone = false;
             bool muteSpeaker = false;
             bool enableVideo = false;

@@ -381,7 +381,7 @@
                                 <StackPanel x:Name="ControlBtnPanel" Style="{StaticResource HideButtonsStyle}"
                                         Orientation="Horizontal" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Grid.RowSpan="2">
 
-                                    <ToggleButton x:Name="FavoriteBtn" Margin="0,0,2,0" Tag="{Binding Contact}" Visibility="Collapsed"
+                                    <ToggleButton x:Name="FavoriteBtn" Margin="0,0,2,0" Tag="{Binding Contact}"
                                               HorizontalAlignment="Left" VerticalAlignment="Center" 
                                               Click="btnFavorite_Click" >
                                         <ToggleButton.Resources>

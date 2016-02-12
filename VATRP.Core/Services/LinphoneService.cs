@@ -68,7 +68,8 @@ namespace VATRP.Core.Services
         private IntPtr _linphoneAudioCodecsList = IntPtr.Zero;
         private IntPtr _linphoneVideoCodecsList = IntPtr.Zero;
         private List<IntPtr> _declinedCallsList = new List<IntPtr>();
-        
+        private IntPtr _videoMWiSubscription;
+		
         #endregion
 
 		#region Delegates
@@ -1384,6 +1385,7 @@ namespace VATRP.Core.Services
             LinphoneAPI.linphone_core_set_preferred_framerate(linphoneCore, account.PreferredFPS);
             
             IntPtr namePtr = LinphoneAPI.linphone_core_get_preferred_video_size_name(linphoneCore);
+            MSVideoSize preferredVideoSize = LinphoneAPI.linphone_core_get_preferred_video_size(linphoneCore);
             if (namePtr != IntPtr.Zero)
             {
                 string name = Marshal.PtrToStringAnsi(namePtr);
@@ -1391,21 +1393,22 @@ namespace VATRP.Core.Services
                 {
                     LOG.Info("Set preferred video size by name: " + account.PreferredVideoId);
                     LinphoneAPI.linphone_core_set_preferred_video_size_by_name(linphoneCore, account.PreferredVideoId);
+                    MSVideoSize preferredVideoSizeAfterChange = LinphoneAPI.linphone_core_get_preferred_video_size(linphoneCore);
 
                     int bandwidth = 512;
                     switch (account.PreferredVideoId)
                     {
                         case "720p":
-                            bandwidth = 1024 + 128;
+                            bandwidth = 2000;
                             break;
                         case "svga":
-                            bandwidth = 860;
+                            bandwidth = 2000;
                             break;
                         case "vga":
-                            bandwidth = 660;
+                            bandwidth = 1500;
                             break;
                         case "cif":
-                            bandwidth = 460;
+                            bandwidth = 660;
                             break;
                         case "qvga":
                             bandwidth = 410;
@@ -2116,7 +2119,7 @@ namespace VATRP.Core.Services
 		                if (valuePtr != IntPtr.Zero)
 		                {
 		                    string val = Marshal.PtrToStringAnsi(valuePtr);
-                            if (val == "camera_mute_on" || val == "camera_mute_off")
+                            if (val == "camera_mute_on" || val == "camera_mute_off"  || val == "isCameraMuted")
                                 if (OnCameraMuteEvent != null)
                                     OnCameraMuteEvent(new CameraMuteEventArgs(call, val == "camera_mute_off"));
 		                }
@@ -2432,6 +2435,22 @@ namespace VATRP.Core.Services
                 }
                 historyListPtr = curStruct.next;
             } while (curStruct.next != IntPtr.Zero);
+        }
+
+        #endregion
+
+        #region Subscriptions
+
+        public bool SubscribeForVideoMWI(string newVideoMailUri)
+        {
+            IntPtr mwiAddressPtr = LinphoneAPI.linphone_core_create_address(linphoneCore, newVideoMailUri);
+            if (_videoMWiSubscription != IntPtr.Zero)
+                LinphoneAPI.linphone_event_terminate(_videoMWiSubscription);
+
+            if (mwiAddressPtr != IntPtr.Zero)
+                _videoMWiSubscription = LinphoneAPI.linphone_core_subscribe(linphoneCore, mwiAddressPtr, "message-summary", 1800, IntPtr.Zero);
+
+            return _videoMWiSubscription != IntPtr.Zero;
         }
 
         #endregion

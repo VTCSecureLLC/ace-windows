@@ -42,11 +42,17 @@ namespace VATRP.Linphone.VideoWrapper
         {
             if ((bool) e.NewValue != ShowWindow)
             {
-                if (ShowWindow)
-                    _window.Show();
-                else
+                try
                 {
-                    _window.Hide();
+                    if (ShowWindow)
+                        _window.Show();
+                    else
+                    {
+                        _window.Hide();
+                    }
+                }catch(InvalidOperationException ioe)
+                {
+                    Console.WriteLine(ioe.StackTrace);
                 }
             }
         }
