@@ -56,6 +56,8 @@ namespace VATRP.Core.Model
         public ACEConfig()
         {
             configStatus = ACEConfigStatusType.UNKNOWN;
+            sip_register_usernames = new List<string>();
+            enabled_codecs = new List<string>();
         }
 
         public void UpdateVATRPAccountFromACEConfig(VATRPAccount accountToUpdate)
