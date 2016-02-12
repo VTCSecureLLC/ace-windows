@@ -157,8 +157,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
                         //   in customer support.
                         case ACEConfigStatusType.CONNECTION_FAILED: message = "Unable to obtain configuration information from the server.";
                             break;
-                        case ACEConfigStatusType.SRV_RECORD_NOT_FOUND: message = "The SRV Record was not found.";
-                            break;
+                        //case ACEConfigStatusType.SRV_RECORD_NOT_FOUND: message = "The SRV Record was not found.";
+                        //    break;
                         case ACEConfigStatusType.UNABLE_TO_PARSE: message = "Unable to parse the configuration information.";
                             break;
                         default:
