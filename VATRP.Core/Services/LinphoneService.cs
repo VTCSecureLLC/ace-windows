@@ -2116,7 +2116,7 @@ namespace VATRP.Core.Services
 		                if (valuePtr != IntPtr.Zero)
 		                {
 		                    string val = Marshal.PtrToStringAnsi(valuePtr);
-                            if (val == "camera_mute_on" || val == "camera_mute_off")
+                            if (val == "camera_mute_on" || val == "camera_mute_off"  || val == "isCameraMuted")
                                 if (OnCameraMuteEvent != null)
                                     OnCameraMuteEvent(new CameraMuteEventArgs(call, val == "camera_mute_off"));
 		                }
