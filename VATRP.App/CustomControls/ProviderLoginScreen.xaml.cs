@@ -123,7 +123,12 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 MessageBox.Show("Please fill password field", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-
+            string address = HostnameBox.Text;
+            if (string.IsNullOrEmpty(address))
+            {
+                MessageBox.Show("Please fill hostname field", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
             //VATRPServiceProvider provider = (VATRPServiceProvider)ProviderComboBox.SelectedItem; 
             //if (provider != null)
             //{
@@ -132,7 +137,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             var transportText = TransportComboBox.SelectedItem as TextBlock;
             if (transportText.Text.ToLower() != "tls") //TLS login with autofig is currently failing so revert to old login logic for TLS
             {
-                string address = HostnameBox.Text;
+
                 ACEConfig config = ConfigLookup.LookupConfig(address, userName, password);
                 if ((config == null) || (config.configStatus == ACEConfigStatusType.LOGIN_UNAUTHORIZED))
                 {
@@ -174,16 +179,16 @@ namespace com.vtcsecure.ace.windows.CustomControls
                         config.sip_auth_password = password;
                     }
                     //Allow user override of transport                     
-                    if (transportText != null && config.sip_register_transport.ToLower() != transportText.Text.ToLower())
-                    {
-                        config.sip_register_transport = transportText.Text;
-                    }
+                    //if (transportText != null && config.sip_register_transport.ToLower() != transportText.Text.ToLower())
+                    //{
+                    //    config.sip_register_transport = transportText.Text;
+                    //}
                     //Allow user override of proxy port
-                    ushort port;
-                    if (ushort.TryParse(HostPortBox.Text, out port) && config.sip_register_port != port)
-                    {
-                        config.sip_register_port = port;
-                    }
+                    //ushort port;
+                    //if (ushort.TryParse(HostPortBox.Text, out port) && config.sip_register_port != port)
+                    //{
+                    //    config.sip_register_port = port;
+                    //}
 
                     var account = ServiceManager.Instance.AccountService.FindAccount(config.sip_auth_username, config.sip_register_domain);//, HostnameBox.Text);
                     if (account != null)
