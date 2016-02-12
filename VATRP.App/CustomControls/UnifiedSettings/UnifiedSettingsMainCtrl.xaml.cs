@@ -144,7 +144,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 visibleSetting = System.Windows.Visibility.Visible;
             }
             RunWizardButton.Visibility = visibleSetting;
-            ClearAccountButton.Visibility = visibleSetting;
+            ClearSettingsButton.Visibility = visibleSetting;
 
             PasswordLabel.Visibility = visibleSetting;
             PasswordTextBox.Visibility = visibleSetting;
@@ -217,13 +217,13 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
         }
 
-        private void OnClearAccount(object sender, RoutedEventArgs e)
+        private void OnClearSettings(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("Clear Account Clicked");
-            if (MessageBox.Show("Launching the Wizard will delete any existing proxy configuration. Are you sure you want to proceed?", "Clear Account", MessageBoxButton.YesNo,
+            Console.WriteLine("Clear Settings Clicked");
+            if (MessageBox.Show("Launching the Wizard will delete any existing proxy configuration. Are you sure you want to proceed?", "Clear Settings", MessageBoxButton.YesNo,
                     MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
-                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.ClearAccount);
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.ClearSettings);
             }
         }
 

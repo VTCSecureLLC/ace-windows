@@ -192,9 +192,10 @@ namespace VATRP.Core.Model
             ProxyHostname = Configuration.LINPHONE_SIP_SERVER;
             Transport = "TCP";
             MediaEncryption = "Unencrypted";
-            EnableAVPF = true;
+            EnableAVPF = false;
             PreferredVideoId = "cif";
-            STUNAddress = string.Empty;
+            STUNAddress = "bc1.vatrp.net";
+            STUNPort = 3478;
             AuthID = string.Empty;
             Username = string.Empty;
             Password = string.Empty;
@@ -210,7 +211,7 @@ namespace VATRP.Core.Model
             VideoPreset = null;
             MuteMicrophone = false;
             MuteSpeaker = false;
-            EchoCancel = false;
+            EchoCancel = true;
             UseOutboundProxy = false;
             VideoPreset = "high-fps";
             SelectedCameraId = string.Empty;

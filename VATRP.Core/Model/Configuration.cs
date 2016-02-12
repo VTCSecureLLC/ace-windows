@@ -52,7 +52,7 @@ namespace VATRP.Core.Model
             TEXT_SEND_MODE
         }
 
-        public static string LINPHONE_SIP_SERVER = "acetest-registrar.vatrp.net";
+        public static string LINPHONE_SIP_SERVER = "bc1.vatrp.net";
 		public static ushort LINPHONE_SIP_PORT = 25060;
 		public static string DISPLAY_NAME = "John Doe";
 		public static string LINPHONE_USERAGENT = "VATRP";

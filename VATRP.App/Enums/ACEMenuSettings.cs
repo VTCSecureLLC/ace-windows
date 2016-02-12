@@ -10,7 +10,7 @@ namespace com.vtcsecure.ace.windows.Enums
         // settings calls to update the ui/services
         // Registration/Account
         Logout,
-        ClearAccount,
+        ClearSettings,
         RunWizard,
         UserNameChanged,
         RegistrationChanged,
