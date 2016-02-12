@@ -85,6 +85,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             DebugMenuLabel.Visibility = visibleSetting;
             AutoAnswerLabel.Visibility = visibleSetting;
             AutoAnswerCheckBox.Visibility = visibleSetting;
+            ClearSettingsButton.Visibility = visibleSetting;
         }
 
         public override void ShowAdvancedOptions(bool show)
