@@ -149,7 +149,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 if (config.configStatus != ACEConfigStatusType.LOGIN_SUCCEESSFUL)
                 {
                     // there was some sort of error - expose information to user for now. Once ready, log and handle. In some cases we will still want a specific message
-                    string message;
+                    string message = "";
                     switch (config.configStatus)
                     {
                         // ToDo note : the text here is a little bit different for each message - enough to let the developer know what to look for
