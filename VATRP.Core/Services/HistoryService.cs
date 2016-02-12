@@ -129,7 +129,8 @@ namespace VATRP.Core.Services
             if (string.IsNullOrEmpty(un))
                 return null;
 
-            remoteParty = string.Format("sip:{0}@{1}", un, host);
+            remoteParty = port==0 ? string.Format("sip:{0}@{1}", un, host) : 
+                string.Format("sip:{0}@{1}:{2}", un, host, port);
             var callevent = new VATRPCallEvent("", remoteParty)
             {
                 DisplayName = dn,

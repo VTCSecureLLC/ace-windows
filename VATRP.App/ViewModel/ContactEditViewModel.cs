@@ -68,7 +68,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             set
             {
                 _contactSipUsername = value;
-                if (ValidateAddress(_contactSipUsername))
+                if (ValidateAddress(_contactSipUsername) == 0)
                     _contactSipAddress = _contactSipUsername;
                 else
                 {
@@ -140,7 +140,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             var providersList = ServiceManager.Instance.ProviderService.GetProviderListFullInfo();
             providersList.Sort((a, b) => a.Label.CompareTo(b.Label));
-            string domain = ValidateAddress(_contactSipUsername) ? _contactSipUsername.Split('@')[1] : string.Empty;
+            string un, domain;
+            int port;
+            VATRPCall.ParseSipAddress(_contactSipUsername, out un, out domain, out port);
             ProviderViewModel selectedProvider = null;
             foreach (var s in providersList)
             {
@@ -171,11 +173,22 @@ namespace com.vtcsecure.ace.windows.ViewModel
             return !string.IsNullOrWhiteSpace(ContactName);
         }
 
-        internal bool ValidateAddress(string input)
+        internal int ValidateAddress(string input)
         {
             if (string.IsNullOrWhiteSpace(input))
-                return false;
-            return ValidateEmailInput(input);
+                return 1;
+            string un, host;
+            int port;
+            if (!VATRPCall.ParseSipAddress(input, out un, out host, out port))
+                return 2;
+            if (!ValidateUsername(un))
+                return 3;
+            if (!ValidateHost(host))
+                return 4;
+            if (port < 0 || port > 65535)
+                return 5;
+
+            return 0;
         }
 
         internal bool ValidateUsername(string input)
@@ -189,11 +202,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
             return r.IsMatch(input);
         }
 
-        private bool ValidateEmailInput(string input)
+        private bool ValidateHost(string input)
         {
             // Create a new Regex based on the specified regular expression.
             string regex =
-                @"^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$";
+                @"^((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$";
             System.Text.RegularExpressions.Regex r = new System.Text.RegularExpressions.Regex(regex);
 
             return r.IsMatch(input);
@@ -201,28 +214,34 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         internal void TrimSipUsername()
         {
-            var domain = ValidateAddress(_contactSipUsername) ? _contactSipUsername.Split('@')[1] : "";
-            var name  = isValidLabel(domain.Trim());
-            if (name)
-                _contactSipUsername = _contactSipUsername.Remove(_contactSipUsername.IndexOf(domain) - 1);
+            //var domain = ValidateAddress(_contactSipUsername) ? _contactSipUsername.Split('@')[1] : "";
+            //var name  = isValidLabel(domain.Trim());
+            //if (name)
+            //    _contactSipUsername = _contactSipUsername.Remove(_contactSipUsername.IndexOf(domain) - 1);
 
-            OnPropertyChanged("ContactSipUsername");
+            //OnPropertyChanged("ContactSipUsername");
         }
 
         internal void UpdateContactAddress()
         {
             TrimSipUsername();
-            if (_selectedProvider.Provider.Address != _nologoProvider.Provider.Address)
+
+            string un, host;
+            int port;
+            if (VATRPCall.ParseSipAddress(_contactSipUsername, out un, out host, out port))
             {
-                int index = _contactSipUsername.IndexOf("@");
-                if (index != -1)
-                    _contactSipUsername = _contactSipUsername.Remove(index);
-                if (_contactSipUsername.NotBlank())
-                    ContactSipUsername = String.Format("{0}@{1}", _contactSipUsername, _selectedProvider.Provider.Address);
+                if (host != _selectedProvider.Provider.Address && string.IsNullOrEmpty(host))
+                    host = _selectedProvider.Provider.Address;
+
+                ContactSipUsername = port == 0
+                    ? String.Format("{0}@{1}", un,
+                        host)
+                    : String.Format("{0}@{1}:{2}", un,
+                        host, port);
             }
 
-            if (AccountProvider != null && AccountProvider.Provider.Address == _selectedProvider.Provider.Address)
-                TrimSipUsername();
+            //if (AccountProvider != null && AccountProvider.Provider.Address == _selectedProvider.Provider.Address)
+            //    TrimSipUsername();
         }
     }
 }

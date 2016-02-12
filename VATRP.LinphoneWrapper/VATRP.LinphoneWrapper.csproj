@@ -62,10 +62,32 @@
     <Compile Include="Enums\LinphoneCallState.cs" />
     <Compile Include="Enums\LinphoneRegistrationState.cs" />
     <Compile Include="Enums\LinphoneRTCPMode.cs" />
+    <Compile Include="Enums\LinphoneSubscriptionState.cs" />
     <Compile Include="Enums\LinphoneTransportType.cs" />
     <Compile Include="Enums\MSVideoSize.cs" />
     <Compile Include="Enums\OrtpLogLevel.cs" />
+    <Compile Include="LinphoneAPI.Contacts.cs">
+      <DependentUpon>LinphoneAPI.cs</DependentUpon>
+    </Compile>
     <Compile Include="LinphoneAPI.cs" />
+    <Compile Include="LinphoneAPI.Content.cs">
+      <DependentUpon>LinphoneAPI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LinphoneAPI.Config.cs">
+      <DependentUpon>LinphoneAPI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LinphoneAPI.MsList.cs">
+      <DependentUpon>LinphoneAPI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LinphoneAPI.Info.cs">
+      <DependentUpon>LinphoneAPI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LinphoneAPI.VCard.cs">
+      <DependentUpon>LinphoneAPI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LinphoneAPI.Events.cs">
+      <DependentUpon>LinphoneAPI.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>

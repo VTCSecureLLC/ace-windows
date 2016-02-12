@@ -23,12 +23,11 @@
             </Label>
             <CheckBox Grid.Column="2" Grid.Row="0" Checked="OnEnableRealTimeText" Unchecked="OnEnableRealTimeText" HorizontalAlignment="Center" VerticalAlignment="Center" Name="EnableRealTimeTextCheckbox"/>
 
-            <Label Grid.Column="0" Grid.Row="1
-                   " Content="Text Send Mode" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left" Name="TextSendModeLabel">
+            <Label Grid.Column="0" Grid.Row="1" Content="Text Send Mode" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left" Name="TextSendModeLabel" Visibility="Collapsed">
             </Label>
             <ComboBox  Grid.Row="1" Grid.Column="1" x:Name="TextSendModeComboBox" FontSize="14" Margin="0,3,0,3" Width="120" Height="24" 
-                       VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="OnTextsendMode" >
+                       VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="OnTextsendMode" Visibility="Collapsed">
                 <TextBlock Text="Real Time Text"/>
                 <TextBlock Text="SIP Simple"/>
             </ComboBox>

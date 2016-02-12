@@ -179,6 +179,8 @@ namespace VATRP.Core.Model
         [Column]
         public int VideoMailCount { get; set; }
 
+        [Column]
+        public float PreferredFPS { get; set; }
         #endregion
 
         #region Methods
@@ -216,6 +218,7 @@ namespace VATRP.Core.Model
             SelectedSpeakerId = string.Empty;
             UserNeedsAgentView = false;
             VideoMailCount = 0;
+            PreferredFPS = 30;
         }
 
         #endregion

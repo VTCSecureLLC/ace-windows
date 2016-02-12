@@ -589,12 +589,14 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _linphoneService.MuteSpeaker(isMuted);
             //            _linphoneService.ToggleMute();
             //            IsMuteOn = _linphoneService.IsCallMuted();
-            if (App.CurrentAccount != null)
-            {
-                App.CurrentAccount.MuteSpeaker = isMuted;
-                // this now needs to be able to update the unified settings control as well.
-                ServiceManager.Instance.SaveAccountSettings();
-            }
+
+            // TM. VATRP-2219, in-call selections should not update the app settings choices
+            //if (App.CurrentAccount != null)
+            //{
+            //    App.CurrentAccount.MuteSpeaker = isMuted;
+            //    // this now needs to be able to update the unified settings control as well.
+            //    ServiceManager.Instance.SaveAccountSettings();
+            //}
         }
 
         internal void MuteCall(bool isMuted)
@@ -602,12 +604,14 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _linphoneService.MuteCall(isMuted);
 //            _linphoneService.ToggleMute();
 //            IsMuteOn = _linphoneService.IsCallMuted();
-            if (App.CurrentAccount != null)
-            {
-                App.CurrentAccount.MuteMicrophone = isMuted;
-                // this now needs to be able to update the unified settings control as well.
-                ServiceManager.Instance.SaveAccountSettings();
-            }
+
+            // TM. VATRP-2219, in-call selections should not update the app settings choices
+            //if (App.CurrentAccount != null)
+            //{
+            //    App.CurrentAccount.MuteMicrophone = isMuted;
+            //    // this now needs to be able to update the unified settings control as well.
+            //    ServiceManager.Instance.SaveAccountSettings();
+            //}
         }
 
         internal void ToggleCallStatisticsInfo(bool bShow)

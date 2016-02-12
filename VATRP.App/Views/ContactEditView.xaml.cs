@@ -44,9 +44,33 @@ namespace com.vtcsecure.ace.windows.Views
             _viewModel.UpdateContactAddress();
             if (!_viewModel.ValidateUsername(_viewModel.ContactSipUsername))
             {
-                if (!_viewModel.ValidateAddress(_viewModel.ContactSipUsername))
+                bool errorOccurred = true;
+                var errorString = string.Empty;
+                switch (_viewModel.ValidateAddress(_viewModel.ContactSipUsername))
                 {
-                    MessageBox.Show("Please enter correct username", "ACE", MessageBoxButton.OK,
+                    case 1:
+                        errorString = "Empty username is not allowed";
+                        break;
+                    case 2:
+                        errorString = "Calling address format is incorrect";
+                        break;
+                    case 3:
+                        errorString = "Username format is incorrect";
+                        break;
+                    case 4:
+                        errorString = "Registration host format is incorrect";
+                        break;
+                    case 5:
+                        errorString = "Port is out of range";
+                        break;
+                    default:
+                        errorOccurred = false;
+                        break;
+                }
+
+                if (errorOccurred)
+                {
+                    MessageBox.Show(errorString, "ACE", MessageBoxButton.OK,
                         MessageBoxImage.Error);
                     AddressBox.Focus();
                     return;

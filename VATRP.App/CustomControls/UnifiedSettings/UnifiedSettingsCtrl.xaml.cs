@@ -143,6 +143,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             _currentContent.Initialize();
             this.ContentPanel.Content = _currentContent;
             this.TitleLabel.Content = _currentContent.Title;
+            this.MaxWidth = 300;
 
             if (_currentContent == _mainPanel)
             {

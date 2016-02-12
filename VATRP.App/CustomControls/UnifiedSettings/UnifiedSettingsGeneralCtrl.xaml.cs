@@ -186,6 +186,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 {
                     App.CurrentAccount.VideoMailUri = newVideoMailUri;
                     ServiceManager.Instance.SaveAccountSettings();
+
+                    // Subscribe for video mail
+                    ServiceManager.Instance.LinphoneService.SubscribeForVideoMWI(newVideoMailUri);
                 }
             }
         }

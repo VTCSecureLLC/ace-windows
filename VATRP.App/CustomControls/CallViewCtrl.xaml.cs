@@ -132,22 +132,12 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             if (_viewModel.ActiveCall != null)
                 _viewModel.MuteSpeaker(isMuted);
-            if (SettingsControl != null)
-            {
-                SettingsControl.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.MuteSpeakerMenu);
-            }
-
         }
 
         internal void MuteCall(bool isMuted)
         {
             if (_viewModel.ActiveCall != null)
                 _viewModel.MuteCall(isMuted);
-            if (SettingsControl != null)
-            {
-                SettingsControl.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.MuteMicrophoneMenu);
-            }
-
         }
 
         private void OnEndCall(object sender, RoutedEventArgs e)
@@ -426,6 +416,12 @@ namespace com.vtcsecure.ace.windows.CustomControls
             {
                 this.BtnMuteOn.IsChecked = App.CurrentAccount.MuteMicrophone;
                 this.BtnSpeaker.IsChecked = App.CurrentAccount.MuteSpeaker;
+
+                if (_viewModel != null)
+                {
+                    _viewModel.IsMuteOn = BtnMuteOn.IsChecked ?? false;
+                    _viewModel.IsSpeakerOn = BtnSpeaker.IsChecked ?? false;
+                }
             }
         }
 
