@@ -27,7 +27,7 @@ namespace com.vtcsecure.ace.windows.Json
             "\"enable_adaptive_rate\":true," +
             "\"enabled_codecs\":[\"H.264\",\"H.263\",\"VP8\",\"G.722\",\"G.711\"]," +
             "\"bwLimit\":\"high-fps\"," +
-            "\"upload_bandwidth\":1000," +"\"download_bandwidth\":1000," +
+            "\"upload_bandwidth\":1500," +"\"download_bandwidth\":1500," +
             "\"enable_stun\":false," +
             "\"stun_server\":\"bc1.vatrp.net\"," +
             "\"enable_ice\":true," +

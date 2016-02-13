@@ -309,8 +309,8 @@ namespace VATRP.Core.Services
 				LinphoneAPI.linphone_core_enable_video_preview(linphoneCore, false);
 				LinphoneAPI.linphone_core_set_native_preview_window_id(linphoneCore, -1);
 
-			    LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, 660);
-                LinphoneAPI.linphone_core_set_download_bandwidth(linphoneCore, 660);
+			    LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, 1500);
+                LinphoneAPI.linphone_core_set_download_bandwidth(linphoneCore, 1500);
 
                 string codeBase = Assembly.GetExecutingAssembly().CodeBase;
                 UriBuilder uri = new UriBuilder(codeBase);
@@ -1417,8 +1417,16 @@ namespace VATRP.Core.Services
                             bandwidth = 256;
                             break;
                     }
-                    LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, bandwidth);
-                    LinphoneAPI.linphone_core_set_download_bandwidth(linphoneCore, bandwidth);
+                    if (account.DownloadBandwidth < bandwidth)
+                    {
+                        account.DownloadBandwidth = bandwidth;
+                        LinphoneAPI.linphone_core_set_download_bandwidth(linphoneCore, bandwidth);
+                    }
+                    if (account.UploadBandwidth < bandwidth)
+                    {
+                        account.UploadBandwidth = bandwidth;
+                        LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, bandwidth);
+                    }
                 }
             }
 

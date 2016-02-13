@@ -48,6 +48,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
 
             AdaptiveRateCheckbox.IsChecked = App.CurrentAccount.EnableAdaptiveRate;
+            UploadBandwidthTextBox.Text = App.CurrentAccount.UploadBandwidth.ToString();
+            DownloadBandwidthTextBox.Text = App.CurrentAccount.DownloadBandwidth.ToString();
         }
 
         private void OnAdaptiveRateChecked(object sender, RoutedEventArgs e)
@@ -144,6 +146,33 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 }
                 App.CurrentAccount.ICEPort = port;
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+            }
+        }
+
+        public void OnUploadBandwidthChanged(Object sender, RoutedEventArgs args)
+        {
+            string newBandwidth = UploadBandwidthTextBox.Text;
+            if (!string.IsNullOrEmpty(newBandwidth))
+            {
+                int bandwidth = 0;
+                if (int.TryParse(newBandwidth, out bandwidth))
+                {
+                    App.CurrentAccount.UploadBandwidth = bandwidth;
+                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+                }
+            }
+        }
+        public void OnDownloadBandwidthChanged(Object sender, RoutedEventArgs args)
+        {
+            string newBandwidth = DownloadBandwidthTextBox.Text;
+            if (!string.IsNullOrEmpty(newBandwidth))
+            {
+                int bandwidth = 0;
+                if (int.TryParse(newBandwidth, out bandwidth))
+                {
+                    App.CurrentAccount.DownloadBandwidth = bandwidth;
+                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+                }
             }
         }
 
