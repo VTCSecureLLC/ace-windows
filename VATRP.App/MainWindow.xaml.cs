@@ -651,7 +651,14 @@ namespace com.vtcsecure.ace.windows
             ctrlCall.ctrlOverlay.OnHoldWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.OnHoldOverlayWidth) / 2 + offset;
             ctrlCall.ctrlOverlay.OnHoldWindowTopMargin = ctrlCall.ctrlOverlay.CallInfoOverlayHeight + ctrlCall.ctrlOverlay.CallInfoWindowTopMargin + 40;// topleftInScreen.Y + 40;
 
+            ctrlCall.ctrlOverlay.QualityIndicatorWindowLeftMargin = topleftInScreen.X + offset;
+            ctrlCall.ctrlOverlay.QualityIndicatorWindowTopMargin = topleftInScreen.Y + offset+1;
+            ctrlCall.ctrlOverlay.QualityIndicatorOverlayWidth = (int)callViewDimensions.Width;
+            ctrlCall.ctrlOverlay.QualityIndicatorOverlayHeight = (int)ctrlCall.ActualHeight;
+
+            ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(false);
             ctrlCall.ctrlOverlay.Refresh();
+            ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(true);
         }
 
         private void OnCameraSwitched(bool switch_on)

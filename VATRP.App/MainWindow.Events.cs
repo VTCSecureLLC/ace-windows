@@ -66,6 +66,8 @@ namespace com.vtcsecure.ace.windows
 					CallInfoCtrl = _callInfoView
 				};
 
+			    callViewModel.CallQualityChangedEvent += OnCallQualityChanged;
+
                 callViewModel.VideoWidth = (int)CombinedUICallViewSize.Width;
 			    callViewModel.VideoHeight = (int)CombinedUICallViewSize.Height;
 				_mainViewModel.AddCalViewModel(callViewModel);
@@ -206,6 +208,7 @@ namespace com.vtcsecure.ace.windows
 				case VATRPCallState.StreamsRunning:
 					callViewModel.OnStreamRunning();
                     ShowCallOverlayWindow(true);
+
                     // VATRP-1623: we are setting mute microphone true prior to initiating a call, but the call is always started
                     //   with the mic enabled. attempting to mute right after call is connected here to side step this issue - 
                     //   it appears to be an initialization issue in linphone
@@ -314,6 +317,7 @@ namespace com.vtcsecure.ace.windows
 					callViewModel.OnClosed(false, string.Empty);
 					stopPlayback = true;
 			        destroycall = true;
+                    callViewModel.CallQualityChangedEvent -= OnCallQualityChanged;
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                        Configuration.ConfEntry.USE_RTT, true))
                     {
@@ -462,6 +466,11 @@ namespace com.vtcsecure.ace.windows
 		    }
 		}
 
+        private void OnCallQualityChanged(VATRP.Linphone.VideoWrapper.QualityIndicator callQuality)
+        {
+            ctrlCall.ctrlOverlay.UpdateQualityIndicator(callQuality);
+        }
+
 	    private void OnSwitchHoldCallsRequested(object sender, EventArgs eventArgs)
 	    {
 	        if (_linphoneService.GetActiveCallsCount != 2)
@@ -500,13 +509,14 @@ namespace com.vtcsecure.ace.windows
 			ctrlCall.ctrlOverlay.ShowCommandBar(bShow);
 			ctrlCall.ctrlOverlay.ShowNumpadWindow(false);
 			ctrlCall.ctrlOverlay.ShowCallInfoWindow(bShow);
-
+	        ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(bShow);
 		    if (!bShow)
 		    {
 		        ctrlCall.ctrlVideo.Visibility = Visibility.Hidden;
                 ctrlCall.ctrlOverlay.ShowNewCallAcceptWindow(false);
                 ctrlCall.ctrlOverlay.ShowCallsSwitchWindow(false);
                 ctrlCall.ctrlOverlay.ShowOnHoldWindow(false);
+                ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(false);
             }
 		}
 
