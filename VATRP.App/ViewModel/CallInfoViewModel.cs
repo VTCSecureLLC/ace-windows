@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Threading;
 using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Model;
+using VATRP.Linphone.VideoWrapper;
 using VATRP.LinphoneWrapper;
 using VATRP.LinphoneWrapper.Enums;
 using VATRP.LinphoneWrapper.Structs;
@@ -28,10 +29,18 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private string _iceSetup = string.Empty;
         private string _mediaEncryption = string.Empty;
         private string _rtpProfile;
-        private float _quality;
         private bool _avpfenabled = false;
         private LinphoneCallStats _audioStats;
         private LinphoneCallStats _videoStats;
+        private QualityIndicator _quality;
+
+        #endregion
+
+        #region Events
+
+        public delegate void CallQualityChangedDelegate(QualityIndicator callQuality);
+        public event CallQualityChangedDelegate CallQualityChangedEvent;
+
         #endregion
 
         public CallInfoViewModel()
@@ -170,7 +179,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 OnPropertyChanged("RtpProfile");
             }
         }
-        public float CallQuality
+
+        public QualityIndicator CallQuality
         {
             get { return _quality; }
             set
@@ -191,6 +201,22 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         #endregion
 
+        private QualityIndicator ConvertToNamedQuality(VATRPCall call)
+        {
+            var rating = (float)LinphoneAPI.linphone_call_get_current_quality(call.NativeCallPtr);
+            if (rating >= 4.0)
+                return QualityIndicator.Good;
+            if (rating >= 3.0)
+                return QualityIndicator.Medium;
+            if (rating >= 2.0)
+                return QualityIndicator.Poor;
+            if (rating >= 1.0)
+                return QualityIndicator.VeryPoor;
+            if (rating >= 0)
+                return QualityIndicator.ToBad;
+            return QualityIndicator.Unknown;
+        }
+
         internal void UpdateCallInfo(VATRPCall call)
         {
             if (call == null || call.CallState != VATRPCallState.StreamsRunning)
@@ -207,106 +233,114 @@ namespace com.vtcsecure.ace.windows.ViewModel
             if (curparams != IntPtr.Zero)
             {
 
-                    int sipPort, rtpPort;
-                    ServiceManager.Instance.LinphoneService.GetUsedPorts(out sipPort, out rtpPort);
+                int sipPort, rtpPort;
+                ServiceManager.Instance.LinphoneService.GetUsedPorts(out sipPort, out rtpPort);
 
-                    SipPort = sipPort;
-                    RtpPort = rtpPort;
-                    bool has_video = LinphoneAPI.linphone_call_params_video_enabled(curparams);
+                SipPort = sipPort;
+                RtpPort = rtpPort;
+                bool has_video = LinphoneAPI.linphone_call_params_video_enabled(curparams);
 
-                    MSVideoSizeDef size_received = LinphoneAPI.linphone_call_params_get_received_video_size(curparams);
-                    MSVideoSizeDef size_sent = LinphoneAPI.linphone_call_params_get_sent_video_size(curparams);
-                    IntPtr rtp_profile = LinphoneAPI.linphone_call_params_get_rtp_profile(curparams);
+                MSVideoSizeDef size_received = LinphoneAPI.linphone_call_params_get_received_video_size(curparams);
+                MSVideoSizeDef size_sent = LinphoneAPI.linphone_call_params_get_sent_video_size(curparams);
+                IntPtr rtp_profile = LinphoneAPI.linphone_call_params_get_rtp_profile(curparams);
 
-                    if (rtp_profile != IntPtr.Zero)
-                    {
-                        RtpProfile = Marshal.PtrToStringAnsi(rtp_profile);
-                    }
-                    AudioCodec = ServiceManager.Instance.LinphoneService.GetUsedAudioCodec(curparams);
-
-                    int avpf_mode = ServiceManager.Instance.LinphoneService.GetAVPFMode();
-
-                    if (avpf_mode == 0)
-                    {
-                        AVPFEnabled = false;
-                    }
-                    else if (avpf_mode == 1)
-                    {
-                        AVPFEnabled = true;
-                    }
-
-
-                    var videoCodecName = ServiceManager.Instance.LinphoneService.GetUsedVideoCodec(curparams);
-
-
-                    if (has_video && !string.IsNullOrWhiteSpace(videoCodecName))
-                    {
-                        VideoCodec = videoCodecName;
-                        UploadBandwidth = string.Format("{0:0.##} kbit/s a {1:0.##} kbit/s v {2:0.##} kbit/s",
-                            _audioStats.upload_bandwidth + _videoStats.upload_bandwidth, _audioStats.upload_bandwidth,
-                            _videoStats.upload_bandwidth);
-
-                        DownloadBandwidth = string.Format("{0:0.##} kbit/s a {1:0.##} kbit/s v {2:0.##} kbit/s",
-                            _audioStats.download_bandwidth + _videoStats.download_bandwidth, _audioStats.download_bandwidth,
-                            _videoStats.download_bandwidth);
-                        ReceivingFPS = ServiceManager.Instance.LinphoneService.GetFrameRate(curparams, false);
-                        SendingFPS = ServiceManager.Instance.LinphoneService.GetFrameRate(curparams, true);
-                        var vs = ServiceManager.Instance.LinphoneService.GetVideoSize(curparams, false);
-                        ReceivingVideoResolution = string.Format("{0}({1}x{2})", "", vs.width, vs.height);
-
-                        vs = ServiceManager.Instance.LinphoneService.GetVideoSize(curparams, true);
-                        SendingVideoResolution = string.Format("{0}({1}x{2})", "", vs.width, vs.height);
-
-                    }
-                    else
-                    {
-                        VideoCodec = "Not used";
-                        ReceivingFPS = 0;
-                        SendingFPS = 0;
-                        UploadBandwidth = string.Format("a {0:0.##} kbit/s", _audioStats.upload_bandwidth);
-                        DownloadBandwidth = string.Format("a {0:0.##} kbit/s", _audioStats.download_bandwidth);
-                        ReceivingVideoResolution = "N/A";
-                        SendingVideoResolution = "N/A";
-                    }
-                    switch ((LinphoneIceState)_audioStats.ice_state)
-                    {
-                        case LinphoneIceState.LinphoneIceStateNotActivated:
-                            IceSetup = "Not Activated";
-                            break;
-                        case LinphoneIceState.LinphoneIceStateFailed:
-                            IceSetup = "Failed";
-                            break;
-                        case LinphoneIceState.LinphoneIceStateInProgress:
-                            IceSetup = "In Progress";
-                            break;
-                        case LinphoneIceState.LinphoneIceStateHostConnection:
-                            IceSetup = "Connected directly";
-                            break;
-                        case LinphoneIceState.LinphoneIceStateReflexiveConnection:
-                            IceSetup = "Connected through NAT";
-                            break;
-                        case LinphoneIceState.LinphoneIceStateRelayConnection:
-                            IceSetup = "Connected through a relay";
-                            break;
-                    }
-
-                    switch (ServiceManager.Instance.LinphoneService.GetMediaEncryption(curparams))
-                    {
-                        case LinphoneMediaEncryption.LinphoneMediaEncryptionNone:
-                            MediaEncryption = "None";
-                            break;
-                        case LinphoneMediaEncryption.LinphoneMediaEncryptionSRTP:
-                            MediaEncryption = "SRTP";
-                            break;
-                        case LinphoneMediaEncryption.LinphoneMediaEncryptionZRTP:
-                            MediaEncryption = "ZRTP";
-                            break;
-                        case LinphoneMediaEncryption.LinphoneMediaEncryptionDTLS:
-                            MediaEncryption = "DTLS";
-                            break;
-                    }
-                    CallQuality = LinphoneAPI.linphone_call_get_current_quality(call.NativeCallPtr);
+                if (rtp_profile != IntPtr.Zero)
+                {
+                    RtpProfile = Marshal.PtrToStringAnsi(rtp_profile);
                 }
+                AudioCodec = ServiceManager.Instance.LinphoneService.GetUsedAudioCodec(curparams);
+
+                int avpf_mode = ServiceManager.Instance.LinphoneService.GetAVPFMode();
+
+                if (avpf_mode == 0)
+                {
+                    AVPFEnabled = false;
+                }
+                else if (avpf_mode == 1)
+                {
+                    AVPFEnabled = true;
+                }
+
+
+                var videoCodecName = ServiceManager.Instance.LinphoneService.GetUsedVideoCodec(curparams);
+
+
+                if (has_video && !string.IsNullOrWhiteSpace(videoCodecName))
+                {
+                    VideoCodec = videoCodecName;
+                    UploadBandwidth = string.Format("{0:0.##} kbit/s a {1:0.##} kbit/s v {2:0.##} kbit/s",
+                        _audioStats.upload_bandwidth + _videoStats.upload_bandwidth, _audioStats.upload_bandwidth,
+                        _videoStats.upload_bandwidth);
+
+                    DownloadBandwidth = string.Format("{0:0.##} kbit/s a {1:0.##} kbit/s v {2:0.##} kbit/s",
+                        _audioStats.download_bandwidth + _videoStats.download_bandwidth, _audioStats.download_bandwidth,
+                        _videoStats.download_bandwidth);
+                    ReceivingFPS = ServiceManager.Instance.LinphoneService.GetFrameRate(curparams, false);
+                    SendingFPS = ServiceManager.Instance.LinphoneService.GetFrameRate(curparams, true);
+                    var vs = ServiceManager.Instance.LinphoneService.GetVideoSize(curparams, false);
+                    ReceivingVideoResolution = string.Format("{0}({1}x{2})", "", vs.width, vs.height);
+
+                    vs = ServiceManager.Instance.LinphoneService.GetVideoSize(curparams, true);
+                    SendingVideoResolution = string.Format("{0}({1}x{2})", "", vs.width, vs.height);
+
+                }
+                else
+                {
+                    VideoCodec = "Not used";
+                    ReceivingFPS = 0;
+                    SendingFPS = 0;
+                    UploadBandwidth = string.Format("a {0:0.##} kbit/s", _audioStats.upload_bandwidth);
+                    DownloadBandwidth = string.Format("a {0:0.##} kbit/s", _audioStats.download_bandwidth);
+                    ReceivingVideoResolution = "N/A";
+                    SendingVideoResolution = "N/A";
+                }
+                switch ((LinphoneIceState) _audioStats.ice_state)
+                {
+                    case LinphoneIceState.LinphoneIceStateNotActivated:
+                        IceSetup = "Not Activated";
+                        break;
+                    case LinphoneIceState.LinphoneIceStateFailed:
+                        IceSetup = "Failed";
+                        break;
+                    case LinphoneIceState.LinphoneIceStateInProgress:
+                        IceSetup = "In Progress";
+                        break;
+                    case LinphoneIceState.LinphoneIceStateHostConnection:
+                        IceSetup = "Connected directly";
+                        break;
+                    case LinphoneIceState.LinphoneIceStateReflexiveConnection:
+                        IceSetup = "Connected through NAT";
+                        break;
+                    case LinphoneIceState.LinphoneIceStateRelayConnection:
+                        IceSetup = "Connected through a relay";
+                        break;
+                }
+
+                switch (ServiceManager.Instance.LinphoneService.GetMediaEncryption(curparams))
+                {
+                    case LinphoneMediaEncryption.LinphoneMediaEncryptionNone:
+                        MediaEncryption = "None";
+                        break;
+                    case LinphoneMediaEncryption.LinphoneMediaEncryptionSRTP:
+                        MediaEncryption = "SRTP";
+                        break;
+                    case LinphoneMediaEncryption.LinphoneMediaEncryptionZRTP:
+                        MediaEncryption = "ZRTP";
+                        break;
+                    case LinphoneMediaEncryption.LinphoneMediaEncryptionDTLS:
+                        MediaEncryption = "DTLS";
+                        break;
+                }
+
+                var curQuality = ConvertToNamedQuality(call);
+                if (CallQuality != curQuality)
+                {
+                    CallQuality = curQuality;
+                    if (CallQualityChangedEvent != null)
+                        CallQualityChangedEvent(curQuality);
+                }
+
+            }
             ServiceManager.Instance.LinphoneService.UnlockCalls();
         }
 
@@ -326,6 +360,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
             RtpPort = 0;
             CallQuality = 0f;
             AVPFEnabled = false;
+
+            if (CallQualityChangedEvent != null)
+                CallQualityChangedEvent(QualityIndicator.Unknown);
         }
 
         internal void OnCallStatisticsChanged(VATRPCall call)
