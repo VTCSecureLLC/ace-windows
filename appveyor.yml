@@ -2,7 +2,7 @@ version: 1.0.0.{build}
 skip_tags: true
 
 install:
-- choco install -y nuget.commandline curl jq
+- choco install -y dotnet4.5.2 nuget.commandline curl jq
 - choco install wixtoolset -y -version 3.10.0.2103
 
 build_script:
