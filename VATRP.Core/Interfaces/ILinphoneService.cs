@@ -120,6 +120,6 @@ namespace VATRP.Core.Interfaces
         bool SubscribeForVideoMWI(string newVideoMailUri);
 
         #endregion
-        
+        string GetTechnicalSupportInfo();
     }
 }

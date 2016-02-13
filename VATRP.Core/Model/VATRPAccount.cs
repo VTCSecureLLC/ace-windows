@@ -181,6 +181,16 @@ namespace VATRP.Core.Model
 
         [Column]
         public float PreferredFPS { get; set; }
+
+        [Column]
+        public bool EnableAdaptiveRate { get; set; }
+
+        [Column]
+        public int UploadBandwidth { get; set; }
+
+        [Column]
+        public int DownloadBandwidth { get; set; }
+
         #endregion
 
         #region Methods
@@ -220,6 +230,10 @@ namespace VATRP.Core.Model
             UserNeedsAgentView = false;
             VideoMailCount = 0;
             PreferredFPS = 30;
+            EnableAdaptiveRate = true;
+            UploadBandwidth = 1000;
+            DownloadBandwidth = 1000;
+
         }
 
         #endregion

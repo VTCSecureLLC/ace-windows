@@ -145,6 +145,13 @@
             <CheckBox Grid.Column="2" Grid.Row="14" Checked="OnPushNotifications" Unchecked="OnPushNotifications" HorizontalAlignment="Center" 
                           VerticalAlignment="Center" Name="PushNotificationsCheckbox" Visibility="Collapsed"/>
 
+            <!-- Row 15: Adaptive Rate -->
+            <Label Grid.Column="0" Grid.Row="15" Grid.ColumnSpan="2" Content="Adaptive Rate" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left"  Name="AdaptiveRateLabel">
+            </Label>
+            <CheckBox Grid.Column="2" Grid.Row="15" Checked="OnAdaptiveRateChecked" Unchecked="OnStunServerChecked" HorizontalAlignment="Center" 
+                          VerticalAlignment="Center"  Name="AdaptiveRateCheckbox"/>
+
 
         </Grid>
     </Grid>

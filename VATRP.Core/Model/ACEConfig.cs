@@ -127,7 +127,10 @@ namespace VATRP.Core.Model
             accountToUpdate.VideoAutomaticallyStart = this.enable_video;
 
             //       public bool enable_adaptive_rate { get; set; }
-            accountToUpdate.EnableAVPF = this.enable_adaptive_rate; // Liz E. - is this right???
+            accountToUpdate.EnableAdaptiveRate = this.enable_adaptive_rate;
+            accountToUpdate.DownloadBandwidth = this.download_bandwidth;
+            accountToUpdate.UploadBandwidth = this.upload_bandwidth;
+
             //       public bool enable_stun { get; set; }
             accountToUpdate.EnableSTUN = this.enable_stun;
             //       public string stun_server { get; set; }

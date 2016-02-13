@@ -1827,6 +1827,10 @@ namespace VATRP.Core.Services
             }
             int firewallPolicy = LinphoneAPI.linphone_core_get_firewall_policy(linphoneCore);
 
+            LinphoneAPI.linphone_core_enable_adaptive_rate_control(linphoneCore, account.EnableAdaptiveRate);
+            LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, account.UploadBandwidth);
+            LinphoneAPI.linphone_core_set_download_bandwidth(linphoneCore, account.DownloadBandwidth);
+
             return false;
         }
 
@@ -2626,6 +2630,18 @@ namespace VATRP.Core.Services
             return null;
         }
 
+        #endregion
+
+        #region Provide linphone settings for technical support sheet
+        public string GetTechnicalSupportInfo()
+        {
+            StringBuilder configString = new StringBuilder();
+            // items to add: enabled video codecs, enabled audio codecs, preferred video resolution, preferred bandwidth
+            bool adaptiveRateEnabled = LinphoneAPI.linphone_core_adaptive_rate_control_enabled(linphoneCore);
+            configString.AppendLine("Adaptive Rate Enabled: " + adaptiveRateEnabled.ToString());
+
+            return configString.ToString();
+        }
         #endregion
     }
 }
