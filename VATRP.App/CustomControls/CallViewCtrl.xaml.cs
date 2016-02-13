@@ -93,6 +93,9 @@ namespace com.vtcsecure.ace.windows.CustomControls
             ctrlOverlay.OnHoldOverlayWidth = 660;
             ctrlOverlay.OnHoldOverlayHeight = 200;
 
+            ctrlOverlay.QualityIndicatorOverlayHeight = 700;
+            ctrlOverlay.QualityIndicatorOverlayWidth = 700;
+
             _mouseInactivityTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(3),
