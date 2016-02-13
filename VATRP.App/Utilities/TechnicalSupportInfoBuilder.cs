@@ -145,7 +145,8 @@ namespace com.vtcsecure.ace.windows.Utilities
                 //       public string sip_videomail_uri { get; set; }
                 configString.AppendLine("Video Mail URI: " + App.CurrentAccount.VideoMailUri);
 
-
+                string linphoneInfo = ServiceManager.Instance.LinphoneService.GetTechnicalSupportInfo();
+                configString.Append(linphoneInfo);
                 //        public bool user_is_agent { get; set; } // do not include this yet - this is a POC feature at the moment
             }
             return configString.ToString();

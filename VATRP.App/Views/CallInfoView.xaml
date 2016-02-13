@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:converters="clr-namespace:com.vtcsecure.ace.windows.Converters"
         xmlns:model="clr-namespace:com.vtcsecure.ace.windows.Model"
-        Title="Call Technical Info" Height="350" Width="500" 
+        Title="Call Technical Info" Height="500" Width="500" 
                    Activated="Window_Activated" 
                    Closing="Window_Closing" 
                    StateChanged="Window_StateChanged" 
@@ -15,10 +15,17 @@
     </Window.Resources>
     <Grid Margin="10">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="87*"/>
+            <ColumnDefinition Width="74*"/>
+            <ColumnDefinition Width="75*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -75,5 +82,27 @@
         <!-- -->
         <TextBlock Grid.Row="13" Grid.Column="0" Margin="3" TextAlignment="Right" Text="AVPF Enabled:"/>
         <TextBlock Grid.Row="13" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=AVPFEnabled}"/>
+        <!-- -->
+        <TextBlock Grid.Row="14" Grid.Column="0" Margin="3" TextAlignment="Right" Text="Video Packet Loss:"/>
+        <TextBlock Grid.Row="14" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=VideoPacketLossSending}"/>
+        <TextBlock Grid.Row="14" Grid.Column="2" Margin="10,3" TextAlignment="Left" Text="{Binding Path=VideoPacketLossReceiving}"/>
+        <!-- -->
+        <TextBlock Grid.Row="15" Grid.Column="0" Margin="3" TextAlignment="Right" Text="Audio Packet Loss:"/>
+        <TextBlock Grid.Row="15" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=AudioPacketLossSending}"/>
+        <TextBlock Grid.Row="15" Grid.Column="2" Margin="10,3" TextAlignment="Left" Text="{Binding Path=AudioPacketLossReceiving}"/>
+        <!-- -->
+        <TextBlock Grid.Row="16" Grid.Column="0" Margin="3" TextAlignment="Right" Text="Video Packet Late (C):"/>
+        <TextBlock Grid.Row="16" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=VideoPacketLate}"/>
+        <!-- -->
+        <TextBlock Grid.Row="17" Grid.Column="0" Margin="3" TextAlignment="Right" Text="Audio Packet Late (C):"/>
+        <TextBlock Grid.Row="17" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=AudioPacketLate}"/>
+        <!-- -->
+        <TextBlock Grid.Row="18" Grid.Column="0" Margin="3" TextAlignment="Right" Text="Video Interarrival Jitter:"/>
+        <TextBlock Grid.Row="18" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=VideoInterarrivalJitterSending}"/>
+        <TextBlock Grid.Row="18" Grid.Column="2" Margin="10,3" TextAlignment="Left" Text="{Binding Path=VideoInterarrivalJitterReceiving}"/>
+        <!-- -->
+        <TextBlock Grid.Row="19" Grid.Column="0" Margin="3" TextAlignment="Right" Text="Audio Interarrival Jitter:"/>
+        <TextBlock Grid.Row="19" Grid.Column="1" Margin="10,3" TextAlignment="Left" Text="{Binding Path=AudioInterarrivalJitterSending}"/>
+        <TextBlock Grid.Row="19" Grid.Column="2" Margin="10,3" TextAlignment="Left" Text="{Binding Path=AudioInterarrivalJitterReceiving}"/>
     </Grid>
 </model:VATRPWindow>
