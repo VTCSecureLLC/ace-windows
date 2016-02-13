@@ -149,7 +149,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 if (config.configStatus != ACEConfigStatusType.LOGIN_SUCCEESSFUL)
                 {
                     // there was some sort of error - expose information to user for now. Once ready, log and handle. In some cases we will still want a specific message
-                    string message;
+                    string message = "";
                     switch (config.configStatus)
                     {
                         // ToDo note : the text here is a little bit different for each message - enough to let the developer know what to look for
@@ -157,7 +157,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
                         //   in customer support.
                         case ACEConfigStatusType.CONNECTION_FAILED: message = "Unable to obtain configuration information from the server.";
                             break;
-                        case ACEConfigStatusType.SRV_RECORD_NOT_FOUND: message = "The SRV Record was not found.";
+                        case ACEConfigStatusType.SRV_RECORD_NOT_FOUND: //message = "The SRV Record was not found.";
                             break;
                         case ACEConfigStatusType.UNABLE_TO_PARSE: message = "Unable to parse the configuration information.";
                             break;
@@ -165,7 +165,10 @@ namespace com.vtcsecure.ace.windows.CustomControls
                             message = "An error occured while obtaining the configuration. Status Type=" + config.configStatus.ToString();
                             break;
                     }
-                    MessageBox.Show(message, "Error Obtaining Configuration Status");
+                    if (!string.IsNullOrEmpty(message))
+                    {
+                        MessageBox.Show(message, "Error Obtaining Configuration Status");
+                    }
                     //return;  //Continue attempting manual registration if configuration failed
                     Login_old();
                 }

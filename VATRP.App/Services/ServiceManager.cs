@@ -554,7 +554,7 @@ namespace com.vtcsecure.ace.windows.Services
         {
             // VATRP-1507: Tie RTCP and AVPF together:
             string rtcpFeedback = this.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.RTCP_FEEDBACK, "Off");
+                Configuration.ConfEntry.RTCP_FEEDBACK, "Implicit");
             // if RTCPFeedback = Off then RTCP and AVPF are both off
             // if RTCPFeedback = Implicit then RTCP is on, AVPF is off
             // if RTCPFeedback = Explicit then RTCP is on, AVPF = on

@@ -181,6 +181,16 @@ namespace VATRP.Core.Model
 
         [Column]
         public float PreferredFPS { get; set; }
+
+        [Column]
+        public bool EnableAdaptiveRate { get; set; }
+
+        [Column]
+        public int UploadBandwidth { get; set; }
+
+        [Column]
+        public int DownloadBandwidth { get; set; }
+
         #endregion
 
         #region Methods
@@ -192,9 +202,10 @@ namespace VATRP.Core.Model
             ProxyHostname = Configuration.LINPHONE_SIP_SERVER;
             Transport = "TCP";
             MediaEncryption = "Unencrypted";
-            EnableAVPF = true;
+            EnableAVPF = false;
             PreferredVideoId = "cif";
-            STUNAddress = string.Empty;
+            STUNAddress = "bc1.vatrp.net";
+            STUNPort = 3478;
             AuthID = string.Empty;
             Username = string.Empty;
             Password = string.Empty;
@@ -210,7 +221,7 @@ namespace VATRP.Core.Model
             VideoPreset = null;
             MuteMicrophone = false;
             MuteSpeaker = false;
-            EchoCancel = false;
+            EchoCancel = true;
             UseOutboundProxy = false;
             VideoPreset = "high-fps";
             SelectedCameraId = string.Empty;
@@ -219,6 +230,10 @@ namespace VATRP.Core.Model
             UserNeedsAgentView = false;
             VideoMailCount = 0;
             PreferredFPS = 30;
+            EnableAdaptiveRate = true;
+            UploadBandwidth = 1500;
+            DownloadBandwidth = 1500;
+
         }
 
         #endregion

@@ -11,7 +11,29 @@ namespace com.vtcsecure.ace.windows.Json
     public class JsonFactoryConfig
     {
 
-        public readonly static string defaultConfigString = "{\"version\":1,\"expiration_time\":3600,\"configuration_auth_password\":null,\"configuration_auth_expiration\":-1,\"sip_registration_maximum_threshold\":10,\"sip_register_usernames\":[],\"sip_auth_username\":null,\"sip_auth_password\":null,\"sip_register_domain\":\"acetest-registrar.vatrp.net\",\"sip_register_port\":25060,\"sip_register_transport\":\"tcp\",\"enable_echo_cancellation\":true,\"enable_video\":true,\"enable_rtt\":true,\"enable_adaptive_rate\":true,\"enabled_codecs\":[\"H.264\",\"H.263\",\"VP8\",\"G.722\",\"G.711\"],\"bwLimit\":\"high-fps\",\"upload_bandwidth\":660,\"download_bandwidth\":660,\"enable_stun\":false,\"stun_server\":null,\"enable_ice\":false,\"logging\":\"info\",\"sip_mwi_uri\":null,\"sip_videomail_uri\":null,\"video_resolution_maximum\":\"cif\"}";
+        public readonly static string defaultConfigString = "{\"version\":1,\"expiration_time\":280," +
+            "\"configuration_auth_password\":null," +
+            "\"configuration_auth_expiration\":-1," +
+            "\"sip_registration_maximum_threshold\":10," +
+            "\"sip_register_usernames\":[]," + 
+            "\"sip_auth_username\":null," +
+            "\"sip_auth_password\":null," +
+            "\"sip_register_domain\":\"bc1.vatrp.net\"," +
+            "\"sip_register_port\":25060," +
+            "\"sip_register_transport\":\"tcp\"," +
+            "\"enable_echo_cancellation\":true," +
+            "\"enable_video\":true," +
+            "\"enable_rtt\":true," +
+            "\"enable_adaptive_rate\":true," +
+            "\"enabled_codecs\":[\"H.264\",\"H.263\",\"VP8\",\"G.722\",\"G.711\"]," +
+            "\"bwLimit\":\"high-fps\"," +
+            "\"upload_bandwidth\":1500," +"\"download_bandwidth\":1500," +
+            "\"enable_stun\":false," +
+            "\"stun_server\":\"bc1.vatrp.net\"," +
+            "\"enable_ice\":true," +
+            "\"logging\":\"info\"," +
+            "\"sip_mwi_uri\":null," +
+            "\"sip_videomail_uri\":null," +"\"video_resolution_maximum\":\"cif\"}";
 /* @"{
   'version': 1,
   'expiration_time': 3600,
