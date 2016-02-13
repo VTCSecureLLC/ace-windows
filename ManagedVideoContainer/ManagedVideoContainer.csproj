@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IRenderable.cs" />
+    <Compile Include="QualityIndicator.cs" />
     <Compile Include="VATRPTranslucentWindow.cs" />
     <Compile Include="VATRPOverlay.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
