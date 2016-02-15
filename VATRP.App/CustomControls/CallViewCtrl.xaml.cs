@@ -198,11 +198,12 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         private void OnToggleVideo(object sender, RoutedEventArgs e)
         {
-            if (VideoOnToggled != null)
-                VideoOnToggled(BtnVideoOn.IsChecked ?? false);
-            if (_viewModel != null)
-                _viewModel.ToggleVideo(!BtnVideoOn.IsChecked ?? false);
-            SaveStates();
+            OnToggleHold(sender, e);
+            //if (VideoOnToggled != null)
+            //    VideoOnToggled(BtnVideoOn.IsChecked ?? false);
+            //if (_viewModel != null)
+            //    _viewModel.ToggleVideo(!BtnVideoOn.IsChecked ?? false);
+            //SaveStates();
         }
 
         private void OnToggleSpeaker(object sender, RoutedEventArgs e)
@@ -298,6 +299,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
             _viewModel.SavedIsRttOn = BtnRTT.IsChecked ?? false;
             _viewModel.SavedIsInfoOn = BtnInfo.IsChecked ?? false;
             _viewModel.SavedIsCallHoldOn = BtnHold.IsChecked ?? false;
+            // TODO, remove later
+            _viewModel.SavedIsVideoOn = BtnHold.IsChecked ?? false;
         }
 
         private void LoadStates()
@@ -309,6 +312,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
             _viewModel.IsRttOn = _viewModel.SavedIsRttOn && _viewModel.IsRTTEnabled;
             _viewModel.IsCallInfoOn = _viewModel.SavedIsInfoOn;
             _viewModel.IsCallOnHold = _viewModel.SavedIsCallHoldOn;
+            // TODO, remove later
+            _viewModel.IsVideoOn = _viewModel.SavedIsCallHoldOn;
         }
 
         internal void UpdateControls()
@@ -325,6 +330,9 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 BtnRTT.IsChecked = _viewModel.IsRttOn;
                 BtnInfo.IsChecked = _viewModel.IsCallInfoOn;
                 BtnHold.IsChecked = _viewModel.IsCallOnHold;
+
+                // TODO, remove later
+                BtnVideoOn.IsChecked = _viewModel.IsCallOnHold;
                 _viewModel.ToggleCallStatisticsInfo(BtnInfo.IsChecked ?? false);
             }
 
@@ -365,6 +373,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 if (_viewModel.CallState == VATRPCallState.RemotePaused)
                 {
                     BtnHold.IsChecked = false;
+					// ToDo, remove later
+                    BtnVideoOn.IsChecked = false;
                     SaveStates();
                 }
                 else
