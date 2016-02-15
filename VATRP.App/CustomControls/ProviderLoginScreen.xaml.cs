@@ -40,7 +40,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         public void Initialize()
         {
-            InitializeToProvider("STL Test");
+            InitializeToProvider("stl");
         }
 
         public void InitializeToProvider(string providerName)
