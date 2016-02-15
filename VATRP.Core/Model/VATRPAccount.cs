@@ -204,7 +204,7 @@ namespace VATRP.Core.Model
             MediaEncryption = "Unencrypted";
             EnableAVPF = false;
             PreferredVideoId = "cif";
-            STUNAddress = "bc1.vatrp.net";
+            STUNAddress = "stl.vatrp.net";
             STUNPort = 3478;
             AuthID = string.Empty;
             Username = string.Empty;

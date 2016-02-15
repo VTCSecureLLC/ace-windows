@@ -30,6 +30,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private string _mediaEncryption = string.Empty;
         private string _rtpProfile;
         private bool _avpfenabled = false;
+        private string _videoPacketLossSending;
+        private string _videoPacketLossReceiving;
+        private string _audioPacketLossSending;
+        private string _audioPacketLossReceiving;
+        private string _videoPacketLate;
+        private string _AudioPacketLate;
+        private string _videoInterarrivalJitterSending;
+        private string _videoInterarrivalJitterReceiving;
+        private string _audioInterarrivalJitterSending;
+        private string _audioInterarrivalJitterReceiving;
         private LinphoneCallStats _audioStats;
         private LinphoneCallStats _videoStats;
         private QualityIndicator _quality;
@@ -199,6 +209,97 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
+        public string VideoPacketLossSending
+        {
+            get { return _videoPacketLossSending; }
+            set
+            {
+                _videoPacketLossSending = value;
+                OnPropertyChanged("VideoPacketLossSending");
+            }
+        }
+        public string VideoPacketLossReceiving
+        {
+            get { return _videoPacketLossReceiving; }
+            set
+            {
+                _videoPacketLossReceiving = value;
+                OnPropertyChanged("VideoPacketLossReceiving");
+            }
+        }
+        public string AudioPacketLossSending
+        {
+            get { return _audioPacketLossSending; }
+            set
+            {
+                _audioPacketLossSending = value;
+                OnPropertyChanged("AudioPacketLossSending");
+            }
+        }
+        public string AudioPacketLossReceiving
+        {
+            get { return _audioPacketLossReceiving; }
+            set
+            {
+                _audioPacketLossReceiving = value;
+                OnPropertyChanged("AudioPacketLossReceiving");
+            }
+        }
+        public string VideoPacketLate
+        {
+            get { return _videoPacketLate; }
+            set
+            {
+                _videoPacketLate = value;
+                OnPropertyChanged("VideoPacketLate");
+            }
+        }
+        public string AudioPacketLate
+        {
+            get { return _AudioPacketLate; }
+            set
+            {
+                _AudioPacketLate = value;
+                OnPropertyChanged("AudioPacketLate");
+            }
+        }
+        public string VideoInterarrivalJitterSending
+        {
+            get { return _videoInterarrivalJitterSending; }
+            set
+            {
+                _videoInterarrivalJitterSending = value;
+                OnPropertyChanged("VideoInterarrivalJitterSending");
+            }
+        }
+        public string VideoInterarrivalJitterReceiving
+        {
+            get { return _videoInterarrivalJitterReceiving; }
+            set
+            {
+                _videoInterarrivalJitterReceiving = value;
+                OnPropertyChanged("VideoInterarrivalJitterReceiving");
+            }
+        }
+        public string AudioInterarrivalJitterSending
+        {
+            get { return _audioInterarrivalJitterSending; }
+            set
+            {
+                _audioInterarrivalJitterSending = value;
+                OnPropertyChanged("AudioInterarrivalJitterSending");
+            }
+        }
+        public string AudioInterarrivalJitterReceiving
+        {
+            get { return _audioInterarrivalJitterReceiving; }
+            set
+            {
+                _audioInterarrivalJitterReceiving = value;
+                OnPropertyChanged("AudioInterarrivalJitterReceiving");
+            }
+        }
+
         #endregion
 
         private QualityIndicator ConvertToNamedQuality(VATRPCall call)
@@ -340,6 +441,17 @@ namespace com.vtcsecure.ace.windows.ViewModel
                         CallQualityChangedEvent(curQuality);
                 }
 
+                    AudioPacketLossSending = "Sending " + _audioStats.sender_loss_rate;
+                    AudioPacketLossReceiving = "Receiving " + _audioStats.receiver_loss_rate;
+                    AudioPacketLate = _audioStats.total_late_packets.ToString();
+                    AudioInterarrivalJitterSending = "Sending " + _audioStats.sender_interarrival_jitter;
+                    AudioInterarrivalJitterReceiving = "Receiving " + _audioStats.receiver_interarrival_jitter;
+
+                    VideoPacketLossSending = "Sending " + _videoStats.sender_loss_rate;
+                    VideoPacketLossReceiving = "Receiving " + _audioStats.receiver_loss_rate;
+                    VideoPacketLate = _videoStats.total_late_packets.ToString();
+                    VideoInterarrivalJitterSending = "Sending " + _audioStats.sender_interarrival_jitter;
+                    VideoInterarrivalJitterReceiving = "Receiving " + _audioStats.receiver_interarrival_jitter;
             }
             ServiceManager.Instance.LinphoneService.UnlockCalls();
         }
@@ -360,7 +472,17 @@ namespace com.vtcsecure.ace.windows.ViewModel
             RtpPort = 0;
             CallQuality = 0f;
             AVPFEnabled = false;
-
+            VideoPacketLossSending = "Sending -1";
+            VideoPacketLossReceiving = "Receiving -1";
+            AudioPacketLossSending = "Sending -1";
+            AudioPacketLossReceiving = "Receiving -1";
+            VideoPacketLate = "-1";
+            AudioPacketLate = "-1";
+            VideoInterarrivalJitterSending = "Sending -1";
+            VideoInterarrivalJitterReceiving = "Receiving -1";
+            AudioInterarrivalJitterSending = "Sending -1";
+            AudioInterarrivalJitterReceiving = "Receiving -1";
+			
             if (CallQualityChangedEvent != null)
                 CallQualityChangedEvent(QualityIndicator.Unknown);
         }

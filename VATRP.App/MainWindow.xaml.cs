@@ -506,6 +506,9 @@ namespace com.vtcsecure.ace.windows
             ctrlResource.CallResourceRequested += OnCallResourceRequested;
             ctrlLocalContact.CallResourceRequested += OnCallResourceRequested;
 
+            // reset provider selection in dialpad
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL, Configuration.ConfEntry.CURRENT_PROVIDER, "");
+
             if ((App.CurrentAccount != null) && App.CurrentAccount.AutoLogin && App.CurrentAccount.Password.NotBlank())
             {
                 if (!string.IsNullOrEmpty(App.CurrentAccount.ProxyHostname) &&
