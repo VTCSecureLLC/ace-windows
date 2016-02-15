@@ -18,7 +18,7 @@ namespace com.vtcsecure.ace.windows.Json
             "\"sip_register_usernames\":[]," + 
             "\"sip_auth_username\":null," +
             "\"sip_auth_password\":null," +
-            "\"sip_register_domain\":\"bc1.vatrp.net\"," +
+            "\"sip_register_domain\":\"stl.vatrp.net\"," +
             "\"sip_register_port\":25060," +
             "\"sip_register_transport\":\"tcp\"," +
             "\"enable_echo_cancellation\":true," +
@@ -29,7 +29,7 @@ namespace com.vtcsecure.ace.windows.Json
             "\"bwLimit\":\"high-fps\"," +
             "\"upload_bandwidth\":1500," +"\"download_bandwidth\":1500," +
             "\"enable_stun\":false," +
-            "\"stun_server\":\"bc1.vatrp.net\"," +
+            "\"stun_server\":\"stl.vatrp.net\"," +
             "\"enable_ice\":true," +
             "\"logging\":\"info\"," +
             "\"sip_mwi_uri\":null," +
