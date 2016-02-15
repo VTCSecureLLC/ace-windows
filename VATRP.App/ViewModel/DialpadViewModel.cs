@@ -32,16 +32,25 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             var providersList = ServiceManager.Instance.ProviderService.GetProviderListFullInfo();
             providersList.Sort((a, b) => a.Label.CompareTo(b.Label));
-            var selectedprovider =  ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,  Configuration.ConfEntry.CURRENT_PROVIDER, "");
+            var selectedprovider = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,  Configuration.ConfEntry.CURRENT_PROVIDER, "");
 
+            var provider = ServiceManager.Instance.ProviderService.FindProviderLooseSearch(selectedprovider);
+            
             foreach (var s in providersList)
             {
                 if (s.Address == "_nologo")
                     continue;
                 var providerModel = new ProviderViewModel(s);
                 Providers.Add(providerModel);
+                
+                if (provider == null && s.Address == App.CurrentAccount.ProxyHostname)
+                {
+                    selectedprovider = s.Label;
+                    provider = s;
+                }
+
                 if (s.Label == selectedprovider)
-                    _selectedProvider = providerModel;
+                    SelectedProvider = providerModel;
             }
 
             if (_selectedProvider == null)
