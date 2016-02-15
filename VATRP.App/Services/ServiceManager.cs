@@ -429,7 +429,7 @@ namespace com.vtcsecure.ace.windows.Services
                     ProviderService.AddProvider(new VATRPServiceProvider()
                     {
                         Label = label,
-                        Address = "bc1.vatrp.net"
+                        Address = "stl.vatrp.net"
                     });
             }
         }
