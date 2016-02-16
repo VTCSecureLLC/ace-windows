@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 using VATRP.Core.Model;
+using VATRP.Linphone.VideoWrapper;
 
 namespace com.vtcsecure.ace.windows.Converters
 {
@@ -16,22 +17,25 @@ namespace com.vtcsecure.ace.windows.Converters
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is float)
+            if (value is QualityIndicator)
             {
-                var rating = (float)value;
-                if (rating >= 4.0)
-                    return "Good";
-                if (rating >= 3.0)
-                    return "Average";
-                if (rating >= 2.0)
-                    return "Poor";
-                if (rating >= 1.0)
-                    return "Very poor";
-                if (rating >= 0)
-                    return "Too bad";
+                switch ((QualityIndicator) value)
+                {
+                    case QualityIndicator.ToBad:
+                        return "Too bad";
+                    case QualityIndicator.VeryPoor:
+                        return "Very poor";
+                    case QualityIndicator.Poor:
+                        return "Poor";
+                    case QualityIndicator.Medium:
+                        return "Average";
+                    case QualityIndicator.Good:
+                        return "Good";
+                }
+               
             }
 
-            return "Unavailable";
+            return "N/A";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
