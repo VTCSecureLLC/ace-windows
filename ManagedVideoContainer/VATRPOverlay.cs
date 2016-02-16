@@ -19,6 +19,7 @@ namespace VATRP.Linphone.VideoWrapper
         private VATRPTranslucentWindow callsSwitchWindow;
         private VATRPTranslucentWindow newCallAcceptWindow;
         private VATRPTranslucentWindow onHoldWindow;
+        private VATRPTranslucentWindow qualityIndicatoWindow;
 
         private System.Timers.Timer _timerCall;
         private int _foregroundCallDuration = 0;
@@ -32,6 +33,7 @@ namespace VATRP.Linphone.VideoWrapper
             callsSwitchWindow = new VATRPTranslucentWindow(this);
             newCallAcceptWindow = new VATRPTranslucentWindow(this);
             onHoldWindow = new VATRPTranslucentWindow(this);
+            qualityIndicatoWindow = new VATRPTranslucentWindow(this);
 
             _timerCall = new System.Timers.Timer
             {
@@ -42,6 +44,7 @@ namespace VATRP.Linphone.VideoWrapper
         }
 
         #region Command Bar window
+
         public double CommandWindowLeftMargin
         {
             get
@@ -56,6 +59,7 @@ namespace VATRP.Linphone.VideoWrapper
                     commandBarWindow.WindowLeftMargin = value;
             }
         }
+
         public double CommandWindowTopMargin
         {
             get
@@ -106,7 +110,7 @@ namespace VATRP.Linphone.VideoWrapper
             commandBarWindow.ShowWindow = bshow;
             commandBarWindow.Refresh();
             if (bshow)
-            commandBarWindow.UpdateWindow();
+                commandBarWindow.UpdateWindow();
         }
 
         public object OverlayCommandbarChild
@@ -134,6 +138,7 @@ namespace VATRP.Linphone.VideoWrapper
         #endregion
 
         #region Numpad window
+
         public double NumpadWindowLeftMargin
         {
             get
@@ -148,6 +153,7 @@ namespace VATRP.Linphone.VideoWrapper
                     numpadWindow.WindowLeftMargin = value;
             }
         }
+
         public double NumpadWindowTopMargin
         {
             get
@@ -200,7 +206,7 @@ namespace VATRP.Linphone.VideoWrapper
             if (bshow)
                 numpadWindow.UpdateWindow();
         }
-        
+
         public object OverlayNumpadChild
         {
             get
@@ -226,6 +232,7 @@ namespace VATRP.Linphone.VideoWrapper
         #endregion
 
         #region CallInfo window
+
         public double CallInfoWindowLeftMargin
         {
             get
@@ -240,6 +247,7 @@ namespace VATRP.Linphone.VideoWrapper
                     callInfoWindow.WindowLeftMargin = value;
             }
         }
+
         public double CallInfoWindowTopMargin
         {
             get
@@ -284,13 +292,11 @@ namespace VATRP.Linphone.VideoWrapper
                     callInfoWindow.OverlayHeight = value;
             }
         }
+
         public int ForegroundCallDuration
         {
             get { return _foregroundCallDuration; }
-            set
-            {
-                _foregroundCallDuration = value; 
-            }
+            set { _foregroundCallDuration = value; }
         }
 
         public void SetCallerInfo(string callerInfo)
@@ -334,7 +340,7 @@ namespace VATRP.Linphone.VideoWrapper
                 if (callInfoWindow.TransparentWindow.Dispatcher.Thread != Thread.CurrentThread)
                 {
                     callInfoWindow.TransparentWindow.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
-                        new EventHandler<ElapsedEventArgs>(OnUpdatecallTimer), sender, new object[] { e });
+                        new EventHandler<ElapsedEventArgs>(OnUpdatecallTimer), sender, new object[] {e});
                     return;
                 }
 
@@ -355,9 +361,10 @@ namespace VATRP.Linphone.VideoWrapper
             var str = string.Empty;
 
             if (_foregroundCallDuration > 3599)
-                str = string.Format("{0:D2}:{1:D2}:{2:D2}", _foregroundCallDuration / 3600, (_foregroundCallDuration / 60) % 60, _foregroundCallDuration % 60);
+                str = string.Format("{0:D2}:{1:D2}:{2:D2}", _foregroundCallDuration/3600,
+                    (_foregroundCallDuration/60)%60, _foregroundCallDuration%60);
             else
-                str = string.Format("{0:D2}:{1:D2}", _foregroundCallDuration / 60, _foregroundCallDuration % 60);
+                str = string.Format("{0:D2}:{1:D2}", _foregroundCallDuration/60, _foregroundCallDuration%60);
             var textBlock =
                 FindChild<TextBlock>(callInfoWindow.TransparentWindow, "CallDurationLabel");
             if (textBlock != null)
@@ -365,7 +372,7 @@ namespace VATRP.Linphone.VideoWrapper
                 textBlock.Text = str;
             }
         }
-        
+
         public void ShowCallInfoWindow(bool bshow)
         {
             callInfoWindow.ShowWindow = bshow;
@@ -399,6 +406,7 @@ namespace VATRP.Linphone.VideoWrapper
         #endregion
 
         #region onHoldWindow
+
         public double OnHoldWindowLeftMargin
         {
             get
@@ -413,6 +421,7 @@ namespace VATRP.Linphone.VideoWrapper
                     onHoldWindow.WindowLeftMargin = value;
             }
         }
+
         public double OnHoldWindowTopMargin
         {
             get
@@ -493,6 +502,7 @@ namespace VATRP.Linphone.VideoWrapper
         #endregion
 
         #region CallsSwitch window
+
         public double CallsSwitchWindowLeftMargin
         {
             get
@@ -507,6 +517,7 @@ namespace VATRP.Linphone.VideoWrapper
                     callsSwitchWindow.WindowLeftMargin = value;
             }
         }
+
         public double CallsSwitchWindowTopMargin
         {
             get
@@ -551,13 +562,11 @@ namespace VATRP.Linphone.VideoWrapper
                     callsSwitchWindow.OverlayHeight = value;
             }
         }
+
         public int BackgroundCallDuration
         {
             get { return _backgroundCallDuration; }
-            set
-            {
-                _backgroundCallDuration = value;
-            }
+            set { _backgroundCallDuration = value; }
         }
 
         private void UpdatebackgroundCallDuration()
@@ -569,9 +578,10 @@ namespace VATRP.Linphone.VideoWrapper
                 var str = string.Empty;
 
                 if (_backgroundCallDuration > 3599)
-                    str = string.Format("{0:D2}:{1:D2}:{2:D2}", _backgroundCallDuration / 3600, (_backgroundCallDuration / 60) % 60, _backgroundCallDuration % 60);
+                    str = string.Format("{0:D2}:{1:D2}:{2:D2}", _backgroundCallDuration/3600,
+                        (_backgroundCallDuration/60)%60, _backgroundCallDuration%60);
                 else
-                    str = string.Format("{0:D2}:{1:D2}", _backgroundCallDuration / 60, _backgroundCallDuration % 60);
+                    str = string.Format("{0:D2}:{1:D2}", _backgroundCallDuration/60, _backgroundCallDuration%60);
                 textBlock.Text = str;
             }
         }
@@ -635,6 +645,7 @@ namespace VATRP.Linphone.VideoWrapper
         #endregion
 
         #region New Call window
+
         public double NewCallAcceptWindowLeftMargin
         {
             get
@@ -649,6 +660,7 @@ namespace VATRP.Linphone.VideoWrapper
                     newCallAcceptWindow.WindowLeftMargin = value;
             }
         }
+
         public double NewCallAcceptWindowTopMargin
         {
             get
@@ -761,6 +773,132 @@ namespace VATRP.Linphone.VideoWrapper
         {
             get { return onHoldWindow; }
         }
+
+        #endregion
+
+        #region Quality indicator window
+
+        public double QualityIndicatorWindowLeftMargin
+        {
+            get
+            {
+                if (qualityIndicatoWindow != null)
+                    return qualityIndicatoWindow.WindowLeftMargin;
+                return 0;
+            }
+            set
+            {
+                if (qualityIndicatoWindow != null)
+                    qualityIndicatoWindow.WindowLeftMargin = value;
+            }
+        }
+
+        public double QualityIndicatorWindowTopMargin
+        {
+            get
+            {
+                if (qualityIndicatoWindow != null)
+                    return qualityIndicatoWindow.WindowTopMargin;
+                return 0;
+            }
+            set
+            {
+                if (qualityIndicatoWindow != null)
+                    qualityIndicatoWindow.WindowTopMargin = value;
+            }
+        }
+
+        public int QualityIndicatorOverlayWidth
+        {
+            get
+            {
+                if (qualityIndicatoWindow != null)
+                    return qualityIndicatoWindow.OverlayWidth;
+                return 0;
+            }
+            set
+            {
+                if (qualityIndicatoWindow != null)
+                    qualityIndicatoWindow.OverlayWidth = value;
+            }
+        }
+
+        public int QualityIndicatorOverlayHeight
+        {
+            get
+            {
+                if (qualityIndicatoWindow != null)
+                    return qualityIndicatoWindow.OverlayHeight;
+                return 0;
+            }
+            set
+            {
+                if (qualityIndicatoWindow != null)
+                    qualityIndicatoWindow.OverlayHeight = value;
+            }
+        }
+
+        public void UpdateQualityIndicator(QualityIndicator indicator)
+        {
+            var container =
+                FindChild<Grid>(qualityIndicatoWindow.TransparentWindow, "QualityContainer");
+            if (container != null)
+            {
+                var grid =
+                    FindChild<Grid>(container, "BadIndicator");
+                if (grid != null)
+                    grid.Visibility = indicator == QualityIndicator.Poor ||
+                                      indicator == QualityIndicator.VeryPoor ||
+                                      indicator == QualityIndicator.ToBad
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+
+
+                grid = FindChild<Grid>(container, "MediumIndicator");
+                if (grid != null)
+                    grid.Visibility = indicator == QualityIndicator.Medium
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+            }
+            qualityIndicatoWindow.Refresh();
+            qualityIndicatoWindow.UpdateWindow();
+        }
+
+        public void ShowQualityIndicatorWindow(bool bshow)
+        {
+            qualityIndicatoWindow.ShowWindow = bshow;
+            qualityIndicatoWindow.Refresh();
+            if (bshow)
+                qualityIndicatoWindow.UpdateWindow();
+        }
+
+        public object OverlayQualityIndicatorChild
+        {
+            get
+            {
+                if (qualityIndicatoWindow != null && qualityIndicatoWindow.TransparentWindow != null)
+                {
+                    return qualityIndicatoWindow.TransparentWindow.Content;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                if (qualityIndicatoWindow != null && qualityIndicatoWindow.TransparentWindow != null)
+                {
+                    qualityIndicatoWindow.TransparentWindow.Content = value;
+                }
+            }
+        }
+
+        public VATRPTranslucentWindow QualityIndicatorWindow
+        {
+            get { return onHoldWindow; }
+        }
+
         #endregion
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
@@ -786,10 +924,11 @@ namespace VATRP.Linphone.VideoWrapper
             callInfoWindow.Refresh();
             callsSwitchWindow.Refresh();
             newCallAcceptWindow.Refresh();
+            qualityIndicatoWindow.Refresh();
         }
 
         private static T FindChild<T>(DependencyObject parent, string childName)
-   where T : DependencyObject
+            where T : DependencyObject
         {
             // Confirm parent and childName are valid. 
             if (parent == null) return null;
@@ -817,14 +956,14 @@ namespace VATRP.Linphone.VideoWrapper
                     if (frameworkElement != null && frameworkElement.Name == childName)
                     {
                         // if the child's name is of the request name
-                        foundChild = (T)child;
+                        foundChild = (T) child;
                         break;
                     }
                 }
                 else
                 {
                     // child element found.
-                    foundChild = (T)child;
+                    foundChild = (T) child;
                     break;
                 }
             }
