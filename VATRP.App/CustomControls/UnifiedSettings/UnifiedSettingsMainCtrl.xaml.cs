@@ -382,7 +382,14 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 var transportText = TransportComboBox.SelectedItem as TextBlock;
                 string transportString = transportText.Text;
                 App.CurrentAccount.Transport = transportString;
-                
+                if (transportString.ToUpper().Equals("TCP"))
+                {
+                    App.CurrentAccount.ProxyPort = 25060;
+                }
+                else if (transportString.ToUpper().Equals("TLS"))
+                {
+                    App.CurrentAccount.ProxyPort = 25061;
+                }
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.RegistrationChanged);
             }
         }
