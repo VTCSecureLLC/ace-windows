@@ -182,13 +182,20 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
             else
             {
-                if (!string.IsNullOrEmpty(oldVideoMailUri) || oldVideoMailUri.Equals(newVideoMailUri))
+                 if (!string.IsNullOrEmpty(newVideoMailUri))
                 {
-                    App.CurrentAccount.VideoMailUri = newVideoMailUri;
-                    ServiceManager.Instance.SaveAccountSettings();
+                    try
+                    {
+                        App.CurrentAccount.VideoMailUri = newVideoMailUri;
+                        ServiceManager.Instance.SaveAccountSettings();
 
-                    // Subscribe for video mail
-                    ServiceManager.Instance.LinphoneService.SubscribeForVideoMWI(newVideoMailUri);
+                        // Subscribe for video mail
+                        ServiceManager.Instance.LinphoneService.SubscribeForVideoMWI(newVideoMailUri);
+                    }
+                    catch (Exception)
+                    {
+                        //TODO: ADD logging handler this class
+                    }
                 }
             }
         }
