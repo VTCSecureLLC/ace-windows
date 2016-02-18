@@ -72,7 +72,7 @@
           <Component Id='com_BELCARD.DLL' Guid='F2AD22BC-8A70-4A34-AC0D-D71D734E5C67' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='BELCARD.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='belcard.dll' Source='ThirdParties\liblinphone\belcard.dll' KeyPath='yes' />
           </Component>
-          <Component Id='com_BCTOOLBOX.DLL' Guid='F2AD22BC-8A70-4A34-AC0D-D71D734E5C47' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+          <Component Id='com_BCTOOLBOX.DLL' Guid='F2AD22BC-8A70-4A34-AC0D-D71D734E5C48' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='BCTOOLBOX.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='bctoolbox.dll' Source='ThirdParties\liblinphone\bctoolbox.dll' KeyPath='yes' />
           </Component>
           <Component Id='com_BELLESIP.DLL' Guid='F2AD22BC-8A70-4A34-AC0D-D71D734E5C57' Permanent='no' SharedDllRefCount='no' Transitive='no'>
