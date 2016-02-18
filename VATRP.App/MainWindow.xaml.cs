@@ -194,7 +194,7 @@ namespace com.vtcsecure.ace.windows
         {
             switch (changeType)
             {
-                case Enums.ACEMenuSettingsUpdateType.ClearAccount: ClearAccountAndUpdateUI();
+                case Enums.ACEMenuSettingsUpdateType.ClearSettings: ClearSettingsAndUpdateUI();
                     break;
                 case Enums.ACEMenuSettingsUpdateType.Logout:
                     break;
@@ -249,7 +249,7 @@ namespace com.vtcsecure.ace.windows
             ServiceManager.Instance.ClearAccountInformation();
         }
 
-        private void ClearAccountAndUpdateUI()
+        private void ClearSettingsAndUpdateUI()
         {
             OnResetToDefaultConfiguration();
         }
@@ -506,6 +506,9 @@ namespace com.vtcsecure.ace.windows
             ctrlResource.CallResourceRequested += OnCallResourceRequested;
             ctrlLocalContact.CallResourceRequested += OnCallResourceRequested;
 
+            // reset provider selection in dialpad
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL, Configuration.ConfEntry.CURRENT_PROVIDER, "");
+
             if ((App.CurrentAccount != null) && App.CurrentAccount.AutoLogin && App.CurrentAccount.Password.NotBlank())
             {
                 if (!string.IsNullOrEmpty(App.CurrentAccount.ProxyHostname) &&
@@ -651,7 +654,14 @@ namespace com.vtcsecure.ace.windows
             ctrlCall.ctrlOverlay.OnHoldWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.OnHoldOverlayWidth) / 2 + offset;
             ctrlCall.ctrlOverlay.OnHoldWindowTopMargin = ctrlCall.ctrlOverlay.CallInfoOverlayHeight + ctrlCall.ctrlOverlay.CallInfoWindowTopMargin + 40;// topleftInScreen.Y + 40;
 
+            ctrlCall.ctrlOverlay.QualityIndicatorWindowLeftMargin = topleftInScreen.X + offset;
+            ctrlCall.ctrlOverlay.QualityIndicatorWindowTopMargin = topleftInScreen.Y + offset+1;
+            ctrlCall.ctrlOverlay.QualityIndicatorOverlayWidth = (int)callViewDimensions.Width;
+            ctrlCall.ctrlOverlay.QualityIndicatorOverlayHeight = (int)ctrlCall.ActualHeight;
+
+            ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(false);
             ctrlCall.ctrlOverlay.Refresh();
+            ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(true);
         }
 
         private void OnCameraSwitched(bool switch_on)

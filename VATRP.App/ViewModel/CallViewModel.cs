@@ -59,6 +59,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _savedIsInfoOn;
         private bool _savedIsCallHoldOn;
         private string _errorMessage;
+
+        public event CallInfoViewModel.CallQualityChangedDelegate CallQualityChangedEvent;
+
         public CallViewModel()
         {
             _visualizeRing = false;
@@ -884,6 +887,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
             CallInfoCtrl.SetViewModel(_callInfoViewModel);
             ServiceManager.Instance.LinphoneService.CallStatisticsChangedEvent +=
                 _callInfoViewModel.OnCallStatisticsChanged;
+
+            _callInfoViewModel.CallQualityChangedEvent += OnCalQualityChanged;
         }
 
         public void UnsubscribeCallStaistics()
@@ -893,6 +898,13 @@ namespace com.vtcsecure.ace.windows.ViewModel
             subscribedForStats = false;
             ServiceManager.Instance.LinphoneService.CallStatisticsChangedEvent -=
                 _callInfoViewModel.OnCallStatisticsChanged;
+            _callInfoViewModel.CallQualityChangedEvent -= OnCalQualityChanged;
+        }
+
+        private void OnCalQualityChanged(VATRP.Linphone.VideoWrapper.QualityIndicator callQuality)
+        {
+            if (CallQualityChangedEvent != null)
+                CallQualityChangedEvent(callQuality);
         }
 
         internal void SwitchSelfVideo()

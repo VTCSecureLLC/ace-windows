@@ -261,7 +261,7 @@ namespace VATRP.Core.Services
         {
             foreach (VATRPServiceProvider provider in providersList)
             {
-                if (provider.Label.Contains(providerLabel))
+                if (!string.IsNullOrEmpty(providerLabel) && provider.Label.Contains(providerLabel))
                 {
                     return provider;
                 }
