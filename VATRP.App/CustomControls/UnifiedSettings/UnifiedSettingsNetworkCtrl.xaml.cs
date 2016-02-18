@@ -46,22 +46,27 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                     MediaEncryptionComboBox.SelectedItem = textBlock;
                 }
             }
+
+            AdaptiveRateCheckbox.IsChecked = App.CurrentAccount.EnableAdaptiveRate;
+            UploadBandwidthTextBox.Text = App.CurrentAccount.UploadBandwidth.ToString();
+            DownloadBandwidthTextBox.Text = App.CurrentAccount.DownloadBandwidth.ToString();
         }
 
+        private void OnAdaptiveRateChecked(object sender, RoutedEventArgs e)
+        {
+            bool enabled = AdaptiveRateCheckbox.IsChecked ?? false;
+            if (enabled != App.CurrentAccount.EnableAdaptiveRate)
+            {
+                App.CurrentAccount.EnableAdaptiveRate = enabled;
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+            }
+        }
         private void OnStunServerChecked(object sender, RoutedEventArgs e)
         {
             bool enabled = UseStunServerCheckbox.IsChecked ?? false;
             if (enabled != App.CurrentAccount.EnableSTUN)
             {
                 App.CurrentAccount.EnableSTUN = enabled;
-                if (enabled)
-                {
-                    if (App.CurrentAccount.EnableICE == true)
-                    {
-                        App.CurrentAccount.EnableICE = false;
-                        UseIceServerCheckbox.IsChecked = false;
-                    }
-                }
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
             }
         }
@@ -104,14 +109,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             if (enabled != App.CurrentAccount.EnableICE)
             {
                 App.CurrentAccount.EnableICE = enabled;
-                if (enabled)
-                {
-                    if (App.CurrentAccount.EnableSTUN == true)
-                    {
-                        App.CurrentAccount.EnableSTUN = false;
-                        UseStunServerCheckbox.IsChecked = false;
-                    }
-                }
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
             }
         }
@@ -149,6 +146,33 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 }
                 App.CurrentAccount.ICEPort = port;
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+            }
+        }
+
+        public void OnUploadBandwidthChanged(Object sender, RoutedEventArgs args)
+        {
+            string newBandwidth = UploadBandwidthTextBox.Text;
+            if (!string.IsNullOrEmpty(newBandwidth))
+            {
+                int bandwidth = 0;
+                if (int.TryParse(newBandwidth, out bandwidth))
+                {
+                    App.CurrentAccount.UploadBandwidth = bandwidth;
+                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+                }
+            }
+        }
+        public void OnDownloadBandwidthChanged(Object sender, RoutedEventArgs args)
+        {
+            string newBandwidth = DownloadBandwidthTextBox.Text;
+            if (!string.IsNullOrEmpty(newBandwidth))
+            {
+                int bandwidth = 0;
+                if (int.TryParse(newBandwidth, out bandwidth))
+                {
+                    App.CurrentAccount.DownloadBandwidth = bandwidth;
+                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+                }
             }
         }
 

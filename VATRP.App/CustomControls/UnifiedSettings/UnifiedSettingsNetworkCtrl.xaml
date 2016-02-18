@@ -145,6 +145,25 @@
             <CheckBox Grid.Column="2" Grid.Row="14" Checked="OnPushNotifications" Unchecked="OnPushNotifications" HorizontalAlignment="Center" 
                           VerticalAlignment="Center" Name="PushNotificationsCheckbox" Visibility="Collapsed"/>
 
+            <!-- Row 15: Adaptive Rate -->
+            <Label Grid.Column="0" Grid.Row="15" Grid.ColumnSpan="2" Content="Adaptive Rate" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left"  Name="AdaptiveRateLabel">
+            </Label>
+            <CheckBox Grid.Column="2" Grid.Row="15" Checked="OnAdaptiveRateChecked" Unchecked="OnAdaptiveRateChecked" HorizontalAlignment="Center" 
+                          VerticalAlignment="Center"  Name="AdaptiveRateCheckbox"/>
+            <!-- Row 16: Upload Bandwidth -->
+            <Label Grid.Column="0" Grid.Row="16" Grid.ColumnSpan="1" Content="Upload Bandwidth" VerticalContentAlignment="Center"
+                   HorizontalAlignment="Left" Name="UploadBandwidthLabel"/>
+            <TextBox Grid.Column="1" Grid.Row="16" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" 
+                     Name="UploadBandwidthTextBox"  LostFocus="OnUploadBandwidthChanged" />
+
+            <!-- Row 17: Upload Bandwidth -->
+            <Label Grid.Column="0" Grid.Row="17" Grid.ColumnSpan="1" Content="Download Bandwidth" VerticalContentAlignment="Center"
+                   HorizontalAlignment="Left" Name="DownloadBandwidthLabel"/>
+            <TextBox Grid.Column="1" Grid.Row="17" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" 
+                     Name="DownloadBandwidthTextBox"  LostFocus="OnDownloadBandwidthChanged" />
 
         </Grid>
     </Grid>

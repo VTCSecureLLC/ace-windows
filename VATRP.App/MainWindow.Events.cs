@@ -66,6 +66,8 @@ namespace com.vtcsecure.ace.windows
 					CallInfoCtrl = _callInfoView
 				};
 
+			    callViewModel.CallQualityChangedEvent += OnCallQualityChanged;
+
                 callViewModel.VideoWidth = (int)CombinedUICallViewSize.Width;
 			    callViewModel.VideoHeight = (int)CombinedUICallViewSize.Height;
 				_mainViewModel.AddCalViewModel(callViewModel);
@@ -206,6 +208,7 @@ namespace com.vtcsecure.ace.windows
 				case VATRPCallState.StreamsRunning:
 					callViewModel.OnStreamRunning();
                     ShowCallOverlayWindow(true);
+
                     // VATRP-1623: we are setting mute microphone true prior to initiating a call, but the call is always started
                     //   with the mic enabled. attempting to mute right after call is connected here to side step this issue - 
                     //   it appears to be an initialization issue in linphone
@@ -314,6 +317,7 @@ namespace com.vtcsecure.ace.windows
 					callViewModel.OnClosed(false, string.Empty);
 					stopPlayback = true;
 			        destroycall = true;
+                    callViewModel.CallQualityChangedEvent -= OnCallQualityChanged;
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                        Configuration.ConfEntry.USE_RTT, true))
                     {
@@ -349,33 +353,37 @@ namespace com.vtcsecure.ace.windows
 						var nextVM = _mainViewModel.GetNextViewModel(null);
 					    if (nextVM != null)
 					    {
-                            _mainViewModel.ActiveCallModel = nextVM;
-					        if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-					            Configuration.ConfEntry.USE_RTT, true))
-					        {
-					            _mainViewModel.IsRTTViewEnabled = true;
-					            ctrlRTT.SetViewModel(_mainViewModel.RttMessagingModel);
-					            _mainViewModel.RttMessagingModel.CreateRttConversation(
-					                nextVM.ActiveCall.RemoteParty.Username, nextVM.ActiveCall.NativeCallPtr);
-					        }
-					        else
-					        {
-                                _mainViewModel.IsRTTViewEnabled = false;
-					        }
-                            ShowCallOverlayWindow(true);
-                            ctrlCall.ctrlOverlay.SetCallerInfo(nextVM.CallerInfo);
-                            ctrlCall.ctrlOverlay.ForegroundCallDuration = _mainViewModel.ActiveCallModel.CallDuration;
-                            ctrlCall.SetCallViewModel(_mainViewModel.ActiveCallModel);
-                            ctrlCall.UpdateControls();
-					        if (nextVM.ActiveCall.CallState == VATRPCallState.LocalPaused )
-					        {
-					            if (!nextVM.PauseRequest)
-					                _mainViewModel.ResumeCall(nextVM);
-					            else
-					            {
-                                    ctrlCall.ctrlOverlay.SetCallState("On Hold");
-					            }
-					        }
+                            // defensive coding here- do not try to operate on an errored call state object
+                            if (nextVM.CallState != VATRPCallState.Error)
+                            {
+                                _mainViewModel.ActiveCallModel = nextVM;
+                                if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                                    Configuration.ConfEntry.USE_RTT, true))
+                                {
+                                    _mainViewModel.IsRTTViewEnabled = true;
+                                    ctrlRTT.SetViewModel(_mainViewModel.RttMessagingModel);
+                                    _mainViewModel.RttMessagingModel.CreateRttConversation(
+                                        nextVM.ActiveCall.RemoteParty.Username, nextVM.ActiveCall.NativeCallPtr);
+                                }
+                                else
+                                {
+                                    _mainViewModel.IsRTTViewEnabled = false;
+                                }
+                                ShowCallOverlayWindow(true);
+                                ctrlCall.ctrlOverlay.SetCallerInfo(nextVM.CallerInfo);
+                                ctrlCall.ctrlOverlay.ForegroundCallDuration = _mainViewModel.ActiveCallModel.CallDuration;
+                                ctrlCall.SetCallViewModel(_mainViewModel.ActiveCallModel);
+                                ctrlCall.UpdateControls();
+                                if (nextVM.ActiveCall.CallState == VATRPCallState.LocalPaused)
+                                {
+                                    if (!nextVM.PauseRequest)
+                                        _mainViewModel.ResumeCall(nextVM);
+                                    else
+                                    {
+                                        ctrlCall.ctrlOverlay.SetCallState("On Hold");
+                                    }
+                                }
+                            }
 					    }
 					}
 					
@@ -417,6 +425,10 @@ namespace com.vtcsecure.ace.windows
                         _mainViewModel.ActiveCallModel = null;
                         OnFullScreenToggled(false); // restore main window to dashboard
 					}
+                    else
+                    {
+                        _mainViewModel.RemoveCalViewModel(callViewModel);
+                    }
 					
 					break;
 				default:
@@ -453,6 +465,11 @@ namespace com.vtcsecure.ace.windows
                 }
 		    }
 		}
+
+        private void OnCallQualityChanged(VATRP.Linphone.VideoWrapper.QualityIndicator callQuality)
+        {
+            ctrlCall.ctrlOverlay.UpdateQualityIndicator(callQuality);
+        }
 
 	    private void OnSwitchHoldCallsRequested(object sender, EventArgs eventArgs)
 	    {
@@ -492,13 +509,14 @@ namespace com.vtcsecure.ace.windows
 			ctrlCall.ctrlOverlay.ShowCommandBar(bShow);
 			ctrlCall.ctrlOverlay.ShowNumpadWindow(false);
 			ctrlCall.ctrlOverlay.ShowCallInfoWindow(bShow);
-
+	        ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(bShow);
 		    if (!bShow)
 		    {
 		        ctrlCall.ctrlVideo.Visibility = Visibility.Hidden;
                 ctrlCall.ctrlOverlay.ShowNewCallAcceptWindow(false);
                 ctrlCall.ctrlOverlay.ShowCallsSwitchWindow(false);
                 ctrlCall.ctrlOverlay.ShowOnHoldWindow(false);
+                ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(false);
             }
 		}
 

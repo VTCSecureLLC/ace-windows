@@ -309,8 +309,8 @@ namespace VATRP.Core.Services
 				LinphoneAPI.linphone_core_enable_video_preview(linphoneCore, false);
 				LinphoneAPI.linphone_core_set_native_preview_window_id(linphoneCore, -1);
 
-			    LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, 660);
-                LinphoneAPI.linphone_core_set_download_bandwidth(linphoneCore, 660);
+			    LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, 1500);
+                LinphoneAPI.linphone_core_set_download_bandwidth(linphoneCore, 1500);
 
                 string codeBase = Assembly.GetExecutingAssembly().CodeBase;
                 UriBuilder uri = new UriBuilder(codeBase);
@@ -1385,6 +1385,7 @@ namespace VATRP.Core.Services
             LinphoneAPI.linphone_core_set_preferred_framerate(linphoneCore, account.PreferredFPS);
             
             IntPtr namePtr = LinphoneAPI.linphone_core_get_preferred_video_size_name(linphoneCore);
+            MSVideoSize preferredVideoSize = LinphoneAPI.linphone_core_get_preferred_video_size(linphoneCore);
             if (namePtr != IntPtr.Zero)
             {
                 string name = Marshal.PtrToStringAnsi(namePtr);
@@ -1392,21 +1393,22 @@ namespace VATRP.Core.Services
                 {
                     LOG.Info("Set preferred video size by name: " + account.PreferredVideoId);
                     LinphoneAPI.linphone_core_set_preferred_video_size_by_name(linphoneCore, account.PreferredVideoId);
+                    MSVideoSize preferredVideoSizeAfterChange = LinphoneAPI.linphone_core_get_preferred_video_size(linphoneCore);
 
                     int bandwidth = 512;
                     switch (account.PreferredVideoId)
                     {
                         case "720p":
-                            bandwidth = 1024 + 128;
+                            bandwidth = 2000;
                             break;
                         case "svga":
-                            bandwidth = 860;
+                            bandwidth = 2000;
                             break;
                         case "vga":
-                            bandwidth = 660;
+                            bandwidth = 1500;
                             break;
                         case "cif":
-                            bandwidth = 460;
+                            bandwidth = 660;
                             break;
                         case "qvga":
                             bandwidth = 410;
@@ -1415,8 +1417,16 @@ namespace VATRP.Core.Services
                             bandwidth = 256;
                             break;
                     }
-                    LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, bandwidth);
-                    LinphoneAPI.linphone_core_set_download_bandwidth(linphoneCore, bandwidth);
+                    if (account.DownloadBandwidth < bandwidth)
+                    {
+                        account.DownloadBandwidth = bandwidth;
+                        LinphoneAPI.linphone_core_set_download_bandwidth(linphoneCore, bandwidth);
+                    }
+                    if (account.UploadBandwidth < bandwidth)
+                    {
+                        account.UploadBandwidth = bandwidth;
+                        LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, bandwidth);
+                    }
                 }
             }
 
@@ -1824,6 +1834,10 @@ namespace VATRP.Core.Services
                 LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyNoFirewall);
             }
             int firewallPolicy = LinphoneAPI.linphone_core_get_firewall_policy(linphoneCore);
+
+            LinphoneAPI.linphone_core_enable_adaptive_rate_control(linphoneCore, account.EnableAdaptiveRate);
+            LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, account.UploadBandwidth);
+            LinphoneAPI.linphone_core_set_download_bandwidth(linphoneCore, account.DownloadBandwidth);
 
             return false;
         }
@@ -2624,6 +2638,28 @@ namespace VATRP.Core.Services
             return null;
         }
 
+        #endregion
+
+        #region Provide linphone settings for technical support sheet
+        public string GetTechnicalSupportInfo()
+        {
+            StringBuilder configString = new StringBuilder();
+            if ((linphoneCore != null) && IsStarted)
+            {
+                // items to add: enabled video codecs, enabled audio codecs, preferred video resolution, preferred bandwidth
+                bool adaptiveRateEnabled = LinphoneAPI.linphone_core_adaptive_rate_control_enabled(linphoneCore);
+                configString.AppendLine("Adaptive Rate Enabled: " + adaptiveRateEnabled.ToString());
+                configString.AppendLine("Adaptive Rate Algorithm: " + LinphoneAPI.linphone_core_get_adaptive_rate_algorithm(linphoneCore));
+                int min_port = -1;
+                int max_port = -1;
+                LinphoneAPI.linphone_core_get_video_port_range(linphoneCore, ref min_port, ref max_port);
+                configString.AppendLine("Video Port Range: " + min_port + "-" + max_port);
+                LinphoneAPI.linphone_core_get_audio_port_range(linphoneCore, ref min_port, ref max_port);
+                configString.AppendLine("Audio Port Range: " + min_port + "-" + max_port);
+
+            }
+            return configString.ToString();
+        }
         #endregion
     }
 }

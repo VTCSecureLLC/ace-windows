@@ -182,17 +182,39 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
             else
             {
-                if (!string.IsNullOrEmpty(oldVideoMailUri) || oldVideoMailUri.Equals(newVideoMailUri))
+                if (!string.IsNullOrEmpty(newVideoMailUri))
                 {
-                    App.CurrentAccount.VideoMailUri = newVideoMailUri;
-                    ServiceManager.Instance.SaveAccountSettings();
-
-                    // Subscribe for video mail
-                    ServiceManager.Instance.LinphoneService.SubscribeForVideoMWI(newVideoMailUri);
+                    try
+                    {
+                        App.CurrentAccount.VideoMailUri = newVideoMailUri;
+                        ServiceManager.Instance.SaveAccountSettings();                       
+                    }
+                    catch (Exception)
+                    {
+                        //TODO: ADD logging handler this class
+                    }
                 }
             }
         }
 
+        private void MWIUriTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("MWI URI Changed");
+            if (App.CurrentAccount == null)
+                return;
+            string newmwiUri = MWIUriTextBox.Text;
+            try
+            {
+                App.CurrentAccount.MWIUri = newmwiUri;
+                ServiceManager.Instance.SaveAccountSettings();
 
+                // Subscribe for video mail
+                ServiceManager.Instance.LinphoneService.SubscribeForVideoMWI(newmwiUri);
+            }
+            catch (Exception)
+            {
+                //TODO: ADD logging handler this class
+            }            
+        }
     }
 }
