@@ -34,8 +34,7 @@ namespace com.vtcsecure.ace.windows.Services
             {
                 return false;  // i think this can be a quiet failure - the user is already in a call.
             }
-
-
+            
             bool muteMicrophone = false;
             bool muteSpeaker = false;
             bool enableVideo = false;
@@ -46,15 +45,36 @@ namespace com.vtcsecure.ace.windows.Services
                 enableVideo = App.CurrentAccount.EnableVideo;
             }
 
-            var target = remoteUri;
+            var target = remoteUri.EndsWith(";user=phone")
+                ? remoteUri.Remove(remoteUri.IndexOf(";user=phone"))
+                : remoteUri;
             string un, host;
             int port;
             VATRPCall.ParseSipAddress(remoteUri, out un, out host, out port);
+
+            if (un.StartsWith("+"))
+                un = un.Remove(0, 1); // remove + sign
             if (!host.NotBlank())
             {
-                if (App.CurrentAccount != null) 
-                    target = string.Format("{0}@{1}", un, App.CurrentAccount.ProxyHostname);
+                // set proxy to selected provider
+                // find selected provider host
+                var provider =
+                    ServiceManager.Instance.ProviderService.FindProviderLooseSearch(
+                        ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                            Configuration.ConfEntry.CURRENT_PROVIDER, ""));
+
+                if (provider != null)
+                {
+                    target = string.Format("sip:{0}@{1}", un, provider.Address);
+                }
+                else if (App.CurrentAccount != null) 
+                    target = string.Format("sip:{0}@{1}", un, App.CurrentAccount.ProxyHostname);
             }
+            else
+            {
+                target = string.Format("sip:{0}@{1}:{2}", un, host, port);
+            }
+
             // update video policy settings prior to making a call
             _linphoneService.MakeCall(target, true, ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.USE_RTT, true), muteMicrophone, muteSpeaker, enableVideo, ServiceManager.Instance.LocationString);
