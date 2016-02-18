@@ -125,11 +125,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 return;
             }
 
-            if (App.CurrentAccount != null)
-            {
-                var remote = string.Format("sip:{0}@{1}", _viewModel.RemotePartyNumber, App.CurrentAccount.ProxyHostname);
-                MediaActionHandler.MakeVideoCall(remote);
-            }
+            MediaActionHandler.MakeVideoCall(_viewModel.RemotePartyNumber);
             _viewModel.RemotePartyNumber = "";
         }
 
