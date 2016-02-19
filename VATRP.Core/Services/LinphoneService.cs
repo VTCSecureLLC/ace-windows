@@ -301,7 +301,7 @@ namespace VATRP.Core.Services
 			if (linphoneCore != IntPtr.Zero)
 			{
                 LinphoneAPI.linphone_core_set_log_level_mask(OrtpLogLevel.ORTP_TRACE);
-                LinphoneAPI.libmsopenh264_init();
+                LinphoneAPI.libmsopenh264_init(LinphoneAPI.linphone_core_get_ms_factory(linphoneCore));
                 // Liz E. - this is set in the account settings now
                 //LinphoneAPI.linphone_core_set_video_preset(linphoneCore, "high-fps");
 				LinphoneAPI.linphone_core_enable_video_capture(linphoneCore, true);
