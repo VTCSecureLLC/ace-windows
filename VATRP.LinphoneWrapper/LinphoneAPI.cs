@@ -1138,6 +1138,9 @@ namespace VATRP.LinphoneWrapper
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_refresh_registers(IntPtr lc);
 
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_ms_factory(IntPtr lc);
+
         #region Call Info
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -2177,7 +2180,7 @@ namespace VATRP.LinphoneWrapper
         #endregion
 
         [DllImport("libmsopenh264.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void libmsopenh264_init();
+        public static extern void libmsopenh264_init(IntPtr f);
 
         [DllImport("ortp.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void ortp_free(IntPtr p);
