@@ -2012,7 +2012,7 @@ namespace VATRP.Core.Services
 
 		            if (GetActiveCallsCount > 1)
 		            {
-		                var cmd = new DeclineCallCommand(callPtr, LinphoneReason.LinphoneReasonDeclined);
+                        var cmd = new DeclineCallCommand(callPtr, LinphoneReason.LinphoneReasonBusy);
 		                commandQueue.Enqueue(cmd);
                         _declinedCallsList.Add(callPtr);
 		                return;
