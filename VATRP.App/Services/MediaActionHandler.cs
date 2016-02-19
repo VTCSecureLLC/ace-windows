@@ -52,13 +52,8 @@ namespace com.vtcsecure.ace.windows.Services
             int port;
             VATRPCall.ParseSipAddress(remoteUri, out un, out host, out port);
 
-            Regex rE164 = new Regex(@"^\+?[1-9]\d{1,14}$");
-            bool addUserPhone = false;
-            if (rE164.IsMatch(un))
-            {
-                un = un.Remove(0, 1); // remove + sign
-                addUserPhone = true;
-            }
+            Regex rE164 = new Regex(@"^(\+|00)?[1-9]\d{1,14}$");
+            bool isE164 = rE164.IsMatch(un);
 
             if (!host.NotBlank())
             {
@@ -81,7 +76,7 @@ namespace com.vtcsecure.ace.windows.Services
                 target = string.Format("sip:{0}@{1}:{2}", un, host, port);
             }
 
-            if (addUserPhone)
+            if (isE164)
                 target += ";user=phone";
 
             // update video policy settings prior to making a call
