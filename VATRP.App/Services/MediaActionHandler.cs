@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Controls;
 using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
@@ -45,15 +46,20 @@ namespace com.vtcsecure.ace.windows.Services
                 enableVideo = App.CurrentAccount.EnableVideo;
             }
 
-            var target = remoteUri.EndsWith(";user=phone")
-                ? remoteUri.Remove(remoteUri.IndexOf(";user=phone"))
-                : remoteUri;
+            var target = string.Empty;
+
             string un, host;
             int port;
             VATRPCall.ParseSipAddress(remoteUri, out un, out host, out port);
 
-            if (un.StartsWith("+"))
+            Regex rE164 = new Regex(@"^\+?[1-9]\d{1,14}$");
+            bool addUserPhone = false;
+            if (rE164.IsMatch(un))
+            {
                 un = un.Remove(0, 1); // remove + sign
+                addUserPhone = true;
+            }
+
             if (!host.NotBlank())
             {
                 // set proxy to selected provider
@@ -74,6 +80,9 @@ namespace com.vtcsecure.ace.windows.Services
             {
                 target = string.Format("sip:{0}@{1}:{2}", un, host, port);
             }
+
+            if (addUserPhone)
+                target += ";user=phone";
 
             // update video policy settings prior to making a call
             _linphoneService.MakeCall(target, true, ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
