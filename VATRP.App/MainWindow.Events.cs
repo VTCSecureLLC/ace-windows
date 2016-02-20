@@ -469,6 +469,7 @@ namespace com.vtcsecure.ace.windows
         private void OnCallQualityChanged(VATRP.Linphone.VideoWrapper.QualityIndicator callQuality)
         {
             ctrlCall.ctrlOverlay.UpdateQualityIndicator(callQuality);
+            ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(this.WindowState != WindowState.Minimized);
         }
 
 	    private void OnSwitchHoldCallsRequested(object sender, EventArgs eventArgs)
