@@ -13,6 +13,8 @@ namespace VATRP.Core.Interfaces
         VATRPContact FindContact(ContactID contactID);
         VATRPContact FindContactByPhone(string phoneNumber);
         VATRPContact FindLoggedInContact();
+        int ImportVCards(string vcardPath);
+        void ExportVCards(string vcardPath);
 
         void AddLinphoneContact(string name, string username, string sipAddress);
         void EditLinphoneContact(string oldname, string oldsipAddress, string newname, string newsipassdress);

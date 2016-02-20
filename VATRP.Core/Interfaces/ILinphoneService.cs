@@ -33,6 +33,7 @@ namespace VATRP.Core.Interfaces
         bool IsStarted { get; }
         bool IsStopping { get; }
         bool IsStopped { get; }
+        bool VCardSupported { get;  }
 
         #endregion
 
