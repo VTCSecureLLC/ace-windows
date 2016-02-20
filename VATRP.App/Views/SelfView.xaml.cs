@@ -49,11 +49,14 @@ namespace com.vtcsecure.ace.windows.Views
                 if (source != null)
                 {
                     var wih = new WindowInteropHelper(source);
-
-                    IntPtr hWnd = wih.EnsureHandle();
-                    if (hWnd != IntPtr.Zero)
+                    if (wih.Handle != IntPtr.Zero)
                     {
-                        _linphone.SetVideoPreviewWindowHandle(hWnd);
+                        IntPtr hWnd = wih.EnsureHandle();
+
+                        if (hWnd != IntPtr.Zero)
+                        {
+                            _linphone.SetVideoPreviewWindowHandle(hWnd);
+                        }
                     }
                 }
                 ResetNativePreviewHandle = true;
