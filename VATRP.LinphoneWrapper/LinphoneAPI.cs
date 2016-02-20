@@ -1851,80 +1851,6 @@ namespace VATRP.LinphoneWrapper
 
         #endregion
 
-
-        #region Contacts
-
-/**
- * Set the display name for this friend
- * @param lf #LinphoneFriend object
- * @param name 
- */
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int linphone_friend_set_name(IntPtr lf, string name);
-
-        /**
- * Create a default LinphoneFriend.
- * @param[in] lc #LinphoneCore object
- * @return The created #LinphoneFriend object
- */
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_core_create_friend(IntPtr lc);
-
-/**
- * Create a LinphoneFriend from the given address.
- * @param[in] lc #LinphoneCore object
- * @param[in] address A string containing the address to create the LinphoneFriend from
- * @return The created #LinphoneFriend object
- */
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_core_create_friend_with_address(IntPtr lc, string address);
-
-        /**
- * Add a friend to the current buddy list, if \link linphone_friend_enable_subscribes() subscription attribute \endlink is set, a SIP SUBSCRIBE message is sent.
- * @param lc #LinphoneCore object
- * @param fr #LinphoneFriend to add
- */
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_core_add_friend(IntPtr lc, IntPtr fr);
-
-/**
- * remove a friend from the buddy list
- * @param lc #LinphoneCore object
- * @param fr #LinphoneFriend to add
- */
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_core_remove_friend(IntPtr lc, IntPtr fr);
-
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_core_get_friend_list(IntPtr lc);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_friend_get_address(IntPtr lf);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_friend_set_address(IntPtr fr, IntPtr address);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_friend_new_with_address(string addr);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int linphone_friend_enable_subscribes(IntPtr fr, bool val);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_friend_edit(IntPtr fr);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_friend_done(IntPtr fr);
-
-        #endregion
-
-
         #region Call history
 
 /**
@@ -2142,23 +2068,6 @@ namespace VATRP.LinphoneWrapper
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool linphone_call_log_video_enabled(IntPtr cl);
 
-        #endregion
-
-        #region LinphoneAddress
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_address_get_display_name(IntPtr u);
-
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_address_get_username(IntPtr u);
-
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_address_get_domain(IntPtr u);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int linphone_address_get_port(IntPtr u);
         #endregion
 
         #region Security
