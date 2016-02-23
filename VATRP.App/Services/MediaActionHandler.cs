@@ -38,12 +38,12 @@ namespace com.vtcsecure.ace.windows.Services
 
             bool muteMicrophone = false;
             bool muteSpeaker = false;
-            bool enableVideo = false;
+//            bool enableVideo = true;
             if (App.CurrentAccount != null)
             {
                 muteMicrophone = App.CurrentAccount.MuteMicrophone;
                 muteSpeaker = App.CurrentAccount.MuteSpeaker;
-                enableVideo = App.CurrentAccount.EnableVideo;
+//                enableVideo = App.CurrentAccount.EnableVideo;
             }
 
             var target = remoteUri;
@@ -57,7 +57,7 @@ namespace com.vtcsecure.ace.windows.Services
             }
             // update video policy settings prior to making a call
             _linphoneService.MakeCall(target, true, ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.USE_RTT, true), muteMicrophone, muteSpeaker, enableVideo, ServiceManager.Instance.LocationString);
+                Configuration.ConfEntry.USE_RTT, true), muteMicrophone, muteSpeaker, true, ServiceManager.Instance.LocationString);
             return true;
         }
        
