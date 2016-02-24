@@ -6,6 +6,7 @@ install:
 - choco install wixtoolset -y -version 3.10.0.2103
 
 build_script:
+- git submodule update --init --recursive
 - nuget restore VATRP.sln
 - set vatrpVersion=%APPVEYOR_BUILD_VERSION%
 - set vatrpConfiguration="Release"
