@@ -6,7 +6,7 @@ install:
 - choco install wixtoolset -y -version 3.10.0.2103
 
 build_script:
-- bash -c 'grep "submodule " .gitmodules  | cut -d\" -f2 | xargs -P20 -L1 git submodule update --init --recursive' || true
+- bash -c 'grep "submodule " .gitmodules  | cut -d" -f2 | xargs -P20 -L1 git submodule update --init --recursive' || true
 - git submodule update --init --recursive
 - nuget restore VATRP.sln
 - set vatrpVersion=%APPVEYOR_BUILD_VERSION%
