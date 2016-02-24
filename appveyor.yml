@@ -6,8 +6,7 @@ install:
 - choco install wixtoolset -y -version 3.10.0.2103
 
 build_script:
-- dir "C:\Program Files\Git\.ssh\" || true
-- ls "~/.ssh" || true
+- cd \ ; dir .ssh /s
 - git clone -q --branch=ianblenke/appveyor-dependencies git@github.com:VTCSecureLLC/linphone-windows-dependencies.git submodules/linphone-windows-dependencies
 - git submodule update --init --recursive
 - nuget restore VATRP.sln
