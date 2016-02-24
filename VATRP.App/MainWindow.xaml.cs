@@ -661,7 +661,7 @@ namespace com.vtcsecure.ace.windows
 
             ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(false);
             ctrlCall.ctrlOverlay.Refresh();
-            ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(true);
+            ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(this.WindowState != WindowState.Minimized);
         }
 
         private void OnCameraSwitched(bool switch_on)

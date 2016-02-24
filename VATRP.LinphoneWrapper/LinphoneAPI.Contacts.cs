@@ -55,16 +55,11 @@ namespace VATRP.LinphoneWrapper
          */
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int linphone_core_import_friends_from_vcard4_file(IntPtr lc, string vcard_file);
+        public static extern int linphone_friend_list_import_friends_from_vcard4_file(IntPtr friendsList, string vcard_file);
 
-        /**
-         * Creates and export LinphoneFriend objects from LinphoneCore to a file using vCard 4 format
-         * @param[in] lc the LinphoneCore object
-         * @param[in] vcard_file the path to a file that will contain the vCards
-         */
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_core_export_friends_as_vcard4_file(IntPtr lc, string vcard_file);
+        public static extern void linphone_friend_list_export_friends_as_vcard4_file(IntPtr friendsList, string vcard_file);
 
         /**
          * Sets the database filename where friends will be stored.
@@ -85,5 +80,79 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_migrate_friends_from_rc_to_db(IntPtr lc);
+
+        /**
+ * Set the display name for this friend
+ * @param lf #LinphoneFriend object
+ * @param name 
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_friend_set_name(IntPtr lf, string name);
+
+        /**
+ * Create a default LinphoneFriend.
+ * @param[in] lc #LinphoneCore object
+ * @return The created #LinphoneFriend object
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_create_friend(IntPtr lc);
+
+        /**
+         * Create a LinphoneFriend from the given address.
+         * @param[in] lc #LinphoneCore object
+         * @param[in] address A string containing the address to create the LinphoneFriend from
+         * @return The created #LinphoneFriend object
+         */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_create_friend_with_address(IntPtr lc, string address);
+
+        /**
+ * Add a friend to the current buddy list, if \link linphone_friend_enable_subscribes() subscription attribute \endlink is set, a SIP SUBSCRIBE message is sent.
+ * @param lc #LinphoneCore object
+ * @param fr #LinphoneFriend to add
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_add_friend(IntPtr lc, IntPtr fr);
+
+        /**
+         * remove a friend from the buddy list
+         * @param lc #LinphoneCore object
+         * @param fr #LinphoneFriend to add
+         */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_remove_friend(IntPtr lc, IntPtr fr);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_default_friend_list(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_friend_list(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_get_address(IntPtr lf);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_set_address(IntPtr fr, IntPtr address);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_new_with_address(string addr);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_friend_enable_subscribes(IntPtr fr, bool val);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_friend_set_inc_subscribe_policy(IntPtr fr, int val);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_friend_edit(IntPtr fr);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_friend_done(IntPtr fr);
+
     }
 }

@@ -40,6 +40,7 @@ namespace VATRP.Core.Services
 		private bool _isStarted;
 		private bool _isStopping;
 		private bool _isStopped;
+        private bool _vcardSupported;
         private List<VATRPCodec> _audioCodecs = new List<VATRPCodec>();
         private List<VATRPCodec> _videoCodecs = new List<VATRPCodec>(); 
 		private List<VATRPCall> callsList = new List<VATRPCall>();
@@ -154,7 +155,12 @@ namespace VATRP.Core.Services
 		#endregion
 
 		#region Properties
-		
+
+        public bool VCardSupported
+        {
+            get { return _vcardSupported; }
+        }
+
 		public Preferences LinphoneConfig
 		{
 			get { return preferences; }
@@ -228,6 +234,7 @@ namespace VATRP.Core.Services
 			preferences = new Preferences();
 			_isStarting = false;
 			_isStarted = false;
+		    _vcardSupported = true;
 		    _chatLogPath = manager.BuildStoragePath("chathistory.db");
 		    _callLogPath = manager.BuildStoragePath("callhistory.db");
             _contactsPath = manager.BuildStoragePath("contacts.db");
@@ -330,7 +337,6 @@ namespace VATRP.Core.Services
                 LinphoneAPI.linphone_core_set_chat_database_path(linphoneCore, _chatLogPath);
                 LinphoneAPI.linphone_core_set_call_logs_database_path(linphoneCore, _callLogPath);
                 LinphoneAPI.linphone_core_set_friends_database_path(linphoneCore, _contactsPath);
-			    LinphoneAPI.linphone_core_migrate_friends_from_rc_to_db(linphoneCore);
 
 			    IntPtr defProxyCfg = LinphoneAPI.linphone_core_get_default_proxy_config(linphoneCore);
 			    if (defProxyCfg != IntPtr.Zero)
@@ -346,6 +352,8 @@ namespace VATRP.Core.Services
                 {
                     LinphoneAPI.lp_config_set_int(coreConfig, "sip", "tcp_tls_keepalive", 1);
                     LinphoneAPI.lp_config_set_int(coreConfig, "sip", "keepalive_period", 90000);
+                    // store contacts as vcard
+                    LinphoneAPI.lp_config_set_int(coreConfig, "misc", "store_friends", 1);
                 }
 
 			    LinphoneAPI.linphone_core_enable_keep_alive(linphoneCore, false);
