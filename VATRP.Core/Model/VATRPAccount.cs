@@ -131,8 +131,19 @@ namespace VATRP.Core.Model
         [Column]
         public bool VideoAutomaticallyAccept { get; set; }
 
+        private bool enableVideo;
         [Column]
-        public bool EnableVideo { get; set; }
+        public bool EnableVideo 
+        {
+            get
+            {
+                return true;
+            }
+            set
+            {
+                enableVideo = value;
+            }
+        }
 
         [Column]
         public bool ShowSelfView { get; set; }

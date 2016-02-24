@@ -405,18 +405,18 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     viewModel.AcceptCall();
                     bool muteMicrophone = false;
                     bool muteSpeaker = false;
-                    bool enableVideo = true;
+                    //bool enableVideo = true;
                     if (App.CurrentAccount != null)
                     {
                         muteMicrophone = App.CurrentAccount.MuteMicrophone;
                         muteSpeaker = App.CurrentAccount.MuteSpeaker;
-                        enableVideo = App.CurrentAccount.EnableVideo;
+                       // enableVideo = App.CurrentAccount.EnableVideo;
                     }
                     try
                     {
                         _linphoneService.AcceptCall(viewModel.ActiveCall.NativeCallPtr,
                             ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                                Configuration.ConfEntry.USE_RTT, true), muteMicrophone, muteSpeaker, enableVideo);
+                                Configuration.ConfEntry.USE_RTT, true), muteMicrophone, muteSpeaker, true);
                     }
                     catch (Exception ex)
                     {
