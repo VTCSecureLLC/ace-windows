@@ -260,6 +260,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
                 if (hours > 0)
                 {
+                    minutes %= 60;
                     return string.Format("{0}h {1:00}m {2:00}s", hours, minutes, seconds);
                 }
 
