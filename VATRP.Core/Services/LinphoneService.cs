@@ -1827,19 +1827,22 @@ namespace VATRP.Core.Services
             }
             if (account.EnableSTUN)
             {
-                LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyUseStun);
                 var address = string.Format("{0}:{1}", account.STUNAddress, account.STUNPort);
                 LinphoneAPI.linphone_core_set_stun_server(linphoneCore, address);
+                LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyUseStun);
+                LOG.Info("UpdateNetworkingParameters: Enable STUN. " + address);
             }
             else if (account.EnableICE)
             {
-                LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyUseIce);
-                var address = string.Format("{0}:{1}", account.ICEAddress, account.ICEPort);
+                var address = string.Format("{0}:{1}", account.STUNAddress, account.STUNPort);
                 LinphoneAPI.linphone_core_set_stun_server(linphoneCore, address);
+                LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyUseIce);
+                LOG.Info("UpdateNetworkingParameters: Enable ICE. " + address);
             }
             else
             {
                 LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyNoFirewall);
+                LOG.Info("UpdateNetworkingParameters: No Firewall. ");
             }
             int firewallPolicy = LinphoneAPI.linphone_core_get_firewall_policy(linphoneCore);
 
