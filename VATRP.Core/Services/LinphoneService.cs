@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define USE_LINPHONE_LOGGING
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -40,6 +42,7 @@ namespace VATRP.Core.Services
 		private bool _isStarted;
 		private bool _isStopping;
 		private bool _isStopped;
+        private bool _vcardSupported;
         private List<VATRPCodec> _audioCodecs = new List<VATRPCodec>();
         private List<VATRPCodec> _videoCodecs = new List<VATRPCodec>(); 
 		private List<VATRPCall> callsList = new List<VATRPCall>();
@@ -60,6 +63,7 @@ namespace VATRP.Core.Services
         private LinphoneChatMessageCbsMsgStateChangedCb message_status_changed;
         private LinphoneCoreCallLogUpdatedCb call_log_updated;
         private LinphoneCoreInfoReceivedCb info_received;
+        private LinphoneLogFuncCB linphone_log_received;
         private readonly string _chatLogPath;
         private readonly string _callLogPath;
         private readonly string _contactsPath;
@@ -69,7 +73,12 @@ namespace VATRP.Core.Services
         private IntPtr _linphoneVideoCodecsList = IntPtr.Zero;
         private List<IntPtr> _declinedCallsList = new List<IntPtr>();
         private IntPtr _videoMWiSubscription;
-		
+
+        // logging
+        string[] placeholders = new string[] { "%d", "%s", "%lu", "%i", "%u", "%x", "%X", "%f", "%llu", "%p", 
+            "%10I64d", "%-9i", "%-19s", "%-19g", "%-10g", "%-20s" };
+        SortedList<int, string> placeHolderItems = new SortedList<int, string>();
+        
         #endregion
 
 		#region Delegates
@@ -112,6 +121,9 @@ namespace VATRP.Core.Services
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void LinphoneCoreInfoReceivedCb(IntPtr lc, IntPtr call, IntPtr msg);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void LinphoneLogFuncCB(IntPtr domain, OrtpLogLevel lev, IntPtr fmt, IntPtr args);
 		#endregion
 
 		#region Events
@@ -154,7 +166,12 @@ namespace VATRP.Core.Services
 		#endregion
 
 		#region Properties
-		
+
+        public bool VCardSupported
+        {
+            get { return _vcardSupported; }
+        }
+
 		public Preferences LinphoneConfig
 		{
 			get { return preferences; }
@@ -228,6 +245,7 @@ namespace VATRP.Core.Services
 			preferences = new Preferences();
 			_isStarting = false;
 			_isStarted = false;
+		    _vcardSupported = true;
 		    _chatLogPath = manager.BuildStoragePath("chathistory.db");
 		    _callLogPath = manager.BuildStoragePath("callhistory.db");
             _contactsPath = manager.BuildStoragePath("contacts.db");
@@ -240,10 +258,18 @@ namespace VATRP.Core.Services
 
 			if (IsStarted)
 				return true;
+            linphone_log_received = new LinphoneLogFuncCB(OnLinphoneLog);
 		    try
 		    {
 		        if (enableLogs)
+		        {
+#if !USE_LINPHONE_LOGGING
 		            LinphoneAPI.linphone_core_enable_logs(IntPtr.Zero);
+                    LinphoneAPI.linphone_core_set_log_level_mask(OrtpLogLevel.ORTP_TRACE);
+#else
+                    LinphoneAPI.linphone_core_enable_logs_with_cb(Marshal.GetFunctionPointerForDelegate(linphone_log_received));
+#endif
+		        }
 		        else
 		            LinphoneAPI.linphone_core_disable_logs();
 		    }
@@ -300,8 +326,7 @@ namespace VATRP.Core.Services
             linphoneCore = LinphoneAPI.linphone_core_new(vtablePtr, configPath, null, IntPtr.Zero);
 			if (linphoneCore != IntPtr.Zero)
 			{
-                LinphoneAPI.linphone_core_set_log_level_mask(OrtpLogLevel.ORTP_TRACE);
-                LinphoneAPI.libmsopenh264_init();
+                LinphoneAPI.libmsopenh264_init(LinphoneAPI.linphone_core_get_ms_factory(linphoneCore));
                 // Liz E. - this is set in the account settings now
                 //LinphoneAPI.linphone_core_set_video_preset(linphoneCore, "high-fps");
 				LinphoneAPI.linphone_core_enable_video_capture(linphoneCore, true);
@@ -330,7 +355,6 @@ namespace VATRP.Core.Services
                 LinphoneAPI.linphone_core_set_chat_database_path(linphoneCore, _chatLogPath);
                 LinphoneAPI.linphone_core_set_call_logs_database_path(linphoneCore, _callLogPath);
                 LinphoneAPI.linphone_core_set_friends_database_path(linphoneCore, _contactsPath);
-			    LinphoneAPI.linphone_core_migrate_friends_from_rc_to_db(linphoneCore);
 
 			    IntPtr defProxyCfg = LinphoneAPI.linphone_core_get_default_proxy_config(linphoneCore);
 			    if (defProxyCfg != IntPtr.Zero)
@@ -346,6 +370,8 @@ namespace VATRP.Core.Services
                 {
                     LinphoneAPI.lp_config_set_int(coreConfig, "sip", "tcp_tls_keepalive", 1);
                     LinphoneAPI.lp_config_set_int(coreConfig, "sip", "keepalive_period", 90000);
+                    // store contacts as vcard
+                    LinphoneAPI.lp_config_set_int(coreConfig, "misc", "store_friends", 1);
                 }
 
 			    LinphoneAPI.linphone_core_enable_keep_alive(linphoneCore, false);
@@ -1819,19 +1845,22 @@ namespace VATRP.Core.Services
             }
             if (account.EnableSTUN)
             {
-                LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyUseStun);
                 var address = string.Format("{0}:{1}", account.STUNAddress, account.STUNPort);
                 LinphoneAPI.linphone_core_set_stun_server(linphoneCore, address);
+                LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyUseStun);
+                LOG.Info("UpdateNetworkingParameters: Enable STUN. " + address);
             }
             else if (account.EnableICE)
             {
-                LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyUseIce);
-                var address = string.Format("{0}:{1}", account.ICEAddress, account.ICEPort);
+                var address = string.Format("{0}:{1}", account.STUNAddress, account.STUNPort);
                 LinphoneAPI.linphone_core_set_stun_server(linphoneCore, address);
+                LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyUseIce);
+                LOG.Info("UpdateNetworkingParameters: Enable ICE. " + address);
             }
             else
             {
                 LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyNoFirewall);
+                LOG.Info("UpdateNetworkingParameters: No Firewall. ");
             }
             int firewallPolicy = LinphoneAPI.linphone_core_get_firewall_policy(linphoneCore);
 
@@ -1892,6 +1921,114 @@ namespace VATRP.Core.Services
         #endregion
 
 		#region Events
+        
+        private void OnLinphoneLog(IntPtr domain, OrtpLogLevel lev, IntPtr fmt, IntPtr args)
+        {
+            if (fmt == IntPtr.Zero)
+                return;
+            var format  = Marshal.PtrToStringAnsi(fmt);
+            if (string.IsNullOrEmpty(format))
+            {
+                return;
+            }
+
+            foreach (var formatter in placeholders)
+            {
+                int pos = format.IndexOf(formatter, 0, StringComparison.InvariantCulture);
+                while (pos != -1)
+                {
+                    placeHolderItems[pos] = formatter;
+                    pos = format.IndexOf(formatter, pos + 1, StringComparison.InvariantCulture);
+                } 
+            }
+
+            if (placeHolderItems.Count == 0)
+            {
+                LOG.Info(format);
+                return;
+            }
+
+            try
+            {
+                var argsArray = new IntPtr[placeHolderItems.Count];
+
+
+                Marshal.Copy(args, argsArray, 0, placeHolderItems.Count);
+                var logOutput = new StringBuilder(format);
+                var formattedString = string.Empty;
+                int offset = 0;
+                for (int i = 0; i < placeHolderItems.Count; i++)
+                {
+                    if (i >= argsArray.Length)
+                        continue;
+                    switch (placeHolderItems.Values[i])
+                    {
+                        case "%s":
+                            formattedString = Marshal.PtrToStringAnsi(argsArray[i]);
+                            break;
+                        case "%d":
+                        case "%lu":
+                        case "%i":
+                        case "%u":
+                        case "%llu":
+                        case "%f":
+                        case "%p":
+                            formattedString = argsArray[i].ToString();
+                            break;
+                        case "%x":
+                        case "%X":
+                            formattedString = argsArray[i].ToString("X");
+                            break;
+                        case "%10I64d":
+                            formattedString = argsArray[i].ToInt64().ToString().PadLeft(10);
+                            break;
+                        case "%-9i":
+                            formattedString = argsArray[i].ToString().PadLeft(9, '-');
+                            break;
+                        case "%-20s":
+                        case "%-19s":
+                            formattedString = Marshal.PtrToStringAnsi(argsArray[i]);
+                            if (formattedString != null)
+                                formattedString = formattedString.PadLeft(19, '-');
+                            break;
+                        case "%-19g":
+                            formattedString = argsArray[i].ToString().PadLeft(19, '-');
+                            break;
+                        case "%-10g":
+                            formattedString = argsArray[i].ToString().PadLeft(10, '-');
+                            break;
+                        case "%3.1f":
+                        case "%5.1f":
+                            formattedString = argsArray[i].ToString("N1");
+                            break;
+                        
+                        default:
+                            formattedString = string.Empty;
+                            break;
+                    }
+                    if (formattedString != null)
+                    {
+                        logOutput.Remove(placeHolderItems.Keys[i] + offset, placeHolderItems.Values[i].Length);
+                        if (formattedString.Length > 0 )
+                            logOutput.Insert(placeHolderItems.Keys[i] + offset, formattedString);
+
+                        // update offset
+                        offset += formattedString.Length - placeHolderItems.Values[i].Length;
+                    }
+                }
+
+                LOG.Info(logOutput);
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                placeHolderItems.Clear();
+            }
+        }
+
 		void OnRegistrationChanged (IntPtr lc, IntPtr cfg, LinphoneRegistrationState cstate, string message) 
 		{
 			if (linphoneCore == IntPtr.Zero) return;
@@ -2012,7 +2149,7 @@ namespace VATRP.Core.Services
 
 		            if (GetActiveCallsCount > 1)
 		            {
-		                var cmd = new DeclineCallCommand(callPtr, LinphoneReason.LinphoneReasonDeclined);
+                        var cmd = new DeclineCallCommand(callPtr, LinphoneReason.LinphoneReasonBusy);
 		                commandQueue.Enqueue(cmd);
                         _declinedCallsList.Add(callPtr);
 		                return;

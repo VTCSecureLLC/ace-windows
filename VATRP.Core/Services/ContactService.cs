@@ -88,7 +88,8 @@ namespace VATRP.Core.Services
             if (manager.LinphoneService.LinphoneCore == IntPtr.Zero)
                 return;
 
-            IntPtr contactsPtr = LinphoneAPI.linphone_core_get_friend_list(manager.LinphoneService.LinphoneCore);
+            IntPtr contactsPtr =
+                LinphoneAPI.linphone_core_get_friend_list(manager.LinphoneService.LinphoneCore);
             if (contactsPtr != IntPtr.Zero)
             {
                 MSList curStruct;
@@ -142,7 +143,6 @@ namespace VATRP.Core.Services
                                 RegistrationName = cfgSipaddress,
                                 IsLinphoneContact = true
                             };
-
                             Contacts.Add(contact);
                         }
                     }
@@ -154,21 +154,97 @@ namespace VATRP.Core.Services
             if ( ContactsLoadCompleted != null)
                 ContactsLoadCompleted(this, EventArgs.Empty);
         }
-        
-        public void AddLinphoneContact(string name, string username,  string sipAddress)
+
+        #region VCARD
+
+        public int ImportVCards(string vcardPath)
+        {
+            if (manager.LinphoneService.LinphoneCore == IntPtr.Zero)
+                return 0;
+            IntPtr vcardsList = LinphoneAPI.linphone_vcard_list_from_vcard4_file(vcardPath);
+
+            if (vcardsList != IntPtr.Zero)
+            {
+                MSList curStruct;
+                do
+                {
+                    curStruct.next = IntPtr.Zero;
+                    curStruct.prev = IntPtr.Zero;
+                    curStruct.data = IntPtr.Zero;
+
+                    curStruct = (MSList)Marshal.PtrToStructure(vcardsList, typeof(MSList));
+                    if (curStruct.data != IntPtr.Zero)
+                    {
+                        string fullname = string.Empty;
+                        IntPtr tmpPtr = LinphoneAPI.linphone_vcard_get_full_name(curStruct.data);
+                        if (tmpPtr != IntPtr.Zero)
+                        {
+                            fullname = Marshal.PtrToStringAnsi(tmpPtr);
+                        }
+
+                        IntPtr addressListPtr = LinphoneAPI.linphone_vcard_get_sip_addresses(curStruct.data);
+
+                        if (addressListPtr == IntPtr.Zero)
+                            continue;
+                        MSList addressdata;
+                        string sipAddress = "";
+                        do
+                        {
+                            addressdata.next = IntPtr.Zero;
+                            addressdata.prev = IntPtr.Zero;
+                            addressdata.data = IntPtr.Zero;
+
+                            addressdata = (MSList)Marshal.PtrToStructure(addressListPtr, typeof(MSList));
+                            if (addressdata.data != IntPtr.Zero)
+                            {
+                                sipAddress = Marshal.PtrToStringAnsi(addressdata.data);
+                                break;
+                            }
+                            addressListPtr = addressdata.next;
+                        } while (addressdata.data != IntPtr.Zero);
+
+
+                        if (!string.IsNullOrWhiteSpace(sipAddress) && !string.IsNullOrEmpty(fullname))
+                        {
+                            string un, host;
+                            int port;
+                            if ( VATRPCall.ParseSipAddress(sipAddress, out un, out host, out port) )
+                                AddLinphoneContact(fullname, un, sipAddress);
+                        }
+                    }
+                    vcardsList = curStruct.next;
+                } while (curStruct.next != IntPtr.Zero);
+            }
+            return 0;
+        }
+
+        public void ExportVCards(string vcardPath)
+        {
+            if (manager.LinphoneService.LinphoneCore == IntPtr.Zero)
+                return;
+            IntPtr defList = LinphoneAPI.linphone_core_get_default_friend_list(manager.LinphoneService.LinphoneCore);
+            if (defList != IntPtr.Zero)
+                LinphoneAPI.linphone_friend_list_export_friends_as_vcard4_file(defList, vcardPath);
+        }
+
+        #endregion
+
+        public void AddLinphoneContact(string name, string username, string address)
         {
             if (manager.LinphoneService.LinphoneCore == IntPtr.Zero)
                 return;
 
-            sipAddress.TrimSipPrefix();
+            var sipAddress = address.TrimSipPrefix();
 
             var fqdn = string.Format("{0} <sip:{1}>", name, sipAddress);
             IntPtr friendPtr = LinphoneAPI.linphone_friend_new_with_address(fqdn);
             if (friendPtr != IntPtr.Zero)
             {
+                LinphoneAPI.linphone_friend_set_name(friendPtr, name);
                 LinphoneAPI.linphone_friend_enable_subscribes(friendPtr, false);
+                LinphoneAPI.linphone_friend_set_inc_subscribe_policy(friendPtr, 1);
                 LinphoneAPI.linphone_core_add_friend(manager.LinphoneService.LinphoneCore, friendPtr);
-
+                
                 var contactID = new ContactID(sipAddress, IntPtr.Zero);
                 VATRPContact contact = FindContact(contactID);
                 if (contact == null)
@@ -211,7 +287,6 @@ namespace VATRP.Core.Services
             if (contactsPtr != IntPtr.Zero)
             {
                 MSList curStruct;
-
                 do
                 {
                     curStruct.next = IntPtr.Zero;
@@ -263,7 +338,6 @@ namespace VATRP.Core.Services
                                     VATRPContact contact = FindContact(new ContactID(cfgSipAddress, IntPtr.Zero));
                                     if (contact != null)
                                     {
-                                        
                                         tmpPtr =
                                             LinphoneAPI.linphone_core_create_address(
                                                 manager.LinphoneService.LinphoneCore, string.Format("{0} <{1}>", newname, newfqdn));
@@ -271,8 +345,9 @@ namespace VATRP.Core.Services
                                         {
                                             LinphoneAPI.linphone_friend_edit(curStruct.data);
                                             LinphoneAPI.linphone_friend_set_name(curStruct.data, newname);
-
                                             LinphoneAPI.linphone_friend_set_address(curStruct.data, tmpPtr);
+                                            LinphoneAPI.linphone_friend_enable_subscribes(curStruct.data, false);
+                                            LinphoneAPI.linphone_friend_set_inc_subscribe_policy(curStruct.data, 1);
                                             LinphoneAPI.linphone_friend_done(curStruct.data);
                                             contact.DisplayName = newname;
                                             contact.Fullname = newname;

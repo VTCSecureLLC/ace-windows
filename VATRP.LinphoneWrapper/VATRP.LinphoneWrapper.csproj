@@ -82,10 +82,13 @@
     <Compile Include="LinphoneAPI.Info.cs">
       <DependentUpon>LinphoneAPI.cs</DependentUpon>
     </Compile>
-    <Compile Include="LinphoneAPI.VCard.cs">
+    <Compile Include="LinphoneAPI.Events.cs">
       <DependentUpon>LinphoneAPI.cs</DependentUpon>
     </Compile>
-    <Compile Include="LinphoneAPI.Events.cs">
+    <Compile Include="LinphoneAPI.Address.cs">
+      <DependentUpon>LinphoneAPI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LinphoneAPI.VCard.cs">
       <DependentUpon>LinphoneAPI.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />

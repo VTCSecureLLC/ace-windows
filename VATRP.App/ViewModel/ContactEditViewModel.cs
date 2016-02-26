@@ -212,20 +212,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
             return r.IsMatch(input);
         }
 
-        internal void TrimSipUsername()
-        {
-            //var domain = ValidateAddress(_contactSipUsername) ? _contactSipUsername.Split('@')[1] : "";
-            //var name  = isValidLabel(domain.Trim());
-            //if (name)
-            //    _contactSipUsername = _contactSipUsername.Remove(_contactSipUsername.IndexOf(domain) - 1);
-
-            //OnPropertyChanged("ContactSipUsername");
-        }
-
         internal void UpdateContactAddress()
         {
-            TrimSipUsername();
-
             string un, host;
             int port;
             if (VATRPCall.ParseSipAddress(_contactSipUsername, out un, out host, out port))
@@ -239,9 +227,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     : String.Format("{0}@{1}:{2}", un,
                         host, port);
             }
-
-            //if (AccountProvider != null && AccountProvider.Provider.Address == _selectedProvider.Provider.Address)
-            //    TrimSipUsername();
         }
     }
 }

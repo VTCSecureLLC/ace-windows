@@ -174,6 +174,9 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         private void OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
+            if (MessageTextBox.CaretIndex != MessageTextBox.Text.Length)
+                MessageTextBox.CaretIndex = MessageTextBox.Text.Length;
+
             Char inputKey = Char.MinValue;
             switch (e.Key)
             {
