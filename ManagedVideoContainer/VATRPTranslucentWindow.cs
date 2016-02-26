@@ -47,15 +47,18 @@ namespace VATRP.Linphone.VideoWrapper
                     try
                     {
                         var wih = new System.Windows.Interop.WindowInteropHelper(_window);
-                        IntPtr hWnd = wih.EnsureHandle();
-
-                        if (hWnd != IntPtr.Zero)
+                        if (wih.Handle != IntPtr.Zero)
                         {
-                            if (ShowWindow)
-                                _window.Show();
-                            else
+                            IntPtr hWnd = wih.EnsureHandle();
+
+                            if (hWnd != IntPtr.Zero)
                             {
-                                _window.Hide();
+                                if (ShowWindow)
+                                    _window.Show();
+                                else
+                                {
+                                    _window.Hide();
+                                }
                             }
                         }
                     }

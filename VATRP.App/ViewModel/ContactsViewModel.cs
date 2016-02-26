@@ -92,26 +92,35 @@ namespace com.vtcsecure.ace.windows.ViewModel
             if (openDlg.ShowDialog() != true)
                 return;
 
-            var cardReader = new vCardReader(openDlg.FileName);
-
-            string un, host;
-            int port;
-
-            foreach (var card in cardReader.vCards)
+            if (ServiceManager.Instance.LinphoneService.VCardSupported)
             {
-                var remoteParty = card.Title.TrimSipPrefix();
-                var contact = ServiceManager.Instance.ContactService.FindContact(new ContactID(remoteParty, IntPtr.Zero));
-                if (contact != null && contact.Fullname == card.FormattedName)
+                var recordsImported = ServiceManager.Instance.ContactService.ImportVCards(openDlg.FileName);
+            }
+            else
+            {
+                var cardReader = new vCardReader(openDlg.FileName);
+
+                string un, host;
+                int port;
+
+                foreach (var card in cardReader.vCards)
                 {
-                    continue;
+                    var remoteParty = card.Title.TrimSipPrefix();
+                    var contact =
+                        ServiceManager.Instance.ContactService.FindContact(new ContactID(remoteParty, IntPtr.Zero));
+                    if (contact != null && contact.Fullname == card.FormattedName)
+                    {
+                        continue;
+                    }
+                    VATRPCall.ParseSipAddress(remoteParty, out un, out host, out port);
+                    if ((App.CurrentAccount != null && App.CurrentAccount.ProxyHostname != host) ||
+                        App.CurrentAccount == null)
+                    {
+                        un = remoteParty;
+                    }
+                    ServiceManager.Instance.ContactService.AddLinphoneContact(card.FormattedName, un,
+                        remoteParty);
                 }
-                VATRPCall.ParseSipAddress(remoteParty, out un, out host, out port);
-                if ((App.CurrentAccount != null && App.CurrentAccount.ProxyHostname != host) || App.CurrentAccount == null)
-                {
-                    un = remoteParty;
-                }
-                ServiceManager.Instance.ContactService.AddLinphoneContact(card.FormattedName, un,
-                    remoteParty);
             }
         }
 
@@ -127,32 +136,39 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 CheckPathExists = true,
                 OverwritePrompt = true,
                 FileName = "ace_contacts",
-                Filter = "vCard Files (*.vcard) | *.vcard",
+                Filter = "VCF files (*.vcf) | *.vcf",
                 FilterIndex = 0,
             };
 
             if (saveDlg.ShowDialog() != true)
                 return;
 
-            var cardWriter = new vCardWriter();
-            var vCards = new List<vCard>();
-
-            foreach (var contactVM in this.Contacts)
+            if (ServiceManager.Instance.LinphoneService.VCardSupported)
             {
-                var card = new vCard()
-                {
-                    GivenName = contactVM.Contact.Fullname,
-                    FormattedName = contactVM.Contact.Fullname,
-                    Title = contactVM.Contact.RegistrationName
-                };
-                vCards.Add(card);
+               ServiceManager.Instance.ContactService.ExportVCards(saveDlg.FileName);
             }
-            cardWriter.WriteCards(saveDlg.FileName, vCards);
+            else
+            {
+                var cardWriter = new vCardWriter();
+                var vCards = new List<vCard>();
+
+                foreach (var contactVM in this.Contacts)
+                {
+                    var card = new vCard()
+                    {
+                        GivenName = contactVM.Contact.Fullname,
+                        FormattedName = contactVM.Contact.Fullname,
+                        Title = contactVM.Contact.RegistrationName
+                    };
+                    vCards.Add(card);
+                }
+                cardWriter.WriteCards(saveDlg.FileName, vCards);
+            }
         }
 
         private bool CanExecuteExport(object arg)
         {
-            return true;
+            return ServiceManager.Instance.ContactService.Contacts.Any(contact => contact.IsLinphoneContact);
         }
 
         private void ExecuteAddCommand(object obj)

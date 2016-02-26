@@ -46,3 +46,6 @@
 [submodule "submodules/externals/mbedtls"]
 	path = submodules/externals/mbedtls
 	url = git://git.linphone.org/mbedtls.git
+[submodule "submodules/linphone-windows-dependencies"]
+	path = submodules/linphone-windows-dependencies
+	url = git@github.com:VTCSecureLLC/linphone-windows-dependencies.git

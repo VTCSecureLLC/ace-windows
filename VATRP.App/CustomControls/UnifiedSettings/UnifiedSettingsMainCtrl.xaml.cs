@@ -112,8 +112,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             PreferencesLabel.Visibility = visibleSetting;
 
-            EnableVideoLabel.Visibility = visibleSetting;
-            EnableVideoCheckBox.Visibility = visibleSetting;
 
 //            EnableRTTLabel.Visibility = visibleSetting;
 //            EnableRTTCheckBox.Visibility = visibleSetting;
@@ -153,6 +151,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             ReleaseCoreButton.Visibility = visibleSetting;
             ClearCacheButton.Visibility = visibleSetting;
             BatteryAlertButton.Visibility = visibleSetting;
+
+//            EnableVideoLabel.Visibility = visibleSetting;
+//            EnableVideoCheckBox.Visibility = visibleSetting;
 
         }
         #endregion
