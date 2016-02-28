@@ -76,10 +76,13 @@
     <Compile Include="LinphoneAPI.Config.cs">
       <DependentUpon>LinphoneAPI.cs</DependentUpon>
     </Compile>
-    <Compile Include="LinphoneAPI.MsList.cs">
+    <Compile Include="LinphoneAPI.QoS.cs">
       <DependentUpon>LinphoneAPI.cs</DependentUpon>
     </Compile>
     <Compile Include="LinphoneAPI.Info.cs">
+      <DependentUpon>LinphoneAPI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LinphoneAPI.MsList.cs">
       <DependentUpon>LinphoneAPI.cs</DependentUpon>
     </Compile>
     <Compile Include="LinphoneAPI.Events.cs">
