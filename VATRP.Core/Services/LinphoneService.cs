@@ -1868,6 +1868,10 @@ namespace VATRP.Core.Services
             LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, account.UploadBandwidth);
             LinphoneAPI.linphone_core_set_download_bandwidth(linphoneCore, account.DownloadBandwidth);
 
+            // quality of service
+            LinphoneAPI.linphone_core_set_sip_dscp(linphoneCore, account.EnableQualityOfService ? 28 : 0);
+            LinphoneAPI.linphone_core_set_audio_dscp(linphoneCore, account.EnableQualityOfService ? 38 : 0);
+            LinphoneAPI.linphone_core_set_video_dscp(linphoneCore, account.EnableQualityOfService ? 38 : 0);
             return false;
         }
 

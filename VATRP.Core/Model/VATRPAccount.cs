@@ -213,6 +213,9 @@ namespace VATRP.Core.Model
         [Column]
         public int DownloadBandwidth { get; set; }
 
+        [Column]
+        public bool EnableQualityOfService { get; set; }
+
         #endregion
 
         #region Methods
@@ -255,7 +258,7 @@ namespace VATRP.Core.Model
             EnableAdaptiveRate = true;
             UploadBandwidth = 1500;
             DownloadBandwidth = 1500;
-
+            EnableQualityOfService = true;
         }
 
         #endregion
