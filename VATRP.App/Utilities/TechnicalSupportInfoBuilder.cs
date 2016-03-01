@@ -105,7 +105,7 @@ namespace com.vtcsecure.ace.windows.Utilities
                 //configString.AppendLine("SIP Registration Maximum Threshold: " + config.sip_registration_maximum_threshold);
 
                 //       public string sip_auth_username { get; set; }
-                configString.AppendLine("Username: " + App.CurrentAccount.Username);
+                configString.AppendLine("Username: " + (App.CurrentAccount.Username ?? ""));
                 //       public string sip_auth_password { get; set; }
                 //configString.AppendLine("SIP Auth Password: " + sip_auth_password);
                 //       public string sip_register_domain { get; set; }
@@ -127,7 +127,7 @@ namespace com.vtcsecure.ace.windows.Utilities
                 //       public bool enable_stun { get; set; }
                 configString.AppendLine("Enable STUN: " + App.CurrentAccount.EnableSTUN.ToString());
                 //       public string stun_server { get; set; }
-                configString.AppendLine("STUN Server: " + App.CurrentAccount.STUNAddress);
+                configString.AppendLine("STUN Server: " + (App.CurrentAccount.STUNAddress ?? ""));
                 configString.AppendLine("STUN Port: " + App.CurrentAccount.STUNPort);
                 //       public bool enable_ice { get; set; }
                 configString.AppendLine("Enable ICE: " + App.CurrentAccount.EnableICE.ToString());
@@ -143,10 +143,11 @@ namespace com.vtcsecure.ace.windows.Utilities
                 //       public string video_resolution_maximum { get; set; }
 
                 //       public string sip_videomail_uri { get; set; }
-                configString.AppendLine("Video Mail URI: " + App.CurrentAccount.VideoMailUri);
+                configString.AppendLine("Video Mail URI: " + (App.CurrentAccount.VideoMailUri ?? ""));
 
                 string linphoneInfo = ServiceManager.Instance.LinphoneService.GetTechnicalSupportInfo();
-                configString.Append(linphoneInfo);
+                if (linphoneInfo != null) 
+                    configString.Append(linphoneInfo);
                 //        public bool user_is_agent { get; set; } // do not include this yet - this is a POC feature at the moment
             }
             return configString.ToString();
