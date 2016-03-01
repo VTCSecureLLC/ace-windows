@@ -128,6 +128,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     break;
                 case HistoryEventTypes.Reset:
                     Calls.Clear();
+                    _unseenMissedCallsCount = 0;
                     CallsListView.Refresh();
                     break;
                 case HistoryEventTypes.Delete:
