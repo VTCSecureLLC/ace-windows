@@ -54,32 +54,32 @@
                           VerticalAlignment="Center"  Name="WifiOnlyCheckbox" Visibility="Collapsed"/>
 
             <!-- Row 3: Use Stun Server -->
-            <Label Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Content="Use Stun" VerticalContentAlignment="Center" 
+            <Label Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Content="Use STUN" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left"  Name="UseStunServerLabel">
             </Label>
             <CheckBox Grid.Column="2" Grid.Row="3" Checked="OnStunServerChecked" Unchecked="OnStunServerChecked" HorizontalAlignment="Center" 
                           VerticalAlignment="Center"  Name="UseStunServerCheckbox"/>
 
-            <!-- Row 4: Stun Server text box -->
-            <Label Grid.Column="0" Grid.Row="4" Content="Stun Server" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left" Name="StunServerLabel">
-            </Label>
-            <TextBox Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" Foreground="Blue" Name="StunServerTextBox"  LostFocus="OnStunServerChanged"/>
-
-            <!-- Row 5: Stun Server Port text box -->
-            <Label Grid.Column="0" Grid.Row="5" Content="Stun Server Port" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left" Name="StunServerPortLabel">
-            </Label>
-            <TextBox Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" Foreground="Blue" Name="StunServerPortTextBox"  LostFocus="OnStunServerPortChanged"/>
-
-            <!-- Row 6: Use ICE Server -->
-            <Label Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2" Content="Use ICE" VerticalContentAlignment="Center" 
+            <!-- Row 4: Use ICE Server -->
+            <Label Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2" Content="Use ICE" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left"  Name="UseIceServerLabel">
             </Label>
-            <CheckBox Grid.Column="2" Grid.Row="6" Checked="OnIceServerChecked" Unchecked="OnIceServerChecked" HorizontalAlignment="Center" 
+            <CheckBox Grid.Column="2" Grid.Row="4" Checked="OnIceServerChecked" Unchecked="OnIceServerChecked" HorizontalAlignment="Center" 
                           VerticalAlignment="Center"  Name="UseIceServerCheckbox"/>
+
+            <!-- Row 5: Stun Server text box -->
+            <Label Grid.Column="0" Grid.Row="5" Content="STUN Server" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left" Name="StunServerLabel">
+            </Label>
+            <TextBox Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" Foreground="Blue" Name="StunServerTextBox"  LostFocus="OnStunServerChanged"/>
+
+            <!-- Row 6: Stun Server Port text box -->
+            <Label Grid.Column="0" Grid.Row="6" Content="STUN Server Port" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left" Name="StunServerPortLabel">
+            </Label>
+            <TextBox Grid.Column="1" Grid.Row="6" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" Foreground="Blue" Name="StunServerPortTextBox"  LostFocus="OnStunServerPortChanged"/>
 
             <!-- Row 7: ICE Server text box -->
             <Label Grid.Column="0" Grid.Row="7" Content="ICE Server" VerticalContentAlignment="Center" 
