@@ -6,6 +6,8 @@ namespace VATRP.Core.Services
     {
         public abstract string BuildStoragePath(string folder);
 
+        public abstract string BuildDataPath(string folder);
+
         public abstract IConfigurationService ConfigurationService
         {
             get;
