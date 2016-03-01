@@ -50,6 +50,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             AdaptiveRateCheckbox.IsChecked = App.CurrentAccount.EnableAdaptiveRate;
             UploadBandwidthTextBox.Text = App.CurrentAccount.UploadBandwidth.ToString();
             DownloadBandwidthTextBox.Text = App.CurrentAccount.DownloadBandwidth.ToString();
+            QoSCheckbox.IsChecked = App.CurrentAccount.EnableQualityOfService;
         }
 
         private void OnAdaptiveRateChecked(object sender, RoutedEventArgs e)
@@ -61,6 +62,17 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
             }
         }
+
+        private void OnQoSChecked(object sender, RoutedEventArgs e)
+        {
+            bool enabled = QoSCheckbox.IsChecked ?? false;
+            if (enabled != App.CurrentAccount.EnableQualityOfService)
+            {
+                App.CurrentAccount.EnableQualityOfService = enabled;
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+            }
+        }
+
         private void OnStunServerChecked(object sender, RoutedEventArgs e)
         {
             bool enabled = UseStunServerCheckbox.IsChecked ?? false;
@@ -70,6 +82,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
             }
         }
+		
         public void OnStunServerChanged(Object sender, RoutedEventArgs args)
         {
             string newStunServer = StunServerTextBox.Text;
