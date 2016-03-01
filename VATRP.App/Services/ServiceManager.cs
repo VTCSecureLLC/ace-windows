@@ -75,6 +75,19 @@ namespace com.vtcsecure.ace.windows.Services
             return Path.Combine(ApplicationDataPath, folder);
         }
 
+        public override string BuildDataPath(string folder)
+        {
+            if ( App.CurrentAccount == null )
+                throw new ArgumentException("Account is null");
+
+            var privateDataPath = Path.Combine(ApplicationDataPath, string.Format("{0}@{1}", App.CurrentAccount.Username,
+                App.CurrentAccount.ProxyHostname));
+
+            if (!Directory.Exists(privateDataPath))
+                Directory.CreateDirectory(privateDataPath);
+            return Path.Combine(privateDataPath, folder);
+        }
+
         public override IConfigurationService ConfigurationService
         {
             get { return _configurationService ?? (_configurationService = new XmlConfigurationService(this, true)); }
@@ -210,8 +223,6 @@ namespace com.vtcsecure.ace.windows.Services
                 LOG.Warn("GeoLocation is not supported");
             }
             LinphoneCoreStopped = false;
-            HistoryService.Start();
-            ContactService.Start();
             if ( LinphoneCoreStartedEvent != null)
                 LinphoneCoreStartedEvent(this, EventArgs.Empty);
         }
@@ -737,7 +748,10 @@ namespace com.vtcsecure.ace.windows.Services
             if (UpdateLinphoneConfig())
             {
                 if (StartLinphoneService())
+                {
+                    LoadPrivateData();
                     Register();
+                }
             }
         }
 
@@ -781,5 +795,12 @@ namespace com.vtcsecure.ace.windows.Services
             return LinphoneService.GetSelectedSpeakers();
         }
 
+        private void LoadPrivateData()
+        {
+            LinphoneService.UpdatePrivateDataPath();
+            HistoryService.Start();
+            ContactService.Start();
+            ChatService.Start();
+        }
     }
 }

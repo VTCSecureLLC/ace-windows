@@ -64,9 +64,9 @@ namespace VATRP.Core.Services
         private LinphoneCoreCallLogUpdatedCb call_log_updated;
         private LinphoneCoreInfoReceivedCb info_received;
         private LinphoneLogFuncCB linphone_log_received;
-        private readonly string _chatLogPath;
-        private readonly string _callLogPath;
-        private readonly string _contactsPath;
+        private string _chatLogPath;
+        private string _callLogPath;
+        private string _contactsPath;
 
         private LinphoneRegistrationState currentRegistrationState;
         private IntPtr _linphoneAudioCodecsList = IntPtr.Zero;
@@ -246,9 +246,6 @@ namespace VATRP.Core.Services
 			_isStarting = false;
 			_isStarted = false;
 		    _vcardSupported = true;
-		    _chatLogPath = manager.BuildStoragePath("chathistory.db");
-		    _callLogPath = manager.BuildStoragePath("callhistory.db");
-            _contactsPath = manager.BuildStoragePath("contacts.db");
 		}
 
         public bool Start(bool enableLogs)
@@ -351,10 +348,6 @@ namespace VATRP.Core.Services
 			    // load installed codecs
 			    LoadAudioCodecs();
                 LoadVideoCodecs();
-
-                LinphoneAPI.linphone_core_set_chat_database_path(linphoneCore, _chatLogPath);
-                LinphoneAPI.linphone_core_set_call_logs_database_path(linphoneCore, _callLogPath);
-                LinphoneAPI.linphone_core_set_friends_database_path(linphoneCore, _contactsPath);
 
 			    IntPtr defProxyCfg = LinphoneAPI.linphone_core_get_default_proxy_config(linphoneCore);
 			    if (defProxyCfg != IntPtr.Zero)
@@ -513,6 +506,18 @@ namespace VATRP.Core.Services
          
         }
 
+        public void UpdatePrivateDataPath()
+        {
+            _chatLogPath = manager.BuildDataPath("chathistory.db");
+            _callLogPath = manager.BuildDataPath("callhistory.db");
+            _contactsPath = manager.BuildDataPath("contacts.db");
+            if (linphoneCore == IntPtr.Zero)
+                return;
+            LinphoneAPI.linphone_core_set_chat_database_path(linphoneCore, _chatLogPath);
+            LinphoneAPI.linphone_core_set_call_logs_database_path(linphoneCore, _callLogPath);
+            LinphoneAPI.linphone_core_set_friends_database_path(linphoneCore, _contactsPath);
+        }
+		
         void SetTimeout(int miliseconds)
         {
             var timeout = new System.Timers.Timer {Interval = miliseconds, AutoReset = false};
