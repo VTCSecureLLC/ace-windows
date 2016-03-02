@@ -78,7 +78,7 @@ namespace com.vtcsecure.ace.windows.Services
         public override string BuildDataPath(string folder)
         {
             if ( App.CurrentAccount == null )
-                throw new ArgumentException("Account is null");
+                return BuildStoragePath(folder);
 
             var privateDataPath = Path.Combine(ApplicationDataPath, string.Format("{0}@{1}", App.CurrentAccount.Username,
                 App.CurrentAccount.ProxyHostname));
