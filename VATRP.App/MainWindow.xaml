@@ -70,7 +70,7 @@
                 <MenuItem x:Name="ShowSelfPreviewItem" Header="_Show Self Preview" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" 
                           Foreground="White" Click="OnShowPreviewWindow" />
                 <MenuItem x:Name="ShowMessagingViewItem" Header="_Show Messaging View" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" 
-                          Foreground="White" Click="OnShowMessagingWindow" />
+                          Foreground="White" Click="OnShowMessagingWindow" IsEnabled="{Binding IsAccountLogged}"/>
 
                 <!--<MenuItem Header="_" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
 				<!--<MenuItem x:Name="DialpadItem" Header="_DialPad Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->

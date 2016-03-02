@@ -24,6 +24,7 @@ namespace VATRP.Core.Services
         private readonly ServiceManagerBase manager;
         private bool isLoadingCalls;
         private  List<VATRPCallEvent> _allCallsEvents;
+        private bool _isStarted;
 
         public event EventHandler<VATRPCallEventArgs> OnCallHistoryEvent;
 
@@ -40,6 +41,8 @@ namespace VATRP.Core.Services
 
         public bool Start()
         {
+            if (_isStarted)
+                return true;
             if (manager.LinphoneService != null)
                 manager.LinphoneService.OnLinphoneCallLogUpdatedEvent += LinphoneCallEventAdded;
 
@@ -47,16 +50,28 @@ namespace VATRP.Core.Services
             if (ServiceStarted != null)
                 ServiceStarted(this, EventArgs.Empty);
 
+            _isStarted = true;
             return true;
         }
 
         public bool Stop()
         {
+            if (!_isStarted)
+                return true;
+            
+            if (OnCallHistoryEvent != null)
+            {
+                var eargs = new VATRPCallEventArgs(HistoryEventTypes.Reset);
+                OnCallHistoryEvent(null, eargs);
+            }
+
+            AllCallsEvents.Clear();
             if (manager.LinphoneService != null)
                 manager.LinphoneService.OnLinphoneCallLogUpdatedEvent -= LinphoneCallEventAdded;
             if (ServiceStopped != null)
                 ServiceStopped(this, EventArgs.Empty);
-            return false;
+            _isStarted = false;
+            return true;
         }
         #endregion
 
@@ -64,20 +79,14 @@ namespace VATRP.Core.Services
 
         public List<VATRPCallEvent> AllCallsEvents
         {
-            get
-            {
-                return _allCallsEvents;
-            }
+            get { return _allCallsEvents ?? (_allCallsEvents = new List<VATRPCallEvent>()); }
         }
 
         public void LoadLinphoneCallEvents()
         {
-            if (_allCallsEvents == null)
-                _allCallsEvents = new List<VATRPCallEvent>();
-
             if (manager.LinphoneService.LinphoneCore == IntPtr.Zero)
                 return;
-
+            AllCallsEvents.Clear();
             isLoadingCalls = true;
             IntPtr callsListPtr = LinphoneAPI.linphone_core_get_call_logs(manager.LinphoneService.LinphoneCore);
             if (callsListPtr != IntPtr.Zero)
@@ -94,7 +103,7 @@ namespace VATRP.Core.Services
                     if (curStruct.data != IntPtr.Zero)
                     {
                         var callevent = ParseLinphoneCallLog(curStruct.data);
-                        _allCallsEvents.Add(callevent);
+                        AllCallsEvents.Add(callevent);
                     }
                     callsListPtr = curStruct.next;
                 } while (curStruct.next != IntPtr.Zero);

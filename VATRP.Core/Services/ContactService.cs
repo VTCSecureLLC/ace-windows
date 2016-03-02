@@ -631,6 +631,9 @@ namespace VATRP.Core.Services
 
         public bool Stop()
         {
+            RemoveContacts();
+            if (ServiceStopped != null)
+                ServiceStopped(this, EventArgs.Empty);
             return true;
         }
 
