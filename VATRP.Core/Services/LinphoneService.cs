@@ -234,6 +234,12 @@ namespace VATRP.Core.Services
                 }
             }
         }
+
+        public string ContactsDbPath
+        {
+            get { return _contactsPath; }
+        }
+
         #endregion
 
 		#region Methods
