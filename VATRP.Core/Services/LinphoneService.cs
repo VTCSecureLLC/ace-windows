@@ -1848,26 +1848,29 @@ namespace VATRP.Core.Services
                 LOG.Error("UpdateNetworkingParameters: Account is NULL");
                 return false;
             }
-            if (account.EnableSTUN)
+            if (account.EnableSTUN || account.EnableICE)
             {
                 var address = string.Format("{0}:{1}", account.STUNAddress, account.STUNPort);
                 LinphoneAPI.linphone_core_set_stun_server(linphoneCore, address);
-                LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyUseStun);
-                LOG.Info("UpdateNetworkingParameters: Enable STUN. " + address);
-            }
-            else if (account.EnableICE)
-            {
-                var address = string.Format("{0}:{1}", account.STUNAddress, account.STUNPort);
-                LinphoneAPI.linphone_core_set_stun_server(linphoneCore, address);
-                LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyUseIce);
-                LOG.Info("UpdateNetworkingParameters: Enable ICE. " + address);
+                if (account.EnableSTUN)
+                {
+                    LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore,
+                        LinphoneFirewallPolicy.LinphonePolicyUseStun);
+                    LOG.Info("UpdateNetworkingParameters: Enable STUN. " + address);
+                }
+                else
+                {
+                    LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore,
+                        LinphoneFirewallPolicy.LinphonePolicyUseIce);
+                    LOG.Info("UpdateNetworkingParameters: Enable ICE. " + address);
+                }
             }
             else
             {
-                LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyNoFirewall);
+                LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore,
+                    LinphoneFirewallPolicy.LinphonePolicyNoFirewall);
                 LOG.Info("UpdateNetworkingParameters: No Firewall. ");
             }
-            int firewallPolicy = LinphoneAPI.linphone_core_get_firewall_policy(linphoneCore);
 
             LinphoneAPI.linphone_core_enable_adaptive_rate_control(linphoneCore, account.EnableAdaptiveRate);
             LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, account.UploadBandwidth);
