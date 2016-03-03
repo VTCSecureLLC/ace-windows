@@ -33,6 +33,7 @@ namespace VATRP.Core.Model
         private bool _isLinphoneContact;
         private List<int> _groupIdList;
         private string _avatar;
+        private int _dbId;
 
         public VATRPContact()
         {
@@ -121,6 +122,7 @@ namespace VATRP.Core.Model
             this._avatar = string.Empty;
             this.IsLinphoneContact = false;
             this.RegistrationName = string.Empty;
+            this.DbID = 0;
         }
 
         public bool IsGroupExistInGroupList(string _groupName)
@@ -165,6 +167,12 @@ namespace VATRP.Core.Model
                 throw new ArgumentException("Argument is not a ContactElement", "obj");
             }
             return this.CompareTo((VATRPContact)obj);
+        }
+
+        public int DbID
+        {
+            get { return _dbId; }
+            set { _dbId = value; }
         }
 
         public string ContactName_ForUI
