@@ -377,7 +377,7 @@ namespace VATRP.Core.Services
 
 				coreLoop = new Thread(LinphoneMainLoop) {IsBackground = true};
 				coreLoop.Start();
-
+			    _isStarting = false;
 				_isStarted = true;
 			}
             if (ServiceStarted != null)
@@ -505,7 +505,10 @@ namespace VATRP.Core.Services
             coreLoop = null;
             identity = null;
             server_addr = null;
-
+            _isStarting = false;
+            _isStarted = false;
+            _isStopping = false;
+            _isStopped = true;
             LOG.Debug("Main loop exited");
             if (ServiceStopped != null)
                 ServiceStopped(this, EventArgs.Empty);

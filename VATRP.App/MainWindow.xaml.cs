@@ -83,6 +83,7 @@ namespace com.vtcsecure.ace.windows
             _linphoneService.GlobalStateChangedEvent += OnGlobalStateChanged;
             ServiceManager.Instance.NewAccountRegisteredEvent += OnNewAccountRegistered;
             ServiceManager.Instance.LinphoneCoreStartedEvent += OnLinphoneCoreStarted;
+            ServiceManager.Instance.LinphoneCoreStoppedEvent += OnLinphoneCoreStopped;
             InitializeComponent();
             DataContext = _mainViewModel;
             ctrlHistory.SetDataContext(_mainViewModel.HistoryModel);
@@ -347,6 +348,7 @@ namespace com.vtcsecure.ace.windows
             registerRequested = false;
             base.Window_Closing(sender, e);
             _mainViewModel.RttMessagingModel.StopInputProcessor();
+            ServiceManager.Instance.LinphoneCoreStoppedEvent -= OnLinphoneCoreStopped;
             ServiceManager.Instance.Stop();
         }
 
