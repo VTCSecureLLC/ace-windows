@@ -31,6 +31,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             base.Initialize();
             if (App.CurrentAccount == null)
                 return;
+            if (App.CurrentAccount.EnableICE && App.CurrentAccount.EnableSTUN)
+                App.CurrentAccount.EnableICE = false; // normalization
+
             UseStunServerCheckbox.IsChecked = App.CurrentAccount.EnableSTUN;
             StunServerTextBox.Text = App.CurrentAccount.STUNAddress;
             StunServerPortTextBox.Text = App.CurrentAccount.STUNPort.ToString();
@@ -79,6 +82,12 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             if (enabled != App.CurrentAccount.EnableSTUN)
             {
                 App.CurrentAccount.EnableSTUN = enabled;
+                if (enabled)
+                {
+                    App.CurrentAccount.EnableICE = false;
+                    UseIceServerCheckbox.IsChecked = App.CurrentAccount.EnableICE;
+                }
+
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
             }
         }
@@ -122,6 +131,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             if (enabled != App.CurrentAccount.EnableICE)
             {
                 App.CurrentAccount.EnableICE = enabled;
+                if (enabled)
+                {
+                    App.CurrentAccount.EnableSTUN = false;
+                    UseStunServerCheckbox.IsChecked = App.CurrentAccount.EnableSTUN;
+                }
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
             }
         }

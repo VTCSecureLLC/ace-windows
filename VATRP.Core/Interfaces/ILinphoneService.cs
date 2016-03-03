@@ -34,7 +34,7 @@ namespace VATRP.Core.Interfaces
         bool IsStopping { get; }
         bool IsStopped { get; }
         bool VCardSupported { get;  }
-
+        string ContactsDbPath { get; }
         #endregion
 
         #region Methods
