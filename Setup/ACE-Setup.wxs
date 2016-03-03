@@ -45,6 +45,9 @@
           <Component Id='com_ORTP.DLL' Guid='D9CD42E9-B55E-4988-BA4A-CB30F7BCC02A' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='ORTP.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='ortp.dll' Source='ThirdParties\liblinphone\ortp.dll' KeyPath='yes' />
           </Component>
+          <Component Id='com_SQLITE.DLL' Guid='91B5B389-2180-43F8-8B42-B09900BB71E2' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+            <File Id='SQLITE.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='System.Data.SQLite.dll' Source='VATRP.Core\bin\$(var.Configuration)\System.Data.SQLite.dll' KeyPath='yes' />
+          </Component>
           <Component Id='com_SPEEXDSP.DLL' Guid='F5A55162-665E-40AA-AA89-D54D37BCDFC7' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='_SPEEXDSP.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='speexdsp.dll' Source='ThirdParties\liblinphone\speexdsp.dll' KeyPath='yes' />
           </Component>
@@ -53,6 +56,9 @@
           </Component>
           <Component Id='com_SWRESAMPLE.DLL' Guid='1B81247E-7E0D-4B69-8CC0-DA82E9D077C7' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='SWRESAMPLE.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='swresample-0.dll' Source='ThirdParties\liblinphone\swresample-0.dll' KeyPath='yes' />
+          </Component>
+          <Component Id='com_SQLITE.INTEROP.DLL' Guid='8FDE5DFC-1F52-4A45-9099-6B0AFFAEF5FA' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+            <File Id='SQLITE.INTEROP.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='SQLite.Interop.dll' Source='VATRP.Core\bin\$(var.Configuration)\x86\SQLite.Interop.dll' KeyPath='yes' />
           </Component>
           <Component Id='com_AVCODEC.DLL' Guid='201CC043-0495-470A-814D-E72CAA24A35B' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='AVCODEC.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='avcodec-53.dll' Source='ThirdParties\liblinphone\avcodec-53.dll' KeyPath='yes' />
@@ -192,9 +198,11 @@
       <ComponentRef Id='com_dir_62334284_40B3_EB41_B67E_25F4BFE4EE98' />
       <ComponentRef Id='com_ACE.EXE' />
       <ComponentRef Id='com_ORTP.DLL' />
+      <ComponentRef Id='com_SQLITE.DLL' />
       <ComponentRef Id='com_SPEEXDSP.DLL' />
       <ComponentRef Id='com_ACE.CORE.DLL' />
       <ComponentRef Id='com_SWRESAMPLE.DLL' />
+      <ComponentRef Id='com_SQLITE.INTEROP.DLL' />
       <ComponentRef Id='com_AVCODEC.DLL' />
       <ComponentRef Id='com_INTL.DLL' />
       <ComponentRef Id='com_LINPHONE.DLL' />

@@ -19,6 +19,7 @@ namespace VATRP.Core.Interfaces
         void AddLinphoneContact(string name, string username, string sipAddress);
         void EditLinphoneContact(string oldname, string oldsipAddress, string newname, string newsipassdress);
         void DeleteLinphoneContact(string name, string sipAddress);
+        void UpdateFavoriteOption(VATRPContact contact);
 
         event EventHandler<ContactEventArgs> ContactAdded;
         event EventHandler<EventArgs> ContactsChanged;

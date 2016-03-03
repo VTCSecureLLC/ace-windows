@@ -105,9 +105,11 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             var contact = ((ToggleButton) sender).Tag as VATRPContact;
             if (contact != null)
+            {
                 contact.IsFavorite =
                     !contact.IsFavorite;
+                ServiceManager.Instance.ContactService.UpdateFavoriteOption(contact);
+            }
         }
-
     }
 }
