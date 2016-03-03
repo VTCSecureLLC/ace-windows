@@ -602,9 +602,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
             //}
         }
 
-        internal void MuteCall(bool isMuted)
+        internal bool MuteCall(bool isMuted)
         {
-            _linphoneService.MuteCall(isMuted);
+            if (ActiveCall != null && (ActiveCall.CallState != VATRPCallState.LocalPaused &&
+                                       ActiveCall.CallState != VATRPCallState.LocalPausing))
+            {
+                _linphoneService.MuteCall(isMuted);
+                return true;
+            }
+            return false;
 //            _linphoneService.ToggleMute();
 //            IsMuteOn = _linphoneService.IsCallMuted();
 
