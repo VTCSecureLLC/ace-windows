@@ -26,6 +26,10 @@ namespace VATRP.CustomActions
 
                 foreach (DirectoryInfo dir in dirInfo.GetDirectories())
                 {
+                    foreach (FileInfo file in dir.GetFiles())
+                    {
+                        file.Delete();
+                    }
                     dir.Delete();
                 }
 
