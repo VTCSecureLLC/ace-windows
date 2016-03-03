@@ -201,6 +201,7 @@ namespace VATRP.Core.Services
                             }
                         }
                     }
+                    dbConnection.Close();
                 }
             }
             catch (SQLiteException ex)
@@ -230,6 +231,7 @@ namespace VATRP.Core.Services
                         cmd.Parameters.Add(idParam);
                         cmd.ExecuteNonQuery();
                     }
+                    dbConnection.Close();
                 }
             }
             catch (SQLiteException ex)
@@ -263,6 +265,7 @@ namespace VATRP.Core.Services
 
                         cmd.ExecuteNonQuery();
                     }
+                    dbConnection.Close();
                 }
             }
             catch (SQLiteException ex)
@@ -419,7 +422,7 @@ namespace VATRP.Core.Services
                             contact.DbID = dbReader.GetInt32(0);
                         }
                     }
-
+                    dbConnection.Close();
                 }
             }
             catch (SQLiteException ex)
@@ -788,6 +791,7 @@ namespace VATRP.Core.Services
                     {
                         cmd.ExecuteNonQuery();
                     }
+                    dbConnection.Close();
                 }
             }
             catch (SQLiteException ex)
