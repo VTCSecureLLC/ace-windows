@@ -123,7 +123,7 @@ namespace com.vtcsecure.ace.windows.Utilities
                 bool enable_rtt = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL, Configuration.ConfEntry.USE_RTT, true);
                 configString.AppendLine("Enable RTT: " + enable_rtt.ToString());
                 //       public bool enable_adaptive_rate { get; set; }
-                configString.AppendLine("Enable Adaptive Rate: " + App.CurrentAccount.EnableAVPF.ToString()); // is this correct?
+                configString.AppendLine("Enable AVPF: " + App.CurrentAccount.EnableAVPF.ToString()); // is this correct?
                 //       public bool enable_stun { get; set; }
                 configString.AppendLine("Enable STUN: " + App.CurrentAccount.EnableSTUN.ToString());
                 //       public string stun_server { get; set; }
