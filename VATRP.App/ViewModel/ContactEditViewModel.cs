@@ -1,26 +1,34 @@
 using com.vtcsecure.ace.windows.Services;
 using System;
 using System.Collections.ObjectModel;
-using System.Windows;
+using System.Diagnostics;
+using System.IO;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using Microsoft.Win32;
 using VATRP.Core.Extensions;
 using VATRP.Core.Model;
-using VATRP.Core.Services;
 
 namespace com.vtcsecure.ace.windows.ViewModel
 {
     public class ContactEditViewModel : ViewModelBase
     {
         private string _title;
-        private bool _isAddMode;
+        private readonly bool _isAddMode;
         private string _infoTitle;
-        private string _contactName;
-        private string _contactSipAddress;
-        private string _contactSipUsername;
+        private string _contactName = string.Empty;
+        private string _contactSipAddress = string.Empty;
+        private string _contactSipUsername = string.Empty;
+        private string _avatarPath = string.Empty;
+        private readonly string _originAvatarPath = string.Empty;
+        private string _newAvatarPath = string.Empty;
+        private ImageSource _avatar;
         private ObservableCollection<ProviderViewModel> _providers;
         private ProviderViewModel _selectedProvider;
         private ProviderViewModel _currentProvider;
         private ProviderViewModel _nologoProvider;
-        public ContactEditViewModel(bool addMode, string address)
+        
+        public ContactEditViewModel(bool addMode, string address, string avatar)
         {
             _isAddMode = addMode;
 
@@ -28,6 +36,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
             InfoTitle = "Contact information";
             ContactSipUsername = address;
             LoadProviders();
+            if (!_isAddMode)
+            {
+                _avatarPath = avatar;
+                _originAvatarPath = _avatarPath;
+            }
+            LoadContactAvatar();
         }
 
         #region Properties
@@ -93,10 +107,32 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
+        public ImageSource Avatar
+        {
+            get { return _avatar; }
+            set
+            {
+                _avatar = value;
+                OnPropertyChanged("Avatar");
+            }
+        }
+
+        public string NewAvatarPath
+        {
+            get { return _newAvatarPath; }
+        }
+
+        public string OriginAvatarPath
+        {
+            get { return _originAvatarPath; }
+        }
+
         public bool IsAddMode
         {
             get { return _isAddMode; }
         }
+        
+        public bool AvatarChanged { get; set; }
 
         public ObservableCollection<ProviderViewModel> Providers
         {
@@ -114,7 +150,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             set
             {
                 _selectedProvider = value;
-                UpdateContactAddress();
+                UpdateContactAddress(true);
                 OnPropertyChanged("SelectedProvider");
 
             }
@@ -125,21 +161,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
             get { return _currentProvider; }
         }
 
-        private bool isValidLabel(string Label)
-        {
-            foreach (var providerVM in _providers)
-            {
-                if (providerVM.Provider.Address == Label)
-                    return true;
-            }
-            return false;
-        }
         #endregion
 
         private void LoadProviders()
         {
             var providersList = ServiceManager.Instance.ProviderService.GetProviderListFullInfo();
-            providersList.Sort((a, b) => a.Label.CompareTo(b.Label));
+            providersList.Sort((a, b) => String.Compare(a.Label, b.Label, StringComparison.Ordinal));
             string un, domain;
             int port;
             VATRPCall.ParseSipAddress(_contactSipUsername, out un, out domain, out port);
@@ -163,7 +190,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
 
             if (_isAddMode)
-                SelectedProvider = _currentProvider;
+            {
+                SelectedProvider = selectedProvider ?? _currentProvider;
+            }
             else
                 SelectedProvider = selectedProvider ?? _nologoProvider;
         }
@@ -212,14 +241,21 @@ namespace com.vtcsecure.ace.windows.ViewModel
             return r.IsMatch(input);
         }
 
-        internal void UpdateContactAddress()
+        internal void UpdateContactAddress(bool changeProvider)
         {
             string un, host;
             int port;
             if (VATRPCall.ParseSipAddress(_contactSipUsername, out un, out host, out port))
             {
-                if (host != _selectedProvider.Provider.Address && string.IsNullOrEmpty(host))
+                if (changeProvider)
+                {
                     host = _selectedProvider.Provider.Address;
+                }
+                else
+                {
+                    if (host != _selectedProvider.Provider.Address && string.IsNullOrEmpty(host))
+                        host = _selectedProvider.Provider.Address;
+                }
 
                 ContactSipUsername = port == 0
                     ? String.Format("{0}@{1}", un,
@@ -228,5 +264,65 @@ namespace com.vtcsecure.ace.windows.ViewModel
                         host, port);
             }
         }
+
+        private void LoadContactAvatar()
+        {
+            bool loadCommon = true;
+            if (!string.IsNullOrWhiteSpace(_avatarPath))
+            {
+                try
+                {
+                    byte[] data = File.ReadAllBytes(_avatarPath);
+                    var source = new BitmapImage();
+                    source.BeginInit();
+                    source.StreamSource = new MemoryStream(data);
+                    source.EndInit();
+                    Avatar = source;
+                    loadCommon = false;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Failed to load avatar: " + ex.Message);
+                }
+            }
+
+            if (loadCommon)
+            {
+                LoadCommonAvatar();
+            }
+        }
+
+        private void LoadCommonAvatar()
+        {
+            var avatarUri = "pack://application:,,,/ACE;component/Resources/male.png";
+            try
+            {
+                Avatar = new BitmapImage(new Uri(avatarUri));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Failed to load avatar: " + ex.Message);
+            }
+        }
+
+        internal void SelectAvatar()
+        {
+            var openDlg = new OpenFileDialog()
+            {
+                CheckFileExists = true,
+                CheckPathExists = true,
+                Filter = "Image Files (*.jpg, *.jpeg, *.png, *.bmp)| *.jpg;*.jpeg;*.png;*.bmp",
+                FilterIndex = 0,
+
+                ShowReadOnly = false,
+            };
+
+            if (openDlg.ShowDialog() != true)
+                return;
+            _avatarPath = openDlg.FileName;
+            _newAvatarPath = _avatarPath;
+            LoadContactAvatar();
+        }
+        
     }
 }

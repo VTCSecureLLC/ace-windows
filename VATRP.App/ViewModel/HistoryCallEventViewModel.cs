@@ -13,6 +13,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
 {
     public class HistoryCallEventViewModel : ViewModelBase, IComparable<HistoryCallEventViewModel>
     {
+        #region Members
+
         private VATRPCallEvent _callEvent;
         private VATRPContact _contact;
         private SolidColorBrush _backColor;
@@ -23,17 +25,10 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private string _callDate;
         private string _duration;
         private bool _allowAddContact;
+        
+        #endregion
 
-        public SolidColorBrush CallEventStateBrush
-        {
-            get { return _backColor; }
-            set
-            {
-                _backColor = value;
-                OnPropertyChanged("CallEventStateBrush");
-            }
-        }
-
+        #region Constructor
         public HistoryCallEventViewModel()
         {
             _displayName = string.Empty;
@@ -43,26 +38,18 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _allowAddContact = true;
         }
 
-        public HistoryCallEventViewModel(VATRPCallEvent callEvent, VATRPContact contact):this()
+        public HistoryCallEventViewModel(VATRPCallEvent callEvent, VATRPContact contact)
+            : this()
         {
             this._callEvent = callEvent;
-            this._contact = contact;
-            this._callEvent.Contact = contact;
             this._backColor = callEvent.Status == VATRPHistoryEvent.StatusType.Missed ? new SolidColorBrush(Color.FromArgb(255, 0xFE, 0xCD, 0xCD)) : new SolidColorBrush(Color.FromArgb(255, 0xE9, 0xEF, 0xE9));
 
-            if (_contact != null)
-            {
-                _contact.PropertyChanged += OnContactPropertyChanged;
-                if (contact.IsLinphoneContact)
-                    _allowAddContact = false;
-            }
-
-            LoadContactAvatar();
+            UpdateContact(contact);
             LoadCallStateIndicator();
 
             DateTime callTime =
                 VATRP.Core.Model.Utils.Time.ConvertUtcTimeToLocalTime(
-                    VATRP.Core.Model.Utils.Time.ConvertDateTimeToLong(callEvent.StartTime)/1000);
+                    VATRP.Core.Model.Utils.Time.ConvertDateTimeToLong(callEvent.StartTime) / 1000);
             string dateFormat = "d/MM h:mm tt";
             var diffTime = DateTime.Now - callTime;
             if (diffTime.Days == 0)
@@ -74,26 +61,28 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
             CallDate = callTime.ToString(dateFormat);
         }
+        #endregion
 
-        private void OnContactPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            string propertyName = e.PropertyName ?? "";
-            if (propertyName == "ContactName_ForUI")
-            {
-                OnPropertyChanged("DisplayName");
-            }
-        }
+        #region Methods
 
-        public int CompareTo(HistoryCallEventViewModel other)
+        internal void UpdateContact(VATRPContact newContact)
         {
-            if (other == null)
+            if (_contact != null && newContact == null)
             {
-                return -1;
+                _contact.PropertyChanged -= OnContactPropertyChanged;
             }
 
-            return (this.CallEvent).CompareTo(other.CallEvent);
+            _contact = newContact;
+            _callEvent.Contact = newContact;
+            if (_contact != null)
+            {
+                _contact.PropertyChanged += OnContactPropertyChanged;
+                if (_contact.IsLinphoneContact)
+                    _allowAddContact = false;
+            }
+            LoadContactAvatar();
         }
-
+		
         private void LoadContactAvatar()
         {
             if (_contact != null && _contact.Avatar.NotBlank())
@@ -162,6 +151,44 @@ namespace com.vtcsecure.ace.windows.ViewModel
             catch (Exception ex)
             {
 
+            }
+        }
+
+        #endregion
+        
+        #region Events
+
+        private void OnContactPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            string propertyName = e.PropertyName ?? "";
+            if (propertyName == "ContactName_ForUI")
+            {
+                OnPropertyChanged("DisplayName");
+            }
+            else if (propertyName == "ContactAddress_ForUI")
+            {
+                if (_contact != null && CallEvent.RemoteParty.TrimSipPrefix() != _contact.ID)
+                {
+                    UpdateContact(null);
+                    OnPropertyChanged("DisplayName");
+                }
+            }
+            else if (propertyName == "Avatar")
+            {
+                LoadContactAvatar();
+            }
+        }
+
+        #endregion
+
+        #region Properties
+        public SolidColorBrush CallEventStateBrush
+        {
+            get { return _backColor; }
+            set
+            {
+                _backColor = value;
+                OnPropertyChanged("CallEventStateBrush");
             }
         }
 
@@ -282,6 +309,22 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 OnPropertyChanged("AllowAddContact");
             }
         }
+
+        #endregion
+        
+        #region IComparable interface
+
+        public int CompareTo(HistoryCallEventViewModel other)
+        {
+            if (other == null)
+            {
+                return -1;
+            }
+
+            return (this.CallEvent).CompareTo(other.CallEvent);
+        }
+        
+        #endregion
     }
 }
 
