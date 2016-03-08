@@ -81,6 +81,12 @@
           <Component Id='com_BCTOOLBOX.DLL' Guid='F2AD22BC-8A70-4A34-AC0D-D71D734E5C48' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='BCTOOLBOX.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='bctoolbox.dll' Source='ThirdParties\liblinphone\bctoolbox.dll' KeyPath='yes' />
           </Component>
+          <Component Id='com_BCTOOLBOX-TESTER.DLL' Guid='F2AD22BC-8A70-4A34-AC0D-D71D734E5C41' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+            <File Id='BCTOOLBOX-TESTER.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='bctoolbox-tester.dll' Source='ThirdParties\liblinphone\bctoolbox-tester.dll' KeyPath='yes' />
+          </Component>
+          <Component Id='com_BV16.DLL' Guid='F2AD22BC-8A70-4A34-AC0D-D71D734E5C40' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+            <File Id='BV16.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='bv16.dll' Source='ThirdParties\liblinphone\bv16.dll' KeyPath='yes' />
+          </Component>
           <Component Id='com_BELLESIP.DLL' Guid='F2AD22BC-8A70-4A34-AC0D-D71D734E5C57' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='BELLESIP.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='bellesip.dll' Source='ThirdParties\liblinphone\bellesip.dll' KeyPath='yes' />
           </Component>
@@ -209,7 +215,9 @@
       <ComponentRef Id='com_XML2.DLL' />
       <ComponentRef Id='com_ZLIB.DLL' />
       <ComponentRef Id='com_BELCARD.DLL' />
-      <ComponentRef Id='com_BCTOOLBOX.DLL' />      
+      <ComponentRef Id='com_BCTOOLBOX.DLL' />
+      <ComponentRef Id='com_BCTOOLBOX-TESTER.DLL' />
+      <ComponentRef Id='com_BV16.DLL' />
       <ComponentRef Id='com_BELLESIP.DLL' />
       <ComponentRef Id='com_BELR.DLL' />
       <ComponentRef Id='com_LINPHONEWRAPPER.DLL' />
