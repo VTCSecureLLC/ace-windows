@@ -101,7 +101,6 @@ namespace VATRP.Core.Interfaces
         void MarkChatAsRead(IntPtr chatRoomPtr);
         int GetHistorySize(string username);
         void LoadChatRoom(VATRPChat chat);
-        void EnableAdaptiveRateControl(bool bEnable);
         IntPtr LinphoneCore { get; }
         int GetActiveCallsCount { get; }
 
