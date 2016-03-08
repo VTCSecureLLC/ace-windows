@@ -617,6 +617,16 @@ namespace com.vtcsecure.ace.windows
                 {
                     this.Wizard_HandleLogout();
                 }
+		        ServiceManager.Instance.ContactService.Stop();
+                ServiceManager.Instance.HistoryService.Stop();
+                ServiceManager.Instance.ChatService.Stop();
+
+                // hide messaging window
+		        if (_messagingWindow.IsVisible)
+		        {
+		            _messagingWindow.Hide();
+                    ShowMessagingViewItem.IsChecked = false;
+		        }
                 signOutRequest = false;
 		    }
 		}

@@ -112,7 +112,7 @@
         </StackPanel>
 
         <Grid Grid.Row="2" Height="70" Visibility="{Binding ShowOutgoingEndCall, Converter={StaticResource bvc}}" 
-              VerticalAlignment="Stretch">
+              VerticalAlignment="Stretch" Margin="230,0">
             <Button Grid.Column="0"  Width="240" Click="OnEndCall"  
 					BorderThickness="0" HorizontalAlignment="Center" 
 					VerticalContentAlignment="Center"

@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data;
+using System.Data.SQLite;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -150,9 +153,125 @@ namespace VATRP.Core.Services
                 } while (curStruct.next != IntPtr.Zero);
 
             }
-           
+
+            LoadContactsOptions();
+
             if ( ContactsLoadCompleted != null)
                 ContactsLoadCompleted(this, EventArgs.Empty);
+        }
+
+        private void LoadContactsOptions()
+        {
+            try
+            {
+                var connectionString = string.Format("data source={0}", manager.LinphoneService.ContactsDbPath);
+                using (var dbConnection = new SQLiteConnection(connectionString))
+                {
+                    dbConnection.Open();
+                    lock (this.Contacts)
+                    {
+                        foreach (VATRPContact contact in this.Contacts)
+                        {
+                            if (contact.IsLoggedIn)
+                                continue;
+                            using (var cmd = new SQLiteCommand(dbConnection) { CommandText = @"SELECT id FROM friends WHERE sip_uri = ?" })
+                            {
+                                var sipUri = string.Format(@"""{0}"" <sip:{1}>", contact.DisplayName, contact.ID);
+                                var uriParam = new SQLiteParameter(DbType.AnsiString) {Value = sipUri};
+                                cmd.Parameters.Add(uriParam);
+                                var dbReader = cmd.ExecuteReader();
+                                if (dbReader.Read())
+                                {
+                                    contact.DbID = dbReader.GetInt32(0);
+                                }
+                            }
+
+                            // update contact 
+
+                            using (var cmd = new SQLiteCommand(dbConnection) { CommandText = @"SELECT is_favorite FROM friend_options WHERE id = ?" })
+                            {
+                                var idParam = new SQLiteParameter(DbType.Int32);
+                                idParam.Value = contact.DbID;
+                                cmd.Parameters.Add(idParam);
+                                var dbReader = cmd.ExecuteReader();
+                                if (dbReader.Read())
+                                {
+                                    contact.IsFavorite = dbReader.GetBoolean(0);
+                                }
+                            }
+                        }
+                    }
+                    dbConnection.Close();
+                }
+            }
+            catch (SQLiteException ex)
+            {
+                Debug.WriteLine("Sqlite error: " + ex.ToString());
+            }
+        }
+
+        private void RemoveFavoriteOption(VATRPContact contact)
+        {
+            if (contact.DbID == 0)
+                return;
+            try
+            {
+                var connectionString = string.Format("data source={0}", manager.LinphoneService.ContactsDbPath);
+                using (var dbConnection = new SQLiteConnection(connectionString))
+                {
+                    dbConnection.Open();
+
+                    using (
+                        var cmd = new SQLiteCommand(dbConnection)
+                        {
+                            CommandText = @"DELETE FROM friend_options WHERE id = ?"
+                        })
+                    {
+                        var idParam = new SQLiteParameter(DbType.Int32) {Value = contact.DbID};
+                        cmd.Parameters.Add(idParam);
+                        cmd.ExecuteNonQuery();
+                    }
+                    dbConnection.Close();
+                }
+            }
+            catch (SQLiteException ex)
+            {
+                Debug.WriteLine("Sqlite error: " + ex.ToString());
+            }
+        }
+
+        public void UpdateFavoriteOption(VATRPContact contact)
+        {
+            if (contact.DbID == 0)
+                return;
+            try
+            {
+                var connectionString = string.Format("data source={0}", manager.LinphoneService.ContactsDbPath);
+                using (var dbConnection = new SQLiteConnection(connectionString))
+                {
+                    dbConnection.Open();
+
+                    using (
+                        var cmd = new SQLiteCommand(dbConnection)
+                        {
+                            CommandText = @"INSERT OR REPLACE INTO friend_options (id, is_favorite) VALUES ( ?, ?)"
+                        })
+                    {
+                        var idParam = new SQLiteParameter(DbType.Int32) {Value = contact.DbID};
+                        cmd.Parameters.Add(idParam);
+
+                        var favParam = new SQLiteParameter(DbType.Int32) {Value = contact.IsFavorite ? 1 : 0};
+                        cmd.Parameters.Add(favParam);
+
+                        cmd.ExecuteNonQuery();
+                    }
+                    dbConnection.Close();
+                }
+            }
+            catch (SQLiteException ex)
+            {
+                Debug.WriteLine("Sqlite error: " + ex.ToString());
+            }
         }
 
         #region VCARD
@@ -268,6 +387,8 @@ namespace VATRP.Core.Services
                     contact.SipUsername = username;
                 }
 
+                UpdateContactDbId(contact);
+
                 if (ContactAdded != null)
                 {
                     Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() =>
@@ -276,6 +397,39 @@ namespace VATRP.Core.Services
                     }));
                 }
             }
+        }
+
+        private void UpdateContactDbId(VATRPContact contact)
+        {
+            try
+            {
+                var connectionString = string.Format("data source={0}", manager.LinphoneService.ContactsDbPath);
+                using (var dbConnection = new SQLiteConnection(connectionString))
+                {
+                    dbConnection.Open();
+                    using (
+                        var cmd = new SQLiteCommand(dbConnection)
+                        {
+                            CommandText = @"SELECT id FROM friends WHERE sip_uri = ?"
+                        })
+                    {
+                        var sipUri = string.Format(@"""{0}"" <sip:{1}>", contact.DisplayName, contact.ID);
+                        var uriParam = new SQLiteParameter(DbType.AnsiString) {Value = sipUri};
+                        cmd.Parameters.Add(uriParam);
+                        var dbReader = cmd.ExecuteReader();
+                        if (dbReader.Read())
+                        {
+                            contact.DbID = dbReader.GetInt32(0);
+                        }
+                    }
+                    dbConnection.Close();
+                }
+            }
+            catch (SQLiteException ex)
+            {
+                Debug.WriteLine("Sqlite error: " + ex.ToString());
+            }
+
         }
 
         public void EditLinphoneContact(string oldname, string oldsipAddress, string newname, string newsipassdress)
@@ -355,6 +509,7 @@ namespace VATRP.Core.Services
                                             contact.RegistrationName = newsipassdress;
                                             contact.ID = newsipassdress;
                                         }
+                                        UpdateContactDbId(contact);
                                         return;
                                     }
                                 }
@@ -423,6 +578,7 @@ namespace VATRP.Core.Services
                                     {
                                         LinphoneAPI.linphone_core_remove_friend(manager.LinphoneService.LinphoneCore,
                                             curStruct.data);
+                                        RemoveFavoriteOption(contact);
                                         RemoveContact(cfgSipAddress, true);
                                     }
                                 }
@@ -619,9 +775,36 @@ namespace VATRP.Core.Services
             return groupID == 0 ? "All" : string.Empty;
         }
 
+        private void InitializeContactOptions()
+        {
+            if (!File.Exists(manager.LinphoneService.ContactsDbPath))
+                return;
+            string sqlString = @"CREATE TABLE IF NOT EXISTS friend_options (id INTEGER NOT NULL," +
+                               " is_favorite INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (id))";
+            try
+            {
+                var connectionString = string.Format("data source={0}", manager.LinphoneService.ContactsDbPath);
+                using (var dbConnection = new SQLiteConnection(connectionString))
+                {
+                    dbConnection.Open();
+                    using (var cmd = new SQLiteCommand(dbConnection) {CommandText = sqlString})
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    dbConnection.Close();
+                }
+            }
+            catch (SQLiteException ex)
+            {
+                Debug.WriteLine("Sqlite error: " + ex.ToString());
+            }
+        }
+
+        
         public bool Start()
         {
             IsLoaded = false;
+            InitializeContactOptions();
             LoadLinphoneContacts();
             IsLoaded = true;
             if (ServiceStarted != null)
@@ -631,6 +814,9 @@ namespace VATRP.Core.Services
 
         public bool Stop()
         {
+            RemoveContacts();
+            if (ServiceStopped != null)
+                ServiceStopped(this, EventArgs.Empty);
             return true;
         }
 

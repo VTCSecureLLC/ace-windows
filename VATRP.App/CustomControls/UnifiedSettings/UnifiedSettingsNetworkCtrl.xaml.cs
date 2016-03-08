@@ -31,13 +31,12 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             base.Initialize();
             if (App.CurrentAccount == null)
                 return;
+            if (App.CurrentAccount.EnableICE && App.CurrentAccount.EnableSTUN)
+                App.CurrentAccount.EnableICE = false; // normalization
+
             UseStunServerCheckbox.IsChecked = App.CurrentAccount.EnableSTUN;
             StunServerTextBox.Text = App.CurrentAccount.STUNAddress;
-            StunServerPortTextBox.Text = App.CurrentAccount.STUNPort.ToString();
-
             UseIceServerCheckbox.IsChecked = App.CurrentAccount.EnableICE;
-            IceServerTextBox.Text = App.CurrentAccount.ICEAddress;
-            IceServerPortTextBox.Text = App.CurrentAccount.ICEPort.ToString();
 
             foreach (TextBlock textBlock in MediaEncryptionComboBox.Items)
             {
@@ -50,6 +49,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             AdaptiveRateCheckbox.IsChecked = App.CurrentAccount.EnableAdaptiveRate;
             UploadBandwidthTextBox.Text = App.CurrentAccount.UploadBandwidth.ToString();
             DownloadBandwidthTextBox.Text = App.CurrentAccount.DownloadBandwidth.ToString();
+            QoSCheckbox.IsChecked = App.CurrentAccount.EnableQualityOfService;
         }
 
         private void OnAdaptiveRateChecked(object sender, RoutedEventArgs e)
@@ -61,15 +61,33 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
             }
         }
+
+        private void OnQoSChecked(object sender, RoutedEventArgs e)
+        {
+            bool enabled = QoSCheckbox.IsChecked ?? false;
+            if (enabled != App.CurrentAccount.EnableQualityOfService)
+            {
+                App.CurrentAccount.EnableQualityOfService = enabled;
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+            }
+        }
+
         private void OnStunServerChecked(object sender, RoutedEventArgs e)
         {
             bool enabled = UseStunServerCheckbox.IsChecked ?? false;
             if (enabled != App.CurrentAccount.EnableSTUN)
             {
                 App.CurrentAccount.EnableSTUN = enabled;
+                if (enabled)
+                {
+                    App.CurrentAccount.EnableICE = false;
+                    UseIceServerCheckbox.IsChecked = App.CurrentAccount.EnableICE;
+                }
+
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
             }
         }
+		
         public void OnStunServerChanged(Object sender, RoutedEventArgs args)
         {
             string newStunServer = StunServerTextBox.Text;
@@ -82,69 +100,17 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
         }
 
-        public void OnStunServerPortChanged(Object sender, RoutedEventArgs args)
-        {
-            string newStunServerPort = StunServerPortTextBox.Text;
-            if (App.CurrentAccount != null)
-            {
-                ushort port = 0;
-                ushort.TryParse(newStunServerPort, out port);
-                if (port < 1 || port > 65535)
-                {
-                    if (App.CurrentAccount.EnableSTUN)
-                    {
-                        MessageBox.Show("Incorrect STUN port", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
-                        StunServerPortTextBox.Text = App.CurrentAccount.STUNPort.ToString();
-                        return;
-                    }
-                } 
-                App.CurrentAccount.STUNPort = port;
-                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
-            }
-        }
-
         private void OnIceServerChecked(object sender, RoutedEventArgs e)
         {
             bool enabled = UseIceServerCheckbox.IsChecked ?? false;
             if (enabled != App.CurrentAccount.EnableICE)
             {
                 App.CurrentAccount.EnableICE = enabled;
-                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
-            }
-        }
-        public void OnIceServerChanged(Object sender, RoutedEventArgs args)
-        {
-            string newIceServer = IceServerTextBox.Text;
-            if (string.IsNullOrEmpty(newIceServer))
-            {
-                string oldIceServer = App.CurrentAccount.ICEAddress;
-                IceServerTextBox.Text = oldIceServer;
-            }
-            else
-            {
-                App.CurrentAccount.ICEAddress = newIceServer;
-                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
-            }
-        }
-
-        public void OnIceServerPortChanged(Object sender, RoutedEventArgs args)
-        {
-            string newIceServerPort = IceServerPortTextBox.Text;
-            if (string.IsNullOrEmpty(newIceServerPort))
-            {
-                string oldIceServerPort = App.CurrentAccount.ICEPort.ToString();
-                IceServerPortTextBox.Text = oldIceServerPort;
-            }
-            else
-            {
-                ushort port = 0;
-                ushort.TryParse(newIceServerPort, out port);
-                if (port < 1 || port > 65535)
+                if (enabled)
                 {
-                    MessageBox.Show("Incorrect ICE port", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
+                    App.CurrentAccount.EnableSTUN = false;
+                    UseStunServerCheckbox.IsChecked = App.CurrentAccount.EnableSTUN;
                 }
-                App.CurrentAccount.ICEPort = port;
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
             }
         }

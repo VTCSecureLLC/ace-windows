@@ -64,9 +64,9 @@ namespace VATRP.Core.Services
         private LinphoneCoreCallLogUpdatedCb call_log_updated;
         private LinphoneCoreInfoReceivedCb info_received;
         private LinphoneLogFuncCB linphone_log_received;
-        private readonly string _chatLogPath;
-        private readonly string _callLogPath;
-        private readonly string _contactsPath;
+        private string _chatLogPath;
+        private string _callLogPath;
+        private string _contactsPath;
 
         private LinphoneRegistrationState currentRegistrationState;
         private IntPtr _linphoneAudioCodecsList = IntPtr.Zero;
@@ -234,6 +234,12 @@ namespace VATRP.Core.Services
                 }
             }
         }
+
+        public string ContactsDbPath
+        {
+            get { return _contactsPath; }
+        }
+
         #endregion
 
 		#region Methods
@@ -246,9 +252,6 @@ namespace VATRP.Core.Services
 			_isStarting = false;
 			_isStarted = false;
 		    _vcardSupported = true;
-		    _chatLogPath = manager.BuildStoragePath("chathistory.db");
-		    _callLogPath = manager.BuildStoragePath("callhistory.db");
-            _contactsPath = manager.BuildStoragePath("contacts.db");
 		}
 
         public bool Start(bool enableLogs)
@@ -351,10 +354,6 @@ namespace VATRP.Core.Services
 			    // load installed codecs
 			    LoadAudioCodecs();
                 LoadVideoCodecs();
-
-                LinphoneAPI.linphone_core_set_chat_database_path(linphoneCore, _chatLogPath);
-                LinphoneAPI.linphone_core_set_call_logs_database_path(linphoneCore, _callLogPath);
-                LinphoneAPI.linphone_core_set_friends_database_path(linphoneCore, _contactsPath);
 
 			    IntPtr defProxyCfg = LinphoneAPI.linphone_core_get_default_proxy_config(linphoneCore);
 			    if (defProxyCfg != IntPtr.Zero)
@@ -513,6 +512,18 @@ namespace VATRP.Core.Services
          
         }
 
+        public void UpdatePrivateDataPath()
+        {
+            _chatLogPath = manager.BuildDataPath("chathistory.db");
+            _callLogPath = manager.BuildDataPath("callhistory.db");
+            _contactsPath = manager.BuildDataPath("contacts.db");
+            if (linphoneCore == IntPtr.Zero)
+                return;
+            LinphoneAPI.linphone_core_set_chat_database_path(linphoneCore, _chatLogPath);
+            LinphoneAPI.linphone_core_set_call_logs_database_path(linphoneCore, _callLogPath);
+            LinphoneAPI.linphone_core_set_friends_database_path(linphoneCore, _contactsPath);
+        }
+		
         void SetTimeout(int miliseconds)
         {
             var timeout = new System.Timers.Timer {Interval = miliseconds, AutoReset = false};
@@ -1843,31 +1854,38 @@ namespace VATRP.Core.Services
                 LOG.Error("UpdateNetworkingParameters: Account is NULL");
                 return false;
             }
-            if (account.EnableSTUN)
+            if (account.EnableSTUN || account.EnableICE)
             {
-                var address = string.Format("{0}:{1}", account.STUNAddress, account.STUNPort);
+                var address = string.Format("{0}:3478", account.STUNAddress);
                 LinphoneAPI.linphone_core_set_stun_server(linphoneCore, address);
-                LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyUseStun);
-                LOG.Info("UpdateNetworkingParameters: Enable STUN. " + address);
-            }
-            else if (account.EnableICE)
-            {
-                var address = string.Format("{0}:{1}", account.STUNAddress, account.STUNPort);
-                LinphoneAPI.linphone_core_set_stun_server(linphoneCore, address);
-                LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyUseIce);
-                LOG.Info("UpdateNetworkingParameters: Enable ICE. " + address);
+                if (account.EnableSTUN)
+                {
+                    LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore,
+                        LinphoneFirewallPolicy.LinphonePolicyUseStun);
+                    LOG.Info("UpdateNetworkingParameters: Enable STUN. " + address);
+                }
+                else
+                {
+                    LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore,
+                        LinphoneFirewallPolicy.LinphonePolicyUseIce);
+                    LOG.Info("UpdateNetworkingParameters: Enable ICE. " + address);
+                }
             }
             else
             {
-                LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyNoFirewall);
+                LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore,
+                    LinphoneFirewallPolicy.LinphonePolicyNoFirewall);
                 LOG.Info("UpdateNetworkingParameters: No Firewall. ");
             }
-            int firewallPolicy = LinphoneAPI.linphone_core_get_firewall_policy(linphoneCore);
 
             LinphoneAPI.linphone_core_enable_adaptive_rate_control(linphoneCore, account.EnableAdaptiveRate);
             LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, account.UploadBandwidth);
             LinphoneAPI.linphone_core_set_download_bandwidth(linphoneCore, account.DownloadBandwidth);
 
+            // quality of service
+            LinphoneAPI.linphone_core_set_sip_dscp(linphoneCore, account.EnableQualityOfService ? 28 : 0);
+            LinphoneAPI.linphone_core_set_audio_dscp(linphoneCore, account.EnableQualityOfService ? 38 : 0);
+            LinphoneAPI.linphone_core_set_video_dscp(linphoneCore, account.EnableQualityOfService ? 38 : 0);
             return false;
         }
 

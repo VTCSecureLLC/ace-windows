@@ -34,7 +34,7 @@ namespace VATRP.Core.Interfaces
         bool IsStopping { get; }
         bool IsStopped { get; }
         bool VCardSupported { get;  }
-
+        string ContactsDbPath { get; }
         #endregion
 
         #region Methods
@@ -119,8 +119,10 @@ namespace VATRP.Core.Interfaces
         void SetRTCPFeedback(string settingValue);
         void SendCameraSwtichAsInfo(IntPtr callPtr, bool muteCamera);
         bool SubscribeForVideoMWI(string newVideoMailUri);
+        string GetTechnicalSupportInfo();
+        void UpdatePrivateDataPath();
 
         #endregion
-        string GetTechnicalSupportInfo();
+
     }
 }
