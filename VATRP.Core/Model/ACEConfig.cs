@@ -84,25 +84,25 @@ namespace VATRP.Core.Model
             //       public bool enable_rtt { get; set; }  --> set in configuration service
 
             //        public bool user_is_agent { get; set; }
-
+            var trimChars = new[] { '\"' };
             accountToUpdate.configuration = this;
 
             //       public string sip_auth_username { get; set; }
-            var username = this.sip_auth_username;
+            var username = this.sip_auth_username.Trim(trimChars);
             if (!string.IsNullOrWhiteSpace(username))
             {
                 accountToUpdate.RegistrationUser = username;
                 accountToUpdate.Username = username;
             }
             //       public string sip_auth_password { get; set; }
-            var password = this.sip_auth_password;
+            var password = this.sip_auth_password.Trim(trimChars);
             if (!string.IsNullOrWhiteSpace(password))
             {
                 accountToUpdate.RegistrationPassword = password;
                 accountToUpdate.Password = password;
             }
             //       public string sip_register_domain { get; set; }
-            var domain = this.sip_register_domain;
+            var domain = this.sip_register_domain.Trim(trimChars);
             if (!string.IsNullOrWhiteSpace(domain))
             {
                 accountToUpdate.ProxyHostname = domain;
@@ -114,7 +114,7 @@ namespace VATRP.Core.Model
                 accountToUpdate.ProxyPort = (UInt16)port;
             }
             //       public string sip_register_transport { get; set; }
-            var transport = this.sip_register_transport;
+            var transport = this.sip_register_transport.Trim(trimChars);
             if (!string.IsNullOrWhiteSpace(transport))
             {
                 accountToUpdate.Transport = transport;
@@ -135,7 +135,7 @@ namespace VATRP.Core.Model
             accountToUpdate.EnableSTUN = this.enable_stun;
             //       public string stun_server { get; set; }
             accountToUpdate.STUNAddress = this.stun_server ?? string.Empty;
-            var stunServer = accountToUpdate.STUNAddress.Split(':');
+            var stunServer = accountToUpdate.STUNAddress.Trim(trimChars).Split(':');
             if (stunServer.Length > 1)
             {
                 accountToUpdate.STUNAddress = stunServer[0];
@@ -145,12 +145,8 @@ namespace VATRP.Core.Model
             accountToUpdate.EnableICE = this.enable_ice;
 
             //       public string sip_videomail_uri { get; set; }
-            accountToUpdate.VideoMailUri = sip_videomail_uri ?? string.Empty;
-
-
-
-
-
+            accountToUpdate.VideoMailUri = (sip_videomail_uri ?? string.Empty).Trim(trimChars);
+            
             // on successful login, we need to update the following in config: (list in progress)
             // this.enable_rtt;
 
