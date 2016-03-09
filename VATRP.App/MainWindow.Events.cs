@@ -621,6 +621,9 @@ namespace com.vtcsecure.ace.windows
                 ServiceManager.Instance.HistoryService.Stop();
                 ServiceManager.Instance.ChatService.Stop();
 
+                // stop linphone to force contacts list reload
+                ServiceManager.Instance.LinphoneService.Stop();
+
                 // hide messaging window
 		        if (_messagingWindow.IsVisible)
 		        {
@@ -825,6 +828,12 @@ namespace com.vtcsecure.ace.windows
         private void OnLinphoneCoreStarted(object sender, EventArgs e)
         {
             ServiceManager.Instance.LinphoneService.OnCameraMuteEvent += OnCameraMuted;
+	    }
+        
+        private void OnLinphoneCoreStopped(object sender, EventArgs e)
+        {
+            ServiceManager.Instance.LinphoneService.OnCameraMuteEvent -= OnCameraMuted;
+            ServiceManager.Instance.LinphoneService.Start(true);
         }
 
         private void OnCameraMuted(InfoEventBaseArgs args)
