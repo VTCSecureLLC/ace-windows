@@ -1875,7 +1875,7 @@ namespace VATRP.Core.Services
             }
             if (account.EnableSTUN || account.EnableICE)
             {
-                var address = string.Format("{0}:{1}", account.STUNAddress, account.STUNPort);
+                var address = string.Format("{0}:3478", account.STUNAddress);
                 LinphoneAPI.linphone_core_set_stun_server(linphoneCore, address);
                 if (account.EnableSTUN)
                 {
