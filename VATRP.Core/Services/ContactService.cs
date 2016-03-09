@@ -21,26 +21,21 @@ namespace VATRP.Core.Services
 {
     public sealed class ContactService : IContactsService
     {
-        private readonly ServiceManagerBase manager;
+        private readonly ServiceManagerBase _manager;
         private ObservableCollection<VATRPContact> _contacts;
         private ObservableCollection<VATRPUserGroup> _groups;
 
-
         public event EventHandler<ContactEventArgs> ContactAdded;
         public event EventHandler<ContactRemovedEventArgs> ContactRemoved;
-
         public event EventHandler<ContactStatusChangedEventArgs> ContactStatusChanged;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public event EventHandler<EventArgs> GroupsChanged;
-        public event EventHandler<EventArgs> ContactsChanged;
+        public event EventHandler<ContactEventArgs> ContactsChanged;
         public event EventHandler<EventArgs> ContactsLoadCompleted;
         public event EventHandler<ContactEventArgs> LoggedInContactUpdated;
         public bool IsLoaded { get; private set; }
         public ContactService(ServiceManagerBase manager)
         {
-            this.manager = manager;
+            this._manager = manager;
             IsLoaded = false;
         }
 
@@ -88,11 +83,11 @@ namespace VATRP.Core.Services
 
         private void LoadLinphoneContacts()
         {
-            if (manager.LinphoneService.LinphoneCore == IntPtr.Zero)
+            if (_manager.LinphoneService.LinphoneCore == IntPtr.Zero)
                 return;
 
             IntPtr contactsPtr =
-                LinphoneAPI.linphone_core_get_friend_list(manager.LinphoneService.LinphoneCore);
+                LinphoneAPI.linphone_core_get_friend_list(_manager.LinphoneService.LinphoneCore);
             if (contactsPtr != IntPtr.Zero)
             {
                 MSList curStruct;
@@ -146,6 +141,7 @@ namespace VATRP.Core.Services
                                 RegistrationName = cfgSipaddress,
                                 IsLinphoneContact = true
                             };
+                            UpdateAvatar(contact);
                             Contacts.Add(contact);
                         }
                     }
@@ -164,7 +160,7 @@ namespace VATRP.Core.Services
         {
             try
             {
-                var connectionString = string.Format("data source={0}", manager.LinphoneService.ContactsDbPath);
+                var connectionString = string.Format("data source={0}", _manager.LinphoneService.ContactsDbPath);
                 using (var dbConnection = new SQLiteConnection(connectionString))
                 {
                     dbConnection.Open();
@@ -216,7 +212,7 @@ namespace VATRP.Core.Services
                 return;
             try
             {
-                var connectionString = string.Format("data source={0}", manager.LinphoneService.ContactsDbPath);
+                var connectionString = string.Format("data source={0}", _manager.LinphoneService.ContactsDbPath);
                 using (var dbConnection = new SQLiteConnection(connectionString))
                 {
                     dbConnection.Open();
@@ -246,7 +242,7 @@ namespace VATRP.Core.Services
                 return;
             try
             {
-                var connectionString = string.Format("data source={0}", manager.LinphoneService.ContactsDbPath);
+                var connectionString = string.Format("data source={0}", _manager.LinphoneService.ContactsDbPath);
                 using (var dbConnection = new SQLiteConnection(connectionString))
                 {
                     dbConnection.Open();
@@ -278,7 +274,7 @@ namespace VATRP.Core.Services
 
         public int ImportVCards(string vcardPath)
         {
-            if (manager.LinphoneService.LinphoneCore == IntPtr.Zero)
+            if (_manager.LinphoneService.LinphoneCore == IntPtr.Zero)
                 return 0;
             IntPtr vcardsList = LinphoneAPI.linphone_vcard_list_from_vcard4_file(vcardPath);
 
@@ -339,9 +335,9 @@ namespace VATRP.Core.Services
 
         public void ExportVCards(string vcardPath)
         {
-            if (manager.LinphoneService.LinphoneCore == IntPtr.Zero)
+            if (_manager.LinphoneService.LinphoneCore == IntPtr.Zero)
                 return;
-            IntPtr defList = LinphoneAPI.linphone_core_get_default_friend_list(manager.LinphoneService.LinphoneCore);
+            IntPtr defList = LinphoneAPI.linphone_core_get_default_friend_list(_manager.LinphoneService.LinphoneCore);
             if (defList != IntPtr.Zero)
                 LinphoneAPI.linphone_friend_list_export_friends_as_vcard4_file(defList, vcardPath);
         }
@@ -350,7 +346,7 @@ namespace VATRP.Core.Services
 
         public void AddLinphoneContact(string name, string username, string address)
         {
-            if (manager.LinphoneService.LinphoneCore == IntPtr.Zero)
+            if (_manager.LinphoneService.LinphoneCore == IntPtr.Zero)
                 return;
 
             var sipAddress = address.TrimSipPrefix();
@@ -362,7 +358,7 @@ namespace VATRP.Core.Services
                 LinphoneAPI.linphone_friend_set_name(friendPtr, name);
                 LinphoneAPI.linphone_friend_enable_subscribes(friendPtr, false);
                 LinphoneAPI.linphone_friend_set_inc_subscribe_policy(friendPtr, 1);
-                LinphoneAPI.linphone_core_add_friend(manager.LinphoneService.LinphoneCore, friendPtr);
+                LinphoneAPI.linphone_core_add_friend(_manager.LinphoneService.LinphoneCore, friendPtr);
                 
                 var contactID = new ContactID(sipAddress, IntPtr.Zero);
                 VATRPContact contact = FindContact(contactID);
@@ -386,7 +382,7 @@ namespace VATRP.Core.Services
                     contact.IsLinphoneContact = true;
                     contact.SipUsername = username;
                 }
-
+                UpdateAvatar(contact);
                 UpdateContactDbId(contact);
 
                 if (ContactAdded != null)
@@ -403,7 +399,7 @@ namespace VATRP.Core.Services
         {
             try
             {
-                var connectionString = string.Format("data source={0}", manager.LinphoneService.ContactsDbPath);
+                var connectionString = string.Format("data source={0}", _manager.LinphoneService.ContactsDbPath);
                 using (var dbConnection = new SQLiteConnection(connectionString))
                 {
                     dbConnection.Open();
@@ -434,10 +430,10 @@ namespace VATRP.Core.Services
 
         public void EditLinphoneContact(string oldname, string oldsipAddress, string newname, string newsipassdress)
         {
-            if (manager.LinphoneService.LinphoneCore == IntPtr.Zero)
+            if (_manager.LinphoneService.LinphoneCore == IntPtr.Zero)
                 return;
 
-            IntPtr contactsPtr = LinphoneAPI.linphone_core_get_friend_list(manager.LinphoneService.LinphoneCore);
+            IntPtr contactsPtr = LinphoneAPI.linphone_core_get_friend_list(_manager.LinphoneService.LinphoneCore);
             if (contactsPtr != IntPtr.Zero)
             {
                 MSList curStruct;
@@ -494,7 +490,7 @@ namespace VATRP.Core.Services
                                     {
                                         tmpPtr =
                                             LinphoneAPI.linphone_core_create_address(
-                                                manager.LinphoneService.LinphoneCore, string.Format("{0} <{1}>", newname, newfqdn));
+                                                _manager.LinphoneService.LinphoneCore, string.Format("{0} <{1}>", newname, newfqdn));
                                         if (tmpPtr != IntPtr.Zero)
                                         {
                                             LinphoneAPI.linphone_friend_edit(curStruct.data);
@@ -503,13 +499,17 @@ namespace VATRP.Core.Services
                                             LinphoneAPI.linphone_friend_enable_subscribes(curStruct.data, false);
                                             LinphoneAPI.linphone_friend_set_inc_subscribe_policy(curStruct.data, 1);
                                             LinphoneAPI.linphone_friend_done(curStruct.data);
+                                            contact.ID = newsipassdress;
                                             contact.DisplayName = newname;
                                             contact.Fullname = newname;
                                             contact.SipUsername = un;
                                             contact.RegistrationName = newsipassdress;
-                                            contact.ID = newsipassdress;
                                         }
+                                        UpdateAvatar(contact);
                                         UpdateContactDbId(contact);
+
+                                        if (ContactsChanged != null)
+                                            ContactsChanged(this, new ContactEventArgs(new ContactID(contact)));
                                         return;
                                     }
                                 }
@@ -523,10 +523,10 @@ namespace VATRP.Core.Services
 
         public void DeleteLinphoneContact(string name, string sipAddress)
         {
-            if (manager.LinphoneService.LinphoneCore == IntPtr.Zero)
+            if (_manager.LinphoneService.LinphoneCore == IntPtr.Zero)
                 return;
 
-            IntPtr contactsPtr = LinphoneAPI.linphone_core_get_friend_list(manager.LinphoneService.LinphoneCore);
+            IntPtr contactsPtr = LinphoneAPI.linphone_core_get_friend_list(_manager.LinphoneService.LinphoneCore);
             if (contactsPtr != IntPtr.Zero)
             {
                 MSList curStruct;
@@ -576,9 +576,20 @@ namespace VATRP.Core.Services
                                     VATRPContact contact = FindContact(new ContactID(cfgSipAddress, IntPtr.Zero));
                                     if (contact != null)
                                     {
-                                        LinphoneAPI.linphone_core_remove_friend(manager.LinphoneService.LinphoneCore,
+                                        LinphoneAPI.linphone_core_remove_friend(_manager.LinphoneService.LinphoneCore,
                                             curStruct.data);
                                         RemoveFavoriteOption(contact);
+                                        try
+                                        {
+                                            if (contact.Avatar.NotBlank() && File.Exists(contact.Avatar))
+                                            {
+                                                File.Delete(contact.Avatar);
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Debug.WriteLine("failed to remove file: " + ex.Message);
+                                        }
                                         RemoveContact(cfgSipAddress, true);
                                     }
                                 }
@@ -593,6 +604,8 @@ namespace VATRP.Core.Services
 
         public void AddContact(VATRPContact contact, string group)
         {
+            // update avatar
+            UpdateAvatar(contact);
             Contacts.Add(contact);
             if (ContactAdded != null)
                 ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
@@ -602,6 +615,7 @@ namespace VATRP.Core.Services
                 LoggedInContactUpdated(this, new ContactEventArgs(new ContactID(contact)));
             }
         }
+
         public VATRPContact FindContact(ContactID contactID)
         {
             if (contactID == null)
@@ -715,11 +729,17 @@ namespace VATRP.Core.Services
 
         }
 
-        private void SaveContactsAsync(ObservableCollection<VATRPContact> observableCollection)
+        private void UpdateAvatar(VATRPContact contact)
         {
-            if (this.IsLoaded)
+            var supportedFormats = new[] {"jpg", "jpeg", "png", "bmp"};
+            for (var i = 0; i < supportedFormats.Length; i++)
             {
-                
+                var avatar = _manager.BuildDataPath(string.Format("{0}.{1}", contact.ID, supportedFormats[i]));
+                if (File.Exists(avatar))
+                {
+                    contact.Avatar = avatar;
+                    return;
+                }
             }
         }
 
@@ -777,13 +797,13 @@ namespace VATRP.Core.Services
 
         private void InitializeContactOptions()
         {
-            if (!File.Exists(manager.LinphoneService.ContactsDbPath))
+            if (!File.Exists(_manager.LinphoneService.ContactsDbPath))
                 return;
             string sqlString = @"CREATE TABLE IF NOT EXISTS friend_options (id INTEGER NOT NULL," +
                                " is_favorite INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (id))";
             try
             {
-                var connectionString = string.Format("data source={0}", manager.LinphoneService.ContactsDbPath);
+                var connectionString = string.Format("data source={0}", _manager.LinphoneService.ContactsDbPath);
                 using (var dbConnection = new SQLiteConnection(connectionString))
                 {
                     dbConnection.Open();

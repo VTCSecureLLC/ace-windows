@@ -31,6 +31,7 @@
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
 
+      
         <StackPanel Grid.Row="0" Grid.RowSpan="4" x:Name="ColorAnimationBox" Background="#FFD81C1C" VerticalAlignment="Stretch" Visibility="{Binding Path=VisualizeIncoming, Converter={StaticResource bvc}, Mode=OneWay}">
             <StackPanel.Style>
                 <Style TargetType="StackPanel">
@@ -56,6 +57,13 @@
             </StackPanel.Style>
         </StackPanel>
 
+        <StackPanel Grid.Row="0" Grid.RowSpan="4" Orientation="Vertical"  HorizontalAlignment="Center" VerticalAlignment="Center" 
+                    Margin="0,60,0,0"
+                    Visibility="{Binding Path=ShowAvatar, Converter={StaticResource bvc}, Mode=OneWay}"
+                    >
+            <Image Height="200" Width="200" Source="{Binding Avatar}" Stretch="UniformToFill"></Image>
+        </StackPanel>
+        
         <StackPanel Grid.Row="0" Grid.RowSpan="4" x:Name="TextAnimationBox" HorizontalAlignment="Center" VerticalAlignment="Center" 
 					Visibility="{Binding Path=VisualizeRinging, Converter={StaticResource bvc}, Mode=OneWay}">
             <TextBlock x:Name="RingCounterBox" Text="{Binding Path=RingCount, NotifyOnTargetUpdated=True}" 

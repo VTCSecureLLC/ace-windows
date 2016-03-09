@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using com.vtcsecure.ace.windows.ViewModel;
+using System;
+using System.Diagnostics;
+using com.vtcsecure.ace.windows.Services;
+using log4net;
+using VATRP.Core.Services;
 
 namespace com.vtcsecure.ace.windows.Views
 {
@@ -19,6 +15,7 @@ namespace com.vtcsecure.ace.windows.Views
     /// </summary>
     public partial class ContactEditView : Window
     {
+        private static readonly ILog LOG = LogManager.GetLogger(typeof(ContactEditView));
         private ContactEditViewModel _viewModel;
         public ContactEditView()
         {
@@ -41,7 +38,7 @@ namespace com.vtcsecure.ace.windows.Views
                 return;
             }
 
-            _viewModel.UpdateContactAddress();
+            _viewModel.UpdateContactAddress(false);
             if (!_viewModel.ValidateUsername(_viewModel.ContactSipUsername))
             {
                 bool errorOccurred = true;
@@ -76,8 +73,77 @@ namespace com.vtcsecure.ace.windows.Views
                     return;
                 }
             }
+
+            if (!string.IsNullOrEmpty(_viewModel.NewAvatarPath))
+            {
+                if (!string.IsNullOrEmpty(_viewModel.OriginAvatarPath))
+                {
+                    if (File.Exists(_viewModel.OriginAvatarPath))
+                    {
+                        try
+                        {
+                            File.Delete(_viewModel.OriginAvatarPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            LOG.Warn("Failed to remove file: " + _viewModel.OriginAvatarPath + " Cause: " + ex.Message);
+                        }
+                    }
+                }
+
+                var avatarPath =
+                    ServiceManager.Instance.BuildDataPath(string.Format("{0}{1}",
+                        _viewModel.ContactSipUsername, Path.GetExtension(_viewModel.NewAvatarPath)));
+                try
+                {
+                    // just for confidence
+
+                    if (File.Exists(avatarPath))
+                        File.Delete(avatarPath);
+
+                    File.Copy(_viewModel.NewAvatarPath, avatarPath);
+                    _viewModel.AvatarChanged = true;
+                }
+                catch (Exception ex)
+                {
+                    LOG.Warn(string.Format("Failed to copy file: {0} -> {1}. Cause: {2}", _viewModel.NewAvatarPath,
+                        avatarPath, ex.Message));
+                }
+            }
+            else 
+            {
+                if (!string.IsNullOrEmpty(_viewModel.OriginAvatarPath))
+                {
+                    var fileExt = Path.GetExtension(_viewModel.OriginAvatarPath);
+
+                    var newAvatarPath =
+                    ServiceManager.Instance.BuildDataPath(string.Format("{0}{1}",
+                        _viewModel.ContactSipUsername, fileExt));
+                    if (newAvatarPath != _viewModel.OriginAvatarPath)
+                    {
+                        // rename old file
+                        try
+                        {
+                            File.Move(_viewModel.OriginAvatarPath, newAvatarPath);
+                            _viewModel.AvatarChanged = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            LOG.Warn(string.Format("Failed to move file: {0} -> {1}. Cause: {2}", _viewModel.OriginAvatarPath,
+                                newAvatarPath, ex.Message));
+                        }
+                    }
+                }
+
+            }
             this.DialogResult = true;
             Close();
+        }
+
+        private void PictureBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (this._viewModel != null)
+                _viewModel.SelectAvatar();
         }
     }
 }
