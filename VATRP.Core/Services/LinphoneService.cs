@@ -974,8 +974,26 @@ namespace VATRP.Core.Services
 		}
         public void MuteCall(bool muteCall)
         {
-            LinphoneAPI.linphone_core_enable_mic(linphoneCore, !muteCall);
+            if (linphoneCore == IntPtr.Zero)
+                return;
+            IntPtr activeCallPtr = LinphoneAPI.linphone_core_get_current_call(linphoneCore);
+            if (activeCallPtr == IntPtr.Zero)
+                LinphoneAPI.linphone_core_enable_mic(linphoneCore, !muteCall);
+            else
+            {
+                lock (callLock)
+                {
+                    VATRPCall call = FindCall(activeCallPtr);
+
+                    if (call != null && (call.CallState != VATRPCallState.LocalPaused || call.CallState != VATRPCallState.LocalPausing))
+                    {
+                        // probably this should be done in linphone core
+                        LinphoneAPI.linphone_core_enable_mic(linphoneCore, !muteCall);
+                    }
+                }
+            }
         }
+		
 		public void ToggleMute()
 		{
 			if (linphoneCore == IntPtr.Zero)
@@ -983,6 +1001,7 @@ namespace VATRP.Core.Services
 
 			LinphoneAPI.linphone_core_enable_mic(linphoneCore, !LinphoneAPI.linphone_core_mic_enabled(linphoneCore));
 		}
+		
         public bool IsSpeakerMuted()
         {
             if (linphoneCore == IntPtr.Zero)
