@@ -206,7 +206,9 @@ namespace VATRP.Core.Model
 
         [Column]
         public bool EnableAdaptiveRate { get; set; }
-
+        [Column]
+		
+        public string AdaptiveRateAlgorithm { get; set; }
         [Column]
         public int UploadBandwidth { get; set; }
 
@@ -215,6 +217,15 @@ namespace VATRP.Core.Model
 
         [Column]
         public bool EnableQualityOfService { get; set; }
+
+        [Column]
+        public int SipDscpValue { get; set; }
+
+        [Column]
+        public int AudioDscpValue { get; set; }
+
+        [Column]
+        public int VideoDscpValue { get; set; }
 
         #endregion
 
@@ -259,6 +270,10 @@ namespace VATRP.Core.Model
             UploadBandwidth = 1500;
             DownloadBandwidth = 1500;
             EnableQualityOfService = true;
+            AdaptiveRateAlgorithm = "Simple";
+            SipDscpValue = 28;
+            AudioDscpValue = 38;
+            VideoDscpValue = 38;
         }
 
         #endregion
