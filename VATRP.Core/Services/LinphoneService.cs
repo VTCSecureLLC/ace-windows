@@ -377,7 +377,7 @@ namespace VATRP.Core.Services
 
 				coreLoop = new Thread(LinphoneMainLoop) {IsBackground = true};
 				coreLoop.Start();
-
+			    _isStarting = false;
 				_isStarted = true;
 			}
             if (ServiceStarted != null)
@@ -505,7 +505,10 @@ namespace VATRP.Core.Services
             coreLoop = null;
             identity = null;
             server_addr = null;
-
+            _isStarting = false;
+            _isStarted = false;
+            _isStopping = false;
+            _isStopped = true;
             LOG.Debug("Main loop exited");
             if (ServiceStopped != null)
                 ServiceStopped(this, EventArgs.Empty);
@@ -971,8 +974,26 @@ namespace VATRP.Core.Services
 		}
         public void MuteCall(bool muteCall)
         {
-            LinphoneAPI.linphone_core_enable_mic(linphoneCore, !muteCall);
+            if (linphoneCore == IntPtr.Zero)
+                return;
+            IntPtr activeCallPtr = LinphoneAPI.linphone_core_get_current_call(linphoneCore);
+            if (activeCallPtr == IntPtr.Zero)
+                LinphoneAPI.linphone_core_enable_mic(linphoneCore, !muteCall);
+            else
+            {
+                lock (callLock)
+                {
+                    VATRPCall call = FindCall(activeCallPtr);
+
+                    if (call != null && (call.CallState != VATRPCallState.LocalPaused || call.CallState != VATRPCallState.LocalPausing))
+                    {
+                        // probably this should be done in linphone core
+                        LinphoneAPI.linphone_core_enable_mic(linphoneCore, !muteCall);
+                    }
+                }
+            }
         }
+		
 		public void ToggleMute()
 		{
 			if (linphoneCore == IntPtr.Zero)
@@ -980,6 +1001,7 @@ namespace VATRP.Core.Services
 
 			LinphoneAPI.linphone_core_enable_mic(linphoneCore, !LinphoneAPI.linphone_core_mic_enabled(linphoneCore));
 		}
+		
         public bool IsSpeakerMuted()
         {
             if (linphoneCore == IntPtr.Zero)
@@ -2804,7 +2826,11 @@ namespace VATRP.Core.Services
                 // items to add: enabled video codecs, enabled audio codecs, preferred video resolution, preferred bandwidth
                 bool adaptiveRateEnabled = LinphoneAPI.linphone_core_adaptive_rate_control_enabled(linphoneCore);
                 configString.AppendLine("Adaptive Rate Enabled: " + adaptiveRateEnabled.ToString());
-                configString.AppendLine("Adaptive Rate Algorithm: " + LinphoneAPI.linphone_core_get_adaptive_rate_algorithm(linphoneCore));
+                IntPtr strPtr = LinphoneAPI.linphone_core_get_adaptive_rate_algorithm(linphoneCore);
+                var algorithm = string.Empty;
+                if (strPtr != IntPtr.Zero)
+                    algorithm = Marshal.PtrToStringAnsi(strPtr);
+                configString.AppendLine("Adaptive Rate Algorithm: " + algorithm);
                 int min_port = -1;
                 int max_port = -1;
                 LinphoneAPI.linphone_core_get_video_port_range(linphoneCore, ref min_port, ref max_port);

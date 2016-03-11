@@ -99,6 +99,10 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 OnPropertyChanged("ContactUI");
             }
+            else if (e.PropertyName == "Avatar")
+            {
+                LoadContactAvatar();
+            }
         }
         
         public int CompareTo(ContactViewModel other)

@@ -72,20 +72,36 @@ namespace com.vtcsecure.ace.windows.Services
         #region Overrides
         public override string BuildStoragePath(string folder)
         {
-            return Path.Combine(ApplicationDataPath, folder);
+            try
+            {
+                return Path.Combine(ApplicationDataPath, folder);
+            }
+            catch
+            {
+                
+            }
+            return Environment.CurrentDirectory;
         }
 
         public override string BuildDataPath(string folder)
         {
             if ( App.CurrentAccount == null )
                 return BuildStoragePath(folder);
+            try
+            {
+                var privateDataPath = Path.Combine(ApplicationDataPath,
+                    string.Format("{0}@{1}", App.CurrentAccount.Username,
+                        App.CurrentAccount.ProxyHostname));
 
-            var privateDataPath = Path.Combine(ApplicationDataPath, string.Format("{0}@{1}", App.CurrentAccount.Username,
-                App.CurrentAccount.ProxyHostname));
-
-            if (!Directory.Exists(privateDataPath))
-                Directory.CreateDirectory(privateDataPath);
-            return Path.Combine(privateDataPath, folder);
+                if (!Directory.Exists(privateDataPath))
+                    Directory.CreateDirectory(privateDataPath);
+                return Path.Combine(privateDataPath, folder);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Exception occurred: " + ex.ToString());
+            }
+            return BuildStoragePath(folder);
         }
 
         public override IConfigurationService ConfigurationService

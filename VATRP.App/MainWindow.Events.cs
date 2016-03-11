@@ -91,7 +91,8 @@ namespace com.vtcsecure.ace.windows
 
             LOG.Info(string.Format("CallStateChanged: State - {0}. Call: {1}", call.CallState, call.NativeCallPtr));
 		    ctrlCall.SetCallViewModel(_mainViewModel.ActiveCallModel);
-			
+	        VATRPContact contact = null;
+
 			var stopPlayback = false;
 		    var destroycall = false;
 			switch (call.CallState)
@@ -101,11 +102,26 @@ namespace com.vtcsecure.ace.windows
 					call.RemoteParty = call.To;
 					callViewModel.OnTrying();
 			        _mainViewModel.IsCallPanelDocked = true;
+                    if (callViewModel.Avatar == null)
+                    {
+                        contact =
+    ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("{0}@{1}", call.From.Username, call.From.HostAddress), IntPtr.Zero));
+                        if (contact != null)
+                            callViewModel.LoadAvatar(contact.Avatar);
+                    }
 					break;
 				case VATRPCallState.InProgress:
 			        this.ShowSelfPreviewItem.IsEnabled = false;
 					call.RemoteParty = call.From;
 					ServiceManager.Instance.SoundService.PlayRingTone();
+                    if (callViewModel.Avatar == null)
+                    {
+                        contact =
+    ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("{0}@{1}", call.From.Username, call.From.HostAddress), IntPtr.Zero));
+                        if (contact != null)
+                            callViewModel.LoadAvatar(contact.Avatar);
+                    }
+			        
                     callViewModel.OnIncomingCall();
 
 			        if (_linphoneService.GetActiveCallsCount == 2)
@@ -136,6 +152,14 @@ namespace com.vtcsecure.ace.windows
 					call.RemoteParty = call.To;
 					ctrlCall.ctrlOverlay.SetCallerInfo(callViewModel.CallerInfo);
 					ctrlCall.ctrlOverlay.SetCallState("Ringing");
+                    if (callViewModel.Avatar == null)
+                    {
+                        contact =
+    ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("{0}@{1}", call.From.Username, call.From.HostAddress), IntPtr.Zero));
+                        if (contact != null)
+                            callViewModel.LoadAvatar(contact.Avatar);
+                    }
+
 					ServiceManager.Instance.SoundService.PlayRingBackTone();
 					break;
 				case VATRPCallState.EarlyMedia:
@@ -621,6 +645,9 @@ namespace com.vtcsecure.ace.windows
                 ServiceManager.Instance.HistoryService.Stop();
                 ServiceManager.Instance.ChatService.Stop();
 
+                // stop linphone to force contacts list reload
+                ServiceManager.Instance.LinphoneService.Stop();
+
                 // hide messaging window
 		        if (_messagingWindow.IsVisible)
 		        {
@@ -825,6 +852,12 @@ namespace com.vtcsecure.ace.windows
         private void OnLinphoneCoreStarted(object sender, EventArgs e)
         {
             ServiceManager.Instance.LinphoneService.OnCameraMuteEvent += OnCameraMuted;
+	    }
+        
+        private void OnLinphoneCoreStopped(object sender, EventArgs e)
+        {
+            ServiceManager.Instance.LinphoneService.OnCameraMuteEvent -= OnCameraMuted;
+            ServiceManager.Instance.LinphoneService.Start(true);
         }
 
         private void OnCameraMuted(InfoEventBaseArgs args)

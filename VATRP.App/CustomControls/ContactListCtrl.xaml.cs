@@ -72,12 +72,14 @@ namespace com.vtcsecure.ace.windows.CustomControls
             var contact = ((ToggleButton) sender).Tag as VATRPContact;
             if (contact != null)
             {
-                ContactEditViewModel model = new ContactEditViewModel(false, contact.RegistrationName);
+                ContactEditViewModel model = new ContactEditViewModel(false, contact.RegistrationName, contact.Avatar);
                 model.ContactName = contact.Fullname;
                 var contactEditView = new ContactEditView(model);
                 Nullable<bool> dialogResult = contactEditView.ShowDialog();
                 if (dialogResult != null && dialogResult.Value)
                 {
+                    if (model.AvatarChanged)
+                        contact.Avatar = string.Empty;
                     ServiceManager.Instance.ContactService.EditLinphoneContact(
                         contact.Fullname,
                         contact.RegistrationName, model.ContactName,

@@ -22,7 +22,7 @@ namespace VATRP.Core.Interfaces
         void UpdateFavoriteOption(VATRPContact contact);
 
         event EventHandler<ContactEventArgs> ContactAdded;
-        event EventHandler<EventArgs> ContactsChanged;
+        event EventHandler<ContactEventArgs> ContactsChanged;
         event EventHandler<ContactRemovedEventArgs> ContactRemoved;
         event EventHandler<ContactStatusChangedEventArgs> ContactStatusChanged;
         event EventHandler<EventArgs> GroupsChanged;
