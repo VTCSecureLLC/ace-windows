@@ -4,6 +4,12 @@ if ($env:APPVEYOR_REPO_BRANCH -ne "master")
  exit 0
 }
 
+if ($env:APPVEYOR_PULL_REQUEST_NUMBER -ne "")
+{
+ Write-Host 'Pull Request #'"$env:APPVEYOR_PULL_REQUEST_NUMBER"' detected. Not deploying.'
+ exit 0
+}
+
 Get-ChildItem .\Setup\Out\*.msi | ForEach-Object {
   $msi=$_.FullName
 
