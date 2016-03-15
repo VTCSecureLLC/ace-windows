@@ -26,9 +26,10 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="140"/>
                 <ColumnDefinition Width="160*"/>
                 <ColumnDefinition Width="27*"/>
             </Grid.ColumnDefinitions>
@@ -127,25 +128,36 @@
             </Label>
             <CheckBox Grid.Column="2" Grid.Row="12" Checked="OnAdaptiveRateChecked" Unchecked="OnAdaptiveRateChecked" HorizontalAlignment="Center" 
                           VerticalAlignment="Center"  Name="AdaptiveRateCheckbox"/>
-            <!-- Row 13: Upload Bandwidth -->
-            <Label Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="1" Content="Upload Bandwidth" VerticalContentAlignment="Center"
+
+            <!-- Row 13: Media Encryption -->
+            <Label Grid.Column="0" Grid.Row="13" Content="Adaptive Rate Algorithm" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left" Name="AdaptiverateAlgorithmLabel" >
+            </Label>
+            <ComboBox Grid.Row="13" Grid.Column="1" Grid.ColumnSpan="2" x:Name="AlgorithmComboBox"  FontSize="14" Margin="0,3,0,3" Width="120" Height="24" 
+                           VerticalAlignment="Center" HorizontalAlignment="Right" SelectionChanged="OnAdaptiveRateAlgorithmChanged" >
+                <TextBlock >Simple</TextBlock>
+                <TextBlock >Stateful</TextBlock>
+            </ComboBox>
+
+            <!-- Row 14: Upload Bandwidth -->
+            <Label Grid.Column="0" Grid.Row="14" Grid.ColumnSpan="2" Content="Upload Bandwidth" VerticalContentAlignment="Center"
                    HorizontalAlignment="Left" Name="UploadBandwidthLabel"/>
-            <TextBox Grid.Column="1" Grid.Row="13" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
+            <TextBox Grid.Column="1" Grid.Row="14" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
                      Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" 
                      Name="UploadBandwidthTextBox"  LostFocus="OnUploadBandwidthChanged" />
 
-            <!-- Row 14: Upload Bandwidth -->
-            <Label Grid.Column="0" Grid.Row="14" Grid.ColumnSpan="1" Content="Download Bandwidth" VerticalContentAlignment="Center"
+            <!-- Row 15: Upload Bandwidth -->
+            <Label Grid.Column="0" Grid.Row="15" Grid.ColumnSpan="1" Content="Download Bandwidth" VerticalContentAlignment="Center"
                    HorizontalAlignment="Left" Name="DownloadBandwidthLabel"/>
-            <TextBox Grid.Column="1" Grid.Row="14" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
+            <TextBox Grid.Column="1" Grid.Row="15" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
                      Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" 
                      Name="DownloadBandwidthTextBox"  LostFocus="OnDownloadBandwidthChanged" />
 
-            <!-- Row 15: Quality of service -->
-            <Label Grid.Column="0" Grid.Row="15" Grid.ColumnSpan="2" Content="Quality of Service" VerticalContentAlignment="Center" 
+            <!-- Row 16: Quality of service -->
+            <Label Grid.Column="0" Grid.Row="16" Grid.ColumnSpan="2" Content="Quality of Service" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left"  Name="QosLabel">
             </Label>
-            <CheckBox Grid.Column="2" Grid.Row="15" Checked="OnQoSChecked" Unchecked="OnQoSChecked" HorizontalAlignment="Center" 
+            <CheckBox Grid.Column="2" Grid.Row="16" Checked="OnQoSChecked" Unchecked="OnQoSChecked" HorizontalAlignment="Center" 
                           VerticalAlignment="Center"  Name="QoSCheckbox"/>
 
         </Grid>

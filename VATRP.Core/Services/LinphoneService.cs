@@ -595,19 +595,6 @@ namespace VATRP.Core.Services
             LinphoneAPI.linphone_core_play_dtmf(linphoneCore, dtmf, duration);
         }
 
-        public void EnableAdaptiveRateControl(bool bEnable)
-        {
-            if (linphoneCore == IntPtr.Zero)
-                return;
-
-            var isCtrlEnabled = LinphoneAPI.linphone_core_adaptive_rate_control_enabled(linphoneCore);
-            if (isCtrlEnabled != bEnable)
-            {
-                LinphoneAPI.linphone_core_enable_adaptive_rate_control(linphoneCore, bEnable);
-                LOG.Debug(string.Format("{0} adaptive rate control", bEnable ? "Enable" : "Disable"));
-            }
-        }
-
 		#endregion
 
 		#region Registration
@@ -1900,6 +1887,7 @@ namespace VATRP.Core.Services
                 LOG.Info("UpdateNetworkingParameters: No Firewall. ");
             }
 
+            LinphoneAPI.linphone_core_set_adaptive_rate_algorithm(linphoneCore, account.AdaptiveRateAlgorithm);
             LinphoneAPI.linphone_core_enable_adaptive_rate_control(linphoneCore, account.EnableAdaptiveRate);
             LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, account.UploadBandwidth);
             LinphoneAPI.linphone_core_set_download_bandwidth(linphoneCore, account.DownloadBandwidth);

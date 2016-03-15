@@ -47,6 +47,18 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
 
             AdaptiveRateCheckbox.IsChecked = App.CurrentAccount.EnableAdaptiveRate;
+
+            foreach (TextBlock textBlock in AlgorithmComboBox.Items)
+            {
+                if (textBlock.Text.Equals(App.CurrentAccount.AdaptiveRateAlgorithm))
+                {
+                    AlgorithmComboBox.SelectedItem = textBlock;
+                }
+            }
+
+            if (AlgorithmComboBox.SelectedItem == null)
+                AlgorithmComboBox.SelectedIndex = 0;
+
             UploadBandwidthTextBox.Text = App.CurrentAccount.UploadBandwidth.ToString();
             DownloadBandwidthTextBox.Text = App.CurrentAccount.DownloadBandwidth.ToString();
             QoSCheckbox.IsChecked = App.CurrentAccount.EnableQualityOfService;
@@ -58,6 +70,17 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             if (enabled != App.CurrentAccount.EnableAdaptiveRate)
             {
                 App.CurrentAccount.EnableAdaptiveRate = enabled;
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+            }
+        }
+
+        private void OnAdaptiveRateAlgorithmChanged(object sender, SelectionChangedEventArgs e)
+        {
+            TextBlock valueA = (TextBlock)AlgorithmComboBox.SelectedItem;
+            string value = valueA.Text;
+            if (App.CurrentAccount != null)
+            {
+                App.CurrentAccount.AdaptiveRateAlgorithm = value;
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
             }
         }
