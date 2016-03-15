@@ -85,6 +85,17 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
         }
 
+        private void OnQoSChecked(object sender, RoutedEventArgs e)
+        {
+            TextBlock valueA = (TextBlock)AlgorithmComboBox.SelectedItem;
+            string value = valueA.Text;
+            if (App.CurrentAccount != null)
+            {
+                App.CurrentAccount.AdaptiveRateAlgorithm = value;
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+            }
+        }
+
         private void OnStunServerChecked(object sender, RoutedEventArgs e)
         {
             bool enabled = UseStunServerCheckbox.IsChecked ?? false;
