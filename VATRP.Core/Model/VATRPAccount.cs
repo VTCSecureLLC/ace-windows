@@ -206,7 +206,9 @@ namespace VATRP.Core.Model
 
         [Column]
         public bool EnableAdaptiveRate { get; set; }
-
+        [Column]
+		
+        public string AdaptiveRateAlgorithm { get; set; }
         [Column]
         public int UploadBandwidth { get; set; }
 
@@ -259,6 +261,7 @@ namespace VATRP.Core.Model
             UploadBandwidth = 1500;
             DownloadBandwidth = 1500;
             EnableQualityOfService = true;
+            AdaptiveRateAlgorithm = "Simple";
         }
 
         #endregion
