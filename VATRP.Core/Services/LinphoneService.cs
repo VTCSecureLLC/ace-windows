@@ -1863,6 +1863,14 @@ namespace VATRP.Core.Services
                 LOG.Error("UpdateNetworkingParameters: Account is NULL");
                 return false;
             }
+
+            var ip6Enabled = LinphoneAPI.linphone_core_ipv6_enabled(linphoneCore);
+            if (ip6Enabled != account.EnableIPv6)
+            {
+                LinphoneAPI.linphone_core_enable_ipv6(linphoneCore, account.EnableIPv6);
+            }
+            LOG.Info(string.Format("UpdateNetworkingParameters: IPv6 is {0}", account.EnableIPv6 ? "enabled" : "disabled"));
+            
             if (account.EnableSTUN || account.EnableICE)
             {
                 var address = string.Format("{0}:3478", account.STUNAddress);
