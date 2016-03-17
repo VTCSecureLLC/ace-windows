@@ -131,7 +131,7 @@ namespace com.vtcsecure.ace.windows.Utilities
                 configString.AppendLine("STUN Port: " + App.CurrentAccount.STUNPort);
                 //       public bool enable_ice { get; set; }
                 configString.AppendLine("Enable ICE: " + App.CurrentAccount.EnableICE.ToString());
-
+                configString.AppendLine("Enable IPv6: " + App.CurrentAccount.EnableIPv6.ToString());
                 //       public List<string> enabled_codecs { get; set; }
                 //           configString.AppendLine("Enabled Codecs: " + string.Join(", ", enabled_codecs.ToArray()));
                 //       public string bwLimit { get; set; }
