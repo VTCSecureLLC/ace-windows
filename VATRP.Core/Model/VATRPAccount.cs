@@ -273,7 +273,7 @@ namespace VATRP.Core.Model
             UploadBandwidth = 1500;
             DownloadBandwidth = 1500;
             EnableQualityOfService = true;
-            AdaptiveRateAlgorithm = "Simple";
+            AdaptiveRateAlgorithm = "Stateful";
             SipDscpValue = 28;
             AudioDscpValue = 38;
             VideoDscpValue = 38;
