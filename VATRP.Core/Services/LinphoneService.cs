@@ -1895,7 +1895,10 @@ namespace VATRP.Core.Services
                 LOG.Info("UpdateNetworkingParameters: No Firewall. ");
             }
 
-            LinphoneAPI.linphone_core_set_adaptive_rate_algorithm(linphoneCore, account.AdaptiveRateAlgorithm);
+            // TODO, Disable adaptive rate algorithm, since it caused bad video
+            account.AdaptiveRateAlgorithm = "Simple";
+            //LinphoneAPI.linphone_core_set_adaptive_rate_algorithm(linphoneCore, account.AdaptiveRateAlgorithm);
+
             LinphoneAPI.linphone_core_enable_adaptive_rate_control(linphoneCore, account.EnableAdaptiveRate);
             LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, account.UploadBandwidth);
             LinphoneAPI.linphone_core_set_download_bandwidth(linphoneCore, account.DownloadBandwidth);
