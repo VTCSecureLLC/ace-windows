@@ -545,6 +545,7 @@ namespace com.vtcsecure.ace.windows.Services
             LinphoneService.configureFmtpCodec();
             ApplyAVPFChanges();
             ApplyDtmfOnSIPInfoChanges();
+            ApplyDtmfInbandChanges();
             ApplyMediaSettingsChanges();
             return true;
         }
@@ -610,6 +611,13 @@ namespace com.vtcsecure.ace.windows.Services
             bool val = this.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.DTMF_SIP_INFO, false);
             LinphoneService.SendDtmfAsSipInfo(val);
+        }
+
+        internal void ApplyDtmfInbandChanges()
+        {
+            bool val = this.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.DTMF_INBAND, false);
+            LinphoneService.SendDtmfAsTelephoneEvent(val);
         }
 
         private LinphoneMediaEncryption GetMediaEncryptionText(string s)
