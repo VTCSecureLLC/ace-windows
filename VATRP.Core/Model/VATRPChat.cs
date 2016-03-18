@@ -579,13 +579,13 @@ namespace VATRP.Core.Model
             {
                 var msg = Messages[i];
                 if ((msg != null) && 
-                    msg.MessageTime != other.MessageTime && 
-                    msg.Direction != other.Direction )
+                    (msg.MessageTime == other.MessageTime && 
+                    msg.Direction == other.Direction ))
                 {
-                    return true;
+                    return false;
                 }
             }
-            return false;
+            return true;
         }
 
         public int CharsCountInBubble { get; set; } 

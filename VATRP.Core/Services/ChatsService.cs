@@ -151,7 +151,6 @@ namespace VATRP.Core.Services
         {
             string dn, un, host;
             int port;
-
             System.Windows.Threading.Dispatcher dispatcher = null;
             try
             {
@@ -181,7 +180,8 @@ namespace VATRP.Core.Services
                         {
                             DisplayName = dn,
                             Fullname = dn.NotBlank() ? dn : un,
-                            RegistrationName = remoteUser
+                            RegistrationName = remoteUser,
+                            SipUsername = un
                         };
                         _contactSvc.AddContact(contact, "");
                     }
@@ -280,7 +280,6 @@ namespace VATRP.Core.Services
         {
             string dn, un, host;
             int port;
-
             if (callChatPtr == chatPtr /*&& RttEnabled*/)
             {
                 return;
@@ -312,7 +311,13 @@ namespace VATRP.Core.Services
 
                     if (contact == null)
                     {
-                        contact = new VATRPContact(contactID) { DisplayName = dn, Fullname = un };
+                        contact = new VATRPContact(contactID)
+                        {
+                            DisplayName = dn,
+                            Fullname = dn.NotBlank() ? dn : un,
+                            SipUsername = un,
+                            RegistrationName = contactAddress
+                        };
                         _contactSvc.AddContact(contact, "");
                         Contacts.Add(contact);
                         if (ContactAdded != null)
@@ -830,6 +835,8 @@ namespace VATRP.Core.Services
             chat.AddMessage(message, false);
             chat.UpdateLastMessage(false);
 
+            chat.UnreadMsgCount = 0;
+            chat.Contact.UnreadMsgCount = 0;
             this.OnConversationUpdated(chat, true);
 
             // send message to linphone
