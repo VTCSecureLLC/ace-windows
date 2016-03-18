@@ -78,7 +78,7 @@ namespace VATRP.Core.Services
         string[] placeholders = new string[] { "%d", "%s", "%lu", "%i", "%u", "%x", "%X", "%f", "%llu", "%p", 
             "%10I64d", "%-9i", "%-19s", "%-19g", "%-10g", "%-20s" };
         SortedList<int, string> placeHolderItems = new SortedList<int, string>();
-        
+        private object logLock = new object();
         #endregion
 
 		#region Delegates
@@ -1970,101 +1970,103 @@ namespace VATRP.Core.Services
             {
                 return;
             }
-
-            foreach (var formatter in placeholders)
+            lock (logLock)
             {
-                int pos = format.IndexOf(formatter, 0, StringComparison.InvariantCulture);
-                while (pos != -1)
+                foreach (var formatter in placeholders)
                 {
-                    placeHolderItems[pos] = formatter;
-                    pos = format.IndexOf(formatter, pos + 1, StringComparison.InvariantCulture);
-                } 
-            }
-
-            if (placeHolderItems.Count == 0)
-            {
-                LOG.Info(format);
-                return;
-            }
-
-            try
-            {
-                var argsArray = new IntPtr[placeHolderItems.Count];
-
-
-                Marshal.Copy(args, argsArray, 0, placeHolderItems.Count);
-                var logOutput = new StringBuilder(format);
-                var formattedString = string.Empty;
-                int offset = 0;
-                for (int i = 0; i < placeHolderItems.Count; i++)
-                {
-                    if (i >= argsArray.Length)
-                        continue;
-                    switch (placeHolderItems.Values[i])
+                    int pos = format.IndexOf(formatter, 0, StringComparison.InvariantCulture);
+                    while (pos != -1)
                     {
-                        case "%s":
-                            formattedString = Marshal.PtrToStringAnsi(argsArray[i]);
-                            break;
-                        case "%d":
-                        case "%lu":
-                        case "%i":
-                        case "%u":
-                        case "%llu":
-                        case "%f":
-                        case "%p":
-                            formattedString = argsArray[i].ToString();
-                            break;
-                        case "%x":
-                        case "%X":
-                            formattedString = argsArray[i].ToString("X");
-                            break;
-                        case "%10I64d":
-                            formattedString = argsArray[i].ToInt64().ToString().PadLeft(10);
-                            break;
-                        case "%-9i":
-                            formattedString = argsArray[i].ToString().PadLeft(9, '-');
-                            break;
-                        case "%-20s":
-                        case "%-19s":
-                            formattedString = Marshal.PtrToStringAnsi(argsArray[i]);
-                            if (formattedString != null)
-                                formattedString = formattedString.PadLeft(19, '-');
-                            break;
-                        case "%-19g":
-                            formattedString = argsArray[i].ToString().PadLeft(19, '-');
-                            break;
-                        case "%-10g":
-                            formattedString = argsArray[i].ToString().PadLeft(10, '-');
-                            break;
-                        case "%3.1f":
-                        case "%5.1f":
-                            formattedString = argsArray[i].ToString("N1");
-                            break;
-                        
-                        default:
-                            formattedString = string.Empty;
-                            break;
-                    }
-                    if (formattedString != null)
-                    {
-                        logOutput.Remove(placeHolderItems.Keys[i] + offset, placeHolderItems.Values[i].Length);
-                        if (formattedString.Length > 0 )
-                            logOutput.Insert(placeHolderItems.Keys[i] + offset, formattedString);
-
-                        // update offset
-                        offset += formattedString.Length - placeHolderItems.Values[i].Length;
+                        placeHolderItems[pos] = formatter;
+                        pos = format.IndexOf(formatter, pos + 1, StringComparison.InvariantCulture);
                     }
                 }
 
-                LOG.Info(logOutput);
-            }
-            catch (Exception ex)
-            {
+                if (placeHolderItems.Count == 0)
+                {
+                    LOG.Info(format);
+                    return;
+                }
 
-            }
-            finally
-            {
-                placeHolderItems.Clear();
+                try
+                {
+                    var argsArray = new IntPtr[placeHolderItems.Count];
+
+
+                    Marshal.Copy(args, argsArray, 0, placeHolderItems.Count);
+                    var logOutput = new StringBuilder(format);
+                    var formattedString = string.Empty;
+                    int offset = 0;
+                    for (int i = 0; i < placeHolderItems.Count; i++)
+                    {
+                        if (i >= argsArray.Length)
+                            continue;
+                        switch (placeHolderItems.Values[i])
+                        {
+                            case "%s":
+                                formattedString = Marshal.PtrToStringAnsi(argsArray[i]);
+                                break;
+                            case "%d":
+                            case "%lu":
+                            case "%i":
+                            case "%u":
+                            case "%llu":
+                            case "%f":
+                            case "%p":
+                                formattedString = argsArray[i].ToString();
+                                break;
+                            case "%x":
+                            case "%X":
+                                formattedString = argsArray[i].ToString("X");
+                                break;
+                            case "%10I64d":
+                                formattedString = argsArray[i].ToInt64().ToString().PadLeft(10);
+                                break;
+                            case "%-9i":
+                                formattedString = argsArray[i].ToString().PadLeft(9, '-');
+                                break;
+                            case "%-20s":
+                            case "%-19s":
+                                formattedString = Marshal.PtrToStringAnsi(argsArray[i]);
+                                if (formattedString != null)
+                                    formattedString = formattedString.PadLeft(19, '-');
+                                break;
+                            case "%-19g":
+                                formattedString = argsArray[i].ToString().PadLeft(19, '-');
+                                break;
+                            case "%-10g":
+                                formattedString = argsArray[i].ToString().PadLeft(10, '-');
+                                break;
+                            case "%3.1f":
+                            case "%5.1f":
+                                formattedString = argsArray[i].ToString("N1");
+                                break;
+
+                            default:
+                                formattedString = string.Empty;
+                                break;
+                        }
+                        if (formattedString != null)
+                        {
+                            logOutput.Remove(placeHolderItems.Keys[i] + offset, placeHolderItems.Values[i].Length);
+                            if (formattedString.Length > 0)
+                                logOutput.Insert(placeHolderItems.Keys[i] + offset, formattedString);
+
+                            // update offset
+                            offset += formattedString.Length - placeHolderItems.Values[i].Length;
+                        }
+                    }
+
+                    LOG.Info(logOutput);
+                }
+                catch (Exception ex)
+                {
+
+                }
+                finally
+                {
+                    placeHolderItems.Clear();
+                }
             }
         }
 
