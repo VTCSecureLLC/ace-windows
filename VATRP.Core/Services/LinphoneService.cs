@@ -584,7 +584,23 @@ namespace VATRP.Core.Services
             if (LinphoneAPI.linphone_core_get_use_info_for_dtmf(linphoneCore) != use_info)
             {
                 LinphoneAPI.linphone_core_set_use_info_for_dtmf(linphoneCore, use_info);
-                LOG.Debug(string.Format("{0} send dtmf as SIP info", use_info ? "Enable" : "Disable"));
+                LOG.Info(string.Format("{0} send dtmf as SIP info", use_info ? "Enable" : "Disable"));
+            }
+        }
+
+        public void SendDtmfAsTelephoneEvent(bool use_te)
+        {
+            if (linphoneCore == IntPtr.Zero)
+            {
+                if (ErrorEvent != null)
+                    ErrorEvent(null, "Cannot make when Linphone Core is not working.");
+                return;
+            }
+
+            if (LinphoneAPI.linphone_core_get_use_rfc2833_for_dtmf(linphoneCore) != use_te)
+            {
+                LinphoneAPI.linphone_core_set_use_rfc2833_for_dtmf(linphoneCore, use_te);
+                LOG.Info(string.Format("{0} send dtmf as RFC 2833", use_te ? "Enable" : "Disable"));
             }
         }
 

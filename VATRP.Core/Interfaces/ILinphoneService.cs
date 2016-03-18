@@ -44,6 +44,7 @@ namespace VATRP.Core.Interfaces
         void UnlockCalls();
         bool CanMakeVideoCall();
         void SendDtmfAsSipInfo(bool use_info);
+        void SendDtmfAsTelephoneEvent(bool use_te);
         void PlayDtmf(char dtmf, int duration);
         bool Register();
         bool Unregister(bool deferred);
