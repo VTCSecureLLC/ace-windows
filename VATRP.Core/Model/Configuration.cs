@@ -49,7 +49,8 @@ namespace VATRP.Core.Model
             CALL_DIAL_ESCAPE_PLUS,
             SHOW_LEGAL_RELEASE,
             LAST_MISSED_CALL_DATE,
-            TEXT_SEND_MODE
+            TEXT_SEND_MODE,
+            DTMF_INBAND
         }
 
         public static string LINPHONE_SIP_SERVER = "stl.vatrp.net";
