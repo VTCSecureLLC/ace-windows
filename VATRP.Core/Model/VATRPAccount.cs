@@ -227,6 +227,9 @@ namespace VATRP.Core.Model
         [Column]
         public int VideoDscpValue { get; set; }
 
+        [Column]
+        public bool EnableIPv6 { get; set; }
+
         #endregion
 
         #region Methods
@@ -274,6 +277,7 @@ namespace VATRP.Core.Model
             SipDscpValue = 28;
             AudioDscpValue = 38;
             VideoDscpValue = 38;
+            EnableIPv6 = false;
         }
 
         #endregion

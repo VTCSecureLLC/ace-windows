@@ -972,6 +972,11 @@ namespace VATRP.LinphoneWrapper
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_core_get_adaptive_rate_algorithm(IntPtr lc);
 
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_enable_ipv6(IntPtr lc, bool enabled);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_core_ipv6_enabled(IntPtr lc);
         /**
  * Returns the list of available audio codecs.
  * @param[in] lc The LinphoneCore object

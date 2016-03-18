@@ -62,6 +62,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             UploadBandwidthTextBox.Text = App.CurrentAccount.UploadBandwidth.ToString();
             DownloadBandwidthTextBox.Text = App.CurrentAccount.DownloadBandwidth.ToString();
             QoSCheckbox.IsChecked = App.CurrentAccount.EnableQualityOfService;
+            IPv6Checkbox.IsChecked = App.CurrentAccount.EnableIPv6;
         }
 
         private void OnAdaptiveRateChecked(object sender, RoutedEventArgs e)
@@ -234,6 +235,17 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
         }
 
+        private void OnIPv6(object sender, RoutedEventArgs e)
+        {
+            bool enabled = IPv6Checkbox.IsChecked ?? false;
+
+            if (enabled != App.CurrentAccount.EnableIPv6)
+            {
+                App.CurrentAccount.EnableIPv6 = enabled;
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+            }
+        }
+
         #region NotYetSpecifiedForWindows
             private
             void OnEdgeOptimization 
@@ -289,14 +301,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 //            }
             }
 
-        private
-            void OnIPv6 
-            (object sender, RoutedEventArgs e)
-            {
-                bool enabled = IPv6Checkbox.IsChecked ?? false;
-                // Placeholder - not yet indicated for Windows
-
-            }
         private
             void OnMediaEncryptionChanged 
             (object sender, RoutedEventArgs e)
