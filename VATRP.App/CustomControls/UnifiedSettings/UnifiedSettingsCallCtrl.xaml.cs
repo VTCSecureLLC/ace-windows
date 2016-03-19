@@ -37,6 +37,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             this.SendSipInfoDTMFCheckBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                  Configuration.ConfEntry.DTMF_SIP_INFO, false);
+
+            this.SendInbandDTMFCheckBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.DTMF_INBAND, false);
         }
 
         #region ShowSettingsLevel
@@ -60,6 +63,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             SendSipInfoDTMFLabel.Visibility = visibleSetting;
             SendSipInfoDTMFCheckBox.Visibility = visibleSetting;
+
+            SendInbandDTMFLabel.Visibility = visibleSetting;
+            SendInbandDTMFCheckBox.Visibility = visibleSetting;
         }
         public override void ShowSuperOptions(bool show)
         {
@@ -116,7 +122,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnSendInbandDTMF(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Send Inband DTMF Clicked");
-
+            bool enabled = this.SendInbandDTMFCheckBox.IsChecked ?? false;
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.DTMF_INBAND, enabled);
+            ServiceManager.Instance.ConfigurationService.SaveConfig();
+            ServiceManager.Instance.ApplyDtmfInbandChanges();
         }
 
         private void OnSendSipInfoDTMF(object sender, RoutedEventArgs e)
@@ -126,6 +136,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.DTMF_SIP_INFO, enabled);
             ServiceManager.Instance.ConfigurationService.SaveConfig();
+            ServiceManager.Instance.ApplyDtmfOnSIPInfoChanges();
         }
 
         private void OnRepeatCallNotification(object sender, RoutedEventArgs e)

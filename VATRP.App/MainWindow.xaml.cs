@@ -277,6 +277,7 @@ namespace com.vtcsecure.ace.windows
                 {
                     ServiceManager.Instance.ApplyAVPFChanges();
                     ServiceManager.Instance.ApplyDtmfOnSIPInfoChanges();
+                    ServiceManager.Instance.ApplyDtmfInbandChanges();
                 }
 
                 if (_mainViewModel.SettingsModel.MediaSettingsChanged)
