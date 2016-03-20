@@ -17,23 +17,24 @@
                 <ColumnDefinition Width="160*"/>
                 <ColumnDefinition Width="27*"/>
             </Grid.ColumnDefinitions>
-
-            <!-- Row 0: Foreground Color -->
-            <Button Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Content="Foreground Color" Margin="0,2" 
-                    BorderThickness="0"  Click="OnForegroundColor"
-                    VerticalContentAlignment="Center">
-            </Button>
-            <!-- Row 1: Background Color -->
-            <Button Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Content="Background Color" Margin="0,2" 
-                    BorderThickness="0"  Click="OnBackgroundColor"
-                    VerticalContentAlignment="Center">
-            </Button>
-            <!-- Row 30: AutoAnswerCall -->
-            <Label Grid.Column="0" Grid.Row="3"  Content="Force 508" 
+            <Label Grid.Column="0" Grid.Row="0"  Content="Force 508" 
                    VerticalContentAlignment="Center" HorizontalAlignment="Left" Name="AutoAnswerLabel">
             </Label>
-            <CheckBox Grid.Column="1" Grid.Row="30" Checked="OnForce508" Unchecked="OnForce508" HorizontalAlignment="Center" 
+            <CheckBox Grid.Column="1" Grid.Row="0" Checked="OnForce508" Unchecked="OnForce508" HorizontalAlignment="Center" 
                       VerticalAlignment="Center"  Name="Force508CheckBox"/>
+            <!-- Row 1: Foreground Color -->
+            <Button Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Content="Foreground Color" Margin="0,2" 
+                    BorderThickness="0"  Click="OnForegroundColor"
+                    VerticalContentAlignment="Center" Visibility="Hidden" >
+            </Button>
+            <!-- Row 2: Background Color -->
+            <Button Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Content="Background Color" Margin="0,2" 
+                    BorderThickness="0"  Click="OnBackgroundColor"
+                    VerticalContentAlignment="Center" Visibility="Hidden">
+            </Button>
+            <!-- Row 30: AutoAnswerCall -->
+            
+            
 
         </Grid>
     </Grid>
