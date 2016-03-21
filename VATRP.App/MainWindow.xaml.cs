@@ -718,7 +718,7 @@ namespace com.vtcsecure.ace.windows
 
         private void OnSignOutRequested(object sender, RoutedEventArgs e)
         {
-            if (signOutRequest)
+            if (signOutRequest || RegistrationState == LinphoneRegistrationState.LinphoneRegistrationProgress)
             {
                 MessageBox.Show("Account registration is in progress. Please wait.", "ACE",
                     MessageBoxButton.OK, MessageBoxImage.Information);

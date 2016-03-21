@@ -359,6 +359,7 @@ namespace com.vtcsecure.ace.windows
                         this.ShowSelfPreviewItem.IsEnabled = true;
 						_callInfoView.Hide();
 						ctrlCall.ctrlOverlay.StopCallTimer();
+                        ctrlCall.SetCallViewModel(null);
 						ShowCallOverlayWindow(false);
 						_mainViewModel.IsMessagingDocked = false;
 						_mainViewModel.IsCallPanelDocked = false;
@@ -381,6 +382,8 @@ namespace com.vtcsecure.ace.windows
                             if (nextVM.CallState != VATRPCallState.Error)
                             {
                                 _mainViewModel.ActiveCallModel = nextVM;
+                                nextVM.CallSwitchLastTimeVisibility = Visibility.Hidden;
+
                                 if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                                     Configuration.ConfEntry.USE_RTT, true))
                                 {
@@ -421,6 +424,7 @@ namespace com.vtcsecure.ace.windows
 					_flashWindowHelper.StopFlashing();
                     ctrlCall.BackgroundCallViewModel = null;
 					callViewModel.OnClosed(true, call.LinphoneMessage);
+                    callViewModel.CallSwitchLastTimeVisibility = Visibility.Hidden;
 					stopPlayback = true;
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                        Configuration.ConfEntry.USE_RTT, true))
@@ -442,6 +446,7 @@ namespace com.vtcsecure.ace.windows
 						_callInfoView.Hide();
 						ctrlCall.ctrlOverlay.StopCallTimer();
                         ShowCallOverlayWindow(false);
+                        ctrlCall.SetCallViewModel(null);
                         _mainViewModel.IsMessagingDocked = false;
 
                         if (deferredHideTimer != null)
