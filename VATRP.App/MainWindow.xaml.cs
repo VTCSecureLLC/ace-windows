@@ -604,6 +604,7 @@ namespace com.vtcsecure.ace.windows
                 }
             }
             RearrangeUICallView(szDimensions);
+            Activate();
         }
 
         private void RearrangeUICallView(Size callViewDimensions)
@@ -664,7 +665,8 @@ namespace com.vtcsecure.ace.windows
 
             ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(false);
             ctrlCall.ctrlOverlay.Refresh();
-            ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(this.WindowState != WindowState.Minimized);
+            if(_mainViewModel.ActiveCallModel != null && _mainViewModel.ActiveCallModel.CallState != VATRPCallState.Closed)
+                ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(this.WindowState != WindowState.Minimized);
         }
 
         private void OnCameraSwitched(bool switch_on)
@@ -969,7 +971,9 @@ namespace com.vtcsecure.ace.windows
 
         private void OnAppKeyUp(object sender, KeyEventArgs e)
         {
-            if (_linphoneService != null && (_mainViewModel != null && _mainViewModel.ActiveCallModel != null && 
+            if (_mainViewModel == null)
+                return;
+            if (_linphoneService != null && ( _mainViewModel.ActiveCallModel != null && 
                                              _mainViewModel.ActiveCallModel.CallState == VATRPCallState.InProgress ))
             {
                 if (e.Key == Key.Enter && !e.IsRepeat)
@@ -985,6 +989,11 @@ namespace com.vtcsecure.ace.windows
                         ctrlCall.HoldAndAcceptCall(this, null);
                     }
                 }
+            }
+            
+            if (e.Key == Key.Escape &&  _mainViewModel.IsInCallFullScreen)
+            {
+               ctrlCall.ExitFullScreen();
             }
         }
 
