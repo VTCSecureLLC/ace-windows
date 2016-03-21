@@ -62,7 +62,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
             if (LoginBox.Text != App.CurrentAccount.Username)
                 return true;
-            if ( PasswdBox.Password != App.CurrentAccount.Password)
+            if (PasswdBox.Password != App.CurrentAccount.Password)
                 return true;
             if (HostnameBox.Text != App.CurrentAccount.ProxyHostname)
                 return true;
