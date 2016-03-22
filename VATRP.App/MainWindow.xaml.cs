@@ -28,6 +28,7 @@ using VATRP.Core.Model;
 using VATRP.LinphoneWrapper.Enums;
 using HockeyApp;
 using com.vtcsecure.ace.windows.CustomControls.Resources;
+using System.IO;
 
 namespace com.vtcsecure.ace.windows
 {
@@ -755,7 +756,23 @@ namespace com.vtcsecure.ace.windows
             }
 
             signOutRequest = true;
-
+            // remove the password file - the user is manually signing out, do not remember the password despite autologin in this case
+            string pwFile = ServiceManager.Instance.GetPWFile();
+            try
+            {
+                if (!string.IsNullOrEmpty(pwFile))
+                {
+                    if (File.Exists(pwFile))
+                    {
+                        File.Delete(pwFile);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // I think it is ok for this to be silent, but log it
+                LOG.Info("MainWindow.OnSignOutRequested: unabled to check file existance or remove file - filename:" + pwFile + " Details: " + ex.Message);
+            }
             switch (RegistrationState)
             {
                 case LinphoneRegistrationState.LinphoneRegistrationProgress:

@@ -305,6 +305,12 @@ namespace com.vtcsecure.ace.windows.CustomControls
             bool autoLogin = AutoLoginBox.IsChecked ?? false;
             ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.AUTO_LOGIN, autoLogin);
+            if (autoLogin)
+            {
+                // store the password even if we have to drop out of auot config.
+                App.CurrentAccount.StorePassword(ServiceManager.Instance.GetPWFile());
+            }
+
 //            App.CurrentAccount.AutoLogin = AutoLoginBox.IsChecked ?? false;
 
             var transportText = TransportComboBox.SelectedItem as TextBlock;
