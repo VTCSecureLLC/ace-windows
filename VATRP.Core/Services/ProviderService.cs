@@ -261,9 +261,17 @@ namespace VATRP.Core.Services
         {
             foreach (VATRPServiceProvider provider in providersList)
             {
-                if (!string.IsNullOrEmpty(providerLabel) && provider.Label.Contains(providerLabel))
+                if (!string.IsNullOrEmpty(providerLabel))
                 {
-                    return provider;
+                    if (provider.Label.Contains(providerLabel))
+                    {
+                        return provider;
+                    }
+                    // this method is also being used to look by domain- compare by domain as well.
+                    if (provider.Address.Equals(providerLabel))
+                    {
+                        return provider;
+                    }
                 }
             }
             return null;
