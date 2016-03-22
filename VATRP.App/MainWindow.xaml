@@ -66,7 +66,7 @@
 				<MenuItem x:Name="SelfViewItem" Header="_Media Self-View" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" 
                           Foreground="White" Click="OnShowSelfView" />
                 <MenuItem Header="_Media Text Window" Background="{DynamicResource AppMainWindowBrush}" 
-                          Foreground="White" Name="ShowRTTView" Click="OnShowRTTView" IsCheckable="True" IsEnabled="{Binding IsRTTViewEnabled}"/>
+                          Foreground="White" Name="ShowRTTView" Click="OnShowRTTView" IsCheckable="True" IsEnabled="{Binding IsRTTViewEnabled}" Visibility="Collapsed"/>
                 <MenuItem x:Name="ShowSelfPreviewItem" Header="_Show Self Preview" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" 
                           Foreground="White" Click="OnShowPreviewWindow" />
                 <MenuItem x:Name="ShowMessagingViewItem" Header="_Show Messaging View" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" 
