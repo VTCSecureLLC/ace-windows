@@ -301,6 +301,7 @@ namespace VATRP.Core.Model
                 Password = DataProtectionHelper.ReadUnprotectedBytesFromProtectedFile(filePath);
             }
         }
+
         #endregion
     }
 }
