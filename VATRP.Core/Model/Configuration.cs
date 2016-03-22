@@ -39,6 +39,7 @@ namespace VATRP.Core.Model
             ACCOUNT_IN_USE,
             AUTO_ANSWER,
             AUTO_ANSWER_AFTER,
+            AUTO_LOGIN,
             AVPF_ON,
             RTCP_FEEDBACK,
             DTMF_SIP_INFO,

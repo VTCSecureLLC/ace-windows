@@ -445,7 +445,14 @@ namespace com.vtcsecure.ace.windows
             }
             else
             {
-                if (!App.CurrentAccount.AutoLogin || string.IsNullOrEmpty(App.CurrentAccount.Password))
+                bool autoLogin = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL, Configuration.ConfEntry.AUTO_LOGIN, false);
+                // if autologin && account exists, try to load the password. 
+                if (autoLogin && (App.CurrentAccount != null))
+                {
+                    App.CurrentAccount.ReadPassword(ServiceManager.Instance.GetPWFile());
+                }
+               
+                if (!autoLogin || string.IsNullOrEmpty(App.CurrentAccount.Password))
                 {
                     var wizardPage = new ProviderLoginScreen(this);
                     wizardPage.InitializeToAccount(App.CurrentAccount);
@@ -511,8 +518,14 @@ namespace com.vtcsecure.ace.windows
 
             // reset provider selection in dialpad
             ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL, Configuration.ConfEntry.CURRENT_PROVIDER, "");
-
-            if ((App.CurrentAccount != null) && App.CurrentAccount.AutoLogin && App.CurrentAccount.Password.NotBlank())
+            VATRPAccount account = App.CurrentAccount;
+            bool autoLogin = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                    Configuration.ConfEntry.AUTO_LOGIN, false);
+            if (autoLogin && (App.CurrentAccount != null))
+            {
+                App.CurrentAccount.ReadPassword(ServiceManager.Instance.GetPWFile());
+            }
+            if ((App.CurrentAccount != null) && autoLogin && !string.IsNullOrEmpty(App.CurrentAccount.Password))
             {
                 if (!string.IsNullOrEmpty(App.CurrentAccount.ProxyHostname) &&
                     !string.IsNullOrEmpty(App.CurrentAccount.RegistrationPassword) &&
