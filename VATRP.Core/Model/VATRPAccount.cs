@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Linq.Mapping;
+using System.Security;
+using System.Security.Cryptography;
+using VATRP.Core.Utilities;
 
 namespace VATRP.Core.Model
 {
@@ -33,7 +36,7 @@ namespace VATRP.Core.Model
         [Column]
         public string Username { get; set; }
 
-        [Column]
+        // [ Column ]
         public string Password { get; set; }
 
         [Column]
@@ -42,8 +45,8 @@ namespace VATRP.Core.Model
         [Column]
         public VATRPAccountType AccountType { get; set; }
 
-        [Column]
-        public bool AutoLogin { get; set; }
+//        [Column]
+//        public bool AutoLogin { get; set; }
 
         [Column]
         public bool RememberPassword { get; set; }
@@ -278,6 +281,25 @@ namespace VATRP.Core.Model
             AudioDscpValue = 38;
             VideoDscpValue = 38;
             EnableIPv6 = false;
+        }
+
+        public void StorePassword(string filePath)
+        {
+            if (!string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(Password))
+            {
+                DataProtectionHelper.WriteProtectedBytesToFile(filePath, Password);
+                Password = "";
+            }
+        }
+
+        public void ReadPassword(string filePath)
+        {
+            // if autologin is set, load the password for this user
+            if (!string.IsNullOrEmpty(filePath)) 
+            {
+                // method below handles checking for file existance
+                Password = DataProtectionHelper.ReadUnprotectedBytesFromProtectedFile(filePath);
+            }
         }
 
         #endregion

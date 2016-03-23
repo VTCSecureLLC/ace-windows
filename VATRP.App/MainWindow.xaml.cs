@@ -28,6 +28,7 @@ using VATRP.Core.Model;
 using VATRP.LinphoneWrapper.Enums;
 using HockeyApp;
 using com.vtcsecure.ace.windows.CustomControls.Resources;
+using System.IO;
 
 namespace com.vtcsecure.ace.windows
 {
@@ -445,7 +446,14 @@ namespace com.vtcsecure.ace.windows
             }
             else
             {
-                if (!App.CurrentAccount.AutoLogin || string.IsNullOrEmpty(App.CurrentAccount.Password))
+                bool autoLogin = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL, Configuration.ConfEntry.AUTO_LOGIN, false);
+                // if autologin && account exists, try to load the password. 
+                if (autoLogin && (App.CurrentAccount != null))
+                {
+                    App.CurrentAccount.ReadPassword(ServiceManager.Instance.GetPWFile());
+                }
+               
+                if (!autoLogin || string.IsNullOrEmpty(App.CurrentAccount.Password))
                 {
                     var wizardPage = new ProviderLoginScreen(this);
                     wizardPage.InitializeToAccount(App.CurrentAccount);
@@ -511,8 +519,14 @@ namespace com.vtcsecure.ace.windows
 
             // reset provider selection in dialpad
             ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL, Configuration.ConfEntry.CURRENT_PROVIDER, "");
-
-            if ((App.CurrentAccount != null) && App.CurrentAccount.AutoLogin && App.CurrentAccount.Password.NotBlank())
+            VATRPAccount account = App.CurrentAccount;
+            bool autoLogin = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                    Configuration.ConfEntry.AUTO_LOGIN, false);
+            if (autoLogin && (App.CurrentAccount != null))
+            {
+                App.CurrentAccount.ReadPassword(ServiceManager.Instance.GetPWFile());
+            }
+            if ((App.CurrentAccount != null) && autoLogin && !string.IsNullOrEmpty(App.CurrentAccount.Password))
             {
                 if (!string.IsNullOrEmpty(App.CurrentAccount.ProxyHostname) &&
                     !string.IsNullOrEmpty(App.CurrentAccount.RegistrationPassword) &&
@@ -604,6 +618,7 @@ namespace com.vtcsecure.ace.windows
                 }
             }
             RearrangeUICallView(szDimensions);
+            Activate();
         }
 
         private void RearrangeUICallView(Size callViewDimensions)
@@ -664,7 +679,8 @@ namespace com.vtcsecure.ace.windows
 
             ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(false);
             ctrlCall.ctrlOverlay.Refresh();
-            ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(this.WindowState != WindowState.Minimized);
+            if(_mainViewModel.ActiveCallModel != null && _mainViewModel.ActiveCallModel.CallState != VATRPCallState.Closed)
+                ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(this.WindowState != WindowState.Minimized);
         }
 
         private void OnCameraSwitched(bool switch_on)
@@ -740,7 +756,23 @@ namespace com.vtcsecure.ace.windows
             }
 
             signOutRequest = true;
-
+            // remove the password file - the user is manually signing out, do not remember the password despite autologin in this case
+            string pwFile = ServiceManager.Instance.GetPWFile();
+            try
+            {
+                if (!string.IsNullOrEmpty(pwFile))
+                {
+                    if (File.Exists(pwFile))
+                    {
+                        File.Delete(pwFile);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // I think it is ok for this to be silent, but log it
+                LOG.Info("MainWindow.OnSignOutRequested: unabled to check file existance or remove file - filename:" + pwFile + " Details: " + ex.Message);
+            }
             switch (RegistrationState)
             {
                 case LinphoneRegistrationState.LinphoneRegistrationProgress:
@@ -969,7 +1001,9 @@ namespace com.vtcsecure.ace.windows
 
         private void OnAppKeyUp(object sender, KeyEventArgs e)
         {
-            if (_linphoneService != null && (_mainViewModel != null && _mainViewModel.ActiveCallModel != null && 
+            if (_mainViewModel == null)
+                return;
+            if (_linphoneService != null && ( _mainViewModel.ActiveCallModel != null && 
                                              _mainViewModel.ActiveCallModel.CallState == VATRPCallState.InProgress ))
             {
                 if (e.Key == Key.Enter && !e.IsRepeat)
@@ -985,6 +1019,11 @@ namespace com.vtcsecure.ace.windows
                         ctrlCall.HoldAndAcceptCall(this, null);
                     }
                 }
+            }
+            
+            if (e.Key == Key.Escape &&  _mainViewModel.IsInCallFullScreen)
+            {
+               ctrlCall.ExitFullScreen();
             }
         }
 

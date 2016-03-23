@@ -75,6 +75,7 @@
       <HintPath>..\packages\System.Data.SQLite.Linq.1.0.99.0\lib\net451\System.Data.SQLite.Linq.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
     <Reference Include="Windows.Devices" />
     <Reference Include="WindowsBase" />
@@ -168,6 +169,8 @@
     <Compile Include="Services\LinphoneService.cs" />
     <Compile Include="Services\ServiceManagerBase.cs" />
     <Compile Include="Services\SoundService.cs" />
+    <Compile Include="Utilities\DataProtectionHelper.cs" />
+    <Compile Include="Utilities\XmlStringHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VATRP.LinphoneWrapper\VATRP.LinphoneWrapper.csproj">

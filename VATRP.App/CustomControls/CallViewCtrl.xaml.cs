@@ -687,5 +687,11 @@ namespace com.vtcsecure.ace.windows.CustomControls
             BtnRTT.IsChecked = _viewModel.IsRttOn;
             _viewModel.SavedIsRttOn = BtnRTT.IsChecked ?? false;
         }
+
+        internal void ExitFullScreen()
+        {
+            BtnFullScreen.IsChecked = false;
+            OnToggleFullScreen(this, null);
+        }
     }
 }
