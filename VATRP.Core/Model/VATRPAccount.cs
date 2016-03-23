@@ -277,9 +277,9 @@ namespace VATRP.Core.Model
             DownloadBandwidth = 1500;
             EnableQualityOfService = true;
             AdaptiveRateAlgorithm = "Simple";
-            SipDscpValue = 28;
-            AudioDscpValue = 38;
-            VideoDscpValue = 38;
+            SipDscpValue = 24;
+            AudioDscpValue = 46;
+            VideoDscpValue = 46;
             EnableIPv6 = false;
         }
 
