@@ -289,7 +289,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                     isChanged = true;
                 }
                 if (ValueChanged(App.CurrentAccount.Password, PasswordTextBox.Password))
-                { 
+                {
                     App.CurrentAccount.Password = PasswordTextBox.Password;
                     isChanged = true;
                 }

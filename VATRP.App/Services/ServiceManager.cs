@@ -69,6 +69,32 @@ namespace com.vtcsecure.ace.windows.Services
             }
         }
 
+        public string GetPWFile()
+        {
+            string path = ApplicationDataPath;
+            if (!string.IsNullOrEmpty(path))
+            {
+                try
+                {
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    if (path.LastIndexOf(Path.PathSeparator) != (path.Length - 1))
+                    {
+                        path += Path.DirectorySeparatorChar;
+                    }
+                    path += "user.dat";
+                }
+                catch (Exception ex)
+                {
+                    
+                    return "";
+                }
+            }
+            return path;
+        }
+
         #region Overrides
         public override string BuildStoragePath(string folder)
         {
