@@ -852,13 +852,6 @@ namespace VATRP.Linphone.VideoWrapper
                                       indicator == QualityIndicator.ToBad
                         ? Visibility.Visible
                         : Visibility.Collapsed;
-
-
-                grid = FindChild<Grid>(container, "MediumIndicator");
-                if (grid != null)
-                    grid.Visibility = indicator == QualityIndicator.Medium
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
             }
             qualityIndicatoWindow.Refresh();
             qualityIndicatoWindow.UpdateWindow();
