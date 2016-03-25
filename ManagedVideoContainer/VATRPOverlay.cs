@@ -20,11 +20,11 @@ namespace VATRP.Linphone.VideoWrapper
         private VATRPTranslucentWindow newCallAcceptWindow;
         private VATRPTranslucentWindow onHoldWindow;
         private VATRPTranslucentWindow qualityIndicatoWindow;
-
         private System.Timers.Timer _timerCall;
         private int _foregroundCallDuration = 0;
         private int _backgroundCallDuration = 0;
-
+        private QualityIndicator _lastQuality = QualityIndicator.Unknown;
+		
         public VATRPOverlay()
         {
             commandBarWindow = new VATRPTranslucentWindow(this);
@@ -838,20 +838,88 @@ namespace VATRP.Linphone.VideoWrapper
             }
         }
 
-        public void UpdateQualityIndicator(QualityIndicator indicator)
+        public void UpdateQualityIndicator(QualityIndicator currentQuality)
         {
-            var container =
-                FindChild<Grid>(qualityIndicatoWindow.TransparentWindow, "QualityContainer");
-            if (container != null)
+            if (_lastQuality != currentQuality)
             {
-                var grid =
-                    FindChild<Grid>(container, "BadIndicator");
-                if (grid != null)
-                    grid.Visibility = indicator == QualityIndicator.Poor ||
-                                      indicator == QualityIndicator.VeryPoor ||
-                                      indicator == QualityIndicator.ToBad
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
+                var currentIndicator = "MediumIndicator";
+                var lastIndicator = "MediumIndicator";
+                switch (_lastQuality)
+                {
+                    case QualityIndicator.ToBad:
+                        lastIndicator = "BadIndicator";
+                        break;
+                    case QualityIndicator.VeryPoor:
+                    case QualityIndicator.Poor:
+                        lastIndicator = "PoorIndicator";
+                        break;
+                    case QualityIndicator.Medium:
+                        lastIndicator = "MediumIndicator";
+                        break;
+                    case QualityIndicator.Good:
+                        lastIndicator = "GoodIndicator";
+                        break;
+                    default:
+                        lastIndicator = string.Empty;
+                        break;
+                }
+
+                switch (currentQuality)
+                {
+                    case QualityIndicator.ToBad:
+                        currentIndicator = "BadIndicator";
+                        break;
+                    case QualityIndicator.VeryPoor:
+                    case QualityIndicator.Poor:
+                        currentIndicator = "PoorIndicator";
+                        break;
+                    case QualityIndicator.Medium:
+                        currentIndicator = "MediumIndicator";
+                        break;
+                    case QualityIndicator.Good:
+                        currentIndicator = "GoodIndicator";
+                        break;
+                    default:
+                        return;
+                }
+
+                _lastQuality = currentQuality;
+                var container =
+                    FindChild<Grid>(qualityIndicatoWindow.TransparentWindow, "QualityContainer");
+                if (container != null)
+                {
+                    var image =
+                        FindChild<Image>(container, lastIndicator);
+                    if (image != null)
+                    {
+                        image.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        image =
+                            FindChild<Image>(container, "BadIndicator");
+
+                        if (image != null)
+                            image.Visibility = Visibility.Collapsed;
+                        image =
+                            FindChild<Image>(container, "PoorIndicator");
+                        if (image != null)
+                            image.Visibility = Visibility.Collapsed;
+                        image =
+                            FindChild<Image>(container, "MediumIndicator");
+                        if (image != null)
+                            image.Visibility = Visibility.Collapsed;
+                        image =
+                            FindChild<Image>(container, "GoodIndicator");
+                        if (image != null)
+                            image.Visibility = Visibility.Collapsed;
+                    }
+
+                    image =
+                        FindChild<Image>(container, currentIndicator);
+                    if (image != null)
+                        image.Visibility = Visibility.Visible;
+                }
             }
             qualityIndicatoWindow.Refresh();
             qualityIndicatoWindow.UpdateWindow();
@@ -862,7 +930,13 @@ namespace VATRP.Linphone.VideoWrapper
             qualityIndicatoWindow.ShowWindow = bshow;
             qualityIndicatoWindow.Refresh();
             if (bshow)
+            {
                 qualityIndicatoWindow.UpdateWindow();
+            }
+            else
+            {
+                _lastQuality = QualityIndicator.Unknown;
+            }
         }
 
         public object OverlayQualityIndicatorChild
