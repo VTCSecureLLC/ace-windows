@@ -1988,14 +1988,22 @@ namespace VATRP.Core.Services
             }
             lock (logLock)
             {
-                foreach (var formatter in placeholders)
+                try
                 {
-                    int pos = format.IndexOf(formatter, 0, StringComparison.InvariantCulture);
-                    while (pos != -1)
+                    foreach (var formatter in placeholders)
                     {
-                        placeHolderItems[pos] = formatter;
-                        pos = format.IndexOf(formatter, pos + 1, StringComparison.InvariantCulture);
+                        int pos = format.IndexOf(formatter, 0, StringComparison.InvariantCulture);
+                        while (pos != -1)
+                        {
+                            placeHolderItems[pos] = formatter;
+                            pos = format.IndexOf(formatter, pos + 1, StringComparison.InvariantCulture);
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    LOG.Error("Error on formatting: " + format);
+                    return;
                 }
 
                 if (placeHolderItems.Count == 0)
