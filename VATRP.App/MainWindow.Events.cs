@@ -497,7 +497,7 @@ namespace com.vtcsecure.ace.windows
 
         private void OnCallQualityChanged(VATRP.Linphone.VideoWrapper.QualityIndicator callQuality)
         {
-            if (_mainViewModel.ActiveCallModel == null)
+            if (_mainViewModel.ActiveCallModel == null || callQuality == QualityIndicator.Unknown)
             {
                 ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(false);
                 return;
