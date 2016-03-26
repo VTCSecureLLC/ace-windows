@@ -44,7 +44,10 @@ namespace com.vtcsecure.ace.windows
         }
 		
 	    private void OnCallStateChanged(VATRPCall call)
-		{
+	    {
+	        if (this.Dispatcher == null)
+	            return;
+
 			if (this.Dispatcher.Thread != Thread.CurrentThread)
 			{
 				this.Dispatcher.BeginInvoke((Action)(() => this.OnCallStateChanged(call)));
@@ -56,6 +59,9 @@ namespace com.vtcsecure.ace.windows
 
             if (deferredHideTimer != null && deferredHideTimer.IsEnabled)
                 deferredHideTimer.Stop();
+
+	        if (_mainViewModel == null)
+	            return;
 
 			CallViewModel callViewModel = _mainViewModel.FindCallViewModel(call);
 
@@ -136,8 +142,9 @@ namespace com.vtcsecure.ace.windows
 
                     if (WindowState != WindowState.Minimized)
                         _mainViewModel.IsCallPanelDocked = true;
-
-					_flashWindowHelper.FlashWindow(this);
+                    
+                    if (_flashWindowHelper != null)
+                        _flashWindowHelper.FlashWindow(this);
 			        if (WindowState == WindowState.Minimized)
                         this.WindowState = WindowState.Normal;
                     
@@ -179,7 +186,8 @@ namespace com.vtcsecure.ace.windows
 			        }
 
 					callViewModel.OnConnected();
-					_flashWindowHelper.StopFlashing();
+                    if (_flashWindowHelper != null)
+                        _flashWindowHelper.StopFlashing();
 					stopPlayback = true;
 					callViewModel.ShowOutgoingEndCall = false;
 			        callViewModel.IsRTTEnabled =
@@ -337,8 +345,10 @@ namespace com.vtcsecure.ace.windows
 					ctrlCall.AddVideoControl();
                     break;
                 case VATRPCallState.Closed:
-					_flashWindowHelper.StopFlashing();
-					callViewModel.OnClosed(false, string.Empty);
+					if (_flashWindowHelper != null)
+                        _flashWindowHelper.StopFlashing();
+					
+                    callViewModel.OnClosed(false, string.Empty);
 					stopPlayback = true;
 			        destroycall = true;
                     callViewModel.CallQualityChangedEvent -= OnCallQualityChanged;
@@ -421,8 +431,9 @@ namespace com.vtcsecure.ace.windows
 					break;
 				case VATRPCallState.Error:
 			        destroycall = true;
-					_flashWindowHelper.StopFlashing();
-                    ctrlCall.BackgroundCallViewModel = null;
+			        if (_flashWindowHelper != null) 
+                        _flashWindowHelper.StopFlashing();
+			        ctrlCall.BackgroundCallViewModel = null;
 					callViewModel.OnClosed(true, call.LinphoneMessage);
                     callViewModel.CallSwitchLastTimeVisibility = Visibility.Hidden;
 					stopPlayback = true;
