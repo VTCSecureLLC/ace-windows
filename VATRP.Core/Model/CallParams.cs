@@ -11,6 +11,12 @@ namespace VATRP.Core.Model
         public string Username;
         public string HostAddress;
         public int HostPort;
-        
+
+        public CallParams()
+        {
+            DisplayName = String.Empty;
+            Username = String.Empty;
+            HostAddress = String.Empty;
+        }
     }
 }
