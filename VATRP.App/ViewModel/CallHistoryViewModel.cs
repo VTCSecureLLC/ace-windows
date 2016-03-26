@@ -270,7 +270,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         public void AddNewContact(HistoryCallEventViewModel callEventViewModel)
         {
             var remote = callEventViewModel.CallEvent.RemoteParty.TrimSipPrefix();
-            ContactEditViewModel model = new ContactEditViewModel(true, remote, string.Empty);
+            ContactEditViewModel model = new ContactEditViewModel(false, remote, string.Empty);
             model.ContactName = callEventViewModel.DisplayName;
             var contactEditView = new com.vtcsecure.ace.windows.Views.ContactEditView(model);
             var dialogResult = contactEditView.ShowDialog();
