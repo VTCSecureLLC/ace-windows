@@ -18,6 +18,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private string _infoTitle;
         private string _contactName = string.Empty;
         private string _contactSipAddress = string.Empty;
+        private string _contactInitialSipHost = string.Empty;
         private string _contactSipUsername = string.Empty;
         private string _avatarPath = string.Empty;
         private readonly string _originAvatarPath = string.Empty;
@@ -189,12 +190,23 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 _nologoProvider = new ProviderViewModel(nlp);
             }
 
+            if (selectedProvider == null )
+            {
+                if (_currentProvider == null)
+                    _currentProvider = _nologoProvider;
+                _contactInitialSipHost = string.Empty;
+            }
+
             if (_isAddMode)
             {
                 SelectedProvider = selectedProvider ?? _currentProvider;
             }
             else
+            {
+                if (selectedProvider == null)
+                    _contactInitialSipHost = domain;
                 SelectedProvider = selectedProvider ?? _nologoProvider;
+            }
         }
 
         internal bool ValidateName()
@@ -249,19 +261,52 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 if (changeProvider)
                 {
-                    host = _selectedProvider.Provider.Address;
+                    if (_selectedProvider != null)
+                    {
+                        if (_selectedProvider == _nologoProvider)
+                            ContactSipUsername = port == 0
+                            ? String.Format("{0}@{1}", un,
+                                _contactInitialSipHost)
+                            : String.Format("{0}@{1}:{2}", un,
+                                _contactInitialSipHost, port);
+                        else
+                            ContactSipUsername = port == 0
+                            ? String.Format("{0}@{1}", un,
+                                _selectedProvider.Provider.Address)
+                            : String.Format("{0}@{1}:{2}", un,
+                                _selectedProvider.Provider.Address, port);
+                    }
+                    else
+                    {
+                        ContactSipUsername = port == 0
+                            ? String.Format("{0}@{1}", un,
+                                _contactInitialSipHost)
+                            : String.Format("{0}@{1}:{2}", un,
+                                _contactInitialSipHost, port);
+                    }
                 }
                 else
                 {
-                    if (host != _selectedProvider.Provider.Address && string.IsNullOrEmpty(host))
-                        host = _selectedProvider.Provider.Address;
+                    if (_selectedProvider != null)
+                    {
+                        if (host != _selectedProvider.Provider.Address && string.IsNullOrEmpty(host))
+                        {
+                            ContactSipUsername = port == 0
+                           ? String.Format("{0}@{1}", un,
+                               _selectedProvider.Provider.Address)
+                           : String.Format("{0}@{1}:{2}", un,
+                               _selectedProvider.Provider.Address, port);
+                        }
+                    }
+                    else
+                    {
+                        ContactSipUsername = port == 0
+                           ? String.Format("{0}@{1}", un,
+                               host)
+                           : String.Format("{0}@{1}:{2}", un,
+                               host, port);
+                    }
                 }
-
-                ContactSipUsername = port == 0
-                    ? String.Format("{0}@{1}", un,
-                        host)
-                    : String.Format("{0}@{1}:{2}", un,
-                        host, port);
             }
         }
 
