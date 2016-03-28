@@ -8,6 +8,7 @@ using System.Windows.Threading;
 using com.vtcsecure.ace.windows.CustomControls;
 using com.vtcsecure.ace.windows.Model;
 using com.vtcsecure.ace.windows.Services;
+using com.vtcsecure.ace.windows.Utilities;
 using com.vtcsecure.ace.windows.ViewModel;
 using com.vtcsecure.ace.windows.Views;
 using VATRP.Core.Events;
@@ -117,6 +118,7 @@ namespace com.vtcsecure.ace.windows
                     }
 					break;
 				case VATRPCallState.InProgress:
+			        WakeupScreenSaver();
 			        this.ShowSelfPreviewItem.IsEnabled = false;
 					call.RemoteParty = call.From;
 					ServiceManager.Instance.SoundService.PlayRingTone();
@@ -505,6 +507,16 @@ namespace com.vtcsecure.ace.windows
                 }
 		    }
 		}
+
+        private void WakeupScreenSaver()
+        {
+            if (!ScreenSaverHelper.IsScreenSaverActive())
+                return;
+
+            if (!ScreenSaverHelper.IsScreenSaverRunning())
+                return;
+            ScreenSaverHelper.KillScreenSaver();
+        }
 
         private void OnCallQualityChanged(VATRP.Linphone.VideoWrapper.QualityIndicator callQuality)
         {

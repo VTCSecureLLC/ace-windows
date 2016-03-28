@@ -36,7 +36,7 @@
                   BorderBrush="{StaticResource AppMainWindowBrush}"
                   Foreground="{StaticResource AppMainWindowBrush}" 
                   Style="{StaticResource ProviderComboStyle}" 
-                  ItemContainerStyle="{StaticResource ContactProviderComboBoxItemStyle}"
+                  ItemContainerStyle="{StaticResource ContactProviderComboBoxItemStyle}" Cursor="Hand" ToolTip="Click to change provider"
                   >
             <ComboBox.ItemTemplate>
                 <DataTemplate>

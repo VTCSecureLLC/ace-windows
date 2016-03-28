@@ -81,8 +81,17 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             string value = valueA.Text;
             if (App.CurrentAccount != null)
             {
-                App.CurrentAccount.AdaptiveRateAlgorithm = value;
-                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+                bool needsUpdate = false;
+                if (!string.IsNullOrEmpty(value) && string.IsNullOrEmpty(App.CurrentAccount.AdaptiveRateAlgorithm))
+                    needsUpdate = true;
+                else if (!string.IsNullOrEmpty(value) && !App.CurrentAccount.AdaptiveRateAlgorithm.Equals(value))
+                    needsUpdate = true;
+                // do not update if we do nto need it.
+                if (needsUpdate)
+                {
+                    App.CurrentAccount.AdaptiveRateAlgorithm = value;
+                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+                }
             }
         }
 
@@ -109,8 +118,16 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             //  Stun Server checkbox enabled we prompt the user if the value does not look like a valid address?
             if (App.CurrentAccount != null)
             {
-                App.CurrentAccount.STUNAddress = newStunServer;
-                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+                bool updateStunServer = false;
+                if (!string.IsNullOrEmpty(newStunServer) && string.IsNullOrEmpty(App.CurrentAccount.STUNAddress))
+                    updateStunServer = true;
+                else if (!string.IsNullOrEmpty(newStunServer) && !newStunServer.Equals(App.CurrentAccount.STUNAddress))
+                    updateStunServer = true;
+                if (updateStunServer)
+                {
+                    App.CurrentAccount.STUNAddress = newStunServer;
+                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+                }
             }
         }
 
