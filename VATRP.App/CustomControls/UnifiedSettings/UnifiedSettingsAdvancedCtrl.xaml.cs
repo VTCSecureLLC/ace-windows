@@ -25,6 +25,21 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             InitializeComponent();
         }
 
+        public override void Initialize()
+        {
+            base.Initialize();
+            foreach (TextBlock textBlock in LoggingComboBox.Items)
+            {
+                if (textBlock.Text.Equals(App.CurrentAccount.Logging))
+                {
+                    LoggingComboBox.SelectedItem = textBlock;
+                }
+            }
+
+            if (LoggingComboBox.SelectedItem == null)
+                LoggingComboBox.SelectedIndex = 0;
+        }
+
         private void OnDebugMode(object sender, RoutedEventArgs e)
         {
             // Placeholder - not yet indicated for Windows
@@ -68,5 +83,15 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             // Placeholder - not yet indicated for Windows
         }
 
+        private void OnLoggingChanged(object sender, SelectionChangedEventArgs e)
+        {
+            TextBlock valueA = (TextBlock)LoggingComboBox.SelectedItem;
+            string value = valueA.Text;
+            if (App.CurrentAccount != null)
+            {
+                App.CurrentAccount.Logging = value;
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.AdvancedSettingsChanged);
+            }
+        }
     }
 }
