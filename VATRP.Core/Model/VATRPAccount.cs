@@ -233,6 +233,9 @@ namespace VATRP.Core.Model
         [Column]
         public bool EnableIPv6 { get; set; }
 
+        [Column]
+        public string Logging { get; set; }
+
         #endregion
 
         #region Methods
@@ -281,8 +284,9 @@ namespace VATRP.Core.Model
             AudioDscpValue = 46;
             VideoDscpValue = 46;
             EnableIPv6 = false;
+            Logging = "Info";
         }
-
+		
         public void StorePassword(string filePath)
         {
             if (!string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(Password))

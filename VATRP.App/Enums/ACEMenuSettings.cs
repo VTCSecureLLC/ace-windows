@@ -17,6 +17,7 @@ namespace com.vtcsecure.ace.windows.Enums
         VideoPolicyChanged,
         // Preferences
         NetworkSettingsChanged,
+        AdvancedSettingsChanged,
         ShowSelfViewChanged,
         // menu telling settings to update display if needed
         // View

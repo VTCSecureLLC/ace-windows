@@ -73,7 +73,7 @@ namespace VATRP.Core.Services
         private IntPtr _linphoneVideoCodecsList = IntPtr.Zero;
         private List<IntPtr> _declinedCallsList = new List<IntPtr>();
         private IntPtr _videoMWiSubscription;
-
+        private bool _enableLogging = false;
         // logging
         string[] placeholders = new string[] { "%d", "%s", "%lu", "%i", "%u", "%x", "%X", "%f", "%llu", "%p", 
             "%10I64d", "%-9i", "%-19s", "%-19g", "%-10g", "%-20s" };
@@ -268,7 +268,7 @@ namespace VATRP.Core.Services
 		        {
 #if !USE_LINPHONE_LOGGING
 		            LinphoneAPI.linphone_core_enable_logs(IntPtr.Zero);
-                    LinphoneAPI.linphone_core_set_log_level_mask(OrtpLogLevel.ORTP_TRACE);
+                    LinphoneAPI.linphone_core_set_log_level_mask(OrtpLogLevel.ORTP_DEBUG);
 #else
                     LinphoneAPI.linphone_core_enable_logs_with_cb(Marshal.GetFunctionPointerForDelegate(linphone_log_received));
 #endif
@@ -1926,7 +1926,24 @@ namespace VATRP.Core.Services
             return false;
         }
 
-	    public void SetAVPFMode(LinphoneAVPFMode mode, LinphoneRTCPMode rtcpMode)
+        public bool UpdateAdvancedParameters(VATRPAccount account)
+        {
+            if (account.Logging == "Verbose")
+            {
+                LinphoneAPI.linphone_core_set_log_level_mask(OrtpLogLevel.ORTP_MESSAGE);
+                _enableLogging = true;
+                LOG.Info("Setting Linphone logging level to DEBUG");
+            }
+            else
+            {
+                LinphoneAPI.linphone_core_set_log_level_mask(OrtpLogLevel.ORTP_FATAL);
+                _enableLogging = false;
+                LOG.Info("Setting Linphone logging level to OFF");
+            }
+            return true;
+        }
+
+        public void SetAVPFMode(LinphoneAVPFMode mode, LinphoneRTCPMode rtcpMode)
 	    {
 	        if (linphoneCore == IntPtr.Zero)
 	            return;
@@ -1979,7 +1996,7 @@ namespace VATRP.Core.Services
         
         private void OnLinphoneLog(IntPtr domain, OrtpLogLevel lev, IntPtr fmt, IntPtr args)
         {
-            if (fmt == IntPtr.Zero)
+            if (fmt == IntPtr.Zero || !_enableLogging)
                 return;
             var format  = Marshal.PtrToStringAnsi(fmt);
             if (string.IsNullOrEmpty(format))
@@ -2015,7 +2032,6 @@ namespace VATRP.Core.Services
                 try
                 {
                     var argsArray = new IntPtr[placeHolderItems.Count];
-
 
                     Marshal.Copy(args, argsArray, 0, placeHolderItems.Count);
                     var logOutput = new StringBuilder(format);
