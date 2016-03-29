@@ -30,6 +30,8 @@ namespace com.vtcsecure.ace.windows
 
 	        if (_mainViewModel != null)
 	        {
+                if (ServiceManager.Instance.LinphoneService.GetActiveCallsCount == 0)
+                    ctrlCall.SetCallViewModel(null);
                 _mainViewModel.IsCallPanelDocked = false;
 	        }
 	    }
@@ -459,7 +461,6 @@ namespace com.vtcsecure.ace.windows
 						_callInfoView.Hide();
 						ctrlCall.ctrlOverlay.StopCallTimer();
                         ShowCallOverlayWindow(false);
-                        ctrlCall.SetCallViewModel(null);
                         _mainViewModel.IsMessagingDocked = false;
 
                         if (deferredHideTimer != null)
@@ -510,6 +511,9 @@ namespace com.vtcsecure.ace.windows
 
         private void WakeupScreenSaver()
         {
+            // simulate mouse move event
+            ScreenSaverHelper.SimulateMouseMoveEvent(this);
+
             if (!ScreenSaverHelper.IsScreenSaverActive())
                 return;
 
