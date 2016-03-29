@@ -36,6 +36,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
             ProviderList = new ObservableCollection<VATRPServiceProvider>();
             Initialize();
             this.DataContext = this;
+            HostnameBox.IsEnabled = false;
         }
 
         public void Initialize()
