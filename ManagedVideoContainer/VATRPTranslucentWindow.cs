@@ -33,6 +33,7 @@ namespace VATRP.Linphone.VideoWrapper
             //HACK: This window and it's child controls should never have focus, as window styling of an invisible window 
             //will confuse user.
             _window.Focusable = false;
+            _window.ShowActivated = false;
             _window.PreviewMouseDown += OnPreviewMouseDown;
             _window.IsVisibleChanged += OnVisibilityChanged;
 
