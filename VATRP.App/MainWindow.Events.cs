@@ -510,6 +510,9 @@ namespace com.vtcsecure.ace.windows
 
         private void WakeupScreenSaver()
         {
+            // simulate mouse move event
+            ScreenSaverHelper.SimulateMouseMoveEvent(this);
+
             if (!ScreenSaverHelper.IsScreenSaverActive())
                 return;
 
