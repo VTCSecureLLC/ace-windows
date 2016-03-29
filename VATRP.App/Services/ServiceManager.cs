@@ -556,7 +556,8 @@ namespace com.vtcsecure.ace.windows.Services
                 return false;
             if (!LinphoneService.Start(true))
                 return false;
-            
+
+            LinphoneService.UpdateAdvancedParameters(App.CurrentAccount);
             if (App.CurrentAccount.AudioCodecsList.Count > 0)
                 LinphoneService.UpdateNativeCodecs(App.CurrentAccount, CodecType.Audio);
             else
@@ -602,6 +603,11 @@ namespace com.vtcsecure.ace.windows.Services
         internal void ApplyNetworkingChanges()
         {
             LinphoneService.UpdateNetworkingParameters(App.CurrentAccount);
+        }
+
+        internal void AdvancedSettings()
+        {
+            LinphoneService.UpdateAdvancedParameters(App.CurrentAccount);
         }
 
         internal void ApplyAVPFChanges()

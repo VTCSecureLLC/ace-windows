@@ -212,6 +212,8 @@ namespace com.vtcsecure.ace.windows
                     break;
                 case Enums.ACEMenuSettingsUpdateType.ShowSelfViewChanged: HandleShowSelfViewChanged();
                     break;
+                case Enums.ACEMenuSettingsUpdateType.AdvancedSettingsChanged: HandleAdvancedSettingsChange();
+                    break;
                 default:
                     break;
             }
@@ -233,6 +235,13 @@ namespace com.vtcsecure.ace.windows
             ServiceManager.Instance.SaveAccountSettings();
             ServiceManager.Instance.ApplyNetworkingChanges();
         }
+
+        private void HandleAdvancedSettingsChange()
+        {
+            ServiceManager.Instance.SaveAccountSettings();
+            ServiceManager.Instance.AdvancedSettings();
+        }
+        
         private void HandleRegistrationSettingsChange()
         {
             ServiceManager.Instance.SaveAccountSettings();

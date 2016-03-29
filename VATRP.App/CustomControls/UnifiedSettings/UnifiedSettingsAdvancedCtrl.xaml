@@ -20,6 +20,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="120"/>
@@ -31,65 +32,75 @@
             </Label>
             <!-- Row 1: Debug Mode -->
             <Label Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Content="Debug Mode" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left" Name="DebugModeLabel">
+                   HorizontalAlignment="Left" Name="DebugModeLabel" Visibility="Collapsed">
             </Label>
             <CheckBox Grid.Column="2" Grid.Row="1" Checked="OnDebugMode" Unchecked="OnDebugMode" HorizontalAlignment="Center" 
-                          VerticalAlignment="Center"  Name="DebugModeCheckbox"/>
+                          VerticalAlignment="Center"  Name="DebugModeCheckbox" Visibility="Collapsed"/>
             <!-- Row 2: Send Logs -->
             <Button Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" Content="Send Logs" Margin="0,2" 
                     BorderThickness="0"  Click="OnSendLogs"
-                    VerticalContentAlignment="Center">
-            </Button>
+                    VerticalContentAlignment="Center" Visibility="Collapsed"/>
             <!-- Row 3: Clear Logs -->
             <Button Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3" Content="Clear Logs" Margin="0,2" 
                     BorderThickness="0"  Click="OnClearLogs"
-                    VerticalContentAlignment="Center">
+                    VerticalContentAlignment="Center" Visibility="Collapsed">
             </Button>
+
+            <!-- Row 4: Logging Label -->
+            <Label Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="3" Content="Logging level" VerticalContentAlignment="Center"  Name="LoggingLabel">
+            </Label>
+
+            <ComboBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" x:Name="LoggingComboBox"  FontSize="14" Margin="0,3,0,3" Width="120" Height="24" 
+                           VerticalAlignment="Center" HorizontalAlignment="Right" SelectionChanged="OnLoggingChanged" >
+                <TextBlock >Info</TextBlock>
+                <TextBlock >Verbose</TextBlock>
+            </ComboBox>
+            
             <!-- Row 4: Other Label -->
-            <Label Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Content="Other" VerticalContentAlignment="Center"  Background="Gray" Name="OtherLabel">
+            <Label Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="3" Content="Other" VerticalContentAlignment="Center"  Background="Gray" Name="OtherLabel" Visibility="Collapsed">
             </Label>
 
             <!-- Row 5:Persistent Notifier -->
-            <Label Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2" Content="Persistent Notifier" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left"  Name="PersistentNotifierLabel">
+            <Label Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2" Content="Persistent Notifier" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left"  Name="PersistentNotifierLabel" Visibility="Collapsed">
             </Label>
-            <CheckBox Grid.Column="2" Grid.Row="5" Checked="OnPersistentNotifier" Unchecked="OnPersistentNotifier" HorizontalAlignment="Center" 
-                          VerticalAlignment="Center"  Name="PersistentNotifierCheckbox"/>
+            <CheckBox Grid.Column="2" Grid.Row="6" Checked="OnPersistentNotifier" Unchecked="OnPersistentNotifier" HorizontalAlignment="Center" 
+                          VerticalAlignment="Center"  Name="PersistentNotifierCheckbox" Visibility="Collapsed"/>
 
             <!-- Row 6: Enable Animations -->
-            <Label Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2" Content="Enable Animations" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left"  Name="EnabelAnimationsLabel">
+            <Label Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2" Content="Enable Animations" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left"  Name="EnabelAnimationsLabel" Visibility="Collapsed">
             </Label>
-            <CheckBox Grid.Column="2" Grid.Row="6" Checked="OnEnableAnimations" Unchecked="OnEnableAnimations" HorizontalAlignment="Center" 
-                          VerticalAlignment="Center"  Name="EnableAnimationsCheckbox"/>
+            <CheckBox Grid.Column="2" Grid.Row="7" Checked="OnEnableAnimations" Unchecked="OnEnableAnimations" HorizontalAlignment="Center" 
+                          VerticalAlignment="Center"  Name="EnableAnimationsCheckbox" Visibility="Collapsed"/>
             
             <!-- Row 7: Sharing Server URL text box -->
-            <Label Grid.Column="0" Grid.Row="7" Content="Sharing Server URL" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left" Name="SharingServerURLLabel">
-            </Label>
-            <TextBox Grid.Column="1" Grid.Row="7" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" Foreground="Blue" Name="SharingServerURLTextBox"  LostFocus="OnSharingServerURLChanged"/>
-
-            <!-- Row 8: Remote Provisioning text box -->
-            <Label Grid.Column="0" Grid.Row="8" Content="Remote Provisioning" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left" Name="RemoteProvisioningLabel">
+            <Label Grid.Column="0" Grid.Row="8" Content="Sharing Server URL" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left" Name="SharingServerURLLabel" Visibility="Collapsed">
             </Label>
             <TextBox Grid.Column="1" Grid.Row="8" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" Foreground="Blue" Name="RemoteProvisioningTextBox"  LostFocus="OnRemoteProvisioningChanged"/>
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" Foreground="Blue" Name="SharingServerURLTextBox"  LostFocus="OnSharingServerURLChanged" Visibility="Collapsed"/>
 
-            <!-- Row 9: SIP Expire text box -->
-            <Label Grid.Column="0" Grid.Row="9" Content="SIP Expire" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left" Name="SIPExpireLabel">
+            <!-- Row 8: Remote Provisioning text box -->
+            <Label Grid.Column="0" Grid.Row="9" Content="Remote Provisioning" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left" Name="RemoteProvisioningLabel" Visibility="Collapsed">
             </Label>
             <TextBox Grid.Column="1" Grid.Row="9" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" Foreground="Blue" Name="SIPExpireTextBox"  LostFocus="OnSIPExpireChanged"/>
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" Foreground="Blue" Name="RemoteProvisioningTextBox"  LostFocus="OnRemoteProvisioningChanged" Visibility="Collapsed"/>
 
-            <!-- Row 10: File Sharing Server URL text box -->
-            <Label Grid.Column="0" Grid.Row="10" Content="File Sharing Server" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left" Name="FileSharingServerURLLabel">
+            <!-- Row 9: SIP Expire text box -->
+            <Label Grid.Column="0" Grid.Row="10" Content="SIP Expire" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left" Name="SIPExpireLabel" Visibility="Collapsed">
             </Label>
             <TextBox Grid.Column="1" Grid.Row="10" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" Foreground="Blue" Name="FileSharingServerURLTextBox"  LostFocus="OnFileSharingServerURLChanged"/>
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" Foreground="Blue" Name="SIPExpireTextBox"  LostFocus="OnSIPExpireChanged" Visibility="Collapsed"/>
+
+            <!-- Row 10: File Sharing Server URL text box -->
+            <Label Grid.Column="0" Grid.Row="11" Content="File Sharing Server" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left" Name="FileSharingServerURLLabel" Visibility="Collapsed">
+            </Label>
+            <TextBox Grid.Column="1" Grid.Row="11" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" Foreground="Blue" Name="FileSharingServerURLTextBox"  LostFocus="OnFileSharingServerURLChanged" Visibility="Collapsed"/>
         </Grid>
     </Grid>
 </local:BaseUnifiedSettingsPanel>

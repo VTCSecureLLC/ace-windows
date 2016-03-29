@@ -86,6 +86,7 @@ namespace VATRP.Core.Interfaces
         void configureFmtpCodec();
         void FillCodecsList(VATRPAccount account, CodecType codecType);
         bool UpdateNetworkingParameters(VATRPAccount account);
+        bool UpdateAdvancedParameters(VATRPAccount account);
         void SetAVPFMode(LinphoneAVPFMode mode, LinphoneRTCPMode rtcpMode);
         int GetAVPFMode();
         IntPtr GetCallParams(IntPtr callPtr);
