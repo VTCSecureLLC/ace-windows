@@ -39,7 +39,7 @@ namespace com.vtcsecure.ace.windows.Converters
                     case VATRPCallState.Closed:
                         return "Terminated";
                     case VATRPCallState.Error:
-                        return "Error Occurred";
+                        return string.Empty;
                 }
             }
 
