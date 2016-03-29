@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Windows;
+using Win32Api = com.vtcsecure.ace.windows.Services.Win32NativeAPI;
 
 namespace com.vtcsecure.ace.windows.Utilities
 {
@@ -35,6 +38,9 @@ namespace com.vtcsecure.ace.windows.Utilities
 
         [DllImport("user32.dll", ExactSpelling = true)]
         public static extern IntPtr SetProcessWindowStation(IntPtr hWinSta);
+        
+        [DllImport("user32.dll")]
+        static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint dwData, UIntPtr dwExtraInfo);
 
         // Callbacks
         private delegate bool EnumDesktopWindowsProc(IntPtr hDesktop, IntPtr lParam);
@@ -50,7 +56,8 @@ namespace com.vtcsecure.ace.windows.Utilities
         private const uint DESKTOP_WRITEOBJECTS = 0x0080;
         private const uint DESKTOP_READOBJECTS = 0x0001;
         private const int WM_CLOSE = 16;
-
+        private const uint MOUSEEVENTF_MOVE = 0x0001;
+        private const uint MOUSEEVENTF_ABSOLUTE = 0x8000;
 
         // Returns TRUE if the screen saver is active (enabled, but not necessarily running).
         public static bool IsScreenSaverActive()
@@ -101,6 +108,28 @@ namespace com.vtcsecure.ace.windows.Utilities
                 PostMessage(hWnd, WM_CLOSE, 0, 0);
             return true;
         }
-    }
 
+        internal static void SimulateMouseMoveEvent(Window activeWindow)
+        {
+            if (activeWindow == null)
+                return;
+            Win32Api.POINT pos;
+            Win32Api.GetCursorPos(out pos);
+            System.Drawing.Rectangle screenBounds; 
+            try
+            {
+                System.Windows.Forms.Screen currentScreen =
+                    System.Windows.Forms.Screen.FromHandle(
+                        new System.Windows.Interop.WindowInteropHelper(activeWindow).Handle);
+                screenBounds = currentScreen.Bounds;
+            }
+            catch
+            {
+                screenBounds = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
+            }
+            var outputX = pos.X * 65535 / screenBounds.Width;
+            var outputY = pos.Y * 65535 / screenBounds.Height;
+            mouse_event(MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE, (uint)outputX, (uint)outputY + 1, 0, UIntPtr.Zero);
+        }
+    }
 }
