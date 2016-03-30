@@ -12,27 +12,18 @@ namespace VATRP.Core.Interfaces
         ObservableCollection<VATRPContact> Contacts { get; }
 
         bool ComposeAndSendMessage(IntPtr callPtr, VATRPChat chat, char key, bool inCompleteMessage);
-		
-        bool ComposeAndSendMessage(VATRPChat chat, string text);
-
+		bool ComposeAndSendMessage(VATRPChat chat, string text);
         void MarkChatAsRead(ChatID chat);
-
+        void UpdateRTTFontFamily(string newFont);
+        
         event EventHandler<ConversationEventArgs> ConversationClosed;
-
         event EventHandler<ConversationEventArgs> ConversationStateChanged;
-
         event EventHandler<ConversationEventArgs> ConversationUnReadStateChanged;
-
         event EventHandler<ConversationUpdatedEventArgs> ConversationUpdated;
-
         event EventHandler<ContactEventArgs> ContactAdded;
-
         event EventHandler<ContactRemovedEventArgs> ContactRemoved;
-
         event EventHandler<EventArgs> ContactsChanged;
-
         event EventHandler<ConversationEventArgs> NewConversationCreated;
-
         event EventHandler<EventArgs> RttReceived;
     }
 }

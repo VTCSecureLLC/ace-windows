@@ -740,6 +740,20 @@ namespace VATRP.Core.Services
             return this._chatItems.Remove(chat);
         }
 
+        public void UpdateRTTFontFamily(string newFont)
+        {
+            lock (this._chatItems)
+            {
+                foreach (VATRPChat chatItem in this._chatItems)
+                {
+                    if (chatItem != null)
+                    {
+                        chatItem.MessageFont = newFont;
+                    }
+                }
+            }
+        }
+
         public bool ComposeAndSendMessage(IntPtr callPtr, VATRPChat chat, char key, bool inCompleteMessage)
         {
             VATRPChat chatID = this.FindChat(chat);
@@ -969,15 +983,12 @@ namespace VATRP.Core.Services
             set { _chatItems = value; }
         }
 
-        internal void RemoveAllContact()
-        {
-            Contacts.Clear();
-        }
 
         #region IVATRPService
         public bool Start()
         {
-          
+            if (ServiceStarted != null)
+                ServiceStarted(this, EventArgs.Empty);
             return true;
         }
 
