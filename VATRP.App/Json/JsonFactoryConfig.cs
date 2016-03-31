@@ -87,9 +87,13 @@ namespace com.vtcsecure.ace.windows.Json
                 //    but let's log it and handle it
                 if (aceConfig == null)
                 {
-                    return JsonFactoryConfig.defaultConfig(ACEConfigStatusType.UNKNOWN);
+                    aceConfig = JsonFactoryConfig.defaultConfig(ACEConfigStatusType.UNKNOWN);
                 }
-                aceConfig.configStatus = ACEConfigStatusType.LOGIN_SUCCEESSFUL;
+                else
+                {
+                    aceConfig.configStatus = ACEConfigStatusType.LOGIN_SUCCEESSFUL;
+                }
+                aceConfig.NormalizeValues();
                 return aceConfig;
             }
             catch (JsonException ex)
@@ -99,26 +103,34 @@ namespace com.vtcsecure.ace.windows.Json
                 if ((ex.InnerException != null) && !string.IsNullOrEmpty(ex.InnerException.Message) &&
                     ex.InnerException.Message.ToLower().Contains("unauthorized"))
                 {
-                    return JsonFactoryConfig.defaultConfig(ACEConfigStatusType.LOGIN_UNAUTHORIZED);
+                    ACEConfig config = JsonFactoryConfig.defaultConfig(ACEConfigStatusType.LOGIN_UNAUTHORIZED);
+                    config.NormalizeValues();
+                    return config; 
                 }
                 else 
                 {
+                    ACEConfig config;
                     switch (ex.jsonExceptionType)
                     {
-                        case JsonExceptionType.DESERIALIZATION_FAILED: return JsonFactoryConfig.defaultConfig(ACEConfigStatusType.UNABLE_TO_PARSE);
+                        case JsonExceptionType.DESERIALIZATION_FAILED: config = JsonFactoryConfig.defaultConfig(ACEConfigStatusType.UNABLE_TO_PARSE);
                             break;
-                        case JsonExceptionType.CONNECTION_FAILED: return JsonFactoryConfig.defaultConfig(ACEConfigStatusType.CONNECTION_FAILED);
+                        case JsonExceptionType.CONNECTION_FAILED: config = JsonFactoryConfig.defaultConfig(ACEConfigStatusType.CONNECTION_FAILED);
                             break;
                         default: 
-                            return JsonFactoryConfig.defaultConfig(ACEConfigStatusType.UNKNOWN);
+                            config = JsonFactoryConfig.defaultConfig(ACEConfigStatusType.UNKNOWN);
+                            break;
                     }
+                    config.NormalizeValues();
+                    return config; 
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
                 stacktrace = ex.StackTrace;
-                return JsonFactoryConfig.defaultConfig(ACEConfigStatusType.UNKNOWN);
+                ACEConfig config = JsonFactoryConfig.defaultConfig(ACEConfigStatusType.UNKNOWN);
+                config.NormalizeValues();
+                return config;
             }
 
             if ((feedbackThread != null) && !string.IsNullOrEmpty(stacktrace))
@@ -128,6 +140,7 @@ namespace com.vtcsecure.ace.windows.Json
             // note - this may be an invalid login - need to look for the correct unauthorized response assuming that there is one.
             //  Otherwise the app will use null response for now to assume unauthorized
             ACEConfig defaultConfig = JsonFactoryConfig.defaultConfig(ACEConfigStatusType.SRV_RECORD_NOT_FOUND);
+            defaultConfig.NormalizeValues();
             return defaultConfig;
         }
 
