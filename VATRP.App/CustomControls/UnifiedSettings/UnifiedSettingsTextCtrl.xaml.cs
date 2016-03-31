@@ -37,6 +37,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         public void Initialize()
         {
+            base.Initialize();
             this.EnableRealTimeTextCheckbox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                 Configuration.ConfEntry.USE_RTT, true);
 
@@ -56,8 +57,29 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                     }
                 }
             }
+            var rttFontName = string.Empty;
 
-            TextSendModeComboBox.InvalidateVisual();
+            var defaultFont = Fonts.SystemFontFamilies.FirstOrDefault();
+            if (defaultFont != null)
+                rttFontName = defaultFont.Source;
+            
+            if (App.CurrentAccount != null)
+            {
+                rttFontName = App.CurrentAccount.RTTFontFamily;
+            }
+
+            foreach (var fontItem in TextFontFamilyComboBox.Items)
+            {
+                var ff = fontItem as FontFamily;
+                if (ff != null)
+                {
+                    if (ff.Source.Equals(rttFontName))
+                    {
+                        TextFontFamilyComboBox.SelectedItem = ff;
+                        break;
+                    }
+                }
+            }
         }
 
         private void OnEnableRealTimeText(object sender, RoutedEventArgs e)
@@ -81,6 +103,21 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                     Configuration.ConfEntry.TEXT_SEND_MODE, textSendModeLabel.Text);
 
                 ServiceManager.Instance.ConfigurationService.SaveConfig();
+            }
+        }
+
+        private void OnTextFontChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!_initialized)
+                return;
+            var ff = TextFontFamilyComboBox.SelectedItem as FontFamily;
+            if (ff != null)
+            {
+                if (App.CurrentAccount.RTTFontFamily == ff.Source)
+                    return;
+                App.CurrentAccount.RTTFontFamily = ff.Source;
+                ServiceManager.Instance.AccountService.Save();
+                ServiceManager.Instance.ChatService.UpdateRTTFontFamily(ff.Source);
             }
         }
     }

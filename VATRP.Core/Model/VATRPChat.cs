@@ -25,7 +25,7 @@ namespace VATRP.Core.Model
         private string _typing_text;
         private List<string> _typingIdList;
         private uint _unreadMsgCount;
-
+        private string _messageFont;
         public int ChatUniqueID;
 
         public VATRPChat() : this(null, string.Empty)
@@ -37,6 +37,7 @@ namespace VATRP.Core.Model
             this._typing_text = string.Empty;
             this._is_messagesLoaded = true;
             this._lastMessage = string.Empty;
+            this._messageFont = "Segoe UI";
             if (contact != null)
             {
                 this.Messages = new ObservableCollection<VATRPChatMessage>();
@@ -512,7 +513,16 @@ namespace VATRP.Core.Model
             }
         }
 
-        
+        public string MessageFont
+        {
+            get { return _messageFont; }
+            set
+            {
+                _messageFont = value;
+                base.OnPropertyChanged("MessageFont");
+            }
+        }
+
         public string Name
         {
             get

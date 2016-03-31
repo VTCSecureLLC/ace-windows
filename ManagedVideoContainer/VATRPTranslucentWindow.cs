@@ -131,47 +131,66 @@ namespace VATRP.Linphone.VideoWrapper
 
         internal void Refresh()
         {
-            if (_window.Visibility != Visibility.Visible && ShowWindow)
+            try
             {
-                UpdateWindow();
-                _window.Show();
-                if (_parent == null)
+                if (_window.Visibility != Visibility.Visible && ShowWindow)
                 {
-                    _parent = GetParentWindow(_container);
-                    _window.Owner = _parent;
-                    _parent.LocationChanged += new EventHandler(parent_LocationChanged);
+                    UpdateWindow();
+                    _window.Show();
+                    if (_parent == null)
+                    {
+                        _parent = GetParentWindow(_container);
+                        _window.Owner = _parent;
+                        _parent.LocationChanged += new EventHandler(parent_LocationChanged);
+                    }
+                }
+                else
+                {
+                    if (!ShowWindow && _window.Visibility == Visibility.Visible)
+                    {
+                        _window.Hide();
+                        if (_parent != null)
+                            _parent.Activate();
+                    }
                 }
             }
-            else
+            catch (Exception )
             {
-                if (!ShowWindow && _window.Visibility == Visibility.Visible)
-                {
-                    _window.Hide();
-                    if (_parent != null) 
-                        _parent.Activate();
-                }
+                
             }
         }
 
         internal void UpdateWindow()
         {
-            Window parent = GetParentWindow(_container);
-            FrameworkElement windowContent=((parent.Content) as FrameworkElement);
-            if (windowContent != null)
+            try
             {
-                windowLeftMargin = WindowLeftMargin == 0 ? (parent.ActualWidth - windowContent.ActualWidth)/2 : WindowLeftMargin;
-                windowTopMargin = (WindowTopMargin == 0) ? (parent.ActualHeight - windowContent.ActualHeight) : WindowTopMargin;
+                Window parent = GetParentWindow(_container);
 
-                _window.Left = parent.Left + windowLeftMargin;
-                _window.Top = parent.Top + windowTopMargin;
-                _window.Width = OverlayWidth;
-                _window.Height = OverlayHeight;
+                FrameworkElement windowContent = ((parent.Content) as FrameworkElement);
+                if (windowContent != null)
+                {
+                    windowLeftMargin = WindowLeftMargin == 0
+                        ? (parent.ActualWidth - windowContent.ActualWidth)/2
+                        : WindowLeftMargin;
+                    windowTopMargin = (WindowTopMargin == 0)
+                        ? (parent.ActualHeight - windowContent.ActualHeight)
+                        : WindowTopMargin;
+
+                    _window.Left = parent.Left + windowLeftMargin;
+                    _window.Top = parent.Top + windowTopMargin;
+                    _window.Width = OverlayWidth;
+                    _window.Height = OverlayHeight;
+                }
+
+                if (ShowWindow)
+                    _window.Show();
+                else
+                    _window.Hide();
             }
-
-            if (ShowWindow)
-                _window.Show();
-            else
-                _window.Hide();
+            catch (Exception)
+            {
+                
+            }
         }
     }
 }

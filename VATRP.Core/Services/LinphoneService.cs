@@ -371,6 +371,9 @@ namespace VATRP.Core.Services
                     LinphoneAPI.lp_config_set_int(coreConfig, "sip", "keepalive_period", 90000);
                     // store contacts as vcard
                     LinphoneAPI.lp_config_set_int(coreConfig, "misc", "store_friends", 1);
+
+                    // VATRP-2130, prevent SIP spam
+                    LinphoneAPI.lp_config_set_int(coreConfig, "sip", "sip_random_port", 1); // force to set random ports
                 }
 
 			    LinphoneAPI.linphone_core_enable_keep_alive(linphoneCore, false);
@@ -625,10 +628,10 @@ namespace VATRP.Core.Services
 
 			t_config = new LCSipTransports()
 			{
-				udp_port = preferences.Transport == "UDP" ? LinphoneAPI.LC_SIP_TRANSPORT_RANDOM : LinphoneAPI.LC_SIP_TRANSPORT_DISABLED,
-                tcp_port = preferences.Transport == "TCP" ? LinphoneAPI.LC_SIP_TRANSPORT_RANDOM : LinphoneAPI.LC_SIP_TRANSPORT_DISABLED,
-				dtls_port = preferences.Transport == "DTLS" ? LinphoneAPI.LC_SIP_TRANSPORT_RANDOM : LinphoneAPI.LC_SIP_TRANSPORT_DISABLED,
-				tls_port = preferences.Transport == "TLS" ? LinphoneAPI.LC_SIP_TRANSPORT_RANDOM : LinphoneAPI.LC_SIP_TRANSPORT_DISABLED,
+				udp_port = LinphoneAPI.LC_SIP_TRANSPORT_RANDOM,
+                tcp_port = LinphoneAPI.LC_SIP_TRANSPORT_RANDOM,
+				dtls_port = LinphoneAPI.LC_SIP_TRANSPORT_RANDOM,
+				tls_port = LinphoneAPI.LC_SIP_TRANSPORT_RANDOM,
 			};
 
 			t_configPtr = Marshal.AllocHGlobal(Marshal.SizeOf(t_config));
