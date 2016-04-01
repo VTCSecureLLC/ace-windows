@@ -2116,7 +2116,14 @@ namespace VATRP.Core.Services
 		void OnRegistrationChanged (IntPtr lc, IntPtr cfg, LinphoneRegistrationState cstate, string message) 
 		{
 			if (linphoneCore == IntPtr.Zero) return;
-		    if (cfg == proxy_cfg)
+            // Liz E. - I think that here - if the registration state has not actually changed, just return
+            if (currentRegistrationState == cstate)
+            {
+//                LOG.Info("LinphoneService.OnRegistrationChanged called - but there is no change. Do nothing.");
+                return;
+            }
+            LOG.Info("LinphoneService.OnRegistrationChanged called. Call State was:" + currentRegistrationState.ToString() + " call state changing to " + cstate.ToString());
+            if (cfg == proxy_cfg)
 		    {
                 currentRegistrationState = cstate;
 		        if (RegistrationStateChangedEvent != null)
