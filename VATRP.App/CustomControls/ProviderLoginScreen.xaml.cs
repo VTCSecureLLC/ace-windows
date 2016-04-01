@@ -178,9 +178,9 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 else
                 {
                     // otherwise the login was valid, proceed
-                    var trimChars = new []{'\"'};
-                    config.sip_auth_password = config.sip_auth_password.Trim(trimChars);
-                    config.sip_auth_username = config.sip_auth_username.Trim(trimChars);
+//                    var trimChars = new []{'\"'};
+//                    config.sip_auth_password = config.sip_auth_password.Trim(trimChars);
+//                    config.sip_auth_username = config.sip_auth_username.Trim(trimChars);
                     if (string.IsNullOrEmpty(config.sip_auth_password) || string.IsNullOrEmpty(config.sip_auth_username))
                     {
                         config.sip_auth_username = userName;
