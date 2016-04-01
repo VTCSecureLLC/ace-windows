@@ -2113,10 +2113,10 @@ namespace VATRP.Core.Services
 		void OnRegistrationChanged (IntPtr lc, IntPtr cfg, LinphoneRegistrationState cstate, string message) 
 		{
 			if (linphoneCore == IntPtr.Zero) return;
-            // Liz E. - I think that here - if the registration state has not actually changed, log it and return
+            // Liz E. - I think that here - if the registration state has not actually changed, just return
             if (currentRegistrationState == cstate)
             {
-                LOG.Info("LinphoneService.OnRegistrationChanged called - but there is no change. Do nothing.");
+//                LOG.Info("LinphoneService.OnRegistrationChanged called - but there is no change. Do nothing.");
                 return;
             }
             LOG.Info("LinphoneService.OnRegistrationChanged called. Call State was:" + currentRegistrationState.ToString() + " call state changing to " + cstate.ToString());
