@@ -1965,6 +1965,9 @@ namespace VATRP.Core.Services
             if (coreConfig != IntPtr.Zero)
             {
                 LOG.Info("RTCP mode changing to " + rtcpMode);
+                LinphoneAPI.lp_config_set_int(coreConfig, "rtp", "rtcp_xr_enabled", 0);
+                LinphoneAPI.lp_config_set_int(coreConfig, "rtp", "rtcp_xr_voip_metrics_enabled",0);
+                LinphoneAPI.lp_config_set_int(coreConfig, "rtp", "rtcp_xr_stat_summary_enabled", 0);
                 LinphoneAPI.lp_config_set_int(coreConfig, "rtp", "rtcp_fb_implicit_rtcp_fb", (int)rtcpMode);
             }
         }
