@@ -29,8 +29,8 @@
             <ComboBox Grid.Row="1" x:Name="MediaEncryptionBox" FontSize="14" Margin="3" Width="150" Height="24" VerticalAlignment="Center" Grid.Column="1">
                 <TextBlock >Unencrypted </TextBlock>
                 <TextBlock >Encrypted (SRTP)</TextBlock>
-                <TextBlock >Encrypted (ZRTP)</TextBlock>
-                <TextBlock >Encrypted (DTLS)</TextBlock>
+<!--                <TextBlock >Encrypted (ZRTP)</TextBlock> -->
+<!--                <TextBlock >Encrypted (DTLS)</TextBlock> -->
             </ComboBox>
             <TextBlock Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" > Enable Adaptive Rate Control</TextBlock>
             <CheckBox x:Name="EnableAdaptiveRateBox" Grid.Column="1" Grid.Row="2" Margin="3" VerticalAlignment="Center"/>
