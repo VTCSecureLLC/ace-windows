@@ -33,6 +33,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         private MainControllerViewModel _parentViewModel;
 
+        protected bool _initialized;
         public string Title { get; set; }
         // Call When Panel Content needs to change
         public event UnifiedSettings_ContentChanging ContentChanging;
@@ -96,8 +97,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         public virtual void Initialize()
         {
-
+            _initialized = true;
         }
+		
         public virtual void SaveData()
         {
         }

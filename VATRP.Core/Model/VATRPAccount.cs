@@ -236,6 +236,9 @@ namespace VATRP.Core.Model
         [Column]
         public string Logging { get; set; }
 
+        [Column]
+        public string RTTFontFamily { get; set; }
+
         #endregion
 
         #region Methods
@@ -285,6 +288,7 @@ namespace VATRP.Core.Model
             VideoDscpValue = 46;
             EnableIPv6 = false;
             Logging = "Info";
+            RTTFontFamily = "Segoe UI";
         }
 		
         public void StorePassword(string filePath)

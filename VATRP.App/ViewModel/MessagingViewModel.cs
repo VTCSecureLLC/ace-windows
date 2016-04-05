@@ -281,6 +281,10 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
                 Chat.CharsCountInBubble = 0;
                 Chat.UnreadMsgCount = 0;
+                if (App.CurrentAccount != null)
+                {
+                    Chat.MessageFont = App.CurrentAccount.RTTFontFamily;
+                }
             }
 
             _contactViewModel.IsSelected = true;

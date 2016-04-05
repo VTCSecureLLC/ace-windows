@@ -371,6 +371,9 @@ namespace VATRP.Core.Services
                     LinphoneAPI.lp_config_set_int(coreConfig, "sip", "keepalive_period", 90000);
                     // store contacts as vcard
                     LinphoneAPI.lp_config_set_int(coreConfig, "misc", "store_friends", 1);
+
+                    // VATRP-2130, prevent SIP spam
+                    LinphoneAPI.lp_config_set_int(coreConfig, "sip", "sip_random_port", 1); // force to set random ports
                 }
 
 			    LinphoneAPI.linphone_core_enable_keep_alive(linphoneCore, false);
@@ -625,10 +628,10 @@ namespace VATRP.Core.Services
 
 			t_config = new LCSipTransports()
 			{
-				udp_port = preferences.Transport == "UDP" ? LinphoneAPI.LC_SIP_TRANSPORT_RANDOM : LinphoneAPI.LC_SIP_TRANSPORT_DISABLED,
-                tcp_port = preferences.Transport == "TCP" ? LinphoneAPI.LC_SIP_TRANSPORT_RANDOM : LinphoneAPI.LC_SIP_TRANSPORT_DISABLED,
-				dtls_port = preferences.Transport == "DTLS" ? LinphoneAPI.LC_SIP_TRANSPORT_RANDOM : LinphoneAPI.LC_SIP_TRANSPORT_DISABLED,
-				tls_port = preferences.Transport == "TLS" ? LinphoneAPI.LC_SIP_TRANSPORT_RANDOM : LinphoneAPI.LC_SIP_TRANSPORT_DISABLED,
+				udp_port = LinphoneAPI.LC_SIP_TRANSPORT_RANDOM,
+                tcp_port = LinphoneAPI.LC_SIP_TRANSPORT_RANDOM,
+				dtls_port = LinphoneAPI.LC_SIP_TRANSPORT_RANDOM,
+				tls_port = LinphoneAPI.LC_SIP_TRANSPORT_RANDOM,
 			};
 
 			t_configPtr = Marshal.AllocHGlobal(Marshal.SizeOf(t_config));
@@ -1886,11 +1889,11 @@ namespace VATRP.Core.Services
                 LinphoneAPI.linphone_core_enable_ipv6(linphoneCore, account.EnableIPv6);
             }
             LOG.Info(string.Format("UpdateNetworkingParameters: IPv6 is {0}", account.EnableIPv6 ? "enabled" : "disabled"));
-            
+
+            var address = string.Format(account.STUNAddress);
+            LinphoneAPI.linphone_core_set_stun_server(linphoneCore, address);
             if (account.EnableSTUN || account.EnableICE)
             {
-                var address = string.Format("{0}:3478", account.STUNAddress);
-                LinphoneAPI.linphone_core_set_stun_server(linphoneCore, address);
                 if (account.EnableSTUN)
                 {
                     LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore,
@@ -1908,7 +1911,7 @@ namespace VATRP.Core.Services
             {
                 LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore,
                     LinphoneFirewallPolicy.LinphonePolicyNoFirewall);
-                LOG.Info("UpdateNetworkingParameters: No Firewall. ");
+                LOG.Info("UpdateNetworkingParameters: No Firewall. Stun server is " + address);
             }
 
             // TODO, Disable adaptive rate algorithm, since it caused bad video
@@ -1962,6 +1965,9 @@ namespace VATRP.Core.Services
             if (coreConfig != IntPtr.Zero)
             {
                 LOG.Info("RTCP mode changing to " + rtcpMode);
+                LinphoneAPI.lp_config_set_int(coreConfig, "rtp", "rtcp_xr_enabled", 0);
+                LinphoneAPI.lp_config_set_int(coreConfig, "rtp", "rtcp_xr_voip_metrics_enabled",0);
+                LinphoneAPI.lp_config_set_int(coreConfig, "rtp", "rtcp_xr_stat_summary_enabled", 0);
                 LinphoneAPI.lp_config_set_int(coreConfig, "rtp", "rtcp_fb_implicit_rtcp_fb", (int)rtcpMode);
             }
         }
@@ -2113,7 +2119,14 @@ namespace VATRP.Core.Services
 		void OnRegistrationChanged (IntPtr lc, IntPtr cfg, LinphoneRegistrationState cstate, string message) 
 		{
 			if (linphoneCore == IntPtr.Zero) return;
-		    if (cfg == proxy_cfg)
+            // Liz E. - I think that here - if the registration state has not actually changed, just return
+            if (currentRegistrationState == cstate)
+            {
+//                LOG.Info("LinphoneService.OnRegistrationChanged called - but there is no change. Do nothing.");
+                return;
+            }
+            LOG.Info("LinphoneService.OnRegistrationChanged called. Call State was:" + currentRegistrationState.ToString() + " call state changing to " + cstate.ToString());
+            if (cfg == proxy_cfg)
 		    {
                 currentRegistrationState = cstate;
 		        if (RegistrationStateChangedEvent != null)

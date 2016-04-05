@@ -261,7 +261,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 if (string.IsNullOrEmpty(DisplayName))
                     return RemoteNumber;
-                return DisplayName;
+                return DisplayName ?? string.Empty;
             }
         }
 
@@ -846,7 +846,18 @@ namespace com.vtcsecure.ace.windows.ViewModel
             ShowAvatar = false;
 
             ShowOutgoingEndCall = isError;
-            ErrorMessage = isError ? errorMessage : string.Empty;
+          
+            if (isError)
+            {
+                if ( string.Compare(errorMessage, "Busy here", StringComparison.InvariantCultureIgnoreCase) == 0)
+                    ErrorMessage = string.Format("{0} is busy", CallerInfo);
+                else if (string.Compare(errorMessage, "Not Found", StringComparison.InvariantCultureIgnoreCase) == 0)
+                    ErrorMessage = string.Format("{0} is temporarily unavailable", CallerInfo);
+                else
+                    ErrorMessage = errorMessage;
+            }
+            else
+                ErrorMessage = string.Empty;
             AllowHideContorls = false;
             StopAnimation();
 
