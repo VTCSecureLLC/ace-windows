@@ -48,7 +48,11 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         }
         private void OnForce508(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("Force 508 Clicked");
+            Console.WriteLine("Coming Soon: High Contrast Theme");
+            if (Force508CheckBox.IsChecked ?? false)
+            {
+                System.Windows.MessageBox.Show("Coming soon", "ACE", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
         }
 
     }

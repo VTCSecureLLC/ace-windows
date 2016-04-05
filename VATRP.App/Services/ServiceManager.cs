@@ -69,23 +69,65 @@ namespace com.vtcsecure.ace.windows.Services
             }
         }
 
+        public string GetPWFile()
+        {
+            string path = ApplicationDataPath;
+            if (!string.IsNullOrEmpty(path))
+            {
+                try
+                {
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    if (path.LastIndexOf(Path.PathSeparator) != (path.Length - 1))
+                    {
+                        path += Path.DirectorySeparatorChar;
+                    }
+                    path += "user.dat";
+                }
+                catch (Exception ex)
+                {
+                    
+                    return "";
+                }
+            }
+            return path;
+        }
+
         #region Overrides
         public override string BuildStoragePath(string folder)
         {
-            return Path.Combine(ApplicationDataPath, folder);
+            try
+            {
+                return Path.Combine(ApplicationDataPath, folder);
+            }
+            catch
+            {
+                
+            }
+            return Environment.CurrentDirectory;
         }
 
         public override string BuildDataPath(string folder)
         {
             if ( App.CurrentAccount == null )
                 return BuildStoragePath(folder);
+            try
+            {
+                var privateDataPath = Path.Combine(ApplicationDataPath,
+                    string.Format("{0}@{1}", App.CurrentAccount.Username,
+                        App.CurrentAccount.ProxyHostname));
 
-            var privateDataPath = Path.Combine(ApplicationDataPath, string.Format("{0}@{1}", App.CurrentAccount.Username,
-                App.CurrentAccount.ProxyHostname));
-
-            if (!Directory.Exists(privateDataPath))
-                Directory.CreateDirectory(privateDataPath);
-            return Path.Combine(privateDataPath, folder);
+                if (!Directory.Exists(privateDataPath))
+                    Directory.CreateDirectory(privateDataPath);
+                return Path.Combine(privateDataPath, folder);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Exception occurred: " + ex.ToString());
+            }
+            return BuildStoragePath(folder);
         }
 
         public override IConfigurationService ConfigurationService
@@ -514,7 +556,8 @@ namespace com.vtcsecure.ace.windows.Services
                 return false;
             if (!LinphoneService.Start(true))
                 return false;
-            
+
+            LinphoneService.UpdateAdvancedParameters(App.CurrentAccount);
             if (App.CurrentAccount.AudioCodecsList.Count > 0)
                 LinphoneService.UpdateNativeCodecs(App.CurrentAccount, CodecType.Audio);
             else
@@ -529,6 +572,7 @@ namespace com.vtcsecure.ace.windows.Services
             LinphoneService.configureFmtpCodec();
             ApplyAVPFChanges();
             ApplyDtmfOnSIPInfoChanges();
+            ApplyDtmfInbandChanges();
             ApplyMediaSettingsChanges();
             return true;
         }
@@ -559,6 +603,11 @@ namespace com.vtcsecure.ace.windows.Services
         internal void ApplyNetworkingChanges()
         {
             LinphoneService.UpdateNetworkingParameters(App.CurrentAccount);
+        }
+
+        internal void AdvancedSettings()
+        {
+            LinphoneService.UpdateAdvancedParameters(App.CurrentAccount);
         }
 
         internal void ApplyAVPFChanges()
@@ -596,6 +645,13 @@ namespace com.vtcsecure.ace.windows.Services
             LinphoneService.SendDtmfAsSipInfo(val);
         }
 
+        internal void ApplyDtmfInbandChanges()
+        {
+            bool val = this.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.DTMF_INBAND, false);
+            LinphoneService.SendDtmfAsTelephoneEvent(val);
+        }
+
         private LinphoneMediaEncryption GetMediaEncryptionText(string s)
         {
 
@@ -616,9 +672,6 @@ namespace com.vtcsecure.ace.windows.Services
         {
             LinphoneService.LinphoneConfig.MediaEncryption = GetMediaEncryptionText(App.CurrentAccount.MediaEncryption);
             LinphoneService.UpdateMediaSettings(App.CurrentAccount);
-            bool bEnable = this.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.ENABLE_ADAPTIVE_RATE_CTRL, true);
-            LinphoneService.EnableAdaptiveRateControl(bEnable);
             if (!string.IsNullOrEmpty(App.CurrentAccount.SelectedCameraId))
             {
                 LinphoneService.SetCamera(App.CurrentAccount.SelectedCameraId);

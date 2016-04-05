@@ -39,6 +39,7 @@ namespace VATRP.Core.Model
             ACCOUNT_IN_USE,
             AUTO_ANSWER,
             AUTO_ANSWER_AFTER,
+            AUTO_LOGIN,
             AVPF_ON,
             RTCP_FEEDBACK,
             DTMF_SIP_INFO,
@@ -49,7 +50,8 @@ namespace VATRP.Core.Model
             CALL_DIAL_ESCAPE_PLUS,
             SHOW_LEGAL_RELEASE,
             LAST_MISSED_CALL_DATE,
-            TEXT_SEND_MODE
+            TEXT_SEND_MODE,
+            DTMF_INBAND
         }
 
         public static string LINPHONE_SIP_SERVER = "stl.vatrp.net";

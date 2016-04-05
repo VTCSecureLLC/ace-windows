@@ -44,6 +44,7 @@ namespace VATRP.Core.Interfaces
         void UnlockCalls();
         bool CanMakeVideoCall();
         void SendDtmfAsSipInfo(bool use_info);
+        void SendDtmfAsTelephoneEvent(bool use_te);
         void PlayDtmf(char dtmf, int duration);
         bool Register();
         bool Unregister(bool deferred);
@@ -85,6 +86,7 @@ namespace VATRP.Core.Interfaces
         void configureFmtpCodec();
         void FillCodecsList(VATRPAccount account, CodecType codecType);
         bool UpdateNetworkingParameters(VATRPAccount account);
+        bool UpdateAdvancedParameters(VATRPAccount account);
         void SetAVPFMode(LinphoneAVPFMode mode, LinphoneRTCPMode rtcpMode);
         int GetAVPFMode();
         IntPtr GetCallParams(IntPtr callPtr);
@@ -101,7 +103,6 @@ namespace VATRP.Core.Interfaces
         void MarkChatAsRead(IntPtr chatRoomPtr);
         int GetHistorySize(string username);
         void LoadChatRoom(VATRPChat chat);
-        void EnableAdaptiveRateControl(bool bEnable);
         IntPtr LinphoneCore { get; }
         int GetActiveCallsCount { get; }
 

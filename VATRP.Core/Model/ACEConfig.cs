@@ -25,7 +25,7 @@ namespace VATRP.Core.Model
 
         public string configuration_auth_password { get; set; }
         public int configuration_auth_expiration { get; set; }
-        
+
         public int sip_registration_maximum_threshold { get; set; }
         public List<string> sip_register_usernames { get; set; }
         public string sip_auth_username { get; set; }
@@ -50,7 +50,6 @@ namespace VATRP.Core.Model
         public string sip_mwi_uri { get; set; }
         public string sip_videomail_uri { get; set; }
         public string video_resolution_maximum { get; set; }
-
         public bool user_is_agent { get; set; }
 
         public ACEConfig()
@@ -58,6 +57,75 @@ namespace VATRP.Core.Model
             configStatus = ACEConfigStatusType.UNKNOWN;
             sip_register_usernames = new List<string>();
             enabled_codecs = new List<string>();
+        }
+
+        public void NormalizeValues()
+        {
+            configuration_auth_password = NormalizeValue(configuration_auth_password);
+            //        public List<string> sip_register_usernames { get; set; }
+            sip_register_usernames = NormalizeValues(sip_register_usernames);
+            //        public string sip_auth_username { get; set; }
+            sip_auth_username = NormalizeValue(sip_auth_username);
+            //        public string sip_auth_password { get; set; }
+            sip_auth_password = NormalizeValue(sip_auth_password);
+            //        public string sip_register_domain { get; set; }
+            sip_register_domain = NormalizeValue(sip_register_domain);
+            //        public string sip_register_transport { get; set; }
+            sip_register_transport = NormalizeValue(sip_register_transport);
+
+            //        public string stun_server { get; set; }
+            stun_server = NormalizeValue(stun_server);
+        
+            //        public List<string> enabled_codecs { get; set; }
+            enabled_codecs = NormalizeValues(enabled_codecs);
+            //        public string bwLimit { get; set; }
+            bwLimit = NormalizeValue(bwLimit);
+            //        public string logging { get; set; }
+            logging = NormalizeValue(logging);
+            //        public string sip_mwi_uri { get; set; }
+            sip_mwi_uri = NormalizeValue(sip_mwi_uri);
+            //        public string sip_videomail_uri { get; set; }
+            sip_videomail_uri = NormalizeValue(sip_videomail_uri);
+            //        public string video_resolution_maximum { get; set; }
+            video_resolution_maximum = NormalizeValue(video_resolution_maximum);
+        }
+        private List<string> NormalizeValues(List<string> values)
+        {
+            if (values == null)
+            {
+                values = new List<string>();
+            }
+            for (int i = 0; i < values.Count; i++)
+            {
+                values[i] = NormalizeValue(values[i]);
+            }
+            return values;
+        }
+        private string NormalizeValue(string value)
+        {
+            // these are spefcific cases to return ""
+            if (string.IsNullOrEmpty(value) || value.Equals("\"") || value.Equals("\"\""))
+            {
+                return "";
+            }
+            else
+            {
+                // remove start and end quotes - but not all quotes in case there is data that allows quotes later.
+                if (value.EndsWith("\""))
+                {
+                    value = value.Substring(0, value.Length - 1);
+                }
+                if (value.StartsWith("\""))
+                {
+                    if (value.Length == 1)
+                        return "";
+                    if (value.Length > 1)
+                    {
+                        return value.Substring(1, value.Length - 1);
+                    }
+                }
+            }
+            return value;
         }
 
         public void UpdateVATRPAccountFromACEConfig(VATRPAccount accountToUpdate)
@@ -84,28 +152,41 @@ namespace VATRP.Core.Model
             //       public bool enable_rtt { get; set; }  --> set in configuration service
 
             //        public bool user_is_agent { get; set; }
-
+            //var trimChars = new[] { '\"' };
             accountToUpdate.configuration = this;
 
             //       public string sip_auth_username { get; set; }
-            var username = this.sip_auth_username;
-            if (!string.IsNullOrWhiteSpace(username))
+            string username = "";
+            if (!string.IsNullOrEmpty(this.sip_auth_username))
             {
-                accountToUpdate.RegistrationUser = username;
-                accountToUpdate.Username = username;
+                username = this.sip_auth_username;
+                if (!string.IsNullOrWhiteSpace(username))
+                {
+                    accountToUpdate.RegistrationUser = username;
+                    accountToUpdate.Username = username;
+                }
             }
+
             //       public string sip_auth_password { get; set; }
-            var password = this.sip_auth_password;
-            if (!string.IsNullOrWhiteSpace(password))
+            string password = "";
+            if (!string.IsNullOrEmpty(this.sip_auth_password))
             {
-                accountToUpdate.RegistrationPassword = password;
-                accountToUpdate.Password = password;
+                password = this.sip_auth_password;
+                if (!string.IsNullOrWhiteSpace(password))
+                {
+                    accountToUpdate.RegistrationPassword = password;
+                    accountToUpdate.Password = password;
+                }
             }
             //       public string sip_register_domain { get; set; }
-            var domain = this.sip_register_domain;
-            if (!string.IsNullOrWhiteSpace(domain))
+            string domain = "";
+            if (!string.IsNullOrEmpty(this.sip_register_domain))
             {
-                accountToUpdate.ProxyHostname = domain;
+                domain = this.sip_register_domain;
+                if (!string.IsNullOrWhiteSpace(domain))
+                {
+                    accountToUpdate.ProxyHostname = domain;
+                }
             }
             //       public int sip_register_port { get; set; }
             var port = this.sip_register_port;
@@ -114,10 +195,14 @@ namespace VATRP.Core.Model
                 accountToUpdate.ProxyPort = (UInt16)port;
             }
             //       public string sip_register_transport { get; set; }
-            var transport = this.sip_register_transport;
-            if (!string.IsNullOrWhiteSpace(transport))
+            string transport = "";
+            if (!string.IsNullOrEmpty(transport))
             {
-                accountToUpdate.Transport = transport;
+                transport = this.sip_register_transport;
+                if (!string.IsNullOrWhiteSpace(transport))
+                {
+                    accountToUpdate.Transport = transport;
+                }
             }
 
             //       public bool enable_echo_cancellation { get; set; }
@@ -145,12 +230,8 @@ namespace VATRP.Core.Model
             accountToUpdate.EnableICE = this.enable_ice;
 
             //       public string sip_videomail_uri { get; set; }
-            accountToUpdate.VideoMailUri = sip_videomail_uri ?? string.Empty;
-
-
-
-
-
+            accountToUpdate.VideoMailUri = (sip_videomail_uri ?? string.Empty);
+            
             // on successful login, we need to update the following in config: (list in progress)
             // this.enable_rtt;
 

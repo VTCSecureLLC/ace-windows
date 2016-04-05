@@ -34,6 +34,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
         private System.Drawing.Point _lastMousePosition;
         private bool _inactivityTimerStopped;
         private bool _isFullScreenOn;
+        private object _viewLock = new object();
         #endregion
 
         #region Properties
@@ -93,8 +94,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
             ctrlOverlay.OnHoldOverlayWidth = 660;
             ctrlOverlay.OnHoldOverlayHeight = 200;
 
-            ctrlOverlay.QualityIndicatorOverlayHeight = 700;
-            ctrlOverlay.QualityIndicatorOverlayWidth = 700;
+            ctrlOverlay.QualityIndicatorOverlayHeight = 30;
+            ctrlOverlay.QualityIndicatorOverlayWidth = 54;
 
             _mouseInactivityTimer = new DispatcherTimer
             {
@@ -110,11 +111,13 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         public void SetCallViewModel(CallViewModel viewModel)
         {
-            if (_viewModel == viewModel)
-                return;
-            DataContext = viewModel;
-            _viewModel = viewModel;
-
+            lock (_viewLock)
+            {
+                if (_viewModel == viewModel)
+                    return;
+                DataContext = viewModel;
+                _viewModel = viewModel;
+            }
             UpdateControls();
         }
 
@@ -137,10 +140,11 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 _viewModel.MuteSpeaker(isMuted);
         }
 
-        internal void MuteCall(bool isMuted)
+        internal bool MuteCall(bool isMuted)
         {
             if (_viewModel.ActiveCall != null)
-                _viewModel.MuteCall(isMuted);
+                return _viewModel.MuteCall(isMuted);
+            return false;
         }
 
         private void OnEndCall(object sender, RoutedEventArgs e)
@@ -244,10 +248,15 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         private void OnMute(object sender, RoutedEventArgs e)
         {
+            bool isChecked = BtnMuteOn.IsChecked ?? false;
+            if (!MuteCall(isChecked))
+            {
+                BtnMuteOn.IsChecked = !isChecked;
+                return;
+            }
             if (MuteOnToggled != null)
                 MuteOnToggled(BtnMuteOn.IsChecked ?? false);
             SaveStates();
-            MuteCall(BtnMuteOn.IsChecked ?? false);
         }
 
         private void buttonKeyPad(object sender, RoutedEventArgs e)
@@ -294,24 +303,31 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         private void SaveStates()
         {
-            _viewModel.SavedIsVideoOn = BtnVideoOn.IsChecked ?? false;
-            _viewModel.SavedIsMuteOn = BtnMuteOn.IsChecked ?? false;
-            _viewModel.SavedIsSpeakerOn = BtnSpeaker.IsChecked ?? false;
-            _viewModel.SavedIsNumpadOn = BtnNumpad.IsChecked ?? false;
-            _viewModel.SavedIsRttOn = BtnRTT.IsChecked ?? false;
-            _viewModel.SavedIsInfoOn = BtnInfo.IsChecked ?? false;
-            _viewModel.SavedIsCallHoldOn = BtnHold.IsChecked ?? false;
+            if (_viewModel != null)
+            {
+                _viewModel.SavedIsVideoOn = BtnVideoOn.IsChecked ?? false;
+                _viewModel.SavedIsMuteOn = BtnMuteOn.IsChecked ?? false;
+                _viewModel.SavedIsSpeakerOn = BtnSpeaker.IsChecked ?? false;
+                _viewModel.SavedIsNumpadOn = BtnNumpad.IsChecked ?? false;
+                _viewModel.SavedIsRttOn = BtnRTT.IsChecked ?? false;
+                _viewModel.SavedIsInfoOn = BtnInfo.IsChecked ?? false;
+                _viewModel.SavedIsCallHoldOn = BtnHold.IsChecked ?? false;
+            }
         }
 
         private void LoadStates()
         {
-            _viewModel.IsVideoOn = _viewModel.SavedIsVideoOn;
-            _viewModel.IsMuteOn = _viewModel.SavedIsMuteOn;
-            _viewModel.IsSpeakerOn = _viewModel.SavedIsSpeakerOn;
-            _viewModel.IsNumpadOn = _viewModel.SavedIsNumpadOn;
-            _viewModel.IsRttOn = _viewModel.SavedIsRttOn && _viewModel.IsRTTEnabled;
-            _viewModel.IsCallInfoOn = _viewModel.SavedIsInfoOn;
-            _viewModel.IsCallOnHold = _viewModel.SavedIsCallHoldOn;
+            if (_viewModel != null)
+            {
+                _viewModel.IsVideoOn = _viewModel.SavedIsVideoOn;
+                _viewModel.IsMuteOn = _viewModel.SavedIsMuteOn;
+                _viewModel.IsSpeakerOn = _viewModel.SavedIsSpeakerOn;
+                _viewModel.IsNumpadOn = _viewModel.SavedIsNumpadOn;
+                _viewModel.IsRttOn = _viewModel.SavedIsRttOn && _viewModel.IsRTTEnabled;
+                _viewModel.IsCallInfoOn = _viewModel.SavedIsInfoOn;
+                _viewModel.IsCallOnHold = _viewModel.SavedIsCallHoldOn;
+                _viewModel.IsFullScreenOn = _parentViewModel != null && _parentViewModel.IsInCallFullScreen;
+            }
         }
 
         internal void UpdateControls()
@@ -451,8 +467,12 @@ namespace com.vtcsecure.ace.windows.CustomControls
             if (!restoreVisibilityStates)
                 return;
 
-            //Debug.WriteLine("ShowControl: " + opt);
-            // Show controls with their last visibility state
+            if (_viewModel == null || _viewModel.CallState == VATRPCallState.Closed)
+            {
+                HideOverlayControls();
+                return;
+            }
+
             if (_viewModel != null)
             {
                 if (_viewModel.CallInfoLastTimeVisibility == Visibility.Visible)
@@ -540,95 +560,108 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         private void CtrlVideo_OnMouseMove(object sender, MouseEventArgs e)
         {
-            if (_viewModel == null || !_viewModel.AllowHideContorls)
-                return;
-
-            Win32Api.POINT mousePositionInControl;
-            Win32Api.GetCursorPos(out mousePositionInControl);
-
-            //Debug.WriteLine("Current:{0} {1} Last: x:{2} y:{3}", mousePositionInControl.X, mousePositionInControl.Y,
-            //    _lastMousePosition.X, _lastMousePosition.Y);
-            if (_lastMousePosition.X != mousePositionInControl.X ||
-                _lastMousePosition.Y != mousePositionInControl.Y)
+            lock (_viewLock)
             {
-                _mouseInControlArea = false;
-                RestoreControlsVisibility();
-                RestartInactivityDetectionTimer();
+                if (_viewModel == null || !_viewModel.AllowHideContorls)
+                    return;
+                if (_viewModel.CallState == VATRPCallState.Closed)
+                    return;
+                Win32Api.POINT mousePositionInControl;
+                Win32Api.GetCursorPos(out mousePositionInControl);
+
+                if (_lastMousePosition.X != mousePositionInControl.X ||
+                    _lastMousePosition.Y != mousePositionInControl.Y)
+                {
+                    _mouseInControlArea = false;
+                    RestoreControlsVisibility();
+                    RestartInactivityDetectionTimer();
+                }
+                _lastMousePosition = mousePositionInControl;
             }
-            _lastMousePosition = mousePositionInControl;
         }
         
         private void CtrlVideo_OnMouseEnter(object sender, MouseEventArgs e)
         {
-            //Debug.WriteLine("OnMouseEnter: Restore Visibility - " + restoreVisibilityStates);
-            if (_viewModel == null || !_viewModel.AllowHideContorls)
-                return;
-
-            Win32Api.POINT mousePositionInControl;
-            Win32Api.GetCursorPos(out mousePositionInControl);
-
-            if (_lastMousePosition.X == mousePositionInControl.X &&
-                _lastMousePosition.Y == mousePositionInControl.Y)
+            lock (_viewLock)
             {
-                //Debug.WriteLine("Unchanged coordinates. Should be skipped. Control area: " + _mouseInControlArea);
-                if (restoreVisibilityStates)
-                {
-                    if (_mouseInactivityTimer.IsEnabled)
-                    {
-                        _inactivityTimerStopped = true;
-                        _mouseInactivityTimer.Stop();
-                    }
-                }
-                return;
-            }
+                if (_viewModel == null || !_viewModel.AllowHideContorls)
+                    return;
 
-            _lastMousePosition = mousePositionInControl;
-            if (!_mouseInControlArea)
-                RestoreControlsVisibility();
-            RestartInactivityDetectionTimer();
+                if (_viewModel == null || _viewModel.CallState == VATRPCallState.Closed)
+                    return;
+                Win32Api.POINT mousePositionInControl;
+                Win32Api.GetCursorPos(out mousePositionInControl);
+
+                if (_lastMousePosition.X == mousePositionInControl.X &&
+                    _lastMousePosition.Y == mousePositionInControl.Y)
+                {
+                    //Debug.WriteLine("Unchanged coordinates. Should be skipped. Control area: " + _mouseInControlArea);
+                    if (restoreVisibilityStates)
+                    {
+                        if (_mouseInactivityTimer.IsEnabled)
+                        {
+                            _inactivityTimerStopped = true;
+                            _mouseInactivityTimer.Stop();
+                        }
+                    }
+                    return;
+                }
+
+                _lastMousePosition = mousePositionInControl;
+                if (!_mouseInControlArea)
+                    RestoreControlsVisibility();
+                RestartInactivityDetectionTimer();
+            }
         }
 
         private void CtrlVideo_OnMouseLeave(object sender, MouseEventArgs e)
         {
-            if (_viewModel == null || !_viewModel.AllowHideContorls)
-                return;
-
-            Point mousePosition = Mouse.GetPosition(this);
-
-            //Debug.WriteLine("MouseLeave: X = {0}, Y={1}", mousePositionInControl.X, mousePositionInControl.Y); 
-            if (mousePosition.X > 0 && mousePosition.Y > 0)
+            lock (_viewLock)
             {
-                //Debug.WriteLine("we are in control area, ");
-                _mouseInControlArea = true;
-            }
+                if (_viewModel == null || !_viewModel.AllowHideContorls)
+                    return;
 
-            Win32Api.POINT mousePositionInControl;
-            Win32Api.GetCursorPos(out mousePositionInControl);
-            _lastMousePosition = mousePositionInControl;
-            RestartInactivityDetectionTimer();
+                Point mousePosition = Mouse.GetPosition(this);
+
+                //Debug.WriteLine("MouseLeave: X = {0}, Y={1}", mousePositionInControl.X, mousePositionInControl.Y); 
+                if (mousePosition.X > 0 && mousePosition.Y > 0)
+                {
+                    //Debug.WriteLine("we are in control area, ");
+                    _mouseInControlArea = true;
+                }
+
+                Win32Api.POINT mousePositionInControl;
+                Win32Api.GetCursorPos(out mousePositionInControl);
+                _lastMousePosition = mousePositionInControl;
+                RestartInactivityDetectionTimer();
+            }
         }
 
 
         private void OnMouseInactivityTimer(object sender, EventArgs e)
         {
             _mouseInactivityTimer.Stop();
+            lock (_viewLock)
+            {
+                if (_viewModel == null || _viewModel.CallState == VATRPCallState.Closed)
+                    return;
+                if (_inactivityTimerStopped)
+                {
+                    Debug.WriteLine("Inactivity timer stopped. Do not process ");
+                    return;
+                }
 
-            if (_inactivityTimerStopped)
-            {
-                Debug.WriteLine("Inactivity timer stopped. Do not process ");
-                return;
-            }
-
-            if (!restoreVisibilityStates)
-            {
-                Win32Api.POINT mousePositionInControl;
-                Win32Api.GetCursorPos(out mousePositionInControl);
-                _lastMousePosition = mousePositionInControl;
-                HideOverlayControls();
-            }
-            else
-            {
-                RestoreControlsVisibility();
+                if (!restoreVisibilityStates)
+                {
+                    Win32Api.POINT mousePositionInControl;
+                    Win32Api.GetCursorPos(out mousePositionInControl);
+                    _lastMousePosition = mousePositionInControl;
+                    HideOverlayControls();
+                }
+                else
+                {
+                    RestoreControlsVisibility();
+                }
             }
         }
 
@@ -653,6 +686,12 @@ namespace com.vtcsecure.ace.windows.CustomControls
             _viewModel.IsRttOn = true;
             BtnRTT.IsChecked = _viewModel.IsRttOn;
             _viewModel.SavedIsRttOn = BtnRTT.IsChecked ?? false;
+        }
+
+        internal void ExitFullScreen()
+        {
+            BtnFullScreen.IsChecked = false;
+            OnToggleFullScreen(this, null);
         }
     }
 }

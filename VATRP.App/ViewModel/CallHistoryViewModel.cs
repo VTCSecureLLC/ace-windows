@@ -45,6 +45,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _historyService = historyService;
             _contactService = ServiceManager.Instance.ContactService;
             _contactService.ContactAdded += OnNewContactAdded;
+            _contactService.ContactsChanged += OnContactChanged;
             _contactService.ContactRemoved += OnContactRemoved;
             _historyService.OnCallHistoryEvent += CallHistoryEventChanged;
             _dialpadViewModel = dialpadViewModel;
@@ -65,7 +66,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 {
                     if (call.CallEvent.Contact != null && call.CallEvent.Contact.ID == e.contactId.ID)
                     {
-                        call.CallEvent.Contact = null;
+                        call.UpdateContact(null);
                         call.AllowAddContact = true;
                     }
                 }
@@ -91,12 +92,38 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     {
                         if (call.CallEvent.RemoteParty.TrimSipPrefix() == contact.ID)
                         {
-                            call.CallEvent.Contact = contact;
+                            call.UpdateContact(contact);
                             call.AllowAddContact = false;
                         }
                     }
                 }
                 CallsListView.Refresh();
+            }
+        }
+        private void OnContactChanged(object sender, ContactEventArgs e)
+        {
+            if (ServiceManager.Instance.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
+            {
+                ServiceManager.Instance.Dispatcher.BeginInvoke((Action)(() => this.OnContactChanged(sender, e)));
+                return;
+            }
+
+            // search and update all items
+            var contact = _contactService.FindContact(new ContactID(e.Contact));
+            if (contact != null && contact.IsLinphoneContact)
+            {
+                lock (this.Calls)
+                {
+                    foreach (var call in Calls)
+                    {
+                        if (call.CallEvent.RemoteParty.TrimSipPrefix() == contact.ID && call.Contact == null)
+                        {
+                            call.UpdateContact(contact);
+                            call.AllowAddContact = false;
+                        }
+                    }
+                    CallsListView.Refresh();
+                }
             }
         }
 
@@ -243,7 +270,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         public void AddNewContact(HistoryCallEventViewModel callEventViewModel)
         {
             var remote = callEventViewModel.CallEvent.RemoteParty.TrimSipPrefix();
-            ContactEditViewModel model = new ContactEditViewModel(true, remote);
+            ContactEditViewModel model = new ContactEditViewModel(false, remote, string.Empty);
             model.ContactName = callEventViewModel.DisplayName;
             var contactEditView = new com.vtcsecure.ace.windows.Views.ContactEditView(model);
             var dialogResult = contactEditView.ShowDialog();

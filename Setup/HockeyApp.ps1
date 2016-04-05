@@ -4,6 +4,8 @@ if ($env:APPVEYOR_REPO_BRANCH -ne "master")
  exit 0
 }
 
+
+
 Get-ChildItem .\Setup\Out\*.msi | ForEach-Object {
   $msi=$_.FullName
 

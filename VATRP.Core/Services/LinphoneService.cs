@@ -73,12 +73,12 @@ namespace VATRP.Core.Services
         private IntPtr _linphoneVideoCodecsList = IntPtr.Zero;
         private List<IntPtr> _declinedCallsList = new List<IntPtr>();
         private IntPtr _videoMWiSubscription;
-
+        private bool _enableLogging = false;
         // logging
         string[] placeholders = new string[] { "%d", "%s", "%lu", "%i", "%u", "%x", "%X", "%f", "%llu", "%p", 
             "%10I64d", "%-9i", "%-19s", "%-19g", "%-10g", "%-20s" };
         SortedList<int, string> placeHolderItems = new SortedList<int, string>();
-        
+        private object logLock = new object();
         #endregion
 
 		#region Delegates
@@ -268,7 +268,7 @@ namespace VATRP.Core.Services
 		        {
 #if !USE_LINPHONE_LOGGING
 		            LinphoneAPI.linphone_core_enable_logs(IntPtr.Zero);
-                    LinphoneAPI.linphone_core_set_log_level_mask(OrtpLogLevel.ORTP_TRACE);
+                    LinphoneAPI.linphone_core_set_log_level_mask(OrtpLogLevel.ORTP_DEBUG);
 #else
                     LinphoneAPI.linphone_core_enable_logs_with_cb(Marshal.GetFunctionPointerForDelegate(linphone_log_received));
 #endif
@@ -371,13 +371,16 @@ namespace VATRP.Core.Services
                     LinphoneAPI.lp_config_set_int(coreConfig, "sip", "keepalive_period", 90000);
                     // store contacts as vcard
                     LinphoneAPI.lp_config_set_int(coreConfig, "misc", "store_friends", 1);
+
+                    // VATRP-2130, prevent SIP spam
+                    LinphoneAPI.lp_config_set_int(coreConfig, "sip", "sip_random_port", 1); // force to set random ports
                 }
 
 			    LinphoneAPI.linphone_core_enable_keep_alive(linphoneCore, false);
 
 				coreLoop = new Thread(LinphoneMainLoop) {IsBackground = true};
 				coreLoop.Start();
-
+			    _isStarting = false;
 				_isStarted = true;
 			}
             if (ServiceStarted != null)
@@ -505,7 +508,10 @@ namespace VATRP.Core.Services
             coreLoop = null;
             identity = null;
             server_addr = null;
-
+            _isStarting = false;
+            _isStarted = false;
+            _isStopping = false;
+            _isStopped = true;
             LOG.Debug("Main loop exited");
             if (ServiceStopped != null)
                 ServiceStopped(this, EventArgs.Empty);
@@ -581,7 +587,23 @@ namespace VATRP.Core.Services
             if (LinphoneAPI.linphone_core_get_use_info_for_dtmf(linphoneCore) != use_info)
             {
                 LinphoneAPI.linphone_core_set_use_info_for_dtmf(linphoneCore, use_info);
-                LOG.Debug(string.Format("{0} send dtmf as SIP info", use_info ? "Enable" : "Disable"));
+                LOG.Info(string.Format("{0} send dtmf as SIP info", use_info ? "Enable" : "Disable"));
+            }
+        }
+
+        public void SendDtmfAsTelephoneEvent(bool use_te)
+        {
+            if (linphoneCore == IntPtr.Zero)
+            {
+                if (ErrorEvent != null)
+                    ErrorEvent(null, "Cannot make when Linphone Core is not working.");
+                return;
+            }
+
+            if (LinphoneAPI.linphone_core_get_use_rfc2833_for_dtmf(linphoneCore) != use_te)
+            {
+                LinphoneAPI.linphone_core_set_use_rfc2833_for_dtmf(linphoneCore, use_te);
+                LOG.Info(string.Format("{0} send dtmf as RFC 2833", use_te ? "Enable" : "Disable"));
             }
         }
 
@@ -590,19 +612,6 @@ namespace VATRP.Core.Services
             if (linphoneCore == IntPtr.Zero)
                 return;
             LinphoneAPI.linphone_core_play_dtmf(linphoneCore, dtmf, duration);
-        }
-
-        public void EnableAdaptiveRateControl(bool bEnable)
-        {
-            if (linphoneCore == IntPtr.Zero)
-                return;
-
-            var isCtrlEnabled = LinphoneAPI.linphone_core_adaptive_rate_control_enabled(linphoneCore);
-            if (isCtrlEnabled != bEnable)
-            {
-                LinphoneAPI.linphone_core_enable_adaptive_rate_control(linphoneCore, bEnable);
-                LOG.Debug(string.Format("{0} adaptive rate control", bEnable ? "Enable" : "Disable"));
-            }
         }
 
 		#endregion
@@ -619,10 +628,10 @@ namespace VATRP.Core.Services
 
 			t_config = new LCSipTransports()
 			{
-				udp_port = preferences.Transport == "UDP" ? LinphoneAPI.LC_SIP_TRANSPORT_RANDOM : LinphoneAPI.LC_SIP_TRANSPORT_DISABLED,
-                tcp_port = preferences.Transport == "TCP" ? LinphoneAPI.LC_SIP_TRANSPORT_RANDOM : LinphoneAPI.LC_SIP_TRANSPORT_DISABLED,
-				dtls_port = preferences.Transport == "DTLS" ? LinphoneAPI.LC_SIP_TRANSPORT_RANDOM : LinphoneAPI.LC_SIP_TRANSPORT_DISABLED,
-				tls_port = preferences.Transport == "TLS" ? LinphoneAPI.LC_SIP_TRANSPORT_RANDOM : LinphoneAPI.LC_SIP_TRANSPORT_DISABLED,
+				udp_port = LinphoneAPI.LC_SIP_TRANSPORT_RANDOM,
+                tcp_port = LinphoneAPI.LC_SIP_TRANSPORT_RANDOM,
+				dtls_port = LinphoneAPI.LC_SIP_TRANSPORT_RANDOM,
+				tls_port = LinphoneAPI.LC_SIP_TRANSPORT_RANDOM,
 			};
 
 			t_configPtr = Marshal.AllocHGlobal(Marshal.SizeOf(t_config));
@@ -971,8 +980,26 @@ namespace VATRP.Core.Services
 		}
         public void MuteCall(bool muteCall)
         {
-            LinphoneAPI.linphone_core_enable_mic(linphoneCore, !muteCall);
+            if (linphoneCore == IntPtr.Zero)
+                return;
+            IntPtr activeCallPtr = LinphoneAPI.linphone_core_get_current_call(linphoneCore);
+            if (activeCallPtr == IntPtr.Zero)
+                LinphoneAPI.linphone_core_enable_mic(linphoneCore, !muteCall);
+            else
+            {
+                lock (callLock)
+                {
+                    VATRPCall call = FindCall(activeCallPtr);
+
+                    if (call != null && (call.CallState != VATRPCallState.LocalPaused || call.CallState != VATRPCallState.LocalPausing))
+                    {
+                        // probably this should be done in linphone core
+                        LinphoneAPI.linphone_core_enable_mic(linphoneCore, !muteCall);
+                    }
+                }
+            }
         }
+		
 		public void ToggleMute()
 		{
 			if (linphoneCore == IntPtr.Zero)
@@ -980,6 +1007,7 @@ namespace VATRP.Core.Services
 
 			LinphoneAPI.linphone_core_enable_mic(linphoneCore, !LinphoneAPI.linphone_core_mic_enabled(linphoneCore));
 		}
+		
         public bool IsSpeakerMuted()
         {
             if (linphoneCore == IntPtr.Zero)
@@ -1854,6 +1882,14 @@ namespace VATRP.Core.Services
                 LOG.Error("UpdateNetworkingParameters: Account is NULL");
                 return false;
             }
+
+            var ip6Enabled = LinphoneAPI.linphone_core_ipv6_enabled(linphoneCore);
+            if (ip6Enabled != account.EnableIPv6)
+            {
+                LinphoneAPI.linphone_core_enable_ipv6(linphoneCore, account.EnableIPv6);
+            }
+            LOG.Info(string.Format("UpdateNetworkingParameters: IPv6 is {0}", account.EnableIPv6 ? "enabled" : "disabled"));
+            
             if (account.EnableSTUN || account.EnableICE)
             {
                 var address = string.Format("{0}:3478", account.STUNAddress);
@@ -1878,18 +1914,39 @@ namespace VATRP.Core.Services
                 LOG.Info("UpdateNetworkingParameters: No Firewall. ");
             }
 
+            // TODO, Disable adaptive rate algorithm, since it caused bad video
+            account.AdaptiveRateAlgorithm = "Simple";
+            //LinphoneAPI.linphone_core_set_adaptive_rate_algorithm(linphoneCore, account.AdaptiveRateAlgorithm);
+
             LinphoneAPI.linphone_core_enable_adaptive_rate_control(linphoneCore, account.EnableAdaptiveRate);
             LinphoneAPI.linphone_core_set_upload_bandwidth(linphoneCore, account.UploadBandwidth);
             LinphoneAPI.linphone_core_set_download_bandwidth(linphoneCore, account.DownloadBandwidth);
 
             // quality of service
-            LinphoneAPI.linphone_core_set_sip_dscp(linphoneCore, account.EnableQualityOfService ? 28 : 0);
-            LinphoneAPI.linphone_core_set_audio_dscp(linphoneCore, account.EnableQualityOfService ? 38 : 0);
-            LinphoneAPI.linphone_core_set_video_dscp(linphoneCore, account.EnableQualityOfService ? 38 : 0);
+            LinphoneAPI.linphone_core_set_sip_dscp(linphoneCore, account.EnableQualityOfService ? account.SipDscpValue : 0);
+            LinphoneAPI.linphone_core_set_audio_dscp(linphoneCore, account.EnableQualityOfService ? account.AudioDscpValue : 0);
+            LinphoneAPI.linphone_core_set_video_dscp(linphoneCore, account.EnableQualityOfService ? account.VideoDscpValue : 0);
             return false;
         }
 
-	    public void SetAVPFMode(LinphoneAVPFMode mode, LinphoneRTCPMode rtcpMode)
+        public bool UpdateAdvancedParameters(VATRPAccount account)
+        {
+            if (account.Logging == "Verbose")
+            {
+                LinphoneAPI.linphone_core_set_log_level_mask(OrtpLogLevel.ORTP_MESSAGE);
+                _enableLogging = true;
+                LOG.Info("Setting Linphone logging level to DEBUG");
+            }
+            else
+            {
+                LinphoneAPI.linphone_core_set_log_level_mask(OrtpLogLevel.ORTP_FATAL);
+                _enableLogging = false;
+                LOG.Info("Setting Linphone logging level to OFF");
+            }
+            return true;
+        }
+
+        public void SetAVPFMode(LinphoneAVPFMode mode, LinphoneRTCPMode rtcpMode)
 	    {
 	        if (linphoneCore == IntPtr.Zero)
 	            return;
@@ -1908,6 +1965,9 @@ namespace VATRP.Core.Services
             if (coreConfig != IntPtr.Zero)
             {
                 LOG.Info("RTCP mode changing to " + rtcpMode);
+                LinphoneAPI.lp_config_set_int(coreConfig, "rtp", "rtcp_xr_enabled", 0);
+                LinphoneAPI.lp_config_set_int(coreConfig, "rtp", "rtcp_xr_voip_metrics_enabled",0);
+                LinphoneAPI.lp_config_set_int(coreConfig, "rtp", "rtcp_xr_stat_summary_enabled", 0);
                 LinphoneAPI.lp_config_set_int(coreConfig, "rtp", "rtcp_fb_implicit_rtcp_fb", (int)rtcpMode);
             }
         }
@@ -1942,115 +2002,131 @@ namespace VATRP.Core.Services
         
         private void OnLinphoneLog(IntPtr domain, OrtpLogLevel lev, IntPtr fmt, IntPtr args)
         {
-            if (fmt == IntPtr.Zero)
+            if (fmt == IntPtr.Zero || !_enableLogging)
                 return;
             var format  = Marshal.PtrToStringAnsi(fmt);
             if (string.IsNullOrEmpty(format))
             {
                 return;
             }
-
-            foreach (var formatter in placeholders)
+            lock (logLock)
             {
-                int pos = format.IndexOf(formatter, 0, StringComparison.InvariantCulture);
-                while (pos != -1)
+                try
                 {
-                    placeHolderItems[pos] = formatter;
-                    pos = format.IndexOf(formatter, pos + 1, StringComparison.InvariantCulture);
-                } 
-            }
-
-            if (placeHolderItems.Count == 0)
-            {
-                LOG.Info(format);
-                return;
-            }
-
-            try
-            {
-                var argsArray = new IntPtr[placeHolderItems.Count];
-
-
-                Marshal.Copy(args, argsArray, 0, placeHolderItems.Count);
-                var logOutput = new StringBuilder(format);
-                var formattedString = string.Empty;
-                int offset = 0;
-                for (int i = 0; i < placeHolderItems.Count; i++)
-                {
-                    if (i >= argsArray.Length)
-                        continue;
-                    switch (placeHolderItems.Values[i])
+                    foreach (var formatter in placeholders)
                     {
-                        case "%s":
-                            formattedString = Marshal.PtrToStringAnsi(argsArray[i]);
-                            break;
-                        case "%d":
-                        case "%lu":
-                        case "%i":
-                        case "%u":
-                        case "%llu":
-                        case "%f":
-                        case "%p":
-                            formattedString = argsArray[i].ToString();
-                            break;
-                        case "%x":
-                        case "%X":
-                            formattedString = argsArray[i].ToString("X");
-                            break;
-                        case "%10I64d":
-                            formattedString = argsArray[i].ToInt64().ToString().PadLeft(10);
-                            break;
-                        case "%-9i":
-                            formattedString = argsArray[i].ToString().PadLeft(9, '-');
-                            break;
-                        case "%-20s":
-                        case "%-19s":
-                            formattedString = Marshal.PtrToStringAnsi(argsArray[i]);
-                            if (formattedString != null)
-                                formattedString = formattedString.PadLeft(19, '-');
-                            break;
-                        case "%-19g":
-                            formattedString = argsArray[i].ToString().PadLeft(19, '-');
-                            break;
-                        case "%-10g":
-                            formattedString = argsArray[i].ToString().PadLeft(10, '-');
-                            break;
-                        case "%3.1f":
-                        case "%5.1f":
-                            formattedString = argsArray[i].ToString("N1");
-                            break;
-                        
-                        default:
-                            formattedString = string.Empty;
-                            break;
-                    }
-                    if (formattedString != null)
-                    {
-                        logOutput.Remove(placeHolderItems.Keys[i] + offset, placeHolderItems.Values[i].Length);
-                        if (formattedString.Length > 0 )
-                            logOutput.Insert(placeHolderItems.Keys[i] + offset, formattedString);
-
-                        // update offset
-                        offset += formattedString.Length - placeHolderItems.Values[i].Length;
+                        int pos = format.IndexOf(formatter, 0, StringComparison.InvariantCulture);
+                        while (pos != -1)
+                        {
+                            placeHolderItems[pos] = formatter;
+                            pos = format.IndexOf(formatter, pos + 1, StringComparison.InvariantCulture);
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+                    LOG.Error("Error on formatting: " + format);
+                    return;
+                }
 
-                LOG.Info(logOutput);
-            }
-            catch (Exception ex)
-            {
+                if (placeHolderItems.Count == 0)
+                {
+                    LOG.Info(format);
+                    return;
+                }
 
-            }
-            finally
-            {
-                placeHolderItems.Clear();
+                try
+                {
+                    var argsArray = new IntPtr[placeHolderItems.Count];
+
+                    Marshal.Copy(args, argsArray, 0, placeHolderItems.Count);
+                    var logOutput = new StringBuilder(format);
+                    var formattedString = string.Empty;
+                    int offset = 0;
+                    for (int i = 0; i < placeHolderItems.Count; i++)
+                    {
+                        if (i >= argsArray.Length)
+                            continue;
+                        switch (placeHolderItems.Values[i])
+                        {
+                            case "%s":
+                                formattedString = Marshal.PtrToStringAnsi(argsArray[i]);
+                                break;
+                            case "%d":
+                            case "%lu":
+                            case "%i":
+                            case "%u":
+                            case "%llu":
+                            case "%f":
+                            case "%p":
+                                formattedString = argsArray[i].ToString();
+                                break;
+                            case "%x":
+                            case "%X":
+                                formattedString = argsArray[i].ToString("X");
+                                break;
+                            case "%10I64d":
+                                formattedString = argsArray[i].ToInt64().ToString().PadLeft(10);
+                                break;
+                            case "%-9i":
+                                formattedString = argsArray[i].ToString().PadLeft(9, '-');
+                                break;
+                            case "%-20s":
+                            case "%-19s":
+                                formattedString = Marshal.PtrToStringAnsi(argsArray[i]);
+                                if (formattedString != null)
+                                    formattedString = formattedString.PadLeft(19, '-');
+                                break;
+                            case "%-19g":
+                                formattedString = argsArray[i].ToString().PadLeft(19, '-');
+                                break;
+                            case "%-10g":
+                                formattedString = argsArray[i].ToString().PadLeft(10, '-');
+                                break;
+                            case "%3.1f":
+                            case "%5.1f":
+                                formattedString = argsArray[i].ToString("N1");
+                                break;
+
+                            default:
+                                formattedString = string.Empty;
+                                break;
+                        }
+                        if (formattedString != null)
+                        {
+                            logOutput.Remove(placeHolderItems.Keys[i] + offset, placeHolderItems.Values[i].Length);
+                            if (formattedString.Length > 0)
+                                logOutput.Insert(placeHolderItems.Keys[i] + offset, formattedString);
+
+                            // update offset
+                            offset += formattedString.Length - placeHolderItems.Values[i].Length;
+                        }
+                    }
+
+                    LOG.Info(logOutput);
+                }
+                catch (Exception ex)
+                {
+
+                }
+                finally
+                {
+                    placeHolderItems.Clear();
+                }
             }
         }
 
 		void OnRegistrationChanged (IntPtr lc, IntPtr cfg, LinphoneRegistrationState cstate, string message) 
 		{
 			if (linphoneCore == IntPtr.Zero) return;
-		    if (cfg == proxy_cfg)
+            // Liz E. - I think that here - if the registration state has not actually changed, just return
+            if (currentRegistrationState == cstate)
+            {
+//                LOG.Info("LinphoneService.OnRegistrationChanged called - but there is no change. Do nothing.");
+                return;
+            }
+            LOG.Info("LinphoneService.OnRegistrationChanged called. Call State was:" + currentRegistrationState.ToString() + " call state changing to " + cstate.ToString());
+            if (cfg == proxy_cfg)
 		    {
                 currentRegistrationState = cstate;
 		        if (RegistrationStateChangedEvent != null)
@@ -2804,7 +2880,11 @@ namespace VATRP.Core.Services
                 // items to add: enabled video codecs, enabled audio codecs, preferred video resolution, preferred bandwidth
                 bool adaptiveRateEnabled = LinphoneAPI.linphone_core_adaptive_rate_control_enabled(linphoneCore);
                 configString.AppendLine("Adaptive Rate Enabled: " + adaptiveRateEnabled.ToString());
-                configString.AppendLine("Adaptive Rate Algorithm: " + LinphoneAPI.linphone_core_get_adaptive_rate_algorithm(linphoneCore));
+                IntPtr strPtr = LinphoneAPI.linphone_core_get_adaptive_rate_algorithm(linphoneCore);
+                var algorithm = string.Empty;
+                if (strPtr != IntPtr.Zero)
+                    algorithm = Marshal.PtrToStringAnsi(strPtr);
+                configString.AppendLine("Adaptive Rate Algorithm: " + algorithm);
                 int min_port = -1;
                 int max_port = -1;
                 LinphoneAPI.linphone_core_get_video_port_range(linphoneCore, ref min_port, ref max_port);

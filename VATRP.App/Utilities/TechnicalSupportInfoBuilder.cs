@@ -123,7 +123,7 @@ namespace com.vtcsecure.ace.windows.Utilities
                 bool enable_rtt = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL, Configuration.ConfEntry.USE_RTT, true);
                 configString.AppendLine("Enable RTT: " + enable_rtt.ToString());
                 //       public bool enable_adaptive_rate { get; set; }
-                configString.AppendLine("Enable Adaptive Rate: " + App.CurrentAccount.EnableAVPF.ToString()); // is this correct?
+                configString.AppendLine("Enable AVPF: " + App.CurrentAccount.EnableAVPF.ToString()); // is this correct?
                 //       public bool enable_stun { get; set; }
                 configString.AppendLine("Enable STUN: " + App.CurrentAccount.EnableSTUN.ToString());
                 //       public string stun_server { get; set; }
@@ -131,7 +131,7 @@ namespace com.vtcsecure.ace.windows.Utilities
                 configString.AppendLine("STUN Port: " + App.CurrentAccount.STUNPort);
                 //       public bool enable_ice { get; set; }
                 configString.AppendLine("Enable ICE: " + App.CurrentAccount.EnableICE.ToString());
-
+                configString.AppendLine("Enable IPv6: " + App.CurrentAccount.EnableIPv6.ToString());
                 //       public List<string> enabled_codecs { get; set; }
                 //           configString.AppendLine("Enabled Codecs: " + string.Join(", ", enabled_codecs.ToArray()));
                 //       public string bwLimit { get; set; }

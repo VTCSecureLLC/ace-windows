@@ -47,9 +47,22 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
 
             AdaptiveRateCheckbox.IsChecked = App.CurrentAccount.EnableAdaptiveRate;
+
+            foreach (TextBlock textBlock in AlgorithmComboBox.Items)
+            {
+                if (textBlock.Text.Equals(App.CurrentAccount.AdaptiveRateAlgorithm))
+                {
+                    AlgorithmComboBox.SelectedItem = textBlock;
+                }
+            }
+
+            if (AlgorithmComboBox.SelectedItem == null)
+                AlgorithmComboBox.SelectedIndex = 0;
+
             UploadBandwidthTextBox.Text = App.CurrentAccount.UploadBandwidth.ToString();
             DownloadBandwidthTextBox.Text = App.CurrentAccount.DownloadBandwidth.ToString();
             QoSCheckbox.IsChecked = App.CurrentAccount.EnableQualityOfService;
+            IPv6Checkbox.IsChecked = App.CurrentAccount.EnableIPv6;
         }
 
         private void OnAdaptiveRateChecked(object sender, RoutedEventArgs e)
@@ -62,13 +75,23 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
         }
 
-        private void OnQoSChecked(object sender, RoutedEventArgs e)
+        private void OnAdaptiveRateAlgorithmChanged(object sender, SelectionChangedEventArgs e)
         {
-            bool enabled = QoSCheckbox.IsChecked ?? false;
-            if (enabled != App.CurrentAccount.EnableQualityOfService)
+            TextBlock valueA = (TextBlock)AlgorithmComboBox.SelectedItem;
+            string value = valueA.Text;
+            if (App.CurrentAccount != null)
             {
-                App.CurrentAccount.EnableQualityOfService = enabled;
-                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+                bool needsUpdate = false;
+                if (!string.IsNullOrEmpty(value) && string.IsNullOrEmpty(App.CurrentAccount.AdaptiveRateAlgorithm))
+                    needsUpdate = true;
+                else if (!string.IsNullOrEmpty(value) && !App.CurrentAccount.AdaptiveRateAlgorithm.Equals(value))
+                    needsUpdate = true;
+                // do not update if we do nto need it.
+                if (needsUpdate)
+                {
+                    App.CurrentAccount.AdaptiveRateAlgorithm = value;
+                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+                }
             }
         }
 
@@ -95,8 +118,16 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             //  Stun Server checkbox enabled we prompt the user if the value does not look like a valid address?
             if (App.CurrentAccount != null)
             {
-                App.CurrentAccount.STUNAddress = newStunServer;
-                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+                bool updateStunServer = false;
+                if (!string.IsNullOrEmpty(newStunServer) && string.IsNullOrEmpty(App.CurrentAccount.STUNAddress))
+                    updateStunServer = true;
+                else if (!string.IsNullOrEmpty(newStunServer) && !newStunServer.Equals(App.CurrentAccount.STUNAddress))
+                    updateStunServer = true;
+                if (updateStunServer)
+                {
+                    App.CurrentAccount.STUNAddress = newStunServer;
+                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+                }
             }
         }
 
@@ -142,76 +173,178 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
         }
 
-        #region NotYetSpecifiedForWindows
-        private void OnEdgeOptimization(object sender, RoutedEventArgs e)
+        private void OnQoSChecked(object sender, RoutedEventArgs e)
         {
-            bool enabled = EdgeOptimizationCheckbox.IsChecked ?? false;
-            // Placeholder - not yet indicated for Windows
+            bool enabled = QoSCheckbox.IsChecked ?? false;
 
+            SipDscpTextBox.IsEnabled = enabled;
+            AudioDscpTextBox.IsEnabled = enabled;
+            VideoDscpTextBox.IsEnabled = enabled;
+
+            if (enabled)
+            {
+                SipDscpTextBox.Text = App.CurrentAccount.SipDscpValue.ToString();
+                AudioDscpTextBox.Text = App.CurrentAccount.AudioDscpValue.ToString();
+                VideoDscpTextBox.Text = App.CurrentAccount.VideoDscpValue.ToString();
+            }
+            else
+            {
+                SipDscpTextBox.Text = "0";
+                AudioDscpTextBox.Text = "0";
+                VideoDscpTextBox.Text = "0";
+            }
+            
+            if (enabled != App.CurrentAccount.EnableQualityOfService)
+            {
+                App.CurrentAccount.EnableQualityOfService = enabled;
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+            }
         }
 
-        private void OnWifiOnly(object sender, RoutedEventArgs e)
+        private void OnSIPDscpChanged(object sender, RoutedEventArgs e)
         {
-            bool enabled = WifiOnlyCheckbox.IsChecked ?? false;
-            // Placeholder - not yet indicated for Windows
+            if (!SipDscpTextBox.IsEnabled)
+                return;
 
+            string newDscp = SipDscpTextBox.Text;
+            if (!string.IsNullOrEmpty(newDscp))
+            {
+                int val = 0;
+                if (int.TryParse(newDscp, out val))
+                {
+                    App.CurrentAccount.SipDscpValue = val;
+                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+                }
+            }
         }
 
-        private void OnRandomPort(object sender, RoutedEventArgs e)
+        private void OnAudioDscpChanged(object sender, RoutedEventArgs e)
         {
-            bool enabled = RandomPortCheckbox.IsChecked ?? false;
-            // Placeholder - not yet indicated for Windows
+            if (!AudioDscpTextBox.IsEnabled)
+                return;
 
+            string newDscp = AudioDscpTextBox.Text;
+            if (!string.IsNullOrEmpty(newDscp))
+            {
+                int val = 0;
+                if (int.TryParse(newDscp, out val))
+                {
+                    App.CurrentAccount.AudioDscpValue = val;
+                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+                }
+            }
         }
 
-        public void OnAudioPortsChanged(Object sender, RoutedEventArgs args)
+        private void OnVideoDscpChanged(object sender, RoutedEventArgs e)
         {
-            string newAudioPorts = AudioPortsTextBox.Text;
-            // Placeholder - not yet indicated for Windows
-            //            if (string.IsNullOrEmpty(newAudioPorts))
-            //            {
-            //                string oldAudioPorts = App.CurrentAccount.Username;
-            //                AudioPortsTextBox.Text = oldAudioPorts;
-            //            }
-        }
+            if (!VideoDscpTextBox.IsEnabled)
+                return;
 
-        public void OnVideoPortsChanged(Object sender, RoutedEventArgs args)
-        {
-            string newVideoPorts = VideoPortsTextBox.Text;
-            // Placeholder - not yet indicated for Windows
-
-            //            if (string.IsNullOrEmpty(newVideoPorts))
-            //            {
-            //                string oldVideoPorts = App.CurrentAccount.Username;
-            //                VideoPortsTextBox.Text = oldVideoPorts;
-            //            }
+            string newDscp = VideoDscpTextBox.Text;
+            if (!string.IsNullOrEmpty(newDscp))
+            {
+                int val = 0;
+                if (int.TryParse(newDscp, out val))
+                {
+                    App.CurrentAccount.VideoDscpValue = val;
+                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+                }
+            }
         }
 
         private void OnIPv6(object sender, RoutedEventArgs e)
         {
             bool enabled = IPv6Checkbox.IsChecked ?? false;
-            // Placeholder - not yet indicated for Windows
 
-        }
-        private void OnMediaEncryptionChanged(object sender, RoutedEventArgs e)
-        {
-            TextBlock valueTB = (TextBlock)MediaEncryptionComboBox.SelectedItem;
-            string value = valueTB.Text;
-            if (App.CurrentAccount != null)
+            if (enabled != App.CurrentAccount.EnableIPv6)
             {
-                App.CurrentAccount.MediaEncryption = value;
-                // update media settings.
-                ServiceManager.Instance.ApplyMediaSettingsChanges();
-                ServiceManager.Instance.SaveAccountSettings();
+                App.CurrentAccount.EnableIPv6 = enabled;
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.NetworkSettingsChanged);
+            }
+        }
+
+        #region NotYetSpecifiedForWindows
+            private
+            void OnEdgeOptimization 
+            (object sender, RoutedEventArgs e)
+            {
+                bool enabled = EdgeOptimizationCheckbox.IsChecked ?? false;
+                // Placeholder - not yet indicated for Windows
+
             }
 
-        }
-        private void OnPushNotifications(object sender, RoutedEventArgs e)
-        {
-            bool enabled = PushNotificationsCheckbox.IsChecked ?? false;
-            // Placeholder - not yet indicated for Windows
+        private
+            void OnWifiOnly 
+            (object sender, RoutedEventArgs e)
+            {
+                bool enabled = WifiOnlyCheckbox.IsChecked ?? false;
+                // Placeholder - not yet indicated for Windows
 
-        }
-        #endregion
+            }
+
+        private
+            void OnRandomPort 
+            (object sender, RoutedEventArgs e)
+            {
+                bool enabled = RandomPortCheckbox.IsChecked ?? false;
+                // Placeholder - not yet indicated for Windows
+
+            }
+
+        public
+            void OnAudioPortsChanged 
+            (Object sender, RoutedEventArgs args)
+            {
+                string newAudioPorts = AudioPortsTextBox.Text;
+                // Placeholder - not yet indicated for Windows
+                //            if (string.IsNullOrEmpty(newAudioPorts))
+                //            {
+                //                string oldAudioPorts = App.CurrentAccount.Username;
+                //                AudioPortsTextBox.Text = oldAudioPorts;
+                //            }
+            }
+
+        public
+            void OnVideoPortsChanged 
+            (Object sender, RoutedEventArgs args)
+            {
+                string newVideoPorts = VideoPortsTextBox.Text;
+                // Placeholder - not yet indicated for Windows
+
+                //            if (string.IsNullOrEmpty(newVideoPorts))
+                //            {
+                //                string oldVideoPorts = App.CurrentAccount.Username;
+                //                VideoPortsTextBox.Text = oldVideoPorts;
+                //            }
+            }
+
+        private
+            void OnMediaEncryptionChanged 
+            (object sender, RoutedEventArgs e)
+            {
+                TextBlock valueTB = (TextBlock) MediaEncryptionComboBox.SelectedItem;
+                string value = valueTB.Text;
+                if (App.CurrentAccount != null)
+                {
+                    App.CurrentAccount.MediaEncryption = value;
+                    // update media settings.
+                    ServiceManager.Instance.ApplyMediaSettingsChanges();
+                    ServiceManager.Instance.SaveAccountSettings();
+                }
+
+            }
+        private
+            void OnPushNotifications 
+            (object sender, RoutedEventArgs e)
+            {
+                bool enabled = PushNotificationsCheckbox.IsChecked ?? false;
+                // Placeholder - not yet indicated for Windows
+
+            }
+
+            #endregion
+
+        
+
     }
 }

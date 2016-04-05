@@ -31,6 +31,7 @@
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
 
+      
         <StackPanel Grid.Row="0" Grid.RowSpan="4" x:Name="ColorAnimationBox" Background="#FFD81C1C" VerticalAlignment="Stretch" Visibility="{Binding Path=VisualizeIncoming, Converter={StaticResource bvc}, Mode=OneWay}">
             <StackPanel.Style>
                 <Style TargetType="StackPanel">
@@ -56,6 +57,13 @@
             </StackPanel.Style>
         </StackPanel>
 
+        <StackPanel Grid.Row="0" Grid.RowSpan="4" Orientation="Vertical"  HorizontalAlignment="Center" VerticalAlignment="Center" 
+                    Margin="0,60,0,0"
+                    Visibility="{Binding Path=ShowAvatar, Converter={StaticResource bvc}, Mode=OneWay}"
+                    >
+            <Image Height="200" Width="200" Source="{Binding Avatar}" Stretch="UniformToFill"></Image>
+        </StackPanel>
+        
         <StackPanel Grid.Row="0" Grid.RowSpan="4" x:Name="TextAnimationBox" HorizontalAlignment="Center" VerticalAlignment="Center" 
 					Visibility="{Binding Path=VisualizeRinging, Converter={StaticResource bvc}, Mode=OneWay}">
             <TextBlock x:Name="RingCounterBox" Text="{Binding Path=RingCount, NotifyOnTargetUpdated=True}" 
@@ -1499,193 +1507,10 @@
                         <videoWrapper:VATRPOverlay.OverlayQualityIndicatorChild>
 
                     <Grid x:Name="QualityContainer" Grid.Row="0" Grid.RowSpan="4">
-                        <Grid x:Name="BadIndicator" Visibility="Collapsed">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="15"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="15"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="15"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="15"/>
-                        </Grid.RowDefinitions>
-                        <Grid.Resources>
-                            <Color x:Key="outside">#FFFF0000</Color>
-                        </Grid.Resources>
-                        <Border Grid.Row="0" Grid.Column="0" Width="30" Height="30" >
-                            <Border.Clip>
-                                <RectangleGeometry Rect="0,0,15,15"></RectangleGeometry>
-                            </Border.Clip>
-                            <Border.Background>
-                                <RadialGradientBrush Center="0.52,0.52" GradientOrigin="0.5,0.5" RadiusY="0.5" RadiusX="0.5">
-                                    <GradientStop Color="{StaticResource outside}" Offset="1"/>
-                                    <GradientStop Color="#00FDC400" Offset="-0.1"/>
-                                </RadialGradientBrush>
-                            </Border.Background>
-                        </Border>
-                        <Border Grid.Row="0" Grid.Column="2" Width="30" Height="30" Margin="-15,0,0,0">
-                            <Border.Clip>
-                                <RectangleGeometry Rect="15,0,15,15"></RectangleGeometry>
-                            </Border.Clip>
-                            <Border.Background>
-                                <RadialGradientBrush Center="0.52,0.52" GradientOrigin="0.5,0.5" RadiusY="0.5" RadiusX="0.5">
-                                    <GradientStop Color="{StaticResource outside}" Offset="1"/>
-                                    <GradientStop Color="#00FDC400" Offset="-0.1"/>
-                                </RadialGradientBrush>
-                            </Border.Background>
-                        </Border>
-                        <Border Grid.Row="0" Grid.Column="1" >
-                            <Border.Background>
-                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                    <GradientStop Color="{StaticResource outside}" Offset="0"/>
-                                    <GradientStop Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                        </Border>
-                        <Border Grid.Row="2" Grid.Column="0" Width="30" Height="30" Margin="0,-15,0,0">
-                            <Border.Clip>
-                                <RectangleGeometry Rect="0,15,15,15"></RectangleGeometry>
-                            </Border.Clip>
-                            <Border.Background>
-                                <RadialGradientBrush Center="0.52,0.52" GradientOrigin="0.5,0.5" RadiusY="0.5" RadiusX="0.5">
-                                    <GradientStop Color="{StaticResource outside}" Offset="1"/>
-                                    <GradientStop Color="#00FDC400" Offset="-0.1"/>
-                                </RadialGradientBrush>
-                            </Border.Background>
-                        </Border>
-                        <Border Grid.Row="2" Grid.Column="1" >
-                            <Border.Background>
-                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                    <GradientStop Offset="0"/>
-                                    <GradientStop Color="{StaticResource outside}" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                        </Border>
-
-                        <Border Grid.Row="1" Grid.Column="0" >
-                            <Border.Background>
-                                <LinearGradientBrush EndPoint="0,1" StartPoint="1,1">
-                                    <GradientStop Offset="0"/>
-                                    <GradientStop Color="{StaticResource outside}" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                        </Border>
-
-                        <Border Grid.Row="1" Grid.Column="2" >
-                            <Border.Background>
-                                <LinearGradientBrush EndPoint="1,1" StartPoint="0,1">
-                                    <GradientStop Offset="0"/>
-                                    <GradientStop Color="{StaticResource outside}" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                        </Border>
-                        <Border Grid.Row="2" Grid.Column="2" Width="30" Height="30" Margin="-15,-15,0,0">
-                            <Border.Clip>
-                                <RectangleGeometry Rect="15,15,15,15"></RectangleGeometry>
-                            </Border.Clip>
-                            <Border.Background>
-                                <RadialGradientBrush Center="0.52,0.52" GradientOrigin="0.5,0.5" RadiusY="0.5" RadiusX="0.5">
-                                    <GradientStop Color="{StaticResource outside}" Offset="1"/>
-                                    <GradientStop Color="#00FDC400" Offset="-0.1"/>
-                                </RadialGradientBrush>
-                            </Border.Background>
-                        </Border>
-                    </Grid>
-                    
-                        <Grid x:Name="MediumIndicator" Visibility="Collapsed">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="15"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="15"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="15"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="15"/>
-                        </Grid.RowDefinitions>
-                        <Grid.Resources>
-                            <Color x:Key="outside">#FFFFBA00</Color>
-                        </Grid.Resources>
-                        <Border Grid.Row="0" Grid.Column="0" Width="30" Height="30" >
-                            <Border.Clip>
-                                <RectangleGeometry Rect="0,0,15,15"></RectangleGeometry>
-                            </Border.Clip>
-                            <Border.Background>
-                                <RadialGradientBrush Center="0.52,0.52" GradientOrigin="0.5,0.5" RadiusY="0.5" RadiusX="0.5">
-                                    <GradientStop Color="{StaticResource outside}" Offset="1"/>
-                                    <GradientStop Color="#00FDC400" Offset="-0.1"/>
-                                </RadialGradientBrush>
-                            </Border.Background>
-                        </Border>
-                        <Border Grid.Row="0" Grid.Column="2" Width="30" Height="30" Margin="-15,0,0,0">
-                            <Border.Clip>
-                                <RectangleGeometry Rect="15,0,15,15"></RectangleGeometry>
-                            </Border.Clip>
-                            <Border.Background>
-                                <RadialGradientBrush Center="0.52,0.52" GradientOrigin="0.5,0.5" RadiusY="0.5" RadiusX="0.5">
-                                    <GradientStop Color="{StaticResource outside}" Offset="1"/>
-                                    <GradientStop Color="#00FDC400" Offset="-0.1"/>
-                                </RadialGradientBrush>
-                            </Border.Background>
-                        </Border>
-                        <Border Grid.Row="0" Grid.Column="1" >
-                            <Border.Background>
-                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                    <GradientStop Color="{StaticResource outside}" Offset="0"/>
-                                    <GradientStop Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                        </Border>
-                        <Border Grid.Row="2" Grid.Column="0" Width="30" Height="30" Margin="0,-15,0,0">
-                            <Border.Clip>
-                                <RectangleGeometry Rect="0,15,15,15"></RectangleGeometry>
-                            </Border.Clip>
-                            <Border.Background>
-                                <RadialGradientBrush Center="0.52,0.52" GradientOrigin="0.5,0.5" RadiusY="0.5" RadiusX="0.5">
-                                    <GradientStop Color="{StaticResource outside}" Offset="1"/>
-                                    <GradientStop Color="#00FDC400" Offset="-0.1"/>
-                                </RadialGradientBrush>
-                            </Border.Background>
-                        </Border>
-                        <Border Grid.Row="2" Grid.Column="1" >
-                            <Border.Background>
-                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                    <GradientStop Offset="0"/>
-                                    <GradientStop Color="{StaticResource outside}" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                        </Border>
-
-                        <Border Grid.Row="1" Grid.Column="0" >
-                            <Border.Background>
-                                <LinearGradientBrush EndPoint="0,1" StartPoint="1,1">
-                                    <GradientStop Offset="0"/>
-                                    <GradientStop Color="{StaticResource outside}" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                        </Border>
-
-                        <Border Grid.Row="1" Grid.Column="2" >
-                            <Border.Background>
-                                <LinearGradientBrush EndPoint="1,1" StartPoint="0,1">
-                                    <GradientStop Offset="0"/>
-                                    <GradientStop Color="{StaticResource outside}" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                        </Border>
-                        <Border Grid.Row="2" Grid.Column="2" Width="30" Height="30" Margin="-15,-15,0,0">
-                            <Border.Clip>
-                                <RectangleGeometry Rect="15,15,15,15"></RectangleGeometry>
-                            </Border.Clip>
-                            <Border.Background>
-                                <RadialGradientBrush Center="0.52,0.52" GradientOrigin="0.5,0.5" RadiusY="0.5" RadiusX="0.5">
-                                    <GradientStop Color="{StaticResource outside}" Offset="1"/>
-                                    <GradientStop Color="#00FDC400" Offset="-0.1"/>
-                                </RadialGradientBrush>
-                            </Border.Background>
-                        </Border>
-                    </Grid>
+                        <Image x:Name="BadIndicator" Width="54" Height="30" Source="../Resources/call_quality_indicator_0.png" Visibility="Hidden"/>
+                        <Image x:Name="PoorIndicator" Width="54" Height="30" Source="../Resources/call_quality_indicator_1.png" Visibility="Hidden"/>
+                        <Image x:Name="MediumIndicator" Width="54" Height="30" Source="../Resources/call_quality_indicator_2.png" Visibility="Hidden"/>
+                        <Image x:Name="GoodIndicator" Width="54" Height="30" Source="../Resources/call_quality_indicator_3.png" Visibility="Hidden"/>
                     </Grid>
                 </videoWrapper:VATRPOverlay.OverlayQualityIndicatorChild>
                 <videoWrapper:ManagedVideoControl x:Name="ctrlVideo" Width="{Binding VideoWidth}" Height="{Binding VideoHeight}" 

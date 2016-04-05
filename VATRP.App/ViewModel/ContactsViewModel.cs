@@ -173,7 +173,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         private void ExecuteAddCommand(object obj)
         {
-            ContactEditViewModel model = new ContactEditViewModel(true, "");
+            ContactEditViewModel model = new ContactEditViewModel(true, string.Empty, string.Empty);
             var contactEditView = new ContactEditView(model);
             var dialogResult = contactEditView.ShowDialog();
             if (dialogResult != null && dialogResult.Value)

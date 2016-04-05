@@ -203,6 +203,7 @@
     <Compile Include="Utilities\JsonDeserializer.cs" />
     <Compile Include="Utilities\JsonException.cs" />
     <Compile Include="Utilities\JsonWebRequest.cs" />
+    <Compile Include="Utilities\ScreenSaverHelper.cs" />
     <Compile Include="Utilities\SRVLookup.cs" />
     <Compile Include="Utilities\TechnicalSupportInfoBuilder.cs" />
     <Compile Include="ViewModel\FeedbackViewModel.cs" />
@@ -711,6 +712,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\hold.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\call_quality_indicator_0.png" />
+    <Resource Include="Resources\call_quality_indicator_1.png" />
+    <Resource Include="Resources\call_quality_indicator_2.png" />
+    <Resource Include="Resources\call_quality_indicator_3.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -40,7 +40,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         public void Initialize()
         {
-            InitializeToProvider("stl");
+            InitializeToProvider("STL Test");
         }
 
         public void InitializeToProvider(string providerName)
@@ -75,7 +75,10 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 InitializeToProvider(account.ProxyHostname);
                 this.HostPortBox.Text = account.ProxyPort.ToString();
                 RememberPasswordBox.IsChecked = account.RememberPassword;
-                AutoLoginBox.IsChecked = account.AutoLogin;
+                AutoLoginBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                    Configuration.ConfEntry.AUTO_LOGIN, false);
+                //AutoLoginBox.IsChecked = account.AutoLogin;
+
                 string transport = App.CurrentAccount.Transport;
                 if (string.IsNullOrWhiteSpace(transport))
                 {
@@ -175,7 +178,9 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 else
                 {
                     // otherwise the login was valid, proceed
-                    // 
+//                    var trimChars = new []{'\"'};
+//                    config.sip_auth_password = config.sip_auth_password.Trim(trimChars);
+//                    config.sip_auth_username = config.sip_auth_username.Trim(trimChars);
                     if (string.IsNullOrEmpty(config.sip_auth_password) || string.IsNullOrEmpty(config.sip_auth_username))
                     {
                         config.sip_auth_username = userName;
@@ -213,7 +218,13 @@ namespace com.vtcsecure.ace.windows.CustomControls
                         config.user_is_agent = false;
                     }
                     config.UpdateVATRPAccountFromACEConfig(App.CurrentAccount);
-                    App.CurrentAccount.AutoLogin = this.AutoLoginBox.IsChecked ?? false;
+                    bool autoLogin = this.AutoLoginBox.IsChecked ?? false;
+                    ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                        Configuration.ConfEntry.AUTO_LOGIN, autoLogin);
+                    if (autoLogin)
+                    {
+                        App.CurrentAccount.StorePassword(ServiceManager.Instance.GetPWFile());
+                    }
                     UpdateConfigServiceFromACEConfig(config);
                     ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
                         Configuration.ConfEntry.ACCOUNT_IN_USE, App.CurrentAccount.AccountID);
@@ -291,7 +302,16 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
             App.CurrentAccount.RegistrationPassword = PasswdBox.Password;
             App.CurrentAccount.RegistrationUser = LoginBox.Text;
-            App.CurrentAccount.AutoLogin = AutoLoginBox.IsChecked ?? false;
+            bool autoLogin = AutoLoginBox.IsChecked ?? false;
+            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+                Configuration.ConfEntry.AUTO_LOGIN, autoLogin);
+            if (autoLogin)
+            {
+                // store the password even if we have to drop out of auot config.
+                App.CurrentAccount.StorePassword(ServiceManager.Instance.GetPWFile());
+            }
+
+//            App.CurrentAccount.AutoLogin = AutoLoginBox.IsChecked ?? false;
 
             var transportText = TransportComboBox.SelectedItem as TextBlock;
             if (transportText != null)
@@ -312,11 +332,13 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 return;
             AuthIDBox.Text = App.CurrentAccount.AuthID;
             LoginBox.Text = App.CurrentAccount.Username;
-            PasswdBox.Password = App.CurrentAccount.Password;
+            //PasswdBox.Password = App.CurrentAccount.Password;
             HostnameBox.Text = App.CurrentAccount.ProxyHostname;
             HostPortBox.Text = App.CurrentAccount.ProxyPort.ToString();
-            RememberPasswordBox.IsChecked = App.CurrentAccount.RememberPassword;
-            AutoLoginBox.IsChecked = App.CurrentAccount.AutoLogin;
+            RememberPasswordBox.IsChecked = false;// App.CurrentAccount.RememberPassword;
+            AutoLoginBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL, Configuration.ConfEntry.AUTO_LOGIN, false);
+
+//            AutoLoginBox.IsChecked = App.CurrentAccount.AutoLogin;
 
             switch (App.CurrentAccount.AccountType)
             {

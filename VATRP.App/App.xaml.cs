@@ -42,17 +42,15 @@ namespace com.vtcsecure.ace.windows
 
         public App()
         {
-            try
+            Mutex testmutex;
+            Mutex.TryOpenExisting("Global\\84D29A79-09A3-4CBF-A12A-B15CEF971672", out testmutex);
+            if (testmutex != null)
             {
-                Mutex.OpenExisting("Global\\84D29A79-09A3-4CBF-A12A-B15CEF971672");
                 MessageBox.Show("Instance already running");
                 Environment.Exit(0);
+                return;
             }
-            catch
-            {
-                mutex=new Mutex ( true, "Global\\84D29A79-09A3-4CBF-A12A-B15CEF971672");
-            }
-      
+            mutex = new Mutex(true, "Global\\84D29A79-09A3-4CBF-A12A-B15CEF971672");
         }
         protected override async void OnStartup(StartupEventArgs e)
         {

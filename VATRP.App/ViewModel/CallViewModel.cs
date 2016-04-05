@@ -11,6 +11,8 @@ using System.Windows.Threading;
 using com.vtcsecure.ace.windows.CustomControls;
 using com.vtcsecure.ace.windows.Views;
 using log4net;
+using System.IO;
+using System.Windows.Media.Imaging;
 
 namespace com.vtcsecure.ace.windows.ViewModel
 {
@@ -59,6 +61,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _savedIsInfoOn;
         private bool _savedIsCallHoldOn;
         private string _errorMessage;
+        private ImageSource _avatar;
+        public bool PauseRequest;
+        public bool ResumeRequest;
+        public bool AllowHideContorls;
+        public Visibility CommandbarLastTimeVisibility;
+        public Visibility NumpadLastTimeVisibility;
+        public Visibility CallInfoLastTimeVisibility;
+        public Visibility CallSwitchLastTimeVisibility;
+        private bool _isFullScreenOn;
+        private bool _showAvatar;
 
         public event CallInfoViewModel.CallQualityChangedDelegate CallQualityChangedEvent;
 
@@ -193,6 +205,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
+        public bool ShowAvatar
+        {
+            get { return _showAvatar; }
+            set
+            {
+                _showAvatar = value;
+                OnPropertyChanged("ShowAvatar");
+            }
+        }
+
         public VATRPCall ActiveCall
         {
             get { return _currentCall; }
@@ -239,7 +261,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 if (string.IsNullOrEmpty(DisplayName))
                     return RemoteNumber;
-                return DisplayName;
+                return DisplayName ?? string.Empty;
             }
         }
 
@@ -502,6 +524,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
             set { _savedIsCallHoldOn = value; }
         }
 
+        public ImageSource Avatar
+        {
+            get { return _avatar; }
+            set
+            {
+                _avatar = value;
+                OnPropertyChanged("Avatar");
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -602,9 +634,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
             //}
         }
 
-        internal void MuteCall(bool isMuted)
+        internal bool MuteCall(bool isMuted)
         {
-            _linphoneService.MuteCall(isMuted);
+            if (ActiveCall != null && (ActiveCall.CallState != VATRPCallState.LocalPaused &&
+                                       ActiveCall.CallState != VATRPCallState.LocalPausing))
+            {
+                _linphoneService.MuteCall(isMuted);
+                return true;
+            }
+            return false;
 //            _linphoneService.ToggleMute();
 //            IsMuteOn = _linphoneService.IsCallMuted();
 
@@ -628,6 +666,27 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
+        internal void LoadAvatar(string path)
+        {
+            if (string.IsNullOrEmpty(path) || _avatar != null) 
+                return;
+            try
+            {
+                byte[] data = File.ReadAllBytes(path);
+                var source = new BitmapImage();
+                source.BeginInit();
+                source.StreamSource = new MemoryStream(data);
+                source.EndInit();
+
+                Avatar = source;
+                // use public setter
+            }
+            catch (Exception ex)
+            {
+                    
+            }
+        }
+
         #endregion
 
         #region Events
@@ -640,6 +699,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             AutoAnswer = 0;
             ShowIncomingCallPanel = false;
             ShowOutgoingEndCall = true;
+            ShowAvatar = true;
         }
 
         internal void OnRinging()
@@ -649,6 +709,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             ShowIncomingCallPanel = false;
             ShowOutgoingEndCall = true;
             AutoAnswer = 0;
+            ShowAvatar = true;
             VisualizeIncoming = false;
             if (timerCall != null)
             {
@@ -683,6 +744,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             RemoteNumber = _currentCall.From.Username;
             ShowOutgoingEndCall = false;
             CallState = VATRPCallState.InProgress;
+            ShowAvatar = true;
 //#if DEBUG
             bool isUserAgent = false;
             if (App.CurrentAccount != null)
@@ -751,6 +813,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             ShowIncomingCallPanel = false;
             IsMuteOn = _linphoneService.IsCallMuted();
             ShowInfo = true;
+            ShowAvatar = false;
         }
 
         internal void OnStreamRunning()
@@ -780,9 +843,21 @@ namespace com.vtcsecure.ace.windows.ViewModel
             CallState = isError ? VATRPCallState.Error : VATRPCallState.Closed;
             ShowIncomingCallPanel = false;
             ShowInfo = false;
-            
+            ShowAvatar = false;
+
             ShowOutgoingEndCall = isError;
-            ErrorMessage = isError ? errorMessage : string.Empty;
+          
+            if (isError)
+            {
+                if ( string.Compare(errorMessage, "Busy here", StringComparison.InvariantCultureIgnoreCase) == 0)
+                    ErrorMessage = string.Format("{0} is busy", CallerInfo);
+                else if (string.Compare(errorMessage, "Not Found", StringComparison.InvariantCultureIgnoreCase) == 0)
+                    ErrorMessage = string.Format("{0} is temporarily unavailable", CallerInfo);
+                else
+                    ErrorMessage = errorMessage;
+            }
+            else
+                ErrorMessage = string.Empty;
             AllowHideContorls = false;
             StopAnimation();
 
@@ -986,17 +1061,5 @@ namespace com.vtcsecure.ace.windows.ViewModel
             return ActiveCall.Equals(other);
         }
 
-        public bool PauseRequest;
-
-        public bool ResumeRequest;
-
-        public bool AllowHideContorls;
-
-        public Visibility CommandbarLastTimeVisibility;
-        public Visibility NumpadLastTimeVisibility;
-        public Visibility CallInfoLastTimeVisibility;
-        public Visibility CallSwitchLastTimeVisibility;
-        private bool _isFullScreenOn;
-        
     }
 }

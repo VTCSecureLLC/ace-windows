@@ -129,8 +129,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             NetworkButtonLabel.Visibility = visibleSetting;
 
             // not yet specified for windows
-            AdvancedButton.Visibility = System.Windows.Visibility.Collapsed;//visibleSetting;
-            AdvancedButtonLabel.Visibility = System.Windows.Visibility.Collapsed;//visibleSetting;
+            AdvancedButton.Visibility = visibleSetting;
+            AdvancedButtonLabel.Visibility = visibleSetting;
 
         }
 
@@ -289,7 +289,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                     isChanged = true;
                 }
                 if (ValueChanged(App.CurrentAccount.Password, PasswordTextBox.Password))
-                { 
+                {
                     App.CurrentAccount.Password = PasswordTextBox.Password;
                     isChanged = true;
                 }

@@ -245,7 +245,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 return;
 
             if (Chat != null && Chat.Contact == contact)
+            {
+                Chat.Contact.UnreadMsgCount = 0;
+                Chat.UnreadMsgCount = 0;
                 return;
+            }
 
             Console.WriteLine("SetActiveChat " + contact.Fullname);
 
@@ -271,10 +275,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 
                 if (Chat.Contact != null)
                 {
+                    Chat.Contact.UnreadMsgCount = 0;
                     this.Chat.Contact.PropertyChanged += this.Contact_PropertyChanged;
                 }
 
                 Chat.CharsCountInBubble = 0;
+                Chat.UnreadMsgCount = 0;
+                if (App.CurrentAccount != null)
+                {
+                    Chat.MessageFont = App.CurrentAccount.RTTFontFamily;
+                }
             }
 
             _contactViewModel.IsSelected = true;
