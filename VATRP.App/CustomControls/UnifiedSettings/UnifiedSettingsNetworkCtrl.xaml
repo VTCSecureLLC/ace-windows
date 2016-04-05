@@ -114,8 +114,8 @@
                            VerticalAlignment="Center" HorizontalAlignment="Right" SelectionChanged="OnMediaEncryptionChanged" >
                 <TextBlock >Unencrypted</TextBlock>
                 <TextBlock >Encrypted (SRTP)</TextBlock>
-                <TextBlock >Encrypted (ZRTP)</TextBlock>
-                <TextBlock >Encrypted (DTLS)</TextBlock>
+                <!--                <TextBlock >Encrypted (ZRTP)</TextBlock> -->
+                <!--                <TextBlock >Encrypted (DTLS)</TextBlock> -->
             </ComboBox>
 
             <!-- Row 11: Push Notifications -->
