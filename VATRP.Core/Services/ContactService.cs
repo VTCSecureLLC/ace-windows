@@ -33,10 +33,17 @@ namespace VATRP.Core.Services
         public event EventHandler<EventArgs> ContactsLoadCompleted;
         public event EventHandler<ContactEventArgs> LoggedInContactUpdated;
         public bool IsLoaded { get; private set; }
+
+        private bool editing { get; set; } // use as a lock
         public ContactService(ServiceManagerBase manager)
         {
             this._manager = manager;
             IsLoaded = false;
+        }
+
+        public bool IsEditing()
+        {
+            return editing;
         }
 
         private void RemoveGroupFromContactList(string _groupName)
@@ -158,6 +165,9 @@ namespace VATRP.Core.Services
 
         private void LoadContactsOptions()
         {
+            if (editing)
+                return;
+            editing = true;
             try
             {
                 var connectionString = string.Format("data source={0}", _manager.LinphoneService.ContactsDbPath);
@@ -204,12 +214,19 @@ namespace VATRP.Core.Services
             {
                 Debug.WriteLine("Sqlite error: " + ex.ToString());
             }
+            finally
+            {
+                editing = false;
+            }
         }
 
         private void RemoveFavoriteOption(VATRPContact contact)
         {
             if (contact.DbID == 0)
                 return;
+            if (editing)
+                return;
+            editing = true;
             try
             {
                 var connectionString = string.Format("data source={0}", _manager.LinphoneService.ContactsDbPath);
@@ -234,12 +251,19 @@ namespace VATRP.Core.Services
             {
                 Debug.WriteLine("Sqlite error: " + ex.ToString());
             }
+            finally
+            {
+                editing = false;
+            }
         }
 
         public void UpdateFavoriteOption(VATRPContact contact)
         {
             if (contact.DbID == 0)
                 return;
+            if (editing)
+                return;
+            editing = true;
             try
             {
                 var connectionString = string.Format("data source={0}", _manager.LinphoneService.ContactsDbPath);
@@ -267,6 +291,10 @@ namespace VATRP.Core.Services
             catch (SQLiteException ex)
             {
                 Debug.WriteLine("Sqlite error: " + ex.ToString());
+            }
+            finally
+            {
+                editing = false;
             }
         }
 
@@ -397,6 +425,9 @@ namespace VATRP.Core.Services
 
         private void UpdateContactDbId(VATRPContact contact)
         {
+            if (editing)
+                return;
+            editing = true;
             try
             {
                 var connectionString = string.Format("data source={0}", _manager.LinphoneService.ContactsDbPath);
@@ -425,7 +456,10 @@ namespace VATRP.Core.Services
             {
                 Debug.WriteLine("Sqlite error: " + ex.ToString());
             }
-
+            finally
+            {
+                editing = false;
+            }
         }
 
         public void EditLinphoneContact(string oldname, string oldsipAddress, string newname, string newsipassdress)
@@ -801,6 +835,9 @@ namespace VATRP.Core.Services
                 return;
             string sqlString = @"CREATE TABLE IF NOT EXISTS friend_options (id INTEGER NOT NULL," +
                                " is_favorite INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (id))";
+            if (editing)
+                return;
+            editing = true;
             try
             {
                 var connectionString = string.Format("data source={0}", _manager.LinphoneService.ContactsDbPath);
@@ -817,6 +854,10 @@ namespace VATRP.Core.Services
             catch (SQLiteException ex)
             {
                 Debug.WriteLine("Sqlite error: " + ex.ToString());
+            }
+            finally
+            {
+                editing = false;
             }
         }
 

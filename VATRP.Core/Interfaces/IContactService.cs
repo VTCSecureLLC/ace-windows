@@ -7,6 +7,8 @@ namespace VATRP.Core.Interfaces
 {
     public interface IContactsService : IVATRPservice
     {
+        bool IsEditing();
+
         void AddContact(VATRPContact contact, string group);
         void RemoveContact(string id, bool isUserAction);
         void RemoveContacts();
