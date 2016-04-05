@@ -1890,7 +1890,7 @@ namespace VATRP.Core.Services
             }
             LOG.Info(string.Format("UpdateNetworkingParameters: IPv6 is {0}", account.EnableIPv6 ? "enabled" : "disabled"));
 
-            var address = string.Format("stl.vatrp.net");//"{0}:3478", account.STUNAddress);
+            var address = string.Format(account.STUNAddress);
             LinphoneAPI.linphone_core_set_stun_server(linphoneCore, address);
             if (account.EnableSTUN || account.EnableICE)
             {
