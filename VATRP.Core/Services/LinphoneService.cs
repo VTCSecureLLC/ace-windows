@@ -1889,11 +1889,11 @@ namespace VATRP.Core.Services
                 LinphoneAPI.linphone_core_enable_ipv6(linphoneCore, account.EnableIPv6);
             }
             LOG.Info(string.Format("UpdateNetworkingParameters: IPv6 is {0}", account.EnableIPv6 ? "enabled" : "disabled"));
-            
+
+            var address = string.Format(account.STUNAddress);
+            LinphoneAPI.linphone_core_set_stun_server(linphoneCore, address);
             if (account.EnableSTUN || account.EnableICE)
             {
-                var address = string.Format("{0}:3478", account.STUNAddress);
-                LinphoneAPI.linphone_core_set_stun_server(linphoneCore, address);
                 if (account.EnableSTUN)
                 {
                     LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore,
@@ -1911,7 +1911,7 @@ namespace VATRP.Core.Services
             {
                 LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore,
                     LinphoneFirewallPolicy.LinphonePolicyNoFirewall);
-                LOG.Info("UpdateNetworkingParameters: No Firewall. ");
+                LOG.Info("UpdateNetworkingParameters: No Firewall. Stun server is " + address);
             }
 
             // TODO, Disable adaptive rate algorithm, since it caused bad video
