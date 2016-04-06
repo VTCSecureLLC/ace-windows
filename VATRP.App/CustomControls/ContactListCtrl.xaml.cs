@@ -69,48 +69,56 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         private void OnEdit(object sender, RoutedEventArgs e)
         {
-            var contact = ((ToggleButton) sender).Tag as VATRPContact;
-            if (contact != null)
+            if (!ServiceManager.Instance.ContactService.IsEditing())
             {
-                ContactEditViewModel model = new ContactEditViewModel(false, contact.RegistrationName, contact.Avatar);
-                model.ContactName = contact.Fullname;
-                var contactEditView = new ContactEditView(model);
-                Nullable<bool> dialogResult = contactEditView.ShowDialog();
-                if (dialogResult != null && dialogResult.Value)
+                var contact = ((ToggleButton)sender).Tag as VATRPContact;
+                if (contact != null)
                 {
-                    if (model.AvatarChanged)
-                        contact.Avatar = string.Empty;
-                    ServiceManager.Instance.ContactService.EditLinphoneContact(
-                        contact.Fullname,
-                        contact.RegistrationName, model.ContactName,
-                        model.ContactSipAddress);
+                    ContactEditViewModel model = new ContactEditViewModel(false, contact.RegistrationName, contact.Avatar);
+                    model.ContactName = contact.Fullname;
+                    var contactEditView = new ContactEditView(model);
+                    Nullable<bool> dialogResult = contactEditView.ShowDialog();
+                    if (dialogResult != null && dialogResult.Value)
+                    {
+                        if (model.AvatarChanged)
+                            contact.Avatar = string.Empty;
+                        ServiceManager.Instance.ContactService.EditLinphoneContact(
+                            contact.Fullname,
+                            contact.RegistrationName, model.ContactName,
+                            model.ContactSipAddress);
+                    }
                 }
             }
         }
 
         private void OnDelete(object sender, RoutedEventArgs e)
         {
-
-            var contact = ((ToggleButton) sender).Tag as VATRPContact;
-            if (contact != null)
+            if (!ServiceManager.Instance.ContactService.IsEditing())
             {
-                if (MessageBox.Show("Are you sure you want to remove/delete contact?", "ACE", MessageBoxButton.OKCancel,
-                    MessageBoxImage.Question) == MessageBoxResult.OK)
+                var contact = ((ToggleButton)sender).Tag as VATRPContact;
+                if (contact != null)
+                {
+                    if (MessageBox.Show("Are you sure you want to remove/delete contact?", "ACE", MessageBoxButton.OKCancel,
+                        MessageBoxImage.Question) == MessageBoxResult.OK)
 
-                    ServiceManager.Instance.ContactService.DeleteLinphoneContact(
-                        contact.Fullname,
-                        contact.RegistrationName);
+                        ServiceManager.Instance.ContactService.DeleteLinphoneContact(
+                            contact.Fullname,
+                            contact.RegistrationName);
+                }
             }
         }
 
         private void btnFavorite_Click(object sender, RoutedEventArgs e)
         {
-            var contact = ((ToggleButton) sender).Tag as VATRPContact;
-            if (contact != null)
+            if (!ServiceManager.Instance.ContactService.IsEditing())
             {
-                contact.IsFavorite =
-                    !contact.IsFavorite;
-                ServiceManager.Instance.ContactService.UpdateFavoriteOption(contact);
+                var contact = ((ToggleButton)sender).Tag as VATRPContact;
+                if (contact != null)
+                {
+                    contact.IsFavorite =
+                        !contact.IsFavorite;
+                    ServiceManager.Instance.ContactService.UpdateFavoriteOption(contact);
+                }
             }
         }
     }
