@@ -94,8 +94,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
             var contact = ((ToggleButton) sender).Tag as VATRPContact;
             if (contact != null)
             {
-                if (MessageBox.Show("Do you want to remove the selected contact?", "ACE", MessageBoxButton.YesNo,
-                    MessageBoxImage.Question) == MessageBoxResult.Yes)
+                if (MessageBox.Show("Are you sure you want to remove/delete contact?", "ACE", MessageBoxButton.OKCancel,
+                    MessageBoxImage.Question) == MessageBoxResult.OK)
 
                     ServiceManager.Instance.ContactService.DeleteLinphoneContact(
                         contact.Fullname,
