@@ -121,6 +121,7 @@ namespace VATRP.Core.Interfaces
         void SendCameraSwtichAsInfo(IntPtr callPtr, bool muteCamera);
         bool SubscribeForVideoMWI(string newVideoMailUri);
         string GetTechnicalSupportInfo();
+        string GetTechnicalSupportInfo(IntPtr callPtr);
         void UpdatePrivateDataPath();
 
         #endregion
