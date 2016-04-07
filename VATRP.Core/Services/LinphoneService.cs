@@ -2892,6 +2892,59 @@ namespace VATRP.Core.Services
                 LinphoneAPI.linphone_core_get_audio_port_range(linphoneCore, ref min_port, ref max_port);
                 configString.AppendLine("Audio Port Range: " + min_port + "-" + max_port);
 
+                configString.AppendLine("---Linphone Selected Devices---");
+                VATRPDevice microphone = GetSelectedMicrophone();
+                bool micEnabled = LinphoneAPI.linphone_core_mic_enabled(linphoneCore);
+               // bool micMuted = IsCallMuted();
+                if (microphone != null)
+                {
+                    configString.AppendLine("Microphone: " + microphone.displayName);
+                    configString.AppendLine("    Id: " + microphone.deviceId);
+                }
+                else
+                {
+                    configString.AppendLine("Microphone: name is null");
+                }
+                configString.AppendLine("    Enabled:" + micEnabled.ToString());
+                configString.AppendLine("    Muted:" + IsCallMuted());
+                int recordingLevel = LinphoneAPI.linphone_core_get_rec_level(linphoneCore);
+                configString.AppendLine("    Mic Recording Level: " + recordingLevel.ToString());
+                float micGain = LinphoneAPI.linphone_core_get_mic_gain_db(linphoneCore);
+                configString.AppendLine("    Mic Gain: " + micGain.ToString());
+                VATRPDevice speaker = GetSelectedSpeakers();
+                if (speaker != null)
+                {
+                    configString.AppendLine("Speaker: " + speaker.displayName);
+                    configString.AppendLine("    Id: " + speaker.deviceId);
+                }
+                else
+                {
+                    configString.AppendLine("Speaker: name is null");
+                }
+                configString.AppendLine("    Muted:" + IsSpeakerMuted());
+
+                VATRPDevice camera = GetSelectedCamera();
+                if (camera != null)
+                {
+                    configString.AppendLine("Camera: " + camera.displayName);
+                    configString.AppendLine("    Id: " + camera.deviceId);
+                }
+                else
+                {
+                    configString.AppendLine("Camera: name is null");
+                }
+
+            }
+            return configString.ToString();
+        }
+
+        public string GetTechnicalSupportInfo(IntPtr callPtr)
+        {
+            StringBuilder configString = new StringBuilder();
+            if (callPtr != IntPtr.Zero)
+            {
+                
+
             }
             return configString.ToString();
         }
