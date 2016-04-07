@@ -603,13 +603,13 @@ namespace com.vtcsecure.ace.windows
 		    var processSignOut = false;
 			RegistrationState = state;
 
-			this.BtnSettings.IsEnabled = true;
+			this.BtnMoreMenu.IsEnabled = true;
 			LOG.Info(String.Format("Registration state changed. Current - {0}", state));
 			_mainViewModel.ContactModel.RegistrationState = state;
 			switch (state)
 			{
 				case LinphoneRegistrationState.LinphoneRegistrationProgress:
-					this.BtnSettings.IsEnabled = false;
+					this.BtnMoreMenu.IsEnabled = false;
 			        return;
 				case LinphoneRegistrationState.LinphoneRegistrationOk:
 			        if (_playRegisterNotify)
@@ -657,7 +657,7 @@ namespace com.vtcsecure.ace.windows
 
                 signOutRequest = false;
                 _mainViewModel.IsAccountLogged = false;
-                CloseAnimated();
+                CloseDialpadAnimated();
                 _mainViewModel.IsCallHistoryDocked = false;
                 _mainViewModel.IsContactDocked = false;
                 _mainViewModel.IsMessagingDocked = false;
@@ -718,8 +718,8 @@ namespace com.vtcsecure.ace.windows
             this.BtnContacts.Visibility = visibility;
             this.BtnDialpad.Visibility = visibility;
             this.BtnRecents.Visibility = visibility;
-            this.BtnResourcesView.Visibility = visibility;
-            this.BtnSettings.Visibility = System.Windows.Visibility.Visible;
+            this.BtnChatView.Visibility = visibility;
+            this.BtnMoreMenu.Visibility = System.Windows.Visibility.Visible;
             // configure the other settings that we need for user agent:
         }
 
@@ -736,7 +736,9 @@ namespace com.vtcsecure.ace.windows
             // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
             if ((App.CurrentAccount != null) && (!App.CurrentAccount.UserNeedsAgentView))
             {
-                OpenAnimated();
+                OpenDialpadAnimated();
+                UpdateVideomailCount();
+
                 _mainViewModel.IsCallHistoryDocked = true;
                 _mainViewModel.DialpadModel.UpdateProvider();
                 SetToUserAgentView(false);
@@ -750,7 +752,16 @@ namespace com.vtcsecure.ace.windows
 		    ServiceManager.Instance.StartupLinphoneCore();
 		}
 
-		private void OnChildVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e)
+	    private void UpdateVideomailCount()
+	    {
+	        if (_mainViewModel.ContactModel != null)
+	            _mainViewModel.ContactModel.VideoMailCount = App.CurrentAccount.VideoMailCount;
+	        if (_mainViewModel.MoreMenuModel != null)
+	            _mainViewModel.MoreMenuModel.VideoMailCount = App.CurrentAccount.VideoMailCount;
+	        _mainViewModel.ShowVideomailIndicator = App.CurrentAccount.VideoMailCount > 0;
+	    }
+
+	    private void OnChildVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e)
 		{
 			if (App.AllowDestroyWindows)
 				return;
@@ -764,9 +775,12 @@ namespace com.vtcsecure.ace.windows
 					BtnContacts.IsChecked = bShow;
 					break;
 				case VATRPWindowType.MESSAGE_VIEW:
-                    if (this.ShowMessagingViewItem.IsEnabled)
-                        this.ShowMessagingViewItem.IsChecked = bShow;
-					break;
+			        if (this.ShowMessagingViewItem.IsEnabled)
+			        {
+			            this.ShowMessagingViewItem.IsChecked = bShow;
+			            _mainViewModel.IsChatViewEnabled = bShow;
+			        }
+			        break;
 				case VATRPWindowType.RECENTS_VIEW:
 					BtnRecents.IsChecked = bShow;
 					_mainViewModel.IsCallHistoryDocked = !bShow;
@@ -778,8 +792,11 @@ namespace com.vtcsecure.ace.windows
 				case VATRPWindowType.SETTINGS_VIEW:
 					break;
                 case VATRPWindowType.SELF_VIEW:
-                    if (this.ShowSelfPreviewItem.IsEnabled)
-                        this.ShowSelfPreviewItem.IsChecked = bShow;
+			        if (this.ShowSelfPreviewItem.IsEnabled)
+			        {
+			            this.ShowSelfPreviewItem.IsChecked = bShow;
+			            _mainViewModel.MoreMenuModel.IsSelfViewActive = bShow;
+			        }
 			        break;
 			}
 		}
@@ -860,15 +877,18 @@ namespace com.vtcsecure.ace.windows
 	            switch (WindowState)
 	            {
 	                case WindowState.Normal:
-                        this.SizeToContent = SizeToContent.WidthAndHeight;
-                        UpdateLayout();
-                        _mainViewModel.IsCallPanelDocked = true;
+	                    this.SizeToContent = SizeToContent.WidthAndHeight;
+	                    UpdateLayout();
+	                    _mainViewModel.IsCallPanelDocked = true;
 	                    break;
 	                case WindowState.Minimized:
-                        this.SizeToContent = SizeToContent.Manual;
-                        if (_mainViewModel.ActiveCallModel.ActiveCall.CallState == VATRPCallState.InProgress)
-                            _flashWindowHelper.FlashWindow(this);
-	                    break;
+	                    this.SizeToContent = SizeToContent.Manual;
+	                    if (_mainViewModel.ActiveCallModel.ActiveCall != null)
+	                    {
+	                        if (_mainViewModel.ActiveCallModel.ActiveCall.CallState == VATRPCallState.InProgress)
+	                            _flashWindowHelper.FlashWindow(this);
+	                    }
+	            break;
 	                case WindowState.Maximized:
                         
 	                    break;
