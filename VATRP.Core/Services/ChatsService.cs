@@ -330,14 +330,15 @@ namespace VATRP.Core.Services
                     if (chat.CheckMessage(chatMessage))
                     {
                         chat.UnreadMsgCount++;
-
-                        contact.UnreadMsgCount += chat.UnreadMsgCount;
+                        if (!chat.IsSelected)
+                            contact.UnreadMsgCount++;
                         chatMessage.IsRTTMessage = false;
                         chatMessage.IsIncompleteMessage = false;
                         chatMessage.Chat = chat;
                         chat.AddMessage(chatMessage, false);
                         chat.UpdateLastMessage(false);
 
+                        OnConversationUnReadStateChanged(chat);
                         this.OnConversationUpdated(chat, true);
                     }
                 });
@@ -702,6 +703,7 @@ namespace VATRP.Core.Services
             if (chat != null)
             {
                 chat.UnreadMsgCount = 0;
+                OnConversationUnReadStateChanged(chat);
                 if ( chat.Contact != null )
                 {
                     chat.Contact.UnreadMsgCount = 0;
@@ -751,6 +753,39 @@ namespace VATRP.Core.Services
                         chatItem.MessageFont = newFont;
                     }
                 }
+            }
+        }
+
+        public bool HasUnreadMessages()
+        {
+            lock (this._chatItems)
+            {
+                foreach (VATRPChat chatItem in this._chatItems)
+                {
+                    if (chatItem != null)
+                    {
+                        if (chatItem.HasUnreadMsg)
+                            return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public void ActivateChat(VATRPChat chat)
+        {
+            lock (this._chatItems)
+            {
+                foreach (VATRPChat chatItem in this._chatItems)
+                {
+                    if (chatItem != null && chatItem != chat)
+                    {
+                        chatItem.IsSelected = false;
+                    }
+                }
+
+                if (chat != null)
+                    chat.IsSelected = true;
             }
         }
 
@@ -851,6 +886,8 @@ namespace VATRP.Core.Services
 
             chat.UnreadMsgCount = 0;
             chat.Contact.UnreadMsgCount = 0;
+
+            OnConversationUnReadStateChanged(chat);
             this.OnConversationUpdated(chat, true);
 
             // send message to linphone

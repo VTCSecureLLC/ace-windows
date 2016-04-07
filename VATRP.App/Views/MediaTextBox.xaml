@@ -20,7 +20,7 @@
 				   >
     <Window.Resources>
         <converters:ContactSelectionToBrushConverter x:Key="csbc"/>
-        <converters:BoolToVisibilityConverter x:Key="bvcno" />
+        <converters:IntToVisibilityConverter x:Key="oivc" OppositeBooleanValue="True"/>
         <converters:BoolToVisibilityConverter x:Key="bvc" OppositeBooleanValue="False"/>
         <converters:BoolToBubbleColorConverter x:Key="bcolorc"/>
         <converters:BoolToBubbleCornerConverter x:Key="bcornerc0" Radius="6.0"/>
@@ -87,15 +87,20 @@
                                         </Border>
 
                                         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10, 0,0,0">
-                                            <TextBlock   Text="{Binding Contact.ContactName_ForUI}"
+                                            <TextBlock   Text="{Binding ContactUI}"
 								FontSize="14"  Foreground="#ff5e6366" FontWeight="SemiBold" HorizontalAlignment="Left" />
                                         </StackPanel>
-                                        <Border Grid.Column="2" Grid.Row="0" Width="10" Height="10" CornerRadius="15" 
-                                            Background="#FFF9AD81" Visibility="{Binding Contact.HasUnreadMsg, Converter={StaticResource bvcno}, Mode=OneWay}">
-                                            <!--Text="{Binding Contact.UnreadMsgCount}"-->
-                                            <TextBlock  FontSize="12"  Margin="0" FontWeight="SemiBold" 
-                                              HorizontalAlignment="Center"     VerticalAlignment="Center"  />
+                                        <Border Grid.Column="2" Grid.Row="0" Width="22" Height="22" CornerRadius="11" 
+                                            Background="{StaticResource NavigationBarPressedButtonBg}" 
+                                                Visibility="{Binding UnreadMsgCount, Converter={StaticResource oivc}, Mode=OneWay}">
+                                            
+                                            <TextBlock  FontSize="14"  Margin="0" FontWeight="SemiBold" 
+                                              HorizontalAlignment="Center"  Text="{Binding UnreadMsgCount}"  
+                                                        Foreground="{StaticResource AppMainWindowBrush}"
+                                                        VerticalAlignment="Center"  />
                                         </Border>
+
+                                        
                                     </Grid>
                                     <Separator VerticalAlignment="Bottom" Margin="0"/>
                                 </StackPanel>
