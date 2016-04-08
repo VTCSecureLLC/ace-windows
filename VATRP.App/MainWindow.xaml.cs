@@ -29,6 +29,7 @@ using VATRP.LinphoneWrapper.Enums;
 using HockeyApp;
 using com.vtcsecure.ace.windows.CustomControls.Resources;
 using System.IO;
+using VATRP.Core.Events;
 
 namespace com.vtcsecure.ace.windows
 {
@@ -68,7 +69,10 @@ namespace com.vtcsecure.ace.windows
 
         #region Properties
         public static LinphoneRegistrationState RegistrationState { get; set; }
-        
+        public bool IsSlidingDialpad { get; set; }
+
+        public bool IsSlidingMenu { get; set; }
+
         #endregion
 
 
@@ -94,6 +98,7 @@ namespace com.vtcsecure.ace.windows
             ctrlDialpad.SetViewModel(_mainViewModel.DialpadModel);
             ctrlLocalContact.SetDataContext(_mainViewModel.ContactModel);
             ctrlCall.ParentViewModel =_mainViewModel;
+            ctrlMoreMenu.SetDataContext(_mainViewModel.MoreMenuModel);
             _settingsView.SetSettingsModel(_mainViewModel.SettingsModel);
             EnterFullScreenCheckBox.IsEnabled = false;
 
@@ -107,14 +112,15 @@ namespace com.vtcsecure.ace.windows
 
         private void btnRecents_Click(object sender, RoutedEventArgs e)
         {
-            //ToggleWindow(_historyView);
+            CloseMeunAnimated();
             bool isChecked = BtnRecents.IsChecked ?? false;
             if (isChecked)
             {
-                CloseAnimated();
+                CloseDialpadAnimated();
                 _mainViewModel.IsContactDocked = false;
                 _mainViewModel.IsSettingsDocked = false;
                 _mainViewModel.IsResourceDocked = false;
+                _mainViewModel.IsMenuDocked = false;
                 _mainViewModel.HistoryModel.ResetLastMissedCallTime();
                 _mainViewModel.UIMissedCallsCount = 0;
             }
@@ -123,14 +129,15 @@ namespace com.vtcsecure.ace.windows
 
         private void btnContacts_Click(object sender, RoutedEventArgs e)
         {
-           // ToggleWindow(_contactBox);
+            CloseMeunAnimated();
             bool isChecked = BtnContacts.IsChecked ?? false;
             if (isChecked)
             {
-                CloseAnimated();
+                CloseDialpadAnimated();
                 _mainViewModel.IsCallHistoryDocked = false;
                 _mainViewModel.IsSettingsDocked = false;
                 _mainViewModel.IsResourceDocked = false;
+                _mainViewModel.IsMenuDocked = false;
             }
             _mainViewModel.IsContactDocked = isChecked;
         }
@@ -150,46 +157,95 @@ namespace com.vtcsecure.ace.windows
             }
         }
 
+        private void OnVideoMailClicked(object sender, EventArgs e)
+        {
+            CloseMeunAnimated();
+            if (App.CurrentAccount != null)
+            {
+                App.CurrentAccount.VideoMailCount = 0;
+                _mainViewModel.ShowVideomailIndicator = false;
+                if (_mainViewModel.ContactModel != null)
+                    _mainViewModel.ContactModel.VideoMailCount = App.CurrentAccount.VideoMailCount;
+                if (_mainViewModel.MoreMenuModel != null)
+                    _mainViewModel.MoreMenuModel.VideoMailCount = App.CurrentAccount.VideoMailCount;
+
+                ServiceManager.Instance.AccountService.Save();
+            }
+        }
+
+        private void OnSelfViewClicked(object sender, EventArgs e)
+        {
+            CloseMeunAnimated();
+            if (_selfView != null)
+            {
+                bool enabled = _mainViewModel.MoreMenuModel.IsSelfViewActive;
+                ShowSelfPreview(enabled);
+                ShowSelfPreviewItem.IsChecked = enabled;
+            }
+            else
+            {
+                this.ShowSelfPreviewItem.IsChecked = false;
+                _mainViewModel.MoreMenuModel.IsSelfViewActive = false;
+            }
+        }
+
+        private void OnShowSettings(object sender, EventArgs e)
+        {
+            CloseMeunAnimated();
+            CloseDialpadAnimated();
+            if (_mainViewModel.IsSettingsDocked)
+                return;
+            _mainViewModel.IsCallHistoryDocked = false;
+            _mainViewModel.IsContactDocked = false;
+            _mainViewModel.IsResourceDocked = false;
+
+            _mainViewModel.IsMenuDocked = true;
+            _mainViewModel.IsSettingsDocked = true;
+            ctrlSettings.Initialize();
+        }
+
         private void btnDialpad_Click(object sender, RoutedEventArgs e)
         {
             //ToggleWindow(_dialpadBox);
             _mainViewModel.IsDialpadDocked = BtnDialpad.IsChecked ?? false;
             if (_mainViewModel.IsDialpadDocked)
-                OpenAnimated();
+                OpenDialpadAnimated();
             else
-                CloseAnimated();
+                CloseDialpadAnimated();
         }
 
-        private void btnShowResources(object sender, RoutedEventArgs e)
+        private void btnShowResources(object sender, EventArgs e)
         {
-            bool isChecked = BtnResourcesView.IsChecked ?? false;
-            if (isChecked)
-            {
-                CloseAnimated();
-                _mainViewModel.IsCallHistoryDocked = false;
-                _mainViewModel.IsContactDocked = false;
-                _mainViewModel.IsSettingsDocked = false;
-            }
-            _mainViewModel.IsResourceDocked = isChecked;// BtnSettings.IsChecked ?? false;
-            // VATRP 856
-            // ToggleWindow(_messagingWindow);
+            CloseDialpadAnimated();
+            CloseMeunAnimated();
+            _mainViewModel.IsCallHistoryDocked = false;
+            _mainViewModel.IsContactDocked = false;
+            _mainViewModel.IsSettingsDocked = false;
+            _mainViewModel.IsResourceDocked = true;
+            _mainViewModel.IsMenuDocked = true;
         }
 
-        private void btnSettings_Click(object sender, RoutedEventArgs e)
+        private void btnShowChatClicked(object sender, RoutedEventArgs e)
         {
-            bool isChecked = BtnSettings.IsChecked ?? false;
-            if (isChecked)
+            if (_messagingWindow != null)
             {
-                CloseAnimated();
-                _mainViewModel.IsCallHistoryDocked = false;
-                _mainViewModel.IsContactDocked = false;
-                _mainViewModel.IsResourceDocked = false;
+                bool enabled = BtnChatView.IsChecked ?? false;
+                ActivateChatWindow(enabled);
+                ShowMessagingViewItem.IsChecked = enabled;
             }
-            _mainViewModel.IsSettingsDocked = BtnSettings.IsChecked ?? false;
-            if (_mainViewModel.IsSettingsDocked)
+            else
             {
-                ctrlSettings.Initialize();
+                this.ShowMessagingViewItem.IsChecked = false;
+                _mainViewModel.IsChatViewEnabled = false;
             }
+        }
+
+        private void btnMoreMenuClicked(object sender, RoutedEventArgs e)
+        {
+            OpenMenuAnimated();
+            _mainViewModel.ShowVideomailIndicator = false;
+            if (_mainViewModel.IsSettingsDocked || _mainViewModel.IsResourceDocked)
+                _mainViewModel.IsMenuDocked = true;
         }
 
         private void OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType changeType)
@@ -500,6 +556,12 @@ namespace com.vtcsecure.ace.windows
             _dialpadBox.KeypadClicked += OnDialpadClicked;
             _callInfoView.IsVisibleChanged += OnCallInfoVisibilityChanged;
 
+            ctrlMoreMenu.ResourceClicked += btnShowResources;
+            ctrlMoreMenu.SettingsClicked += OnShowSettings;
+            ctrlMoreMenu.SelfViewClicked += OnSelfViewClicked;
+            ctrlMoreMenu.VideoMailClicked += OnVideoMailClicked;
+            ctrlLocalContact.VideomailCountReset += OnVideoMailClicked;
+
             ctrlCall.KeypadClicked += OnKeypadClicked;
             ctrlCall.RttToggled += OnRttToggled;
             ctrlCall.FullScreenOnToggled += OnFullScreenToggled;
@@ -514,6 +576,8 @@ namespace com.vtcsecure.ace.windows
             _mainViewModel.DialpadHeight = ctrlDialpad.ActualHeight;
 
             _mainViewModel.RttMessagingModel.RttReceived += OnRttReceived;
+
+            ServiceManager.Instance.LinphoneService.OnMWIReceivedEvent += OnVideoMailCountChanged;
 
             // Liz E. - ToDo unified Settings
             ctrlSettings.AccountChangeRequested += OnAccountChangeRequested;
@@ -544,11 +608,11 @@ namespace com.vtcsecure.ace.windows
                 {
                     _mainViewModel.OfferServiceSelection = false;
                     _mainViewModel.IsAccountLogged = true;
-                    _mainViewModel.ContactModel.VideoMailCount = App.CurrentAccount.VideoMailCount;
                     // VATRP-1899: This is a quick and dirty solution for POC. It will be functional, but not the end implementation we will want.
                     if (!App.CurrentAccount.UserNeedsAgentView)
                     {
-                        OpenAnimated();
+                        OpenDialpadAnimated();
+                        UpdateVideomailCount();
                         _mainViewModel.IsCallHistoryDocked = true;
                         _mainViewModel.DialpadModel.UpdateProvider();
                         SetToUserAgentView(false);
@@ -717,25 +781,21 @@ namespace com.vtcsecure.ace.windows
                 OnRttToggled(true);
             }
         }
-
-        internal void ResetToggleButton(VATRPWindowType wndType)
+        
+        private void OnVideoMailCountChanged(MWIEventArgs args)
         {
-            switch (wndType)
+            if (ServiceManager.Instance.Dispatcher.Thread != Thread.CurrentThread)
             {
-                case VATRPWindowType.MESSAGE_VIEW:
-                    this.BtnResourcesView.IsChecked = false;
-                    break;
-                case VATRPWindowType.CONTACT_VIEW:
-                    this.BtnContacts.IsChecked = false;
-                    break;
-                case VATRPWindowType.DIALPAD_VIEW:
-                    this.BtnDialpad.IsChecked = false;
-                    break;
-                case VATRPWindowType.RECENTS_VIEW:
-                    BtnRecents.IsChecked = false;
-                    break;
-                default:
-                    break;
+                ServiceManager.Instance.Dispatcher.BeginInvoke((Action)(() => this.OnVideoMailCountChanged(args)));
+                return;
+            }
+
+            if (App.CurrentAccount != null)
+            {
+                if (args != null) 
+                    App.CurrentAccount.VideoMailCount += args.MwiCount;
+                UpdateVideomailCount();
+                ServiceManager.Instance.AccountService.Save();
             }
         }
 
@@ -800,7 +860,7 @@ namespace com.vtcsecure.ace.windows
                     _mainViewModel.ActivateWizardPage = true;
 
                     _mainViewModel.IsAccountLogged = false;
-                    CloseAnimated();
+                    CloseDialpadAnimated();
                     _mainViewModel.IsCallHistoryDocked = false;
                     _mainViewModel.IsContactDocked = false;
                     _mainViewModel.IsMessagingDocked = false;
@@ -820,7 +880,7 @@ namespace com.vtcsecure.ace.windows
 
         private void OnMyAccount(object sender, RoutedEventArgs e)
         {
-            CloseAnimated();
+            CloseDialpadAnimated();
             _mainViewModel.IsCallHistoryDocked = false;
             _mainViewModel.IsContactDocked = false;
             _mainViewModel.IsResourceDocked = false;
@@ -846,14 +906,21 @@ namespace com.vtcsecure.ace.windows
             // http://support.hockeyapp.net/kb/api/api-versions
             // ToDo VATRP-1057: When we have a publishable version, that is where we should be checking for updates, not hockeyapp.s
             //check for updates on the HockeyApp server
-            await HockeyClient.Current.CheckForUpdatesAsync(true, () =>
+            try
             {
-                if (Application.Current.MainWindow != null)
+                await HockeyClient.Current.CheckForUpdatesAsync(true, () =>
                 {
-                    Application.Current.MainWindow.Close();
-                }
-                return true;
-            }); 
+                    if (Application.Current.MainWindow != null)
+                    {
+                        Application.Current.MainWindow.Close();
+                    }
+                    return true;
+                });
+            }
+            catch (Exception ex)
+            {
+                LOG.Error("OnCheckUpdates", ex);
+            }
         }
 
         // View Menu
@@ -873,14 +940,19 @@ namespace com.vtcsecure.ace.windows
             bool enabled = this.SelfViewItem.IsChecked;
             if (enabled != App.CurrentAccount.ShowSelfView)
             {
-                App.CurrentAccount.ShowSelfView = enabled;
-                ServiceManager.Instance.ApplyMediaSettingsChanges();
-                ServiceManager.Instance.SaveAccountSettings();
+                ShowSelfView(enabled);
+            }
+        }
 
-                if (ctrlSettings != null)
-                {
-                    ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.ShowSelfViewMenu);
-                }
+        private void ShowSelfView(bool enabled)
+        {
+            App.CurrentAccount.ShowSelfView = enabled;
+            ServiceManager.Instance.ApplyMediaSettingsChanges();
+            ServiceManager.Instance.SaveAccountSettings();
+
+            if (ctrlSettings != null)
+            {
+                ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.ShowSelfViewMenu);
             }
         }
 
@@ -889,6 +961,20 @@ namespace com.vtcsecure.ace.windows
             if (_selfView != null)
             {
                 bool enabled = this.ShowSelfPreviewItem.IsChecked;
+                ShowSelfPreview(enabled);
+                _mainViewModel.MoreMenuModel.IsSelfViewActive = enabled;
+            }
+            else
+            {
+                this.ShowSelfPreviewItem.IsChecked = false;
+                _mainViewModel.MoreMenuModel.IsSelfViewActive = false;
+            }
+        }
+
+        private void ShowSelfPreview(bool enabled)
+        {
+            try
+            {
                 if (!enabled)
                 {
                     _selfView.Hide();
@@ -899,9 +985,9 @@ namespace com.vtcsecure.ace.windows
                     _selfView.Activate();
                 }
             }
-            else
+            catch
             {
-                this.ShowSelfPreviewItem.IsChecked = false;
+                
             }
         }
 
@@ -910,6 +996,20 @@ namespace com.vtcsecure.ace.windows
             if (_messagingWindow != null)
             {
                 bool enabled = this.ShowMessagingViewItem.IsChecked;
+                ActivateChatWindow(enabled);
+                _mainViewModel.IsChatViewEnabled = enabled;
+            }
+            else
+            {
+                this.ShowMessagingViewItem.IsChecked = false;
+                _mainViewModel.IsChatViewEnabled = false;
+            }
+        }
+
+        private void ActivateChatWindow(bool enabled)
+        {
+            try
+            {
                 if (!enabled)
                 {
                     _messagingWindow.Hide();
@@ -920,9 +1020,9 @@ namespace com.vtcsecure.ace.windows
                     _messagingWindow.Activate();
                 }
             }
-            else
+            catch
             {
-                this.ShowMessagingViewItem.IsChecked = false;
+                
             }
         }
 
@@ -1034,25 +1134,24 @@ namespace com.vtcsecure.ace.windows
             }
         }
 
-        public bool IsSliding { get; set; }
-		
         private void SlideDownCompleted(object sender, EventArgs e)
         {
-            IsSliding = false;
+            IsSlidingDialpad = false;
             _mainViewModel.DialpadHeight = 1;
         }
 
         private void SlideUpCompleted(object sender, EventArgs e)
         {
-            IsSliding = false;
+            IsSlidingDialpad = false;
             _mainViewModel.DialpadHeight = ctrlDialpad.ActualHeight;
         }
 
-        public void OpenAnimated()
+        public void OpenDialpadAnimated()
         {
-            if (IsSliding )
+            if (IsSlidingDialpad )
                 return;
-            IsSliding = true;
+            CloseMeunAnimated();
+            IsSlidingDialpad = true;
             _mainViewModel.DialpadHeight = 1;
             _mainViewModel.IsDialpadDocked = true;
             var s = (Storyboard)Resources["SlideUpAnimation"];
@@ -1063,15 +1162,51 @@ namespace com.vtcsecure.ace.windows
             }
         }
 
-        public void CloseAnimated()
+        public void CloseDialpadAnimated()
         {
-            if (IsSliding )
+            if (IsSlidingDialpad )
                 return;
-            IsSliding = true;
+            IsSlidingDialpad = true;
             _mainViewModel.DialpadHeight = 1;
             _mainViewModel.IsDialpadDocked = false;
             var s = (Storyboard)Resources["SlideDownAnimation"];
             if (s != null) s.Begin();
         }
+
+        #region Menu Animation
+        public void OpenMenuAnimated()
+        {
+            CloseDialpadAnimated();
+            if (IsSlidingMenu)
+                return;
+            IsSlidingMenu = true;
+            var s = (Storyboard)Resources["SlideMenuUpAnimation"];
+
+            if (s != null)
+            {
+                s.Begin();
+            }
+        }
+
+        public void CloseMeunAnimated()
+        {
+            if (IsSlidingMenu)
+                return;
+            IsSlidingMenu = true;
+            var s = (Storyboard)Resources["SlideMenuDownAnimation"];
+            if (s != null) s.Begin();
+        }
+
+        private void SlideMenuUpCompleted(object sender, EventArgs e)
+        {
+            IsSlidingMenu = false;
+        }
+
+        private void SlideMenuDownCompleted(object sender, EventArgs e)
+        {
+            IsSlidingMenu = false;
+        }
+        
+        #endregion
     }
 }

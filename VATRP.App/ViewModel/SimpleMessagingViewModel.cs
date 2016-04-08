@@ -1,9 +1,11 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading;
 using System.Windows.Data;
 using System.Windows.Threading;
 using com.vtcsecure.ace.windows.Services;
+using VATRP.Core.Events;
 using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
@@ -22,6 +24,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
         
         #endregion
 
+        #region Events
+
+        public event EventHandler UnreadMessagesCountChanged;
+        
+        #endregion
+
         public SimpleMessagingViewModel()
         {
             Init();
@@ -31,6 +39,19 @@ namespace com.vtcsecure.ace.windows.ViewModel
             : base(chatMng, contactsMng)
         {
             Init();
+            _chatsManager.ConversationUnReadStateChanged += OnUnreadStateChanged;
+        }
+
+        private void OnUnreadStateChanged(object sender, VATRP.Core.Events.ConversationEventArgs e)
+        {
+            if (ServiceManager.Instance.Dispatcher.Thread != Thread.CurrentThread)
+            {
+                ServiceManager.Instance.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                    new EventHandler<VATRP.Core.Events.ConversationEventArgs>(OnUnreadStateChanged), sender, new object[] { e });
+                return;
+            }
+
+            ChangeUnreadCounter();
         }
 
         private void Init()
@@ -44,6 +65,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
 
         #region Methods
+
+        protected override void ChangeUnreadCounter()
+        {
+            if (UnreadMessagesCountChanged != null)
+                UnreadMessagesCountChanged(this, EventArgs.Empty);
+        }
 
         internal void SendMessage(string message)
         {
@@ -105,7 +132,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
-       
         public ICollectionView ContactsListView
         {
             get { return this.contactsListView; }
@@ -123,7 +149,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
        
         #endregion
-
 
         internal bool CheckReceiverContact()
         {

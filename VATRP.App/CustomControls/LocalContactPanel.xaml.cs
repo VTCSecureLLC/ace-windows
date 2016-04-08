@@ -23,6 +23,12 @@ namespace com.vtcsecure.ace.windows.CustomControls
         private LocalContactViewModel _viewModel;
         #endregion
 
+        #region Events
+
+        public event EventHandler VideomailCountReset;
+
+        #endregion
+
         public LocalContactPanel()
         {
             InitializeComponent();
@@ -41,10 +47,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         private void ResetVideoMailCount(object sender, RoutedEventArgs e)
         {
-            if (_viewModel != null)
-            {
-                _viewModel.VideoMailCount = 0;
-            }
+            if (VideomailCountReset != null) 
+                VideomailCountReset(this, EventArgs.Empty);
         }
 
         //OnCallVideoMail
