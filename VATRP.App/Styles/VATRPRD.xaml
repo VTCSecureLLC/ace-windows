@@ -31,7 +31,7 @@
     <SolidColorBrush x:Key="NavigationBarBg" Color ="#FF2C373D"/>
     <SolidColorBrush x:Key="NavigationBarNormalButtonBg" Color ="#FF2C373D"/>
     <SolidColorBrush x:Key="NavigationBarNormalButtonFont" Color ="#FFFFFFFF"/>
-    <SolidColorBrush x:Key="NavigationBarPressedButtonBg" Color ="#FF5C7584"/>
+    <SolidColorBrush x:Key="NavigationBarPressedButtonBg" Color ="#FFff6100"/>
     <SolidColorBrush x:Key="NavigationBarPressedButtonFont" Color ="#FFFFFFFF"/>
 
     <SolidColorBrush x:Key="DialpadPageBackButtonNormalFont" Color ="#FFb9ecff"/>

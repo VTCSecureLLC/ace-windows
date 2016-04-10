@@ -26,6 +26,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 OnPropertyChanged("ContactStateBrush");
             }
         }
+
         public bool IsSelected
         {
             get { return _isSelected; }
@@ -103,6 +104,10 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 LoadContactAvatar();
             }
+            else if (e.PropertyName == "HasUnreadMsg")
+            {
+                OnPropertyChanged("UnreadMsgCount");
+            }
         }
         
         public int CompareTo(ContactViewModel other)
@@ -129,6 +134,17 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 if (vatrpContact != null) 
                     return vatrpContact.ContactName_ForUI;
                 return string.Empty;
+            }
+        }
+
+        public int UnreadMsgCount
+        {
+            get
+            {
+                var vatrpContact = this.Contact;
+                if (vatrpContact != null)
+                    return (int)vatrpContact.UnreadMsgCount;
+                return 0;
             }
         }
 

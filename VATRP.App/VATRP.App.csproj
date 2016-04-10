@@ -129,6 +129,9 @@
     <Compile Include="CustomControls\CallViewCtrl.xaml.cs">
       <DependentUpon>CallViewCtrl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\MoreMenuCtrl.xaml.cs">
+      <DependentUpon>MoreMenuCtrl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\Resources\BaseResourcePanel.cs" />
     <Compile Include="CustomControls\Resources\DeafHoHResourcesPanel.xaml.cs">
       <DependentUpon>DeafHoHResourcesPanel.xaml</DependentUpon>
@@ -215,6 +218,7 @@
     <Compile Include="ViewModel\CallInfoViewModel.cs" />
     <Compile Include="ViewModel\AboutViewModel.cs" />
     <Compile Include="ViewModel\CallHistoryViewModel.cs" />
+    <Compile Include="ViewModel\MenuViewModel.cs" />
     <Compile Include="ViewModel\VideoViewModel.cs" />
     <Compile Include="ViewModel\HistoryCallEventViewModel.cs" />
     <Compile Include="ViewModel\ProviderViewModel.cs" />
@@ -323,6 +327,10 @@
     <Page Include="CustomControls\CallViewCtrl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="CustomControls\MoreMenuCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CustomControls\Resources\DeafHoHResourcesPanel.xaml">
       <SubType>Designer</SubType>
@@ -718,6 +726,21 @@
     <Resource Include="Resources\call_quality_indicator_1.png" />
     <Resource Include="Resources\call_quality_indicator_2.png" />
     <Resource Include="Resources\call_quality_indicator_3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\resource_menu.png" />
+    <Resource Include="Resources\setting_menu.png" />
+    <Resource Include="Resources\sview_menu.png" />
+    <Resource Include="Resources\videomail_menu.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\more.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\chat.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\videomail.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

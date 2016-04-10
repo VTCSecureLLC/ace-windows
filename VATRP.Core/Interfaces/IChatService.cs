@@ -15,7 +15,9 @@ namespace VATRP.Core.Interfaces
 		bool ComposeAndSendMessage(VATRPChat chat, string text);
         void MarkChatAsRead(ChatID chat);
         void UpdateRTTFontFamily(string newFont);
-        
+        bool HasUnreadMessages();
+        void ActivateChat(VATRPChat chat);
+
         event EventHandler<ConversationEventArgs> ConversationClosed;
         event EventHandler<ConversationEventArgs> ConversationStateChanged;
         event EventHandler<ConversationEventArgs> ConversationUnReadStateChanged;
