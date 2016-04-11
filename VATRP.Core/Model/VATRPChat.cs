@@ -575,9 +575,12 @@ namespace VATRP.Core.Model
             }
             set
             {
-                this._unreadMsgCount = value;
-                base.OnPropertyChanged("UnreadMsgCount");
-                base.OnPropertyChanged("HasUnreadMsg");
+                if (!IsSelected)
+                {
+                    this._unreadMsgCount = value;
+                    base.OnPropertyChanged("UnreadMsgCount");
+                    base.OnPropertyChanged("HasUnreadMsg");
+                }
             }
         }
         
@@ -598,7 +601,9 @@ namespace VATRP.Core.Model
             return true;
         }
 
-        public int CharsCountInBubble { get; set; } 
+        public int CharsCountInBubble { get; set; }
+
+        public bool IsSelected { get; set; } 
     }
 }
 
