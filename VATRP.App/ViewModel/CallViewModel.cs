@@ -71,6 +71,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
         public Visibility CallSwitchLastTimeVisibility;
         private bool _isFullScreenOn;
         private bool _showAvatar;
+        private bool _showDeclineMenu;
+        private string _declinedMessage;
+        private bool _showRingingTimer;
+        private bool _showDeclinedMessage;
+        private VATRPContact _contact;
 
         public event CallInfoViewModel.CallQualityChangedDelegate CallQualityChangedEvent;
 
@@ -78,6 +83,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             _visualizeRing = false;
             _visualizeIncoming = false;
+            _declinedMessage = string.Empty;
+            _showDeclineMenu = false;
+            _showRingingTimer = true;
             _callState = VATRPCallState.None;
             _hasVideo = true;
             _displayNameSize = 30;
@@ -87,6 +95,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             Declined = false;
             _errorMessage = String.Empty;
             AllowHideContorls = false;
+            WaitForDeclineMessage = false;
             CommandbarLastTimeVisibility = Visibility.Hidden;
             NumpadLastTimeVisibility = Visibility.Hidden;
             CallInfoLastTimeVisibility = Visibility.Hidden;
@@ -277,6 +286,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
         public int RingDuration
         {
             get { return (int)(DateTime.Now - _currentCall.CallStartTime).TotalSeconds; }
+        }
+
+        public bool ShowRingingTimer
+        {
+            get { return _showRingingTimer; }
+            set
+            {
+                _showRingingTimer = value; 
+                OnPropertyChanged("ShowRingingTimer");
+            }
         }
 
         public string ErrorMessage
@@ -533,6 +552,50 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 OnPropertyChanged("Avatar");
             }
         }
+        public bool ShowDeclineMenu
+        {
+            get { return _showDeclineMenu; }
+            set
+            {
+                _showDeclineMenu = value;
+                OnPropertyChanged("ShowDeclineMenu");
+            }
+        }
+
+        public bool ShowDeclinedMessage
+        {
+            get { return _showDeclinedMessage; }
+            set
+            {
+                _showDeclinedMessage = value;
+                OnPropertyChanged("ShowDeclinedMessage");
+            }
+        }
+
+        public string DeclinedMessage
+        {
+            get { return _declinedMessage; }
+            set
+            {
+                if (_declinedMessage != value)
+                {
+                    _declinedMessage = value;
+                    OnPropertyChanged("DeclinedMessage");
+                }
+            }
+        }
+
+        public VATRPContact Contact
+        {
+            get { return _contact; }
+            set
+            {
+                _contact = value;
+                OnPropertyChanged("Contact");
+            }
+        }
+
+        public bool WaitForDeclineMessage { get; set; }
 
         #endregion
 
@@ -745,6 +808,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             ShowOutgoingEndCall = false;
             CallState = VATRPCallState.InProgress;
             ShowAvatar = true;
+            ShowDeclineMenu = false;
 //#if DEBUG
             bool isUserAgent = false;
             if (App.CurrentAccount != null)
@@ -811,6 +875,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
             CallState = VATRPCallState.Connected;
             ShowIncomingCallPanel = false;
+            ShowDeclineMenu = false;
             IsMuteOn = _linphoneService.IsCallMuted();
             ShowInfo = true;
             ShowAvatar = false;
@@ -838,15 +903,22 @@ namespace com.vtcsecure.ace.windows.ViewModel
             CallState = VATRPCallState.LocalPaused;
         }
 
-        internal void OnClosed(bool isError, string errorMessage)
+        internal void OnClosed(bool isError, string errorMessage, bool isDeclined)
         {
-            CallState = isError ? VATRPCallState.Error : VATRPCallState.Closed;
+            if (isError) 
+                CallState = VATRPCallState.Error;
+            else if (isDeclined)
+                CallState = VATRPCallState.Declined;
+            else
+                CallState = VATRPCallState.Closed;
+           
             ShowIncomingCallPanel = false;
-            ShowInfo = false;
-            ShowAvatar = false;
+            ShowInfo = false ;
+            ShowAvatar = isDeclined;
 
-            ShowOutgoingEndCall = isError;
-          
+            ShowOutgoingEndCall = isError || isDeclined;
+            ShowRingingTimer = !isError && !isDeclined;
+
             if (isError)
             {
                 if ( string.Compare(errorMessage, "Busy here", StringComparison.InvariantCultureIgnoreCase) == 0)
