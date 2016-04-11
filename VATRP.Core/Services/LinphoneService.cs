@@ -809,7 +809,7 @@ namespace VATRP.Core.Services
 		        VATRPCall.ParseSipAddress(destination, out un, out host, out port);
 
                 if (un == "911")
-                    LinphoneAPI.linphone_call_params_add_custom_header(callParams, "userLocation", geolocation);
+                    LinphoneAPI.linphone_call_params_add_custom_header(callParams, "Geolocation", geolocation);
 		    }
 
             var cmd = new CreateCallCommand(callParams, destination, rttEnabled, muteMicrophone, muteSpeaker);
