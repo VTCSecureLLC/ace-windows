@@ -759,7 +759,7 @@ namespace com.vtcsecure.ace.windows.Services
                     Geoposition pos = await loc.GetGeopositionAsync();
                     var lat = pos.Coordinate.Latitude;
                     var lang = pos.Coordinate.Longitude;
-                    LocationString = string.Format("{0},{1}", lat, lang);
+                    LocationString = string.Format("<geo:{0},{1}>", lat, lang);
                     StartLocationRequestTimer();
                 }
                 catch (System.UnauthorizedAccessException ex)
