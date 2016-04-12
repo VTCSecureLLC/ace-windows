@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Windows.Data;
 using System.Windows.Threading;
+using com.vtcsecure.ace.windows.Model;
 using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Events;
 using VATRP.Core.Extensions;
@@ -27,7 +28,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         #region Events
 
         public event EventHandler UnreadMessagesCountChanged;
-        
+        public event EventHandler<DeclineMessageArgs> DeclineMessageReceived;
         #endregion
 
         public SimpleMessagingViewModel()
@@ -40,6 +41,22 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             Init();
             _chatsManager.ConversationUnReadStateChanged += OnUnreadStateChanged;
+            _chatsManager.ConversationDeclineMessageReceived += OnDeclineMessageReceived;
+        }
+
+        private void OnDeclineMessageReceived(object sender, DeclineMessageArgs args)
+        {
+            if (ServiceManager.Instance.Dispatcher.Thread != Thread.CurrentThread)
+            {
+                ServiceManager.Instance.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                    new EventHandler<DeclineMessageArgs>(OnDeclineMessageReceived) , sender, new object[] { args });
+                return;
+            }
+
+            var newArgs = new DeclineMessageArgs(args.DeclineMessage);
+            newArgs.Sender = args.Sender;
+            if (DeclineMessageReceived != null) 
+                DeclineMessageReceived(sender, newArgs);
         }
 
         private void OnUnreadStateChanged(object sender, VATRP.Core.Events.ConversationEventArgs e)
@@ -74,7 +91,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         internal void SendMessage(string message)
         {
-            if (!message.NotBlank() || string.IsNullOrEmpty( ReceiverAddress))
+            if (!message.NotBlank() || (Chat == null && string.IsNullOrEmpty( ReceiverAddress)))
                 return;
 
             _chatsManager.ComposeAndSendMessage(Chat, message);

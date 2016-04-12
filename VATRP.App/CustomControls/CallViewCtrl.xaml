@@ -102,7 +102,7 @@
 						   Foreground="{StaticResource AppMainBorderBrush}"
 						Text="{Binding RingDuration, Converter={StaticResource cdc}}" 
 					   VerticalAlignment="Top" FontSize="{Binding InfoTextSize}" 
-					   Visibility="{Binding ErrorMessage.Length, Converter={StaticResource ivc}}"/>
+					   Visibility="{Binding ShowRingingTimer, Converter={StaticResource bvc}}"/>
                 <TextBlock  Margin="10,0" HorizontalAlignment="Center"
 						   Foreground="{StaticResource AppMainBorderBrush}"
 						Text="{Binding ErrorMessage}" 
@@ -117,6 +117,39 @@
 					   VerticalAlignment="Center" FontSize="{Binding InfoTextSize}" 
 						   Foreground="{DynamicResource AppMainBorderBrush}"
 					   />
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" x:Name="DeclineAnimationBox" Background="{StaticResource CallBarEndCallBg}" 
+                    VerticalAlignment="Stretch" 
+                    Visibility="{Binding ShowDeclinedMessage, Converter={StaticResource bvc}}" Height="120"  Margin="40,30">
+            <StackPanel.Style>
+                <Style TargetType="StackPanel">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Path=ShowDeclinedMessage}" Value="True">
+                            <DataTrigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard RepeatBehavior="Forever" >
+                                        <DoubleAnimation  Storyboard.TargetProperty = "Opacity"
+						From="1.0" To="0.1" Duration="0:0:0.3" AutoReverse="True" />
+                                        <DoubleAnimation  Storyboard.TargetProperty = "Opacity"
+							From="0.1" To="1.0" Duration="0:0:0.3" AutoReverse="True">
+                                            <DoubleAnimation.EasingFunction>
+                                                <PowerEase EasingMode="EaseOut" Power="4" />
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </DataTrigger.EnterActions>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </StackPanel.Style>
+                <TextBlock Margin="2" Text="Call declined with message" HorizontalAlignment="Center"
+					    FontSize="26" VerticalAlignment="Center"
+						   Foreground="{StaticResource AppMainBorderBrush}"/>
+            <TextBlock Margin="2" Text="{Binding DeclinedMessage}" HorizontalAlignment="Center"
+					    FontSize="45" VerticalAlignment="Center"
+						   Foreground="{StaticResource AppMainBorderBrush}"/>
         </StackPanel>
 
         <Grid Grid.Row="2" Height="70" Visibility="{Binding ShowOutgoingEndCall, Converter={StaticResource bvc}}" 
@@ -175,15 +208,259 @@
             </Button>
         </Grid>
 
+        <Grid Grid.Row="1" Background="{StaticResource CallBarEndCallBg}" 
+              Visibility="{Binding ShowDeclineMenu, Converter={StaticResource bvc}}" 
+              Margin="0,0,110,0"
+              HorizontalAlignment="Right"
+              VerticalAlignment="Bottom" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <!--Row 0-->
+            
+            <Button x:Name="BtnFirst" Grid.Row="0" Margin="0,0,0,0.5"
+						  Click="OnSendDeclineMessage"  
+                    Background="{StaticResource CallBarEndCallBg}"
+                    Tag ="I'm in a meeting."
+						  HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                <Button.Resources>
+                    <Grid x:Key="Msg1Hover" >
+                        <Rectangle  Fill="{StaticResource DeclineMessageBg}" />
+                        <TextBlock Grid.Column="0" HorizontalAlignment="Right" Text="I'm in a meeting."
+                                   FontSize="22" VerticalAlignment="Center" Margin ="7,7" 
+                                   Foreground="{StaticResource NavigationBarPressedButtonFont}"/>
+                    </Grid>
+                    <Grid x:Key="Msg1Pressed">
+                        <Rectangle  Fill="{StaticResource DeclineMessageBg}" 
+                                    Grid.Column="0" >
+
+                        </Rectangle>
+                        <TextBlock HorizontalAlignment="Right" Text="I'm in a meeting."
+                                   FontSize="22" VerticalAlignment="Center" Margin ="7,7" 
+                                   Foreground="{StaticResource NavigationBarPressedButtonFont}"/>
+                    </Grid>
+                    <Grid x:Key="Msg1Normal">
+                        <Rectangle  Fill="{StaticResource DeclineMessageBg}" Grid.Column="0"/>
+                        <TextBlock  
+                               HorizontalAlignment="Right" Text="I'm in a meeting." 
+                            FontSize="22"
+                               VerticalAlignment="Top" Margin ="7,7" 
+                               Foreground="{StaticResource NavigationBarPressedButtonFont}"/>
+                    </Grid>
+                </Button.Resources>
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Opacity" Value="1" />
+                        <Setter Property="BorderThickness" Value="1,1,1,0.5" />
+                        <Setter Property="BorderBrush" Value="{StaticResource CallBarEndCallBg}" />
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Margin" Value="0" />
+                        <Setter Property="SnapsToDevicePixels" Value="True"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="Content" Value="{StaticResource Msg1Normal}" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type Button}">
+                                    <Grid Background="Transparent">
+
+                                        <Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
+                                            <ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                        </Border>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.8"/>
+                                <Setter Property="Content" Value="{StaticResource Msg1Hover}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Content" Value="{StaticResource Msg1Pressed}" />
+                            </Trigger>
+
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsPressed}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+
+                                <Setter Property="Opacity" Value="0.7"/>
+                                <Setter Property="Content" Value="{StaticResource Msg1Pressed}"/>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <!-- Row 1 -->
+            <Button x:Name="BtnSecond" Grid.Row="1" Margin="0,0,0,0.5"
+						  Click="OnSendDeclineMessage"  
+                    Tag="Can't talk now. What's up?"
+                    Background="{StaticResource CallBarEndCallBg}"
+						  HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                <Button.Resources>
+                    <Grid x:Key="Msg2Hover" >
+                        <Rectangle  Fill="{StaticResource DeclineMessageBg}" />
+                        <TextBlock Grid.Column="0" HorizontalAlignment="Right" Text="Can't talk now. What's up?"
+                                   FontSize="22" VerticalAlignment="Center" Margin ="7,7" 
+                                   Foreground="{StaticResource NavigationBarPressedButtonFont}"/>
+                    </Grid>
+                    <Grid x:Key="Msg2Pressed">
+                        <Rectangle  Fill="{StaticResource DeclineMessageBg}" 
+                                    Grid.Column="0" >
+
+                        </Rectangle>
+                        <TextBlock HorizontalAlignment="Right" Text="Can't talk now. What's up?"
+                                   FontSize="22" VerticalAlignment="Center" Margin ="7,7" 
+                                   Foreground="{StaticResource NavigationBarPressedButtonFont}"/>
+                    </Grid>
+                    <Grid x:Key="Msg2Normal">
+                        <Rectangle  Fill="{StaticResource DeclineMessageBg}" Grid.Column="0"/>
+                        <TextBlock  
+                               HorizontalAlignment="Right" 
+                            Text="Can't talk now. What's up?"
+                            FontSize="22"
+                               VerticalAlignment="Top" Margin ="7,7" 
+                               Foreground="{StaticResource NavigationBarPressedButtonFont}"/>
+                    </Grid>
+                </Button.Resources>
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Opacity" Value="1" />
+                        <Setter Property="BorderThickness" Value="1,0.5,1,0.5" />
+                        <Setter Property="BorderBrush" Value="{StaticResource CallBarEndCallBg}" />
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Margin" Value="0" />
+                        <Setter Property="SnapsToDevicePixels" Value="True"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="Content" Value="{StaticResource Msg2Normal}" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type Button}">
+                                    <Grid Background="Transparent">
+
+                                        <Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
+                                            <ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                        </Border>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.8"/>
+                                <Setter Property="Content" Value="{StaticResource Msg2Hover}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Content" Value="{StaticResource Msg2Pressed}" />
+                            </Trigger>
+
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsPressed}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+
+                                <Setter Property="Opacity" Value="0.7"/>
+                                <Setter Property="Content" Value="{StaticResource Msg2Pressed}"/>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <!-- Row 2 -->
+            <Button x:Name="BtnThird" Grid.Row="2" 
+						  Click="OnSendDeclineMessage"  
+                    Background="{StaticResource CallBarEndCallBg}"
+                    Tag="Can't talk now. Call me later"
+						  HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                <Button.Resources>
+                    <Grid x:Key="Msg3Hover" >
+                        <Rectangle  Fill="{StaticResource DeclineMessageBg}" />
+                        <TextBlock Grid.Column="0" HorizontalAlignment="Right" Text="Can't talk now. Call me later"
+                                   FontSize="22" VerticalAlignment="Center" Margin ="7,7" 
+                                   Foreground="{StaticResource NavigationBarPressedButtonFont}"/>
+                    </Grid>
+                    <Grid x:Key="Msg3Pressed">
+                        <Rectangle  Fill="{StaticResource DeclineMessageBg}" 
+                                    Grid.Column="0" >
+
+                        </Rectangle>
+                        <TextBlock HorizontalAlignment="Right" Text="Can't talk now. Call me later"
+                                   FontSize="22" VerticalAlignment="Center" Margin ="7,7" 
+                                   Foreground="{StaticResource NavigationBarPressedButtonFont}"/>
+                    </Grid>
+                    <Grid x:Key="Msg3Normal">
+                        <Rectangle  Fill="{StaticResource DeclineMessageBg}" Grid.Column="0"/>
+                        <TextBlock  
+                               HorizontalAlignment="Right"  
+                            Text="Can't talk now. Call me later"
+                            FontSize="22"
+                               VerticalAlignment="Top" Margin ="7,7" 
+                               Foreground="{StaticResource NavigationBarPressedButtonFont}"/>
+                    </Grid>
+                </Button.Resources>
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Opacity" Value="1" />
+                        <Setter Property="BorderThickness" Value="1,0.5,1,1" />
+                        <Setter Property="BorderBrush" Value="{StaticResource CallBarEndCallBg}" />
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Margin" Value="0" />
+                        <Setter Property="SnapsToDevicePixels" Value="True"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="Content" Value="{StaticResource Msg3Normal}" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type Button}">
+                                    <Grid Background="Transparent">
+
+                                        <Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
+                                            <ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                        </Border>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.8"/>
+                                <Setter Property="Content" Value="{StaticResource Msg3Hover}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Content" Value="{StaticResource Msg3Pressed}" />
+                            </Trigger>
+
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsPressed}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+
+                                <Setter Property="Opacity" Value="0.7"/>
+                                <Setter Property="Content" Value="{StaticResource Msg3Pressed}"/>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+        </Grid>
+
         <Grid Grid.Row="2" Height="70" x:Name="IncomingPanel" Margin="110,0"
               Visibility="{Binding ShowIncomingCallPanel, Converter={StaticResource bvc}}" 
               VerticalAlignment="Stretch"
               ZIndex="90">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0"  Width="240" Click="AcceptCall" Margin="0,0,5,0" 
+            <Button Grid.Column="0"  Width="240" Click="AcceptCall" Margin="0" 
 					BorderThickness="0" HorizontalAlignment="Right" 
 					VerticalContentAlignment="Center"
 					>
@@ -235,7 +512,13 @@
                 </Button.Style>
             </Button>
 
-            <Button Grid.Column="1" Click="DeclineCall" Width="240" Margin="5,0,0,0" BorderThickness="0" HorizontalAlignment="Left">
+            <Grid Grid.Column="2" Margin="0,0,0,0" Width="240" HorizontalAlignment="Right">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="2"/>
+                    <ColumnDefinition Width="20"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Click="DeclineCall"  Margin="0" BorderThickness="0" >
                 <Button.Resources>
                     <Grid x:Key="CallButtonNormal" 
 							Background="{StaticResource CallBarEndCallBg}" >
@@ -285,9 +568,64 @@
                     </Style>
                 </Button.Style>
             </Button>
+                
+                <!--Arrow button-->
+                <Button Name="ArrowBtn" Grid.Column="2" Click="ToggleDeclineMenu" Margin="0" 
+                        BorderThickness="0" >
+                    <Button.Resources>
+                        <Grid x:Key="ArrowButtonNormal" 
+							Background="{StaticResource CallBarEndCallBg}" >
+                            <Path x:Name="BtnArrow"  
+                                  Data="M 3 0 L 17 0 L 10 8 Z"
+                                  VerticalAlignment="Center">
+                                <Path.Fill>
+                                    <SolidColorBrush x:Name="BtnArrowColor" Color="#FFFFFFFF"/>
+                                </Path.Fill>
+                            </Path>
+                        </Grid>
+                    </Button.Resources>
 
+                    <Button.Style>
+                        <Style TargetType="{x:Type Button}">
+                            <Setter Property="Opacity" Value="1" />
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="SnapsToDevicePixels" Value="True"/>
+                            <Setter Property="Content" Value="{StaticResource ArrowButtonNormal}" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type Button}">
+                                        <Grid Background="Transparent">
+
+                                            <Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
+                                                <ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                            </Border>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Opacity" Value="0.7" />
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter Property="Opacity" Value="0.8" />
+                                </Trigger>
+
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                        <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsPressed}" Value="True"/>
+                                    </MultiDataTrigger.Conditions>
+
+                                    <Setter Property="Opacity" Value="0.7"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </Grid>
         </Grid>
-
       
         <StackPanel Grid.Row="0" Grid.RowSpan="4" x:Name="VideoContainer" VerticalAlignment="Center" 
                     HorizontalAlignment="Center">

@@ -108,7 +108,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         private void OnTextFontChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (!_initialized)
+            if (!_initialized || App.CurrentAccount == null)
                 return;
             var ff = TextFontFamilyComboBox.SelectedItem as FontFamily;
             if (ff != null)

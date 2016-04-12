@@ -5,6 +5,7 @@ using VATRP.Core.Model;
 using System.Collections.ObjectModel;
 using com.vtcsecure.ace.windows.CustomControls;
 using log4net;
+using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 
 namespace com.vtcsecure.ace.windows.ViewModel
@@ -43,7 +44,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _hasUnreadMessages;
         private bool _showVideomailIndicator;
         private bool _isRttViewEnabled;
-
 
         public MainControllerViewModel()
         {
@@ -437,16 +437,23 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 if (FindCallViewModel(viewModel))
                 {
-                    LOG.Info(String.Format("Terminating call call for {0}. {1}", viewModel.CallerInfo,
-                        viewModel.ActiveCall.NativeCallPtr));
+                    if (viewModel.CallState == VATRPCallState.Declined)
+                    {
 
-                    try
-                    {
-                        _linphoneService.TerminateCall(viewModel.ActiveCall.NativeCallPtr);
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        ServiceManager.LogError("TerminateCall", ex);
+                        LOG.Info(String.Format("Terminating call call for {0}. {1}", viewModel.CallerInfo,
+                            viewModel.ActiveCall.NativeCallPtr));
+
+                        try
+                        {
+                            _linphoneService.TerminateCall(viewModel.ActiveCall.NativeCallPtr);
+                        }
+                        catch (Exception ex)
+                        {
+                            ServiceManager.LogError("TerminateCall", ex);
+                        }
                     }
                 }
             }
@@ -485,7 +492,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
-        internal void DeclineCall(CallViewModel viewModel)
+        internal void DeclineCall(CallViewModel viewModel, string message)
         {
             lock (CallsViewModelList)
             {
@@ -493,7 +500,21 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 {
                     LOG.Info(String.Format("Declining call for {0}. {1}", viewModel.CallerInfo,
                         viewModel.ActiveCall.NativeCallPtr));
-
+                    var contactID = new ContactID(
+                            string.Format("{0}@{1}", viewModel.ActiveCall.RemoteParty.Username,
+                                viewModel.ActiveCall.RemoteParty.HostAddress), IntPtr.Zero);
+                    var contact = ServiceManager.Instance.ContactService.FindContact(contactID);
+                    if (contact == null)
+                    {
+                        contact = new VATRPContact(contactID)
+                        {
+                            Fullname = viewModel.ActiveCall.RemoteParty.Username,
+                            DisplayName = viewModel.ActiveCall.RemoteParty.Username,
+                            SipUsername = viewModel.ActiveCall.RemoteParty.Username,
+                            RegistrationName = contactID.ID
+                        };
+                        ServiceManager.Instance.ContactService.AddContact(contact, string.Empty);
+                    }
                     viewModel.DeclineCall(false);
                     try
                     {
@@ -502,6 +523,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     catch (Exception ex)
                     {
                         ServiceManager.LogError("DeclineCall", ex);
+                    }
+
+                    if (message.NotBlank())
+                    {
+                        if (_simpleMessageViewModel != null)
+                        {
+                            _simpleMessageViewModel.SetActiveChatContact(contact, IntPtr.Zero);
+                            _simpleMessageViewModel.SendMessage(string.Format("{0}{1}", VATRPChatMessage.DECLINE_PREFIX, message));
+                        }
                     }
                 }
             }
@@ -568,6 +598,19 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 PauseCall(activeCallViewModel);
             }
             return true;
+        }
+
+        internal CallViewModel FindDeclinedCallViewModel()
+        {
+            lock (CallsViewModelList)
+            {
+                foreach (var callVM in CallsViewModelList)
+                {
+                    if (callVM.CallState == VATRPCallState.Declined)
+                        return callVM;
+                }
+            }
+            return null;
         }
     }
 }

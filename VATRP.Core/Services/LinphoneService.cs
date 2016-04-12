@@ -471,7 +471,28 @@ namespace VATRP.Core.Services
                                         LinphoneAPI.linphone_core_resume_call(linphoneCore, resumeCmd.CallPtr);
                                     }
                                     break;
+                                case LinphoneCommandType.MuteCall:
+                                    var muteCmd = command as MuteCallCommand;
+                                    if (muteCmd != null)
+                                    {
+                                        LinphoneAPI.linphone_core_enable_mic(linphoneCore, muteCmd.MuteOn);
+                                    }
+                                    break;
+                                case LinphoneCommandType.SendChatMessage:
+                                {
+                                    var msgCmd = command as SendChatMessageCommand;
+                                    if (msgCmd != null)
+                                    {
+                                        IntPtr callbacks =
+                                            LinphoneAPI.linphone_chat_message_get_callbacks(msgCmd.CallPtr);
 
+                                        LinphoneAPI.linphone_chat_message_cbs_set_msg_state_changed(callbacks,
+                                            Marshal.GetFunctionPointerForDelegate(message_status_changed));
+                                        LinphoneAPI.linphone_chat_room_send_chat_message(msgCmd.ChatPtr, msgCmd.CallPtr);
+                                        LinphoneAPI.linphone_call_unref(msgCmd.CallPtr);
+                                    }
+                                    break;
+                                }
                             }
                         }
                     }
@@ -980,23 +1001,27 @@ namespace VATRP.Core.Services
 		}
         public void MuteCall(bool muteCall)
         {
-            if (linphoneCore == IntPtr.Zero)
-                return;
-            IntPtr activeCallPtr = LinphoneAPI.linphone_core_get_current_call(linphoneCore);
-            if (activeCallPtr == IntPtr.Zero)
-                LinphoneAPI.linphone_core_enable_mic(linphoneCore, !muteCall);
-            else
+            IntPtr activeCallPtr = IntPtr.Zero;
+            lock (callLock)
             {
-                lock (callLock)
-                {
-                    VATRPCall call = FindCall(activeCallPtr);
+                activeCallPtr = LinphoneAPI.linphone_core_get_current_call(linphoneCore);
+                //if (activeCallPtr != IntPtr.Zero)
+                //{
 
-                    if (call != null && (call.CallState != VATRPCallState.LocalPaused || call.CallState != VATRPCallState.LocalPausing))
-                    {
-                        // probably this should be done in linphone core
-                        LinphoneAPI.linphone_core_enable_mic(linphoneCore, !muteCall);
-                    }
-                }
+                //    VATRPCall call = FindCall(activeCallPtr);
+                //    if (call != null
+                //        /*&& (call.CallState != VATRPCallState.LocalPaused || call.CallState != VATRPCallState.LocalPausing)*/)
+                //    {
+                //        // probably this should be done in linphone core
+                //            LinphoneAPI.linphone_core_enable_mic(linphoneCore, !muteCall);
+                //    }
+                //}
+            }
+
+            var cmd = new MuteCallCommand(activeCallPtr, !muteCall);
+            lock (commandQueue)
+            {
+                commandQueue.Enqueue(cmd);
             }
         }
 		
@@ -1202,16 +1227,19 @@ namespace VATRP.Core.Services
             {
                 IntPtr chatPtr = LinphoneAPI.linphone_core_get_chat_room_from_uri(linphoneCore, chat.Contact.ID);
                 chat.NativePtr = chatPtr;
-                
-                msgPtr = LinphoneAPI.linphone_chat_room_create_message(chat.NativePtr, message);
-                if (msgPtr != IntPtr.Zero)
-                {
-                    IntPtr callbacks = LinphoneAPI.linphone_chat_message_get_callbacks(msgPtr);
 
-                    LinphoneAPI.linphone_chat_message_cbs_set_msg_state_changed(callbacks, Marshal.GetFunctionPointerForDelegate(message_status_changed));
-                    LinphoneAPI.linphone_chat_room_send_chat_message(chat.NativePtr, msgPtr); /*sending message*/
+                msgPtr = LinphoneAPI.linphone_chat_room_create_message(chat.NativePtr, message);
+                LinphoneAPI.linphone_call_ref(msgPtr);
+            }
+            if (msgPtr != IntPtr.Zero)
+            {
+                var cmd = new SendChatMessageCommand(msgPtr, chat.NativePtr);
+                lock (commandQueue)
+                {
+                    commandQueue.Enqueue(cmd);
                 }
             }
+
             return true;
         }
 
@@ -2229,6 +2257,7 @@ namespace VATRP.Core.Services
 			        {
 			            _declinedCallsList.Remove(callPtr);
 			        }
+                    LinphoneAPI.linphone_call_unref(callPtr);
 			        return;
 			}
 
@@ -2243,6 +2272,7 @@ namespace VATRP.Core.Services
 
 		            if (GetActiveCallsCount > 1)
 		            {
+                        callPtr = LinphoneAPI.linphone_call_ref(callPtr);
                         var cmd = new DeclineCallCommand(callPtr, LinphoneReason.LinphoneReasonBusy);
 		                commandQueue.Enqueue(cmd);
                         _declinedCallsList.Add(callPtr);
@@ -2253,7 +2283,7 @@ namespace VATRP.Core.Services
 		            {
 		                LOG.Info("Call not found. Adding new call into list. ID - " + callPtr + " Calls count: " +
 		                         callsList.Count);
-
+                        callPtr = LinphoneAPI.linphone_call_ref(callPtr);
 		                call = new VATRPCall(callPtr) {CallState = newstate, CallDirection = direction};
 		                CallParams from = direction == LinphoneCallDir.LinphoneCallIncoming ? call.From : call.To;
 		                CallParams to = direction == LinphoneCallDir.LinphoneCallIncoming ? call.To : call.From;

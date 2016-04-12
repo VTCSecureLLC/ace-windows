@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Input;
+using com.vtcsecure.ace.windows.Model;
 using VATRP.Core.Enums;
 using VATRP.Core.Events;
 using VATRP.Core.Extensions;
@@ -53,7 +54,9 @@ namespace VATRP.Core.Services
         public event EventHandler<ConversationEventArgs> NewConversationCreated;
 
         public event EventHandler<EventArgs> RttReceived;
-		
+
+        public event EventHandler<DeclineMessageArgs> ConversationDeclineMessageReceived;
+
         public bool IsRTTenabled { get; set; }
         public ChatsService(ServiceManagerBase mngBase)
         {
@@ -335,6 +338,18 @@ namespace VATRP.Core.Services
                         chatMessage.IsRTTMessage = false;
                         chatMessage.IsIncompleteMessage = false;
                         chatMessage.Chat = chat;
+                        if (chatMessage.Content.StartsWith(VATRPChatMessage.DECLINE_PREFIX))
+                        {
+                            chatMessage.Content = chatMessage.Content.Substring(VATRPChatMessage.DECLINE_PREFIX.Length);
+
+                            chatMessage.IsDeclineMessage = true;
+                            if (ConversationDeclineMessageReceived != null)
+                            {
+                                var declineArgs = new DeclineMessageArgs(chatMessage.Content) { Sender = contact };
+                                ConversationDeclineMessageReceived(this, declineArgs);
+                            }
+                        }
+
                         chat.AddMessage(chatMessage, false);
                         chat.UpdateLastMessage(false);
 
@@ -870,17 +885,18 @@ namespace VATRP.Core.Services
             {
                 return false;
             }
-
+            var declineMessage = text.StartsWith(VATRPChatMessage.DECLINE_PREFIX);
             var message = new VATRPChatMessage(MessageContentType.Text)
             {
                 Direction = MessageDirection.Outgoing,
                 Status = LinphoneChatMessageState.LinphoneChatMessageStateIdle,
                 MessageTime = DateTime.Now,
                 IsIncompleteMessage = false,
-                Content = text,
-                Chat = chatID
+                Chat = chatID,
+                IsDeclineMessage = declineMessage
             };
 
+            message.Content = declineMessage ? text.Substring(VATRPChatMessage.DECLINE_PREFIX.Length) : text;
             chat.AddMessage(message, false);
             chat.UpdateLastMessage(false);
 
@@ -892,7 +908,7 @@ namespace VATRP.Core.Services
 
             // send message to linphone
             IntPtr msgPtr = IntPtr.Zero;
-            _linphoneSvc.SendChatMessage(chat, message.Content, ref msgPtr);
+            _linphoneSvc.SendChatMessage(chat, text, ref msgPtr);
             message.NativePtr = msgPtr;
             return true;
         }
@@ -1178,7 +1194,12 @@ namespace VATRP.Core.Services
                                             var localTime =
                                                 Time.ConvertUtcTimeToLocalTime(
                                                     LinphoneAPI.linphone_chat_message_get_time(msMessagePtr.data));
-
+                                            var declineMessage = false;
+                                            if (messageString.StartsWith(VATRPChatMessage.DECLINE_PREFIX))
+                                            {
+                                                messageString = messageString.Substring(VATRPChatMessage.DECLINE_PREFIX.Length);
+                                                declineMessage = true;
+                                            }
                                             var chatMessage = new VATRPChatMessage(MessageContentType.Text)
                                             {
                                                 Direction =
@@ -1189,6 +1210,7 @@ namespace VATRP.Core.Services
                                                 MessageTime = localTime,
                                                 Content = messageString,
                                                 IsRTTMessage = false,
+                                                IsDeclineMessage = declineMessage,
                                                 IsRead = LinphoneAPI.linphone_chat_message_is_read(msMessagePtr.data),
                                                 Status = LinphoneAPI.linphone_chat_message_get_state(msMessagePtr.data),
                                                 Chat = chat

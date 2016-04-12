@@ -576,7 +576,7 @@ namespace com.vtcsecure.ace.windows
             _mainViewModel.DialpadHeight = ctrlDialpad.ActualHeight;
 
             _mainViewModel.RttMessagingModel.RttReceived += OnRttReceived;
-
+            _mainViewModel.SipSimpleMessagingModel.DeclineMessageReceived += OnDeclineMessageReceived;
             ServiceManager.Instance.LinphoneService.OnMWIReceivedEvent += OnVideoMailCountChanged;
 
             // Liz E. - ToDo unified Settings
@@ -697,61 +697,89 @@ namespace com.vtcsecure.ace.windows
         private void RearrangeUICallView(Size callViewDimensions)
         {
             Point topleftInScreen = new Point(0, 0);
-
-            int offset = 0;
-            if (!_mainViewModel.IsInCallFullScreen)
+            try
             {
-                topleftInScreen = ctrlCall.PointToScreen(new Point(0, 0));
-                topleftInScreen = this.PointFromScreen(topleftInScreen);
-                topleftInScreen.Y += SystemParameters.CaptionHeight;
-                offset = 8;
-            }
+                int offset = 0;
+                if (!_mainViewModel.IsInCallFullScreen)
+                {
+                    topleftInScreen = ctrlCall.PointToScreen(new Point(0, 0));
+                    topleftInScreen = this.PointFromScreen(topleftInScreen);
+                    topleftInScreen.Y += SystemParameters.CaptionHeight;
+                    offset = 8;
+                }
 
-            if (_mainViewModel.IsMessagingDocked && _mainViewModel.IsInCallFullScreen)
+                if (_mainViewModel.IsMessagingDocked && _mainViewModel.IsInCallFullScreen)
+                {
+                    callViewDimensions.Width -= ctrlRTT.ActualWidth;
+                }
+
+                CombinedUICallViewSize = callViewDimensions;
+
+                ctrlCall.Width = callViewDimensions.Width;
+
+                ctrlCall.ctrlOverlay.Width = callViewDimensions.Width;
+                ctrlCall.ctrlOverlay.Height = callViewDimensions.Height;
+
+                if (_mainViewModel.ActiveCallModel != null)
+                {
+                    _mainViewModel.ActiveCallModel.VideoWidth = (int) CombinedUICallViewSize.Width;
+                    _mainViewModel.ActiveCallModel.VideoHeight = (int) ctrlCall.ActualHeight;
+                }
+
+                ctrlCall.ctrlOverlay.CommandWindowLeftMargin = topleftInScreen.X +
+                                                               (callViewDimensions.Width -
+                                                                ctrlCall.ctrlOverlay.CommandOverlayWidth)/2 + offset;
+                ctrlCall.ctrlOverlay.CommandWindowTopMargin = topleftInScreen.Y +
+                                                              (ctrlCall.ActualHeight - 40 -
+                                                               ctrlCall.ctrlOverlay.CommandOverlayHeight);
+
+                ctrlCall.ctrlOverlay.NumpadWindowLeftMargin = topleftInScreen.X +
+                                                              (callViewDimensions.Width -
+                                                               ctrlCall.ctrlOverlay.NumpadOverlayWidth)/2 + offset;
+                ctrlCall.ctrlOverlay.NumpadWindowTopMargin = ctrlCall.ctrlOverlay.CommandWindowTopMargin -
+                                                             ctrlCall.ctrlOverlay.NumpadOverlayHeight;
+
+                ctrlCall.ctrlOverlay.CallInfoOverlayWidth = (int) callViewDimensions.Width - 30;
+                ctrlCall.ctrlOverlay.CallInfoWindowLeftMargin = topleftInScreen.X +
+                                                                (callViewDimensions.Width -
+                                                                 ctrlCall.ctrlOverlay.CallInfoOverlayWidth)/2 + offset;
+                ctrlCall.ctrlOverlay.CallInfoWindowTopMargin = topleftInScreen.Y + 40;
+
+                ctrlCall.ctrlOverlay.CallsSwitchWindowLeftMargin = topleftInScreen.X + 10;
+                ctrlCall.ctrlOverlay.CallsSwitchWindowTopMargin = topleftInScreen.Y + 10;
+
+                ctrlCall.ctrlOverlay.NewCallAcceptWindowLeftMargin = topleftInScreen.X +
+                                                                     (callViewDimensions.Width -
+                                                                      ctrlCall.ctrlOverlay.NewCallAcceptOverlayWidth)/2 +
+                                                                     offset;
+                ctrlCall.ctrlOverlay.NewCallAcceptWindowTopMargin = topleftInScreen.Y +
+                                                                    (ctrlCall.ActualHeight -
+                                                                     ctrlCall.ctrlOverlay.NewCallAcceptOverlayHeight)/2;
+
+                ctrlCall.ctrlOverlay.OnHoldOverlayWidth = 100; // (int)callViewDimensions.Width - 30;
+                ctrlCall.ctrlOverlay.OnHoldWindowLeftMargin = topleftInScreen.X +
+                                                              (callViewDimensions.Width -
+                                                               ctrlCall.ctrlOverlay.OnHoldOverlayWidth)/2 + offset;
+                ctrlCall.ctrlOverlay.OnHoldWindowTopMargin = ctrlCall.ctrlOverlay.CallInfoOverlayHeight +
+                                                             ctrlCall.ctrlOverlay.CallInfoWindowTopMargin + 40;
+                // topleftInScreen.Y + 40;
+
+                ctrlCall.ctrlOverlay.QualityIndicatorWindowLeftMargin = topleftInScreen.X + offset + 20;
+                ctrlCall.ctrlOverlay.QualityIndicatorWindowTopMargin = topleftInScreen.Y +
+                                                                       (ctrlCall.ActualHeight - 20 -
+                                                                        ctrlCall.ctrlOverlay
+                                                                            .QualityIndicatorOverlayHeight);
+
+                ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(false);
+                ctrlCall.ctrlOverlay.Refresh();
+                if (_mainViewModel.ActiveCallModel != null &&
+                    _mainViewModel.ActiveCallModel.CallState != VATRPCallState.Closed)
+                    ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(this.WindowState != WindowState.Minimized);
+            }
+            catch (Exception ex)
             {
-                callViewDimensions.Width -= ctrlRTT.ActualWidth;
+                LOG.Error("RearrangeUICallView", ex);
             }
-
-            CombinedUICallViewSize = callViewDimensions;
-
-            ctrlCall.Width = callViewDimensions.Width;
-
-            ctrlCall.ctrlOverlay.Width = callViewDimensions.Width;
-            ctrlCall.ctrlOverlay.Height = callViewDimensions.Height;
-
-            if (_mainViewModel.ActiveCallModel != null)
-            {
-                _mainViewModel.ActiveCallModel.VideoWidth = (int)CombinedUICallViewSize.Width;
-                _mainViewModel.ActiveCallModel.VideoHeight = (int)ctrlCall.ActualHeight;
-            }
-
-            ctrlCall.ctrlOverlay.CommandWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.CommandOverlayWidth) / 2 + offset;
-            ctrlCall.ctrlOverlay.CommandWindowTopMargin = topleftInScreen.Y + (ctrlCall.ActualHeight - 40 - ctrlCall.ctrlOverlay.CommandOverlayHeight);
-
-            ctrlCall.ctrlOverlay.NumpadWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.NumpadOverlayWidth) / 2 + offset;
-            ctrlCall.ctrlOverlay.NumpadWindowTopMargin = ctrlCall.ctrlOverlay.CommandWindowTopMargin - ctrlCall.ctrlOverlay.NumpadOverlayHeight;
-
-            ctrlCall.ctrlOverlay.CallInfoOverlayWidth = (int)callViewDimensions.Width - 30;
-            ctrlCall.ctrlOverlay.CallInfoWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.CallInfoOverlayWidth) / 2 + offset;
-            ctrlCall.ctrlOverlay.CallInfoWindowTopMargin = topleftInScreen.Y + 40;
-
-            ctrlCall.ctrlOverlay.CallsSwitchWindowLeftMargin = topleftInScreen.X + 10;
-            ctrlCall.ctrlOverlay.CallsSwitchWindowTopMargin = topleftInScreen.Y + 10;
-
-            ctrlCall.ctrlOverlay.NewCallAcceptWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.NewCallAcceptOverlayWidth) / 2 + offset;
-            ctrlCall.ctrlOverlay.NewCallAcceptWindowTopMargin = topleftInScreen.Y + (ctrlCall.ActualHeight - ctrlCall.ctrlOverlay.NewCallAcceptOverlayHeight) / 2;
-
-            ctrlCall.ctrlOverlay.OnHoldOverlayWidth = 100;// (int)callViewDimensions.Width - 30;
-            ctrlCall.ctrlOverlay.OnHoldWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.OnHoldOverlayWidth) / 2 + offset;
-            ctrlCall.ctrlOverlay.OnHoldWindowTopMargin = ctrlCall.ctrlOverlay.CallInfoOverlayHeight + ctrlCall.ctrlOverlay.CallInfoWindowTopMargin + 40;// topleftInScreen.Y + 40;
-
-            ctrlCall.ctrlOverlay.QualityIndicatorWindowLeftMargin = topleftInScreen.X + offset + 20;
-            ctrlCall.ctrlOverlay.QualityIndicatorWindowTopMargin = topleftInScreen.Y + (ctrlCall.ActualHeight - 20 - ctrlCall.ctrlOverlay.QualityIndicatorOverlayHeight);
-
-            ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(false);
-            ctrlCall.ctrlOverlay.Refresh();
-            if(_mainViewModel.ActiveCallModel != null && _mainViewModel.ActiveCallModel.CallState != VATRPCallState.Closed)
-                ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(this.WindowState != WindowState.Minimized);
         }
 
         private void OnCameraSwitched(bool switch_on)

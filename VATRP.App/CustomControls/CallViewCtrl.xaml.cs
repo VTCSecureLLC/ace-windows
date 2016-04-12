@@ -166,7 +166,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
         private void DeclineCall(object sender, RoutedEventArgs e)
         {
             if (_parentViewModel != null)
-                _parentViewModel.DeclineCall(_viewModel);
+                _parentViewModel.DeclineCall(_viewModel, string.Empty);
         }
 
         #region Call Statistics Info
@@ -363,7 +363,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
         private void OnDeclineCall(object sender, RoutedEventArgs e)
         {
             if (_parentViewModel != null)
-                _parentViewModel.DeclineCall(_viewModel);
+                _parentViewModel.DeclineCall(_viewModel, string.Empty);
         }
 
         private void SwitchCall(object sender, RoutedEventArgs e)
@@ -692,6 +692,28 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             BtnFullScreen.IsChecked = false;
             OnToggleFullScreen(this, null);
+        }
+
+        private void OnSendDeclineMessage(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel != null)
+                _viewModel.ShowDeclineMenu = false;
+
+            var menuItem = sender as Button;
+            if (menuItem != null)
+            {
+                if (_parentViewModel != null)
+                    _parentViewModel.DeclineCall(_viewModel, menuItem.Tag as string ?? string.Empty);
+            }
+        }
+
+        private void ToggleDeclineMenu(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel != null)
+            {
+                _viewModel.ShowDeclineMenu = !_viewModel.ShowDeclineMenu;
+                ArrowBtn.Focus();
+            }
         }
     }
 }
