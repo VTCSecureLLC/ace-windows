@@ -642,14 +642,6 @@
     <Resource Include="Resources\resources.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\zvrs.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\convovrs.png" />
-    <Resource Include="Resources\purpleVRS.png" />
-    <Resource Include="Resources\sorensonvrs.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\video_mail.png" />
   </ItemGroup>
   <ItemGroup>
@@ -670,12 +662,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\fav_contact.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\caag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\globalvrs.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\switch_call.png" />
@@ -699,14 +685,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\plus.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\caag_gr.png" />
-    <Resource Include="Resources\convovrs_gr.png" />
-    <Resource Include="Resources\globalvrs_gr.png" />
-    <Resource Include="Resources\purpleVRS_gr.png" />
-    <Resource Include="Resources\sorensonvrs_gr.png" />
-    <Resource Include="Resources\zvrs_gr.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\resources_books.png" />
@@ -741,6 +719,10 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\videomail.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\security_ko.png" />
+    <Resource Include="Resources\security_ok.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

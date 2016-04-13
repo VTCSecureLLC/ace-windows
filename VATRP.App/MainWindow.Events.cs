@@ -631,13 +631,25 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 
         private void OnCallQualityChanged(VATRP.Linphone.VideoWrapper.QualityIndicator callQuality)
         {
-            if (_mainViewModel.ActiveCallModel == null || callQuality == VATRP.Linphone.VideoWrapper.QualityIndicator.Unknown)
+            if (_mainViewModel.ActiveCallModel == null || 
+                callQuality == VATRP.Linphone.VideoWrapper.QualityIndicator.Unknown)
             {
                 ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(false);
+                ctrlCall.ctrlOverlay.ShowEncryptionIndicatorWindow(false);
                 return;
             }
+
             ctrlCall.ctrlOverlay.UpdateQualityIndicator(callQuality);
             ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(this.WindowState != WindowState.Minimized);
+
+
+            if (_mainViewModel.ActiveCallModel.CallInfoModel != null)
+            {
+                var encryption = _mainViewModel.ActiveCallModel.CallInfoModel.MediaEncryption.Equals("None") ? MediaEncryptionIndicator.Off
+                    : MediaEncryptionIndicator.On;
+                ctrlCall.ctrlOverlay.UpdateEncryptionIndicator(encryption);
+                ctrlCall.ctrlOverlay.ShowEncryptionIndicatorWindow(this.WindowState != WindowState.Minimized);
+            }
         }
 
 	    private void OnSwitchHoldCallsRequested(object sender, EventArgs eventArgs)
@@ -679,6 +691,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			ctrlCall.ctrlOverlay.ShowNumpadWindow(false);
 			ctrlCall.ctrlOverlay.ShowCallInfoWindow(bShow);
 	        ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(bShow);
+            ctrlCall.ctrlOverlay.ShowEncryptionIndicatorWindow(bShow);
 		    if (!bShow)
 		    {
 		        ctrlCall.ctrlVideo.Visibility = Visibility.Hidden;
@@ -686,6 +699,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                 ctrlCall.ctrlOverlay.ShowCallsSwitchWindow(false);
                 ctrlCall.ctrlOverlay.ShowOnHoldWindow(false);
                 ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(false);
+                ctrlCall.ctrlOverlay.ShowEncryptionIndicatorWindow(false);
             }
 		}
 
