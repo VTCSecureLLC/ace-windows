@@ -655,7 +655,7 @@
 					   />
                     </StackPanel>
                 </StackPanel>
-                        <StackPanel HorizontalAlignment="Right" Orientation="Vertical" Grid.Column="1" >
+                        <StackPanel HorizontalAlignment="Right" Orientation="Vertical" Grid.Column="1" Margin="0,20,0,0">
                             <ToggleButton x:Name="BtnFullScreen" 
 						  Click="OnToggleFullScreen" IsChecked="{Binding IsFullScreenOn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
 						  HorizontalAlignment="Right" VerticalAlignment="Top" Background="Transparent">
@@ -1842,7 +1842,8 @@
                         <Image Source="/ACE;component/Resources/hold.png" Width="100" Height="25"></Image>
                     </StackPanel>
                     </videoWrapper:VATRPOverlay.OverlayOnHoldChild>
-                        <videoWrapper:VATRPOverlay.OverlayQualityIndicatorChild>
+                
+                <videoWrapper:VATRPOverlay.OverlayQualityIndicatorChild>
 
                     <Grid x:Name="QualityContainer" Grid.Row="0" Grid.RowSpan="4">
                         <Image x:Name="BadIndicator" Width="54" Height="30" Source="../Resources/call_quality_indicator_0.png" Visibility="Hidden"/>
@@ -1851,6 +1852,14 @@
                         <Image x:Name="GoodIndicator" Width="54" Height="30" Source="../Resources/call_quality_indicator_3.png" Visibility="Hidden"/>
                     </Grid>
                 </videoWrapper:VATRPOverlay.OverlayQualityIndicatorChild>
+                
+                <videoWrapper:VATRPOverlay.OverlayEncryptionIndicatorChild>
+                <Grid x:Name="MediaEncryptionContainer" Grid.Row="0" Grid.RowSpan="4">
+                        <Image x:Name="EncryptionOn" Width="19" Height="24" Source="../Resources/security_ok.png" Visibility="Hidden"/>
+                        <Image x:Name="EncryptionOff" Width="19" Height="24" Source="../Resources/security_ko.png" Visibility="Hidden"/>
+                    </Grid>
+                </videoWrapper:VATRPOverlay.OverlayEncryptionIndicatorChild>
+
                 <videoWrapper:ManagedVideoControl x:Name="ctrlVideo" Width="{Binding VideoWidth}" Height="{Binding VideoHeight}" 
 												  VerticalAlignment="Center" HorizontalAlignment="Center" 
 											      MouseEnter="CtrlVideo_OnMouseEnter"
