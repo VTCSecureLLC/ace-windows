@@ -668,21 +668,75 @@ namespace com.vtcsecure.ace.windows.Services
             }
         }
 
+        // Note: if the selected device is not available, use the default, and store the default for the current user
         internal void ApplyMediaSettingsChanges()
         {
+            // this should never be an issue, but just in case
+            if (App.CurrentAccount == null)
+                return;
             LinphoneService.LinphoneConfig.MediaEncryption = GetMediaEncryptionText(App.CurrentAccount.MediaEncryption);
             LinphoneService.UpdateMediaSettings(App.CurrentAccount);
+            bool accountChanged = false;
+            // prior to setting the devices we need to ensure that the selected devices are still options.
+            //  for example - did the user unplug the camera since the last run?
             if (!string.IsNullOrEmpty(App.CurrentAccount.SelectedCameraId))
             {
-                LinphoneService.SetCamera(App.CurrentAccount.SelectedCameraId);
+                List<VATRPDevice> availableCameras = GetAvailableCameras();
+                if (IsDeviceAvailable(App.CurrentAccount.SelectedCameraId, availableCameras))
+                {
+                    LinphoneService.SetCamera(App.CurrentAccount.SelectedCameraId);
+                }
+                else
+                {
+                    // update the stored setting in the account because the previously selected device is not available
+                    VATRPDevice device = GetSelectedCamera();
+                    if (device != null)
+                    {
+                        App.CurrentAccount.SelectedCameraId = device.deviceId;
+                        accountChanged = true;
+                    }
+                }
             }
             if (!string.IsNullOrEmpty(App.CurrentAccount.SelectedMicrophoneId))
             {
-                LinphoneService.SetCaptureDevice(App.CurrentAccount.SelectedMicrophoneId);
+                List<VATRPDevice> availableMicrophones = GetAvailableMicrophones();
+                if (IsDeviceAvailable(App.CurrentAccount.SelectedMicrophoneId, availableMicrophones))
+                {
+                    LinphoneService.SetCaptureDevice(App.CurrentAccount.SelectedMicrophoneId);
+                }
+                else
+                {
+                    // update the stored setting in the account because the previously selected device is not available
+                    VATRPDevice device = GetSelectedMicrophone();
+                    if (device != null)
+                    {
+                        App.CurrentAccount.SelectedMicrophoneId = device.deviceId;
+                        accountChanged = true;
+                    }
+                }
             }
             if (!string.IsNullOrEmpty(App.CurrentAccount.SelectedSpeakerId))
             {
-                LinphoneService.SetSpeakers(App.CurrentAccount.SelectedSpeakerId);
+                List<VATRPDevice> availableSpeakers = GetAvailableSpeakers();
+                if (IsDeviceAvailable(App.CurrentAccount.SelectedSpeakerId, availableSpeakers))
+                {
+                    LinphoneService.SetSpeakers(App.CurrentAccount.SelectedSpeakerId);
+                }
+                else
+                {
+                    // update the stored setting in the account because the previously selected device is not available
+                    VATRPDevice device = GetSelectedSpeakers();
+                    if (device != null)
+                    {
+                        App.CurrentAccount.SelectedSpeakerId = device.deviceId;
+                        accountChanged = true;
+                    }
+                }
+            }
+            // if there was a change to the account, save it
+            if (accountChanged)
+            {
+                SaveAccountSettings();
             }
         }
 
@@ -806,6 +860,22 @@ namespace com.vtcsecure.ace.windows.Services
                     Register();
                 }
             }
+        }
+
+        public bool IsDeviceAvailable(string deviceId, List<VATRPDevice> deviceList)
+        {
+            if (string.IsNullOrEmpty(deviceId))
+            {
+                return false;
+            }
+            foreach (VATRPDevice device in deviceList)
+            {
+                if (device.deviceId.Equals(deviceId))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public List<VATRPDevice> GetAvailableCameras()
