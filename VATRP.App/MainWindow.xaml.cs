@@ -775,6 +775,17 @@ namespace com.vtcsecure.ace.windows
                 if (_mainViewModel.ActiveCallModel != null &&
                     _mainViewModel.ActiveCallModel.CallState != VATRPCallState.Closed)
                     ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(this.WindowState != WindowState.Minimized);
+
+                ctrlCall.ctrlOverlay.EncryptionIndicatorWindowLeftMargin = topleftInScreen.X +
+                                                                callViewDimensions.Width - 40 + offset;
+                ctrlCall.ctrlOverlay.EncryptionIndicatorWindowTopMargin = topleftInScreen.Y + 20;
+
+                ctrlCall.ctrlOverlay.ShowEncryptionIndicatorWindow(false);
+                ctrlCall.ctrlOverlay.Refresh();
+                if (_mainViewModel.ActiveCallModel != null &&
+                    _mainViewModel.ActiveCallModel.CallState != VATRPCallState.Closed)
+                    ctrlCall.ctrlOverlay.ShowEncryptionIndicatorWindow(this.WindowState != WindowState.Minimized);
+
             }
             catch (Exception ex)
             {
