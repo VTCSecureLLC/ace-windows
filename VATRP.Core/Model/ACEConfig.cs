@@ -212,7 +212,7 @@ namespace VATRP.Core.Model
             accountToUpdate.VideoAutomaticallyStart = this.enable_video;
 
             //       public bool enable_adaptive_rate { get; set; }
-            accountToUpdate.EnableAdaptiveRate = this.enable_adaptive_rate;
+            // TEMP - 3512, ignore accountToUpdate.EnableAdaptiveRate = this.enable_adaptive_rate;
             accountToUpdate.DownloadBandwidth = this.download_bandwidth;
             accountToUpdate.UploadBandwidth = this.upload_bandwidth;
 

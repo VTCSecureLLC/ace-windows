@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using com.vtcsecure.ace.windows.Model;
 using VATRP.Core.Events;
 using VATRP.Core.Model;
 
@@ -27,5 +28,7 @@ namespace VATRP.Core.Interfaces
         event EventHandler<EventArgs> ContactsChanged;
         event EventHandler<ConversationEventArgs> NewConversationCreated;
         event EventHandler<EventArgs> RttReceived;
+        event EventHandler<DeclineMessageArgs> ConversationDeclineMessageReceived;
+        
     }
 }

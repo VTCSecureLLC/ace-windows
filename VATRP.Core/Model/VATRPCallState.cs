@@ -18,6 +18,7 @@
         LocalResuming,
         LocalResumed,
         Closed,
+        Declined,
         Error
     }
 }

@@ -278,7 +278,7 @@ namespace VATRP.Core.Model
             UserNeedsAgentView = false;
             VideoMailCount = 0;
             PreferredFPS = 30;
-            EnableAdaptiveRate = true;
+            EnableAdaptiveRate = false;
             UploadBandwidth = 1500;
             DownloadBandwidth = 1500;
             EnableQualityOfService = true;

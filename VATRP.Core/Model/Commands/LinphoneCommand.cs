@@ -26,6 +26,8 @@ namespace VATRP.Core.Model.Commands
         ResumeCall,
         TerminateAllCalls,
         TerminateCall,
-        StopLinphone
+        StopLinphone,
+        MuteCall,
+        SendChatMessage
     }
 }

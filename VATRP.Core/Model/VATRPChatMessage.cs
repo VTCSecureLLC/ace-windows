@@ -27,6 +27,10 @@ namespace VATRP.Core.Model
         private bool _isRTTStartMarker;
         private bool _isRTTEndMarker;
         private bool _isRTTMarker;
+        private bool _isDeclineMessage;
+
+        public static string DECLINE_PREFIX = "!@$%#CALL_DECLINE_MESSAGE#";
+
         public VATRPChatMessage()
         {
             ID = Tools.GenerateMessageId();
@@ -39,6 +43,7 @@ namespace VATRP.Core.Model
             _isRTTEndMarker = false;
             _isRTTMarker = false;
             _isRTTMessage = false;
+            _isDeclineMessage = false;
             RttCallPtr = IntPtr.Zero;
         }
 
@@ -214,6 +219,19 @@ namespace VATRP.Core.Model
             {
                 this._isRTTMarker = value;
                 OnPropertyChanged("IsRTTMarker");
+            }
+        }
+
+        public bool IsDeclineMessage
+        {
+            get
+            {
+                return this._isDeclineMessage;
+            }
+            set
+            {
+                this._isDeclineMessage = value;
+                OnPropertyChanged("IsDeclineMessage");
             }
         }
 

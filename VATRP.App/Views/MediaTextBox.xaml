@@ -227,6 +227,12 @@
 
                                                     <!--Text part-->
                                                     <StackPanel HorizontalAlignment="Stretch" >
+                                                        <TextBlock  Text="Call declined with message" 
+    							Margin="5,0,5,0" TextWrapping="Wrap"
+    							Foreground="{StaticResource ChatPageBubbleTextFont}"
+    							FontSize="12" 
+                                  Visibility="{Binding IsDeclineMessage, Converter={StaticResource bvc}}"
+    							  VerticalAlignment="Top"/>
                                                         <TextBlock  Text="{Binding Content}" 
     							Margin="5,0,5,0" TextWrapping="Wrap"
     							Foreground="{StaticResource ChatPageBubbleTextFont}"
