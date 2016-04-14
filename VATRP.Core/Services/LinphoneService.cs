@@ -2341,6 +2341,14 @@ namespace VATRP.Core.Services
 		            call.LinphoneMessage = message;
 		            call.CallState = newstate;
 
+		            if (call.CallState == VATRPCallState.Error)
+		            {
+		                IntPtr errorReason = LinphoneAPI.linphone_call_get_error_info(callPtr);
+		                if (errorReason != IntPtr.Zero)
+		                {
+                            call.SipErrorCode = LinphoneAPI.linphone_error_info_get_protocol_code(errorReason);
+		                }
+		            }
                     if (CallStateChangedEvent != null)
                         CallStateChangedEvent(call);
 		            if (removeCall)

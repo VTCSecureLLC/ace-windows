@@ -859,6 +859,9 @@ namespace VATRP.LinphoneWrapper
         public static extern int linphone_call_get_reason(IntPtr call);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_get_error_info(IntPtr call);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_set_video_jittcomp(IntPtr lc, int milliseconds);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
