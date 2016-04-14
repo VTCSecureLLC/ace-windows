@@ -919,6 +919,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
             ShowOutgoingEndCall = isError || isDeclined;
             ShowRingingTimer = !isError && !isDeclined;
 
+            var errString = string.Empty;
+            var sipErrCodeStr = string.Empty;
             if (isError)
             {
                 switch (errorCode)
@@ -926,82 +928,87 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     case 200:
                         break;
                     case 301:
-                        ErrorMessage = "The called person or organization has changed their number or call address.";
+                        errString = Properties.Resources.SIP_301;
                         break;
                     case 400:
-                        ErrorMessage = "Call failed because called terminal detected and error.";
+                        errString = Properties.Resources.SIP_400;
                         break;
                     case 404:
-                        ErrorMessage = "The number or address could not be found.";
+                        errString = Properties.Resources.SIP_404;
                         break;
                     case 406:
-                        ErrorMessage = "The call was not accepted of technical reasons by the called terminal.";
+                        errString = Properties.Resources.SIP_406;
                         break;
                     case 408:
-                        ErrorMessage = "The called terminal was not reachable because of technical reasons.";
+                        errString = Properties.Resources.SIP_408;
                         break;
                     case 480:
-                        ErrorMessage = "The person or organization you are trying to reach is not available at this time.  Check the number or address or try again later.";
+                        errString = Properties.Resources.SIP_480;
                         break;
                     case 484:
-                        ErrorMessage = "The address was incomplete. Please try again.";
+                        errString = Properties.Resources.SIP_484;
                         break;
                     case 486:
-                        ErrorMessage = "The number/address you are trying to reach is busy";
+                        errString = Properties.Resources.SIP_486;
                         break;
                     case 488:
-                        ErrorMessage = "The called terminal has no media in common with yours.";
+                        errString = Properties.Resources.SIP_488;
                         break;
                     case 502:
-                        ErrorMessage = "Call failed because of error in the communication service.";
+                        errString = Properties.Resources.SIP_502;
                         break;
                     case 603:
-                        ErrorMessage = "The call has been declined.";
+                        errString = Properties.Resources.SIP_603;
                         break;
                     case 604:
-                        ErrorMessage = "The number/address you are trying to reach is no longer available.";
+                        errString = Properties.Resources.SIP_604;
                         break;
                     case 501:
-                        ErrorMessage = "The call failed because of a service error.";
+                        errString = Properties.Resources.SIP_501;
                         break;
                     case 504:
-                        ErrorMessage = "The call failed because of a service timeout error.";
+                        errString = Properties.Resources.SIP_504;
                         break;
                     case 494:
-                        ErrorMessage = "The call failed because it requires authorization.";
+                        errString = Properties.Resources.SIP_494;
                         break;
                     default:
+                        sipErrCodeStr = " ";
                         if ( string.Compare(errorMessage, "BadCredentials", StringComparison.InvariantCultureIgnoreCase) == 0)
-                            ErrorMessage = "The call did not go through because  of access rights failure.";
+                            errString = Properties.Resources.ERR_BadCredentials;
                         else if (
                             string.Compare(errorMessage, "DoNotDisturb", StringComparison.InvariantCultureIgnoreCase) ==
                             0)
-                            ErrorMessage = "The call failed becuse of communication problems.";
+                            errString = Properties.Resources.ERR_DoNotDisturb;
                         else if (
                             string.Compare(errorMessage, "NoResponse", StringComparison.InvariantCultureIgnoreCase) ==
                             0)
-                            ErrorMessage = "The called terminal was not reachable because of technical reasons.";
+                            errString = Properties.Resources.ERR_NoResponse;
                         else if (
                             string.Compare(errorMessage, "Unknown", StringComparison.InvariantCultureIgnoreCase) ==
                             0)
-                            ErrorMessage = "The call failed of an unknown error.";
+                            errString = Properties.Resources.ERR_Unknown;
                         else if (
                           string.Compare(errorMessage, "IOError", StringComparison.InvariantCultureIgnoreCase) ==
                           0)
-                            ErrorMessage = "Communication error: Bad network connection.";
+                            errString = Properties.Resources.ERR_IOError;
                         else if (
                           string.Compare(errorMessage, "NotAnswered", StringComparison.InvariantCultureIgnoreCase) ==
                           0)
-                            ErrorMessage = "No answer.";
+                            errString = Properties.Resources.ERR_NotAnswered;
 
                       else
                         {
-                            ErrorMessage = "Call failed because called terminal detected and error.";
+                            errString = Properties.Resources.ERR_Generic;
+                            sipErrCodeStr = string.Format(" (SIP: {0})", errorCode);
                         }
                         break;
                 }
 
-                
+                if (string.IsNullOrEmpty(sipErrCodeStr))
+                    sipErrCodeStr = string.Format(" (SIP: {0})", errorCode);
+                ErrorMessage = string.Format("{0}{1}", errString, sipErrCodeStr);
+
             }
             else
                 ErrorMessage = string.Empty;
