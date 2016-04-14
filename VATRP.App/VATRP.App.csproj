@@ -206,6 +206,7 @@
     <Compile Include="Utilities\JsonDeserializer.cs" />
     <Compile Include="Utilities\JsonException.cs" />
     <Compile Include="Utilities\JsonWebRequest.cs" />
+    <Compile Include="Utilities\NetworkUtility.cs" />
     <Compile Include="Utilities\ScreenSaverHelper.cs" />
     <Compile Include="Utilities\SRVLookup.cs" />
     <Compile Include="Utilities\TechnicalSupportInfoBuilder.cs" />

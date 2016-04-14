@@ -40,7 +40,25 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         public void Initialize()
         {
-            InitializeToProvider("STL Test");
+            bool internetAvailable = NetworkUtility.IsCDNAvailable();
+            if (NetworkUtility.IsCDNAvailable())
+            {
+                InitializeToProvider("STL Test");
+                InternetUnavailableGrid.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                InternetUnavailableGrid.Visibility = Visibility.Visible;
+            }
+            ProviderComboBox.IsEnabled = internetAvailable;
+            LoginCmd.IsEnabled = internetAvailable;
+            TransportComboBox.IsEnabled = internetAvailable;
+            AuthIDBox.IsEnabled = internetAvailable;
+            LoginBox.IsEnabled = internetAvailable;
+            PasswdBox.IsEnabled = internetAvailable;
+            HostnameBox.IsEnabled = internetAvailable;
+            HostPortBox.IsEnabled = internetAvailable;
+            AutoLoginBox.IsEnabled = internetAvailable;
         }
 
         public void InitializeToProvider(string providerName)
@@ -100,6 +118,11 @@ namespace com.vtcsecure.ace.windows.CustomControls
                     }
                 }
             }
+        }
+
+        private void TryAgain_Click(object sender, RoutedEventArgs e)
+        {
+            Initialize();
         }
 
         private void OnForgotpassword(object sender, RequestNavigateEventArgs e)
