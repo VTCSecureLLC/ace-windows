@@ -542,7 +542,11 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			        if (_flashWindowHelper != null) 
                         _flashWindowHelper.StopFlashing();
 			        ctrlCall.BackgroundCallViewModel = null;
-                    callViewModel.OnClosed(true, call.LinphoneMessage, false);
+			        var errorMessage = call.LinphoneMessage;
+
+			        if (errorMessage == "Busy here" && (DateTime.Now - call.CallStartTime).TotalSeconds > 3)
+			            errorMessage += " timeout";
+                    callViewModel.OnClosed(true, errorMessage, false);
                     callViewModel.CallSwitchLastTimeVisibility = Visibility.Hidden;
 					stopPlayback = true;
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,

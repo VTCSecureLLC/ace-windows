@@ -922,9 +922,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
             if (isError)
             {
                 if ( string.Compare(errorMessage, "Busy here", StringComparison.InvariantCultureIgnoreCase) == 0)
-                    ErrorMessage = string.Format("{0} is busy", CallerInfo);
+                    ErrorMessage = string.Format("Call failed, {0} is busy", CallerInfo);
+                else if (string.Compare(errorMessage, "Busy here timeout", StringComparison.InvariantCultureIgnoreCase) == 0)
+                    ErrorMessage = string.Format("Call failed, {0} is not available", CallerInfo);
                 else if (string.Compare(errorMessage, "Not Found", StringComparison.InvariantCultureIgnoreCase) == 0)
-                    ErrorMessage = string.Format("{0} is temporarily unavailable", CallerInfo);
+                    ErrorMessage = string.Format("Call failed, {0} is temporarily unavailable", CallerInfo);
                 else
                     ErrorMessage = errorMessage;
             }
