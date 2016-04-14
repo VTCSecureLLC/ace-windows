@@ -739,13 +739,14 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			            ServiceManager.Instance.SoundService.PlayConnectionChanged(true);
 			        }
 					break;
-				case LinphoneRegistrationState.LinphoneRegistrationFailed:
+                case LinphoneRegistrationState.LinphoneRegistrationNone:
+                case LinphoneRegistrationState.LinphoneRegistrationFailed:
 					ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
 			        _playRegisterNotify = true;
-                    if (signOutRequest || defaultConfigRequest)
-                    {
+                //    if (signOutRequest || defaultConfigRequest)
+                //    {
                         processSignOut = true;
-                    }
+                //    }
 					break;
 				case LinphoneRegistrationState.LinphoneRegistrationCleared:
 					
