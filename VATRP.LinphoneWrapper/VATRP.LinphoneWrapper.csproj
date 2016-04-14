@@ -66,6 +66,9 @@
     <Compile Include="Enums\LinphoneTransportType.cs" />
     <Compile Include="Enums\MSVideoSize.cs" />
     <Compile Include="Enums\OrtpLogLevel.cs" />
+    <Compile Include="LinphoneAPI.Address.cs">
+      <DependentUpon>LinphoneAPI.cs</DependentUpon>
+    </Compile>
     <Compile Include="LinphoneAPI.Contacts.cs">
       <DependentUpon>LinphoneAPI.cs</DependentUpon>
     </Compile>
@@ -74,9 +77,6 @@
       <DependentUpon>LinphoneAPI.cs</DependentUpon>
     </Compile>
     <Compile Include="LinphoneAPI.Config.cs">
-      <DependentUpon>LinphoneAPI.cs</DependentUpon>
-    </Compile>
-    <Compile Include="LinphoneAPI.QoS.cs">
       <DependentUpon>LinphoneAPI.cs</DependentUpon>
     </Compile>
     <Compile Include="LinphoneAPI.Info.cs">
@@ -88,7 +88,10 @@
     <Compile Include="LinphoneAPI.Events.cs">
       <DependentUpon>LinphoneAPI.cs</DependentUpon>
     </Compile>
-    <Compile Include="LinphoneAPI.Address.cs">
+    <Compile Include="LinphoneAPI.Error.cs">
+      <DependentUpon>LinphoneAPI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LinphoneAPI.QoS.cs">
       <DependentUpon>LinphoneAPI.cs</DependentUpon>
     </Compile>
     <Compile Include="LinphoneAPI.VCard.cs">
