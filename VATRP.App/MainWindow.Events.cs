@@ -569,7 +569,13 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                         _mainViewModel.IsMessagingDocked = false;
 
 					    if (deferredHideTimer != null)
-					        deferredHideTimer.Start();
+					    {
+					        lock (deferredLock)
+					        {
+                                deferredHideTimer.Interval = TimeSpan.FromSeconds(5);
+					            deferredHideTimer.Start();
+					        }
+					    }
 
 					    _mainViewModel.ActiveCallModel = null;
                         OnFullScreenToggled(false); // restore main window to dashboard
