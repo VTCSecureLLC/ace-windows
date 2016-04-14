@@ -111,6 +111,8 @@ namespace VATRP.Core.Model
             set { _linphoneMessage = value; }
         }
 
+        public int SipErrorCode { get; set; }
+		
         public static bool ParseSipAddress(string sipAddress, out string username, out string hostname, out int port)
         {
             username = string.Empty;
