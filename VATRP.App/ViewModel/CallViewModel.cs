@@ -903,7 +903,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             CallState = VATRPCallState.LocalPaused;
         }
 
-        internal void OnClosed(bool isError, string errorMessage, bool isDeclined)
+        internal void OnClosed(bool isError, string errorMessage, int errorCode, bool isDeclined)
         {
             if (isError) 
                 CallState = VATRPCallState.Error;
@@ -921,14 +921,87 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
             if (isError)
             {
-                if ( string.Compare(errorMessage, "Busy here", StringComparison.InvariantCultureIgnoreCase) == 0)
-                    ErrorMessage = string.Format("Call failed, {0} is busy", CallerInfo);
-                else if (string.Compare(errorMessage, "Busy here timeout", StringComparison.InvariantCultureIgnoreCase) == 0)
-                    ErrorMessage = string.Format("Call failed, {0} is not available", CallerInfo);
-                else if (string.Compare(errorMessage, "Not Found", StringComparison.InvariantCultureIgnoreCase) == 0)
-                    ErrorMessage = string.Format("Call failed, {0} is temporarily unavailable", CallerInfo);
-                else
-                    ErrorMessage = errorMessage;
+                switch (errorCode)
+                {
+                    case 200:
+                        break;
+                    case 301:
+                        ErrorMessage = "The called person or organization has changed their number or call address.";
+                        break;
+                    case 400:
+                        ErrorMessage = "Call failed because called terminal detected and error.";
+                        break;
+                    case 404:
+                        ErrorMessage = "The number or address could not be found.";
+                        break;
+                    case 406:
+                        ErrorMessage = "The call was not accepted of technical reasons by the called terminal.";
+                        break;
+                    case 408:
+                        ErrorMessage = "The called terminal was not reachable because of technical reasons.";
+                        break;
+                    case 480:
+                        ErrorMessage = "The person or organization you are trying to reach is not available at this time.  Check the number or address or try again later.";
+                        break;
+                    case 484:
+                        ErrorMessage = "The address was incomplete. Please try again.";
+                        break;
+                    case 486:
+                        ErrorMessage = "The number/address you are trying to reach is busy";
+                        break;
+                    case 488:
+                        ErrorMessage = "The called terminal has no media in common with yours.";
+                        break;
+                    case 502:
+                        ErrorMessage = "Call failed because of error in the communication service.";
+                        break;
+                    case 603:
+                        ErrorMessage = "The call has been declined.";
+                        break;
+                    case 604:
+                        ErrorMessage = "The number/address you are trying to reach is no longer available.";
+                        break;
+                    case 501:
+                        ErrorMessage = "The call failed because of a service error.";
+                        break;
+                    case 504:
+                        ErrorMessage = "The call failed because of a service timeout error.";
+                        break;
+                    case 494:
+                        ErrorMessage = "The call failed because it requires authorization.";
+                        break;
+                    default:
+                        if ( string.Compare(errorMessage, "BadCredentials", StringComparison.InvariantCultureIgnoreCase) == 0)
+                            ErrorMessage = "The call did not go through because  of access rights failure.";
+                        else if (
+                            string.Compare(errorMessage, "DoNotDisturb", StringComparison.InvariantCultureIgnoreCase) ==
+                            0)
+                            ErrorMessage = "The call failed becuse of communication problems.";
+                        else if (
+                            string.Compare(errorMessage, "NoResponse", StringComparison.InvariantCultureIgnoreCase) ==
+                            0)
+                            ErrorMessage = "The called terminal was not reachable because of technical reasons.";
+                        else if (
+                            string.Compare(errorMessage, "Unknown", StringComparison.InvariantCultureIgnoreCase) ==
+                            0)
+                            ErrorMessage = "The call failed of an unknown error.";
+                        else if (
+                          string.Compare(errorMessage, "IOError", StringComparison.InvariantCultureIgnoreCase) ==
+                          0)
+                            ErrorMessage = "Communication error: Bad network connection.";
+                        else if (
+                          string.Compare(errorMessage, "NotAnswered", StringComparison.InvariantCultureIgnoreCase) ==
+                          0)
+                            ErrorMessage = "No answer.";
+
+                      else
+                        {
+                            ErrorMessage = "Call failed because called terminal detected and error.";
+                        }
+                        break;
+                }
+
+                
             }
             else
                 ErrorMessage = string.Empty;

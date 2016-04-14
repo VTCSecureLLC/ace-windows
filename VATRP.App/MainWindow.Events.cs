@@ -428,7 +428,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 					if (_flashWindowHelper != null)
                         _flashWindowHelper.StopFlashing();
 			        callDeclined = call.LinphoneMessage == "Call declined.";
-                    callViewModel.OnClosed(false, string.Empty, callDeclined);
+                    callViewModel.OnClosed(false, string.Empty, 200, callDeclined);
 					stopPlayback = true;
 			        destroycall = true;
                     callViewModel.CallQualityChangedEvent -= OnCallQualityChanged;
@@ -542,11 +542,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			        if (_flashWindowHelper != null) 
                         _flashWindowHelper.StopFlashing();
 			        ctrlCall.BackgroundCallViewModel = null;
-			        var errorMessage = call.LinphoneMessage;
-
-			        if (errorMessage == "Busy here" && (DateTime.Now - call.CallStartTime).TotalSeconds > 3)
-			            errorMessage += " timeout";
-                    callViewModel.OnClosed(true, errorMessage, false);
+                    callViewModel.OnClosed(true, call.LinphoneMessage, call.SipErrorCode, false);
                     callViewModel.CallSwitchLastTimeVisibility = Visibility.Hidden;
 					stopPlayback = true;
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
