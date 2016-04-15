@@ -571,7 +571,13 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                         _mainViewModel.IsMessagingDocked = false;
 
 					    if (deferredHideTimer != null)
-					        deferredHideTimer.Start();
+					    {
+					        lock (deferredLock)
+					        {
+                                deferredHideTimer.Interval = TimeSpan.FromSeconds(5);
+					            deferredHideTimer.Start();
+					        }
+					    }
 
 					    _mainViewModel.ActiveCallModel = null;
                         OnFullScreenToggled(false); // restore main window to dashboard
@@ -745,8 +751,11 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                     }
 			        return;
 				case LinphoneRegistrationState.LinphoneRegistrationOk:
-//					registrationTimer.Stop();
-//                    registrationTimer = null;
+                    if (registrationTimer != null)
+                    {
+                        registrationTimer.Stop();
+                        registrationTimer = null;
+                    }
 
                     if (_playRegisterNotify)
 			        {
@@ -754,20 +763,33 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			            ServiceManager.Instance.SoundService.PlayConnectionChanged(true);
 			        }
 					break;
-				case LinphoneRegistrationState.LinphoneRegistrationFailed:
-//					registrationTimer.Stop();
-//                    registrationTimer = null;
-
-                    ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
-			        _playRegisterNotify = true;
-                    if (signOutRequest || defaultConfigRequest)
+                case LinphoneRegistrationState.LinphoneRegistrationNone:
+                case LinphoneRegistrationState.LinphoneRegistrationFailed:
+                    if (registrationTimer != null)
                     {
-                        processSignOut = true;
+                        registrationTimer.Stop();
+                        registrationTimer = null;
                     }
+                    ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
+                    break;
+                    if (registrationTimer != null)
+                    {
+                        registrationTimer.Stop();
+                        registrationTimer = null;
+                    }
+					ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
+			        _playRegisterNotify = true;
+                //    if (signOutRequest || defaultConfigRequest)
+                //    {
+                        processSignOut = true;
+                //    }
 					break;
 				case LinphoneRegistrationState.LinphoneRegistrationCleared:
-					registrationTimer.Stop();
-                    registrationTimer = null;
+                    if (registrationTimer != null)
+                    {
+                        registrationTimer.Stop();
+                        registrationTimer = null;
+                    }
 
 					ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
 			        _playRegisterNotify = true;
