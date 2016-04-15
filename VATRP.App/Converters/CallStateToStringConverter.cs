@@ -41,7 +41,7 @@ namespace com.vtcsecure.ace.windows.Converters
                     case VATRPCallState.Error:
                         return string.Empty;
                     case VATRPCallState.Declined:
-                        return "Call declined";
+                        return string.Empty;;
                 }
             }
 
