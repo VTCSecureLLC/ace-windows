@@ -428,6 +428,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                 case VATRPCallState.Closed:
 					if (_flashWindowHelper != null)
                         _flashWindowHelper.StopFlashing();
+                    LOG.Info(string.Format("CallStateChanged: Result Code - {0}. Message: {1} Call: {2}", call.SipErrorCode, call.LinphoneMessage, call.NativeCallPtr));
 			        callDeclined = call.SipErrorCode == 603;
                     callViewModel.OnClosed(ref isError, call.LinphoneMessage, call.SipErrorCode, callDeclined);
 					stopPlayback = true;
@@ -1100,17 +1101,23 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 
 	        lock (_mainViewModel.CallsViewModelList)
 	        {
-	            if (_mainViewModel.ActiveCallModel.Contact != null && (_mainViewModel.ActiveCallModel != null &&
-	                                                                   _mainViewModel.ActiveCallModel.Contact.Equals(
-	                                                                       args.Sender)))
+	            if (_mainViewModel.ActiveCallModel != null)
 	            {
-	                _mainViewModel.ActiveCallModel.DeclinedMessage = args.DeclineMessage;
-	                if (_mainViewModel.ActiveCallModel.CallState == VATRPCallState.Closed ||
-	                    _mainViewModel.ActiveCallModel.CallState == VATRPCallState.Declined)
+	                if (_mainViewModel.ActiveCallModel.Contact != null &&
+	                    _mainViewModel.ActiveCallModel.Contact.Equals(args.Sender))
 	                {
-	                    _mainViewModel.ActiveCallModel.ShowDeclinedMessage = true;
-	                    restartTimer = true;
+	                    _mainViewModel.ActiveCallModel.DeclinedMessage = args.DeclineMessage;
+	                    if (_mainViewModel.ActiveCallModel.CallState == VATRPCallState.Closed ||
+	                        _mainViewModel.ActiveCallModel.CallState == VATRPCallState.Declined)
+	                    {
+	                        _mainViewModel.ActiveCallModel.ShowDeclinedMessage = true;
+	                        restartTimer = true;
+	                    }
 	                }
+	            }
+	            else
+	            {
+	                restartTimer = true;
 	            }
 	        }
 
@@ -1118,7 +1125,8 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 	            return;
 	        lock (deferredLock)
 	        {
-	            _mainViewModel.ActiveCallModel.WaitForDeclineMessage = false;
+	            if (_mainViewModel.ActiveCallModel != null) 
+                    _mainViewModel.ActiveCallModel.WaitForDeclineMessage = false;
 	            deferredHideTimer.Stop();
 	            deferredHideTimer.Interval = TimeSpan.FromMilliseconds(3000);
 	            deferredHideTimer.Start();
