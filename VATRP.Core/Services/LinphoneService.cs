@@ -2255,19 +2255,22 @@ namespace VATRP.Core.Services
 				case LinphoneCallState.LinphoneCallReleased:
 			        if (_declinedCallsList.Contains(callPtr))
 			        {
+                        LOG.Info("   trying to remove callPtr from declinedCallList");
 			            _declinedCallsList.Remove(callPtr);
-			        }
+                    }
+                    LOG.Info("   calling linphone_call_unref");
                     LinphoneAPI.linphone_call_unref(callPtr);
+                    LOG.Info("   passed unref");
 			        return;
 			}
 
 		    lock (callLock)
 		    {
-		        VATRPCall call = FindCall(callPtr);
+                VATRPCall call = FindCall(callPtr);
 
 		        if (call == null)
 		        {
-		            if (_declinedCallsList.Contains(callPtr))
+                    if (_declinedCallsList.Contains(callPtr))
 		                return;
 
 		            if (GetActiveCallsCount > 1)
