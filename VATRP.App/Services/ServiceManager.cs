@@ -20,7 +20,8 @@ namespace com.vtcsecure.ace.windows.Services
 {
     internal class ServiceManager : ServiceManagerBase
     {
-        private const string CDN_DOMAIN_URL = "http://cdn.vatrp.net/domains.json";
+        public const string CDN_DOMAIN = "cdn.vatrp.net";
+        public const string CDN_DOMAIN_URL = "http://" + CDN_DOMAIN + "/domains.json";
 
         #region Members
         private static readonly ILog LOG = LogManager.GetLogger(typeof(ServiceManager));
@@ -475,7 +476,7 @@ namespace com.vtcsecure.ace.windows.Services
             {
                 return;
             }
-            string[] labels = { "Sorenson VRS", "Purple VRS", "ZVRS", "Convo Relay", "CAAG", "Global VRS" };
+            string[] labels = { "Sorenson", "Purple", "ZVRS", "Convo", "Global" };
             foreach (var label in labels)
             {
                 if (ProviderService.FindProvider(label) == null)

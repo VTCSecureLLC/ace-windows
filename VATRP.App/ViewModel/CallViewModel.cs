@@ -903,7 +903,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             CallState = VATRPCallState.LocalPaused;
         }
 
-        internal void OnClosed(bool isError, string errorMessage, bool isDeclined)
+        internal void OnClosed(bool isError, string errorMessage, int errorCode, bool isDeclined)
         {
             if (isError) 
                 CallState = VATRPCallState.Error;
@@ -919,16 +919,96 @@ namespace com.vtcsecure.ace.windows.ViewModel
             ShowOutgoingEndCall = isError || isDeclined;
             ShowRingingTimer = !isError && !isDeclined;
 
+            var errString = string.Empty;
+            var sipErrCodeStr = string.Empty;
             if (isError)
             {
-                if ( string.Compare(errorMessage, "Busy here", StringComparison.InvariantCultureIgnoreCase) == 0)
-                    ErrorMessage = string.Format("Call failed, {0} is busy", CallerInfo);
-                else if (string.Compare(errorMessage, "Busy here timeout", StringComparison.InvariantCultureIgnoreCase) == 0)
-                    ErrorMessage = string.Format("Call failed, {0} is not available", CallerInfo);
-                else if (string.Compare(errorMessage, "Not Found", StringComparison.InvariantCultureIgnoreCase) == 0)
-                    ErrorMessage = string.Format("Call failed, {0} is temporarily unavailable", CallerInfo);
-                else
-                    ErrorMessage = errorMessage;
+                switch (errorCode)
+                {
+                    case 200:
+                        break;
+                    case 301:
+                        errString = Properties.Resources.SIP_301;
+                        break;
+                    case 400:
+                        errString = Properties.Resources.SIP_400;
+                        break;
+                    case 404:
+                        errString = Properties.Resources.SIP_404;
+                        break;
+                    case 406:
+                        errString = Properties.Resources.SIP_406;
+                        break;
+                    case 408:
+                        errString = Properties.Resources.SIP_408;
+                        break;
+                    case 480:
+                        errString = Properties.Resources.SIP_480;
+                        break;
+                    case 484:
+                        errString = Properties.Resources.SIP_484;
+                        break;
+                    case 486:
+                        errString = Properties.Resources.SIP_486;
+                        break;
+                    case 488:
+                        errString = Properties.Resources.SIP_488;
+                        break;
+                    case 502:
+                        errString = Properties.Resources.SIP_502;
+                        break;
+                    case 603:
+                        errString = Properties.Resources.SIP_603;
+                        break;
+                    case 604:
+                        errString = Properties.Resources.SIP_604;
+                        break;
+                    case 501:
+                        errString = Properties.Resources.SIP_501;
+                        break;
+                    case 504:
+                        errString = Properties.Resources.SIP_504;
+                        break;
+                    case 494:
+                        errString = Properties.Resources.SIP_494;
+                        break;
+                    default:
+                        sipErrCodeStr = " ";
+                        if ( string.Compare(errorMessage, "BadCredentials", StringComparison.InvariantCultureIgnoreCase) == 0)
+                            errString = Properties.Resources.ERR_BadCredentials;
+                        else if (
+                            string.Compare(errorMessage, "DoNotDisturb", StringComparison.InvariantCultureIgnoreCase) ==
+                            0)
+                            errString = Properties.Resources.ERR_DoNotDisturb;
+                        else if (
+                            string.Compare(errorMessage, "NoResponse", StringComparison.InvariantCultureIgnoreCase) ==
+                            0)
+                            errString = Properties.Resources.ERR_NoResponse;
+                        else if (
+                            string.Compare(errorMessage, "Unknown", StringComparison.InvariantCultureIgnoreCase) ==
+                            0)
+                            errString = Properties.Resources.ERR_Unknown;
+                        else if (
+                          string.Compare(errorMessage, "IOError", StringComparison.InvariantCultureIgnoreCase) ==
+                          0)
+                            errString = Properties.Resources.ERR_IOError;
+                        else if (
+                          string.Compare(errorMessage, "NotAnswered", StringComparison.InvariantCultureIgnoreCase) ==
+                          0)
+                            errString = Properties.Resources.ERR_NotAnswered;
+
+                      else
+                        {
+                            errString = Properties.Resources.ERR_Generic;
+                            sipErrCodeStr = string.Format(" (SIP: {0})", errorCode);
+                        }
+                        break;
+                }
+
+                if (string.IsNullOrEmpty(sipErrCodeStr))
+                    sipErrCodeStr = string.Format(" (SIP: {0})", errorCode);
+                ErrorMessage = string.Format("{0}{1}", errString, sipErrCodeStr);
+
             }
             else
                 ErrorMessage = string.Empty;

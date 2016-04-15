@@ -77,9 +77,9 @@
                 <MenuItem Header="_Media Text Window" Background="{DynamicResource AppMainWindowBrush}" 
                           Foreground="White" Name="ShowRTTView" Click="OnShowRTTView" IsCheckable="True" IsEnabled="{Binding IsRTTViewEnabled}" Visibility="Collapsed"/>
                 <MenuItem x:Name="ShowSelfPreviewItem" Header="_Show Self Preview" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" 
-                          Foreground="White" Click="OnShowPreviewWindow" />
+                          Foreground="White" Click="OnShowPreviewWindow" Visibility="Collapsed"/>
                 <MenuItem x:Name="ShowMessagingViewItem" Header="_Show Messaging View" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" 
-                          Foreground="White" Click="OnShowMessagingWindow" IsEnabled="{Binding IsAccountLogged}"/>
+                          Foreground="White" Click="OnShowMessagingWindow" IsEnabled="{Binding IsAccountLogged}" Visibility="Collapsed"/>
 
                 <!--<MenuItem Header="_" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
 				<!--<MenuItem x:Name="DialpadItem" Header="_DialPad Window" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>-->
