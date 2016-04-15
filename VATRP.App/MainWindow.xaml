@@ -61,7 +61,7 @@
               Visibility="{Binding IsInCallFullScreen, Converter={StaticResource ibvc}}"
               >
 			<MenuItem x:Name="VATRPItem" Header="_ACE" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
-                <MenuItem Header="_My Account" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnMyAccount"/>
+                <MenuItem Header="_My Account" Name="MyAccountMenuItem" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnMyAccount" IsEnabled="False"/>
                 <!--<MenuItem Header="_Preferences" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnMyAccount"/>-->
                 <MenuItem Header="_Provide ACE Feedback" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnProvideFeedback"/>
 				<MenuItem Header="_Check for Updates" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnCheckForUpdates"/>
@@ -73,7 +73,7 @@
 			<MenuItem x:Name="ViewItem" Header="_View" Background="{DynamicResource AppMainWindowBrush}" Foreground="White">
 				<MenuItem Header="_Minimize" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" Click="OnMinimize"/>
 				<MenuItem x:Name="SelfViewItem" Header="_Media Self-View" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" 
-                          Foreground="White" Click="OnShowSelfView" />
+                          Foreground="White" Click="OnShowSelfView" IsEnabled="False"/>
                 <MenuItem Header="_Media Text Window" Background="{DynamicResource AppMainWindowBrush}" 
                           Foreground="White" Name="ShowRTTView" Click="OnShowRTTView" IsCheckable="True" IsEnabled="{Binding IsRTTViewEnabled}" Visibility="Collapsed"/>
                 <MenuItem x:Name="ShowSelfPreviewItem" Header="_Show Self Preview" IsCheckable="True" Background="{DynamicResource AppMainWindowBrush}" 
@@ -95,7 +95,7 @@
 			</MenuItem>
 			<MenuItem x:Name="AudioItem" Header="_Audio" Background="{DynamicResource AppMainWindowBrush}" Foreground="White" SubmenuOpened="OnAudioMenuItemOpened">
 				<MenuItem Header="_Mute Microphone" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"
-                          Click="OnMuteMicrophone" Name="MuteMicrophoneCheckbox" IsCheckable="True"/>
+                          Click="OnMuteMicrophone" Name="MuteMicrophoneCheckbox" IsCheckable="True" IsEnabled="False"/>
 				<!-- Commenting these out instead of removing in case we put them back  in
                 <MenuItem Header="_Increase Volume" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>
 				<MenuItem Header="_Decrease Volume" Background="{DynamicResource AppMainWindowBrush}" Foreground="White"/>

@@ -772,7 +772,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 				default:
 					break;
 			}
-
+            UpdateMenuSettingsForRegistrationState();
 		    if (processSignOut)
 		    {
                 // Liz E. note: we want to perfomr different actions for logout and default configuration request.
