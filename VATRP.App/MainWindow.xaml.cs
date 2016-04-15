@@ -391,15 +391,17 @@ namespace com.vtcsecure.ace.windows
             {
                 MuteMicrophoneCheckbox.IsChecked = false;
                 MuteMicrophoneCheckbox.IsEnabled = false;
-                MyAccountMenuItem.IsEnabled = false;
                 SelfViewItem.IsEnabled = false;
                 SelfViewItem.IsChecked = false;
             }
             else
             {
+                if (RegistrationState != LinphoneRegistrationState.LinphoneRegistrationCleared)
+                {
+                    MyAccountMenuItem.IsEnabled = true;
+                }
                 MuteMicrophoneCheckbox.IsEnabled = true;
                 SelfViewItem.IsEnabled = true;
-                MyAccountMenuItem.IsEnabled = true;
                 if (App.CurrentAccount != null)
                 {
                     MuteMicrophoneCheckbox.IsChecked = App.CurrentAccount.MuteMicrophone;
