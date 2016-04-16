@@ -97,6 +97,10 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_core_add_auth_info(IntPtr lc, IntPtr info);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_find_auth_info(IntPtr lc, string realm, string username, string sip_domain);
+
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_clear_all_auth_info(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -130,7 +134,7 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_core_enable_keep_alive(IntPtr lc, bool enable);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_keep_alive_enabled(IntPtr lc);
+        public static extern byte linphone_core_keep_alive_enabled(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_core_create_default_call_parameters(IntPtr lc);
@@ -145,13 +149,13 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_call_params_set_audio_bandwidth_limit(IntPtr cp, int kbit);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_call_params_video_enabled(IntPtr cp);
+        public static extern byte linphone_call_params_video_enabled(IntPtr cp);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_call_params_set_video_direction(IntPtr cp, LinphoneMediaDirection dir);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_in_call(IntPtr lc);
+        public static extern byte linphone_core_in_call(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_core_get_current_call(IntPtr lc);
@@ -190,7 +194,10 @@ namespace VATRP.LinphoneWrapper
         public static extern int linphone_core_get_default_proxy(IntPtr lc, ref IntPtr config);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_proxy_config_is_registered(IntPtr config);
+        public static extern byte linphone_proxy_config_is_registered(IntPtr config);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern LinphoneRegistrationState linphone_proxy_config_get_state(IntPtr cfg);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_proxy_config_edit(IntPtr config);
@@ -214,7 +221,7 @@ namespace VATRP.LinphoneWrapper
         public static extern LinphoneMediaEncryption linphone_core_get_media_encryption(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_is_media_encryption_mandatory(IntPtr lc);
+        public static extern byte linphone_core_is_media_encryption_mandatory(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_core_accept_call_with_params(IntPtr lc, IntPtr call, IntPtr callparams);
@@ -294,10 +301,10 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_core_reload_sound_devices(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_sound_device_can_capture(IntPtr lc, string device);
+        public static extern byte linphone_core_sound_device_can_capture(IntPtr lc, string device);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_sound_device_can_playback(IntPtr lc, string device);
+        public static extern byte linphone_core_sound_device_can_playback(IntPtr lc, string device);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_core_get_ring_level(IntPtr lc);
@@ -418,7 +425,7 @@ namespace VATRP.LinphoneWrapper
  */
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_get_ring_during_incoming_early_media(IntPtr lc);
+        public static extern byte linphone_core_get_ring_during_incoming_early_media(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_core_play_local(IntPtr lc, string audiofile);
@@ -427,14 +434,14 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_core_enable_echo_cancellation(IntPtr lc, bool val);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_echo_cancellation_enabled(IntPtr lc);
+        public static extern byte linphone_core_echo_cancellation_enabled(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
 
         public static extern void linphone_core_enable_echo_limiter(IntPtr lc, bool val);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_echo_limiter_enabled(IntPtr lc);
+        public static extern byte linphone_core_echo_limiter_enabled(IntPtr lc);
 
 /**
  * Enable or disable the microphone.
@@ -446,6 +453,39 @@ namespace VATRP.LinphoneWrapper
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_enable_mic(IntPtr lc, bool enable);
 
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern byte linphone_call_media_in_progress(IntPtr lc);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_network_reachable(IntPtr lc, bool value);
+        
+        /**
+ * @ingroup network_parameters
+ * return network state either as positioned by the application or by linphone itself.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern byte linphone_core_is_network_reachable(IntPtr lc);
+
+/**
+ * @ingroup network_parameters
+ * This method is called by the application to notify the linphone core library when the SIP network is reachable.
+ * This is for advanced usage, when SIP and RTP layers are required to use different interfaces.
+ * Most applications just need linphone_core_set_network_reachable().
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_set_sip_network_reachable(IntPtr lc, bool value);
+
+/**
+ * @ingroup network_parameters
+ * This method is called by the application to notify the linphone core library when the media (RTP) network is reachable.
+ * This is for advanced usage, when SIP and RTP layers are required to use different interfaces.
+ * Most applications just need linphone_core_set_network_reachable().
+ */
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern	void linphone_core_set_media_network_reachable(IntPtr lc, bool value);
+
 /**
  * Tells whether the microphone is enabled.
  * @param[in] lc #LinphoneCore object
@@ -454,13 +494,13 @@ namespace VATRP.LinphoneWrapper
 **/
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_mic_enabled(IntPtr lc);
+        public static extern byte linphone_core_mic_enabled(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_is_rtp_muted(IntPtr lc);
+        public static extern byte linphone_core_is_rtp_muted(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_get_rtp_no_xmit_on_audio_mute(IntPtr lc);
+        public static extern byte linphone_core_get_rtp_no_xmit_on_audio_mute(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_set_rtp_no_xmit_on_audio_mute(IntPtr lc, bool val);
@@ -468,7 +508,7 @@ namespace VATRP.LinphoneWrapper
         /* video support */
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_video_supported(IntPtr lc);
+        public static extern byte linphone_core_video_supported(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_set_video_preset(IntPtr lc, string preset);
@@ -527,7 +567,7 @@ namespace VATRP.LinphoneWrapper
 **/
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_video_capture_enabled(IntPtr lc);
+        public static extern byte linphone_core_video_capture_enabled(IntPtr lc);
 
 /**
  * Tells whether video display is enabled.
@@ -537,7 +577,7 @@ namespace VATRP.LinphoneWrapper
 **/
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_video_display_enabled(IntPtr lc);
+        public static extern byte linphone_core_video_display_enabled(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_set_video_policy(IntPtr lc, IntPtr policy);
@@ -668,14 +708,14 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_core_enable_video_preview(IntPtr lc, bool val);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_video_preview_enabled(IntPtr lc);
+        public static extern byte linphone_core_video_preview_enabled(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
 
         public static extern void linphone_core_enable_self_view(IntPtr lc, bool val);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_self_view_enabled(IntPtr lc);
+        public static extern byte linphone_core_self_view_enabled(IntPtr lc);
 
 
 /**
@@ -795,7 +835,7 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
 
-        public static extern bool linphone_call_asked_to_autoanswer(IntPtr call);
+        public static extern byte linphone_call_asked_to_autoanswer(IntPtr call);
 
 /**
  * Get the remote address of the current call.
@@ -820,7 +860,7 @@ namespace VATRP.LinphoneWrapper
         public static extern IntPtr linphone_call_get_refer_to(IntPtr call);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_call_has_transfer_pending(IntPtr call);
+        public static extern byte linphone_call_has_transfer_pending(IntPtr call);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_call_get_transferer_call(IntPtr call);
@@ -847,7 +887,7 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_call_enable_camera(IntPtr lc, bool enabled);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_call_camera_enabled(IntPtr lc);
+        public static extern byte linphone_call_camera_enabled(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_call_take_video_snapshot(IntPtr call, string file);
@@ -898,13 +938,13 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_core_set_use_info_for_dtmf(IntPtr lc, bool use_info);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_get_use_info_for_dtmf(IntPtr lc);
+        public static extern byte linphone_core_get_use_info_for_dtmf(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_set_use_rfc2833_for_dtmf(IntPtr lc, bool use_rfc2833);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_get_use_rfc2833_for_dtmf(IntPtr lc);
+        public static extern byte linphone_core_get_use_rfc2833_for_dtmf(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_set_sip_port(IntPtr lc, int port);
@@ -919,7 +959,7 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_core_get_sip_transports_used(IntPtr lc, IntPtr tr);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_sip_transport_supported(IntPtr lc, LinphoneTransportType tp);
+        public static extern byte linphone_core_sip_transport_supported(IntPtr lc, LinphoneTransportType tp);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_set_inc_timeout(IntPtr lc, int seconds);
@@ -967,7 +1007,7 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_core_enable_adaptive_rate_control(IntPtr lc, bool enabled);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_adaptive_rate_control_enabled(IntPtr lc);
+        public static extern byte linphone_core_adaptive_rate_control_enabled(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_set_adaptive_rate_algorithm(IntPtr lc, string algorithm);
@@ -979,7 +1019,7 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_core_enable_ipv6(IntPtr lc, bool enabled);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_ipv6_enabled(IntPtr lc);
+        public static extern byte linphone_core_ipv6_enabled(IntPtr lc);
         /**
  * Returns the list of available audio codecs.
  * @param[in] lc The LinphoneCore object
@@ -1020,7 +1060,7 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_core_enable_generic_confort_noise(IntPtr lc, bool enabled);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_generic_confort_noise_enabled(IntPtr lc);
+        public static extern byte linphone_core_generic_confort_noise_enabled(IntPtr lc);
 
 /**
  * Tells whether the specified payload type is enabled.
@@ -1031,7 +1071,7 @@ namespace VATRP.LinphoneWrapper
  */
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_payload_type_enabled(IntPtr lc, IntPtr pt);
+        public static extern byte linphone_core_payload_type_enabled(IntPtr lc, IntPtr pt);
 
 /**
  * Tells whether the specified payload type represents a variable bitrate codec.
@@ -1042,7 +1082,7 @@ namespace VATRP.LinphoneWrapper
  */
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_payload_type_is_vbr(IntPtr lc, IntPtr pt);
+        public static extern byte linphone_core_payload_type_is_vbr(IntPtr lc, IntPtr pt);
 
 /**
  * Set an explicit bitrate (IP bitrate, not codec bitrate) for a given codec, in kbit/s.
@@ -1113,7 +1153,7 @@ namespace VATRP.LinphoneWrapper
         public static extern IntPtr linphone_core_get_payload_type_description(IntPtr lc, IntPtr pt);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_check_payload_type_usability(IntPtr lc, IntPtr pt);
+        public static extern byte linphone_core_check_payload_type_usability(IntPtr lc, IntPtr pt);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_call_send_dtmf(IntPtr lc, char dtmf);
@@ -1268,7 +1308,7 @@ namespace VATRP.LinphoneWrapper
 **/
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_core_chat_enabled(IntPtr lc);
+        public static extern byte linphone_core_chat_enabled(IntPtr lc);
 
 /**
  * Create a message attached to a dedicated chat room;
@@ -1430,7 +1470,7 @@ namespace VATRP.LinphoneWrapper
  */
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_chat_room_is_remote_composing(IntPtr cr);
+        public static extern byte linphone_chat_room_is_remote_composing(IntPtr cr);
 
 /**
  * Gets the number of unread messages in the chatroom.
@@ -1688,7 +1728,7 @@ namespace VATRP.LinphoneWrapper
 **/
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_chat_message_is_read(IntPtr message);
+        public static extern byte linphone_chat_message_is_read(IntPtr message);
 
 /**
  * Returns TRUE if the message has been sent, returns FALSE if the message has been received.
@@ -1696,7 +1736,7 @@ namespace VATRP.LinphoneWrapper
 **/
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_chat_message_is_outgoing(IntPtr message);
+        public static extern byte linphone_chat_message_is_outgoing(IntPtr message);
 
 /**
  * Returns the id used to identify this message in the storage database
@@ -2077,7 +2117,7 @@ namespace VATRP.LinphoneWrapper
 **/
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool linphone_call_log_video_enabled(IntPtr cl);
+        public static extern byte linphone_call_log_video_enabled(IntPtr cl);
 
         #endregion
 
