@@ -2253,21 +2253,31 @@ namespace VATRP.Core.Services
                     removeCall = true;
 					break;
 				case LinphoneCallState.LinphoneCallReleased:
-			        if (_declinedCallsList.Contains(callPtr))
+			        if ((_declinedCallsList != null) && _declinedCallsList.Contains(callPtr))
 			        {
+                        LOG.Info("   trying to remove callPtr from declinedCallList");
 			            _declinedCallsList.Remove(callPtr);
-			        }
-                    LinphoneAPI.linphone_call_unref(callPtr);
+                    }
+                    LOG.Info("   calling linphone_call_unref");
+                    try
+                    {
+                        LinphoneAPI.linphone_call_unref(callPtr);
+                        LOG.Info("   passed unref");
+                    }
+                    catch (Exception ex)
+                    {
+                        LOG.Error("LinphoneService.OnCallStateChanged: Exception occured while calling linphone_call_unref. Details: " + ex.Message);
+                    }
 			        return;
 			}
 
 		    lock (callLock)
 		    {
-		        VATRPCall call = FindCall(callPtr);
+                VATRPCall call = FindCall(callPtr);
 
 		        if (call == null)
 		        {
-		            if (_declinedCallsList.Contains(callPtr))
+                    if (_declinedCallsList.Contains(callPtr))
 		                return;
 
 		            if (GetActiveCallsCount > 1)

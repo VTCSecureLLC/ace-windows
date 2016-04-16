@@ -26,6 +26,8 @@ namespace com.vtcsecure.ace.windows
 		private bool signOutRequest = false;
 		private bool defaultConfigRequest;
         private object deferredLock = new object();
+        private System.Timers.Timer registrationTimer;
+
 	    private void DeferedHideOnError(object sender, EventArgs e)
 	    {
 	        lock (deferredLock)
@@ -755,9 +757,25 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			{
 				case LinphoneRegistrationState.LinphoneRegistrationProgress:
 					this.BtnMoreMenu.IsEnabled = false;
+                    // VATRP-3225: here we want to kick off a timer - if we do not get the OK in a reasonable amount of time, then 
+                    //   we need to doa reset - preferably behind the scenes - and try to log in again.
+                    if (registrationTimer == null)
+                    {
+                        registrationTimer = new System.Timers.Timer();
+                        registrationTimer.Elapsed += new System.Timers.ElapsedEventHandler(RegistrationTimerTick);
+                        registrationTimer.Interval = 30000;
+                        registrationTimer.Enabled = true;
+                        registrationTimer.Start();
+                    }
 			        return;
 				case LinphoneRegistrationState.LinphoneRegistrationOk:
-			        if (_playRegisterNotify)
+                    if (registrationTimer != null)
+                    {
+                        registrationTimer.Stop();
+                        registrationTimer = null;
+                    }
+
+                    if (_playRegisterNotify)
 			        {
 			            _playRegisterNotify = false;
 			            ServiceManager.Instance.SoundService.PlayConnectionChanged(true);
@@ -765,6 +783,18 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 					break;
                 case LinphoneRegistrationState.LinphoneRegistrationNone:
                 case LinphoneRegistrationState.LinphoneRegistrationFailed:
+                    if (registrationTimer != null)
+                    {
+                        registrationTimer.Stop();
+                        registrationTimer = null;
+                    }
+                    ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
+                    break;
+                    if (registrationTimer != null)
+                    {
+                        registrationTimer.Stop();
+                        registrationTimer = null;
+                    }
 					ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
 			        _playRegisterNotify = true;
                 //    if (signOutRequest || defaultConfigRequest)
@@ -773,7 +803,12 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                 //    }
 					break;
 				case LinphoneRegistrationState.LinphoneRegistrationCleared:
-					
+                    if (registrationTimer != null)
+                    {
+                        registrationTimer.Stop();
+                        registrationTimer = null;
+                    }
+
 					ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
 			        _playRegisterNotify = true;
 					if (registerRequested)
@@ -790,7 +825,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 				default:
 					break;
 			}
-
+            UpdateMenuSettingsForRegistrationState();
 		    if (processSignOut)
 		    {
                 // Liz E. note: we want to perfomr different actions for logout and default configuration request.
@@ -840,6 +875,27 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                 signOutRequest = false;
 		    }
 		}
+
+        private void RegistrationTimerTick(object source, System.Timers.ElapsedEventArgs e)
+        {
+            registrationTimer.Stop();
+            registrationTimer = null;
+            // VATRP-3225 - if we get here, then we recieved a registration state of Progress without a followup change. We need to invalidate and try to register again.
+            //   This is a workaround - I do not prefer this, would rather have the solution, be we need answers as to what is causing the state in order to fix it properly.
+            if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationProgress)
+            {
+                // then we need to stop linphone and restart it, then send a registration request with the current information
+//                ServiceManager.Instance.ContactService.Stop();
+//                ServiceManager.Instance.HistoryService.Stop();
+//                ServiceManager.Instance.ChatService.Stop();
+
+                // stop linphone to force contacts list reload
+//                ServiceManager.Instance.LinphoneService.Stop();
+                registerRequested = true;
+                _linphoneService.Unregister(false);
+
+            }
+        }
 
 		private void ResetConfiguration()
 		{

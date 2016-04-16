@@ -387,17 +387,25 @@ namespace com.vtcsecure.ace.windows
 
         private void UpdateMenuSettingsForRegistrationState()
         {
-            if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk)
+            if (RegistrationState != LinphoneRegistrationState.LinphoneRegistrationOk)
             {
                 MuteMicrophoneCheckbox.IsChecked = false;
                 MuteMicrophoneCheckbox.IsEnabled = false;
+                SelfViewItem.IsEnabled = false;
+                SelfViewItem.IsChecked = false;
             }
             else
             {
+                if (RegistrationState != LinphoneRegistrationState.LinphoneRegistrationCleared)
+                {
+                    MyAccountMenuItem.IsEnabled = true;
+                }
                 MuteMicrophoneCheckbox.IsEnabled = true;
+                SelfViewItem.IsEnabled = true;
                 if (App.CurrentAccount != null)
                 {
-                    MuteMicrophoneCheckbox.IsEnabled = App.CurrentAccount.MuteMicrophone;
+                    MuteMicrophoneCheckbox.IsChecked = App.CurrentAccount.MuteMicrophone;
+                    SelfViewItem.IsChecked = App.CurrentAccount.ShowSelfView;
                 }
             }
 
@@ -1100,7 +1108,7 @@ namespace com.vtcsecure.ace.windows
         // Audio Menu
         private void OnAudioMenuItemOpened(object sender, RoutedEventArgs e)
         {
-            if (App.CurrentAccount != null)
+            if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk)
             {
                 MuteMicrophoneCheckbox.IsEnabled = true;
                 MuteMicrophoneCheckbox.IsChecked = App.CurrentAccount.MuteMicrophone;
