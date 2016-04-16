@@ -2351,7 +2351,7 @@ namespace VATRP.Core.Services
 		            call.LinphoneMessage = message;
 		            call.CallState = newstate;
 
-		            if (call.CallState == VATRPCallState.Error)
+                    if (call.CallState == VATRPCallState.Error || call.CallState == VATRPCallState.Closed)
 		            {
 		                IntPtr errorReason = LinphoneAPI.linphone_call_get_error_info(callPtr);
 		                if (errorReason != IntPtr.Zero)

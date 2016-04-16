@@ -138,6 +138,7 @@ namespace com.vtcsecure.ace.windows
 			var stopPlayback = false;
 		    var destroycall = false;
 	        var callDeclined = false;
+            bool isError = false;
 			switch (call.CallState)
 			{
 				case VATRPCallState.Trying:
@@ -429,8 +430,9 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                 case VATRPCallState.Closed:
 					if (_flashWindowHelper != null)
                         _flashWindowHelper.StopFlashing();
-			        callDeclined = call.LinphoneMessage == "Call declined.";
-                    callViewModel.OnClosed(false, string.Empty, 200, callDeclined);
+                    LOG.Info(string.Format("CallStateChanged: Result Code - {0}. Message: {1} Call: {2}", call.SipErrorCode, call.LinphoneMessage, call.NativeCallPtr));
+			        callDeclined = call.SipErrorCode == 603;
+                    callViewModel.OnClosed(ref isError, call.LinphoneMessage, call.SipErrorCode, callDeclined);
 					stopPlayback = true;
 			        destroycall = true;
                     callViewModel.CallQualityChangedEvent -= OnCallQualityChanged;
@@ -462,9 +464,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			            {
 			                lock (deferredLock)
 			                {
-			                    deferredHideTimer.Interval = _mainViewModel.ActiveCallModel.ShowDeclinedMessage
-			                        ? TimeSpan.FromMilliseconds(3000)
-			                        : TimeSpan.FromMilliseconds(2000);
+			                    deferredHideTimer.Interval = TimeSpan.FromSeconds(5);
 			                    deferredHideTimer.Start();
 			                }
 			            }
@@ -478,11 +478,26 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			                this.ShowSelfPreviewItem.IsEnabled = true;
 			                _callInfoView.Hide();
 			                ctrlCall.ctrlOverlay.StopCallTimer();
-			                ctrlCall.SetCallViewModel(null);
-			                ShowCallOverlayWindow(false);
-			                _mainViewModel.IsMessagingDocked = false;
-			                _mainViewModel.IsCallPanelDocked = false;
-			                this.SizeToContent = SizeToContent.WidthAndHeight;
+			                
+			                if (!isError)
+			                {
+                                this.SizeToContent = SizeToContent.WidthAndHeight;
+                                ctrlCall.SetCallViewModel(null);
+                                _mainViewModel.IsCallPanelDocked = false;
+			                }
+			                else
+			                {
+                                if (deferredHideTimer != null)
+                                {
+                                    lock (deferredLock)
+                                    {
+                                        deferredHideTimer.Interval = TimeSpan.FromSeconds(5);
+                                        deferredHideTimer.Start();
+                                    }
+                                }
+			                }
+                            ShowCallOverlayWindow(false);
+                            _mainViewModel.IsMessagingDocked = false;
 			                _mainViewModel.ActiveCallModel = null;
 			                OnFullScreenToggled(false); // restore main window to dashboard
 
@@ -544,7 +559,8 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			        if (_flashWindowHelper != null) 
                         _flashWindowHelper.StopFlashing();
 			        ctrlCall.BackgroundCallViewModel = null;
-                    callViewModel.OnClosed(true, call.LinphoneMessage, call.SipErrorCode, false);
+			        isError = true;
+                    callViewModel.OnClosed(ref isError, call.LinphoneMessage, call.SipErrorCode, false);
                     callViewModel.CallSwitchLastTimeVisibility = Visibility.Hidden;
 					stopPlayback = true;
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
@@ -1139,17 +1155,23 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 
 	        lock (_mainViewModel.CallsViewModelList)
 	        {
-	            if (_mainViewModel.ActiveCallModel.Contact != null && (_mainViewModel.ActiveCallModel != null &&
-	                                                                   _mainViewModel.ActiveCallModel.Contact.Equals(
-	                                                                       args.Sender)))
+	            if (_mainViewModel.ActiveCallModel != null)
 	            {
-	                _mainViewModel.ActiveCallModel.DeclinedMessage = args.DeclineMessage;
-	                if (_mainViewModel.ActiveCallModel.CallState == VATRPCallState.Closed ||
-	                    _mainViewModel.ActiveCallModel.CallState == VATRPCallState.Declined)
+	                if (_mainViewModel.ActiveCallModel.Contact != null &&
+	                    _mainViewModel.ActiveCallModel.Contact.Equals(args.Sender))
 	                {
-	                    _mainViewModel.ActiveCallModel.ShowDeclinedMessage = true;
-	                    restartTimer = true;
+	                    _mainViewModel.ActiveCallModel.DeclinedMessage = args.DeclineMessage;
+	                    if (_mainViewModel.ActiveCallModel.CallState == VATRPCallState.Closed ||
+	                        _mainViewModel.ActiveCallModel.CallState == VATRPCallState.Declined)
+	                    {
+	                        _mainViewModel.ActiveCallModel.ShowDeclinedMessage = true;
+	                        restartTimer = true;
+	                    }
 	                }
+	            }
+	            else
+	            {
+	                restartTimer = true;
 	            }
 	        }
 
@@ -1157,9 +1179,10 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 	            return;
 	        lock (deferredLock)
 	        {
-	            _mainViewModel.ActiveCallModel.WaitForDeclineMessage = false;
+	            if (_mainViewModel.ActiveCallModel != null) 
+                    _mainViewModel.ActiveCallModel.WaitForDeclineMessage = false;
 	            deferredHideTimer.Stop();
-	            deferredHideTimer.Interval = TimeSpan.FromMilliseconds(3000);
+                deferredHideTimer.Interval = TimeSpan.FromSeconds(5);
 	            deferredHideTimer.Start();
 	        }
 	    }
