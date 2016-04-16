@@ -1211,7 +1211,7 @@ namespace VATRP.Core.Services
                                                 Content = messageString,
                                                 IsRTTMessage = false,
                                                 IsDeclineMessage = declineMessage,
-                                                IsRead = LinphoneAPI.linphone_chat_message_is_read(msMessagePtr.data),
+                                                IsRead = LinphoneAPI.linphone_chat_message_is_read(msMessagePtr.data) == 1,
                                                 Status = LinphoneAPI.linphone_chat_message_get_state(msMessagePtr.data),
                                                 Chat = chat
                                             };
