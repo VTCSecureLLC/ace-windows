@@ -464,9 +464,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			            {
 			                lock (deferredLock)
 			                {
-			                    deferredHideTimer.Interval = _mainViewModel.ActiveCallModel.ShowDeclinedMessage
-			                        ? TimeSpan.FromMilliseconds(3000)
-			                        : TimeSpan.FromMilliseconds(2000);
+			                    deferredHideTimer.Interval = TimeSpan.FromSeconds(5);
 			                    deferredHideTimer.Start();
 			                }
 			            }
@@ -1184,7 +1182,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 	            if (_mainViewModel.ActiveCallModel != null) 
                     _mainViewModel.ActiveCallModel.WaitForDeclineMessage = false;
 	            deferredHideTimer.Stop();
-	            deferredHideTimer.Interval = TimeSpan.FromMilliseconds(3000);
+                deferredHideTimer.Interval = TimeSpan.FromSeconds(5);
 	            deferredHideTimer.Start();
 	        }
 	    }
