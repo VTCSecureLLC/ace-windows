@@ -86,6 +86,8 @@ namespace com.vtcsecure.ace.windows
             _linphoneService.RegistrationStateChangedEvent += OnRegistrationChanged;
             _linphoneService.CallStateChangedEvent += OnCallStateChanged;
             _linphoneService.GlobalStateChangedEvent += OnGlobalStateChanged;
+            _linphoneService.NetworkReachableEvent += OnLinphoneConnectivityChanged;
+
             ServiceManager.Instance.NewAccountRegisteredEvent += OnNewAccountRegistered;
             ServiceManager.Instance.LinphoneCoreStartedEvent += OnLinphoneCoreStarted;
             ServiceManager.Instance.LinphoneCoreStoppedEvent += OnLinphoneCoreStopped;
