@@ -27,10 +27,10 @@ namespace com.vtcsecure.ace.windows
 		private bool signOutRequest = false;
 		private bool defaultConfigRequest;
         private object deferredLock = new object();
+        private object regLock = new object();
         private System.Timers.Timer registrationTimer;
         private bool _isNeworkReachable;
-	    private bool _signOutOnNetworkFailure;
-
+	    
 	    private void DeferedHideOnError(object sender, EventArgs e)
 	    {
 	        lock (deferredLock)
@@ -741,16 +741,20 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                 ctrlCall.ctrlOverlay.StopPausedCallTimer();
         }
 
-		private void OnRegistrationChanged(LinphoneRegistrationState state)
+		private void OnRegistrationChanged(LinphoneRegistrationState state, LinphoneReason reason)
 		{
+		    if (RegistrationState == state)
+		        return;
+
 			if (this.Dispatcher.Thread != Thread.CurrentThread)
 			{
-				this.Dispatcher.BeginInvoke((Action)(() => this.OnRegistrationChanged(state)));
+                this.Dispatcher.BeginInvoke((Action)(() => this.OnRegistrationChanged(state, reason)));
 				return;
 			}
-            LOG.Info(String.Format("Registration state changed from {0} to {1}", RegistrationState, state));
+            LOG.Info(String.Format("Registration state changed from {0} to {1}. Reason: {2}", RegistrationState, state, reason));
             var processSignOut = false;
             RegistrationState = state;
+		    RegistrationFailReason = reason;
 
             this.BtnMoreMenu.IsEnabled = true;
             _mainViewModel.ContactModel.RegistrationState = state;
@@ -760,55 +764,58 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 					this.BtnMoreMenu.IsEnabled = false;
                     // VATRP-3225: here we want to kick off a timer - if we do not get the OK in a reasonable amount of time, then 
                     //   we need to doa reset - preferably behind the scenes - and try to log in again.
-                    if (registrationTimer == null)
-                    {
-                        registrationTimer = new System.Timers.Timer();
-                        registrationTimer.Elapsed += new System.Timers.ElapsedEventHandler(RegistrationTimerTick);
-                        registrationTimer.Interval = 30000;
-                        registrationTimer.Enabled = true;
-                        registrationTimer.Start();
-                    }
+			        lock (regLock)
+			        {
+			            if (registrationTimer == null)
+			            {
+			                registrationTimer = new System.Timers.Timer();
+			                registrationTimer.Elapsed += new System.Timers.ElapsedEventHandler(RegistrationTimerTick);
+			                registrationTimer.Interval = 30000;
+			                registrationTimer.Enabled = true;
+			                registrationTimer.Start();
+			            }
+			        }
 			        return;
 				case LinphoneRegistrationState.LinphoneRegistrationOk:
-                    if (registrationTimer != null)
-                    {
-                        registrationTimer.Stop();
-                        registrationTimer = null;
-                    }
+                    DestroyRegistrationTimer();
 
+                    _playRegistrationFailureNotify = true;
                     if (_playRegisterNotify)
 			        {
 			            _playRegisterNotify = false;
 			            ServiceManager.Instance.SoundService.PlayConnectionChanged(true);
 			        }
+                    signOutRequest = false;
 					break;
                 case LinphoneRegistrationState.LinphoneRegistrationNone:
                 case LinphoneRegistrationState.LinphoneRegistrationFailed:
-                    if (registrationTimer != null)
-                    {
-                        registrationTimer.Stop();
-                        registrationTimer = null;
-                    }
-			        if (state == LinphoneRegistrationState.LinphoneRegistrationNone)
+                    DestroyRegistrationTimer();
+
+			        if (state == LinphoneRegistrationState.LinphoneRegistrationFailed)
 			        {
-                        // ToDo VATRP - 3600, proceed to login page
-			            processSignOut = true;
-			        }
-			        else
-			        {
-                        if (!_signOutOnNetworkFailure)
-                            ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
+                        signOutRequest = false;
+			            _playRegisterNotify = true;
+                        if (_playRegistrationFailureNotify)
+			            {
+			                ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
+                            _playRegistrationFailureNotify = false;
+			            }
+			            lock (regLock)
+			            {
+			                registrationTimer = new System.Timers.Timer();
+			                registrationTimer.Elapsed += new System.Timers.ElapsedEventHandler(RegistrationTimerTick);
+			                registrationTimer.Interval = 120000;
+			                registrationTimer.Start();
+			            }
+			            Debug.WriteLine("Start register retry timer: ");
 			        }
                     break;
 				case LinphoneRegistrationState.LinphoneRegistrationCleared:
-                    if (registrationTimer != null)
-                    {
-                        registrationTimer.Stop();
-                        registrationTimer = null;
-                    }
+                    DestroyRegistrationTimer();
 
 					ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
 			        _playRegisterNotify = true;
+			        _playRegistrationFailureNotify = false;
 					if (registerRequested)
 					{
 						registerRequested = false;
@@ -884,9 +891,9 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 	    }
 
 	    private void RegistrationTimerTick(object source, System.Timers.ElapsedEventArgs e)
-        {
-            registrationTimer.Stop();
-            registrationTimer = null;
+	    {
+	        bool register = registrationTimer.Interval == 120000;
+            DestroyRegistrationTimer();
             // VATRP-3225 - if we get here, then we recieved a registration state of Progress without a followup change. We need to invalidate and try to register again.
             //   This is a workaround - I do not prefer this, would rather have the solution, be we need answers as to what is causing the state in order to fix it properly.
             if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationProgress)
@@ -900,7 +907,11 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 //                ServiceManager.Instance.LinphoneService.Stop();
                 registerRequested = true;
                 _linphoneService.Unregister(false);
-
+            } 
+            else if (register)
+            {
+                registerRequested = true;
+                _linphoneService.Register();
             }
         }
 
@@ -1217,22 +1228,56 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                     {
                         this.Dispatcher.BeginInvoke((Action) delegate
                         {
+                            _mainViewModel.ContactModel.RegistrationState = LinphoneRegistrationState.LinphoneRegistrationFailed;
+                            RegistrationFailReason = LinphoneReason.LinphoneReasonIOError;
+                            if (_playRegistrationFailureNotify)
+                            {
+                                ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
+                                _playRegistrationFailureNotify = false;
+                            }
                             _playRegisterNotify = true;
-                            _signOutOnNetworkFailure = true;
-                            ProceedToLoginPage();
+                            lock (regLock)
+                            {
+                                if (registrationTimer == null)
+                                {
+                                    registrationTimer = new System.Timers.Timer();
+                                    registrationTimer.Elapsed +=
+                                        new System.Timers.ElapsedEventHandler(RegistrationTimerTick);
+                                }
+                                else
+                                {
+                                    registrationTimer.Stop();
+                                }
+                                registrationTimer.Interval = 120000;
+                                registrationTimer.Start();
+                            }
                         });
                     }
                 }
             }
             else
             {
-                if (_signOutOnNetworkFailure)
+                if (registrationTimer != null && registrationTimer.Enabled)
                 {
-                    _signOutOnNetworkFailure = false;
+                    DestroyRegistrationTimer();
+                    signOutRequest = false;
                     if (_linphoneService != null) 
                         _linphoneService.Register();
                 }
             }
         }
+
+	    private void DestroyRegistrationTimer()
+	    {
+	        lock (regLock)
+	        {
+	            if (registrationTimer != null)
+	            {
+	                registrationTimer.Stop();
+	                registrationTimer.Dispose();
+	            }
+	            registrationTimer = null;
+	        }
+	    }
 	}
 }

@@ -57,6 +57,7 @@ namespace com.vtcsecure.ace.windows
         private Size CombinedUICallViewSize = new Size(700, 700);
         private Point _lastWindowPosition;
         private bool _playRegisterNotify = true;
+        private bool _playRegistrationFailureNotify = true;
         private readonly DispatcherTimer deferredHideTimer = new DispatcherTimer()
         {
             Interval = TimeSpan.FromMilliseconds(2000),
@@ -69,6 +70,7 @@ namespace com.vtcsecure.ace.windows
 
         #region Properties
         public static LinphoneRegistrationState RegistrationState { get; set; }
+        public static LinphoneReason RegistrationFailReason { get; set; }
         public bool IsSlidingDialpad { get; set; }
 
         public bool IsSlidingMenu { get; set; }
@@ -871,6 +873,8 @@ namespace com.vtcsecure.ace.windows
                 }
             }
 
+            _mainViewModel.ContactModel.RegistrationState = LinphoneRegistrationState.LinphoneRegistrationFailed;
+
             signOutRequest = true;
             // remove the password file - the user is manually signing out, do not remember the password despite autologin in this case
             string pwFile = ServiceManager.Instance.GetPWFile();
@@ -902,6 +906,7 @@ namespace com.vtcsecure.ace.windows
                     break;
                 case LinphoneRegistrationState.LinphoneRegistrationCleared:
                 case LinphoneRegistrationState.LinphoneRegistrationFailed:
+                case LinphoneRegistrationState.LinphoneRegistrationNone:
                 {
                     signOutRequest = false;
                     WizardPagepanel.Children.Clear();

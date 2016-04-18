@@ -1173,6 +1173,8 @@ namespace VATRP.LinphoneWrapper
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_proxy_config_set_expires(IntPtr proxy, int expires);
 
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern LinphoneReason linphone_proxy_config_get_error(IntPtr cfg);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_address_set_transport(IntPtr u, int transport);

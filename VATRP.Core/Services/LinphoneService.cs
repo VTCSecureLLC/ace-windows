@@ -134,7 +134,7 @@ namespace VATRP.Core.Services
 		public delegate void GlobalStateChangedDelegate(LinphoneGlobalState state);
 		public event GlobalStateChangedDelegate GlobalStateChangedEvent;
 
-		public delegate void RegistrationStateChangedDelegate(LinphoneRegistrationState state);
+		public delegate void RegistrationStateChangedDelegate(LinphoneRegistrationState state, LinphoneReason reason);
 		public event RegistrationStateChangedDelegate RegistrationStateChangedEvent;
 
 		public delegate void CallStateChangedDelegate(VATRPCall call);
@@ -670,7 +670,7 @@ namespace VATRP.Core.Services
                 SetTimeout(delegate
                 {
                     if (RegistrationStateChangedEvent != null)
-                        RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationFailed);
+                        RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationFailed, LinphoneReason.LinphoneReasonUnknown);
                 }, 50);
 
 		        return false;
@@ -719,7 +719,8 @@ namespace VATRP.Core.Services
                 auth_info = IntPtr.Zero;
             }
 
-			auth_info = LinphoneAPI.linphone_auth_info_new(preferences.Username, string.IsNullOrEmpty(preferences.AuthID) ? null : preferences.AuthID, preferences.Password, null, null, null);
+			auth_info = LinphoneAPI.linphone_auth_info_new(preferences.Username,
+                string.IsNullOrEmpty(preferences.AuthID) ? null : preferences.AuthID, preferences.Password, null, null, null);
 			if (auth_info == IntPtr.Zero)
 				LOG.Debug("failed to get auth info");
 			LinphoneAPI.linphone_core_add_auth_info(linphoneCore, auth_info);
@@ -741,10 +742,9 @@ namespace VATRP.Core.Services
             // use proxy as route if outbound_proxy is enabled
 		    LinphoneAPI.linphone_proxy_config_set_route(proxy_cfg, route);
             LinphoneAPI.linphone_proxy_config_set_expires(proxy_cfg, preferences.Expires);
-            LinphoneAPI.linphone_core_set_default_proxy_config(linphoneCore, proxy_cfg);
 			LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, true);
 			LinphoneAPI.linphone_core_add_proxy_config(linphoneCore, proxy_cfg);
-
+            LinphoneAPI.linphone_core_set_default_proxy_config(linphoneCore, proxy_cfg);
             UpdateMediaEncryption();
 			return true;
 
@@ -776,7 +776,7 @@ namespace VATRP.Core.Services
             if (proxyCfg != IntPtr.Zero && LinphoneAPI.linphone_proxy_config_is_registered(proxyCfg) == 1)
             {
                 if (RegistrationStateChangedEvent != null)
-                    RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationProgress); // disconnecting
+                    RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationProgress, LinphoneReason.LinphoneReasonNone); // disconnecting
 
                 try
                 {
@@ -784,7 +784,7 @@ namespace VATRP.Core.Services
                     LinphoneAPI.linphone_proxy_config_enable_register(proxyCfg, false);
                     LinphoneAPI.linphone_proxy_config_done(proxyCfg);
                     if (RegistrationStateChangedEvent != null)
-                        RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationCleared);
+                        RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationCleared, LinphoneReason.LinphoneReasonNone);
                 }
                 catch (Exception ex)
                 {
@@ -826,7 +826,7 @@ namespace VATRP.Core.Services
             LinphoneAPI.linphone_core_set_firewall_policy(linphoneCore, LinphoneFirewallPolicy.LinphonePolicyNoFirewall);
 
             if (RegistrationStateChangedEvent != null)
-                RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationCleared);
+                RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationCleared, LinphoneReason.LinphoneReasonNone);
 
         }
 		#endregion
@@ -2184,12 +2184,15 @@ namespace VATRP.Core.Services
 //                LOG.Info("LinphoneService.OnRegistrationChanged called - but there is no change. Do nothing.");
                 return;
             }
+		    var erroeReason = LinphoneAPI.linphone_error_info_get_reason(cfg);
+
             LOG.Info("LinphoneService.OnRegistrationChanged called. Call State was:" + currentRegistrationState.ToString() + " call state changing to " + cstate.ToString());
             if (cfg == proxy_cfg)
 		    {
+                var reason = LinphoneAPI.linphone_proxy_config_get_error(cfg);
                 currentRegistrationState = cstate;
 		        if (RegistrationStateChangedEvent != null)
-		            RegistrationStateChangedEvent(cstate);
+		            RegistrationStateChangedEvent(cstate, reason);
 		        switch (cstate)
 		        {
 		            case LinphoneRegistrationState.LinphoneRegistrationOk:
