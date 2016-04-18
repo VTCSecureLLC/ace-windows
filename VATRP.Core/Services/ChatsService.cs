@@ -897,6 +897,15 @@ namespace VATRP.Core.Services
             };
 
             message.Content = declineMessage ? text.Substring(VATRPChatMessage.DECLINE_PREFIX.Length) : text;
+
+            // send message to linphone
+            IntPtr msgPtr = IntPtr.Zero;
+            _linphoneSvc.SendChatMessage(chat, text, ref msgPtr);
+            if (msgPtr != IntPtr.Zero)
+                message.MessageTime = Time.ConvertUtcTimeToLocalTime(LinphoneAPI.linphone_chat_message_get_time(msgPtr));
+            
+            message.NativePtr = msgPtr;
+            
             chat.AddMessage(message, false);
             chat.UpdateLastMessage(false);
 
@@ -906,10 +915,6 @@ namespace VATRP.Core.Services
             OnConversationUnReadStateChanged(chat);
             this.OnConversationUpdated(chat, true);
 
-            // send message to linphone
-            IntPtr msgPtr = IntPtr.Zero;
-            _linphoneSvc.SendChatMessage(chat, text, ref msgPtr);
-            message.NativePtr = msgPtr;
             return true;
         }
 
