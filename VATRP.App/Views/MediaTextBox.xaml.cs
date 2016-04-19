@@ -97,5 +97,14 @@ namespace com.vtcsecure.ace.windows.Views
                     break;
             }
         }
+
+        private void OnCallClick(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel != null && _viewModel.Chat != null)
+            {
+                if (_viewModel.Chat.Contact != null)
+                    MediaActionHandler.MakeVideoCall(_viewModel.Chat.Contact.RegistrationName);
+            }
+        }
     }
 }
