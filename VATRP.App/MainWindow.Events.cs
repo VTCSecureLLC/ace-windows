@@ -14,6 +14,7 @@ using com.vtcsecure.ace.windows.Views;
 using VATRP.Core.Events;
 using VATRP.Core.Extensions;
 using VATRP.Core.Model;
+using VATRP.Core.Services;
 using VATRP.Linphone.VideoWrapper;
 using VATRP.LinphoneWrapper;
 using VATRP.LinphoneWrapper.Enums;
@@ -26,8 +27,10 @@ namespace com.vtcsecure.ace.windows
 		private bool signOutRequest = false;
 		private bool defaultConfigRequest;
         private object deferredLock = new object();
+        private object regLock = new object();
         private System.Timers.Timer registrationTimer;
-
+        private bool _isNeworkReachable;
+	    
 	    private void DeferedHideOnError(object sender, EventArgs e)
 	    {
 	        lock (deferredLock)
@@ -738,77 +741,81 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                 ctrlCall.ctrlOverlay.StopPausedCallTimer();
         }
 
-		private void OnRegistrationChanged(LinphoneRegistrationState state)
+		private void OnRegistrationChanged(LinphoneRegistrationState state, LinphoneReason reason)
 		{
+		    if (RegistrationState == state)
+		        return;
+
 			if (this.Dispatcher.Thread != Thread.CurrentThread)
 			{
-				this.Dispatcher.BeginInvoke((Action)(() => this.OnRegistrationChanged(state)));
+                this.Dispatcher.BeginInvoke((Action)(() => this.OnRegistrationChanged(state, reason)));
 				return;
 			}
-		    var processSignOut = false;
-			RegistrationState = state;
+            LOG.Info(String.Format("Registration state changed from {0} to {1}. Reason: {2}", RegistrationState, state, reason));
+            var processSignOut = false;
+            RegistrationState = state;
+		    RegistrationFailReason = reason;
 
-			this.BtnMoreMenu.IsEnabled = true;
-			LOG.Info(String.Format("Registration state changed. Current - {0}", state));
-			_mainViewModel.ContactModel.RegistrationState = state;
+            this.BtnMoreMenu.IsEnabled = true;
+            _mainViewModel.ContactModel.RegistrationState = state;
 			switch (state)
 			{
 				case LinphoneRegistrationState.LinphoneRegistrationProgress:
 					this.BtnMoreMenu.IsEnabled = false;
                     // VATRP-3225: here we want to kick off a timer - if we do not get the OK in a reasonable amount of time, then 
                     //   we need to doa reset - preferably behind the scenes - and try to log in again.
-                    if (registrationTimer == null)
-                    {
-                        registrationTimer = new System.Timers.Timer();
-                        registrationTimer.Elapsed += new System.Timers.ElapsedEventHandler(RegistrationTimerTick);
-                        registrationTimer.Interval = 30000;
-                        registrationTimer.Enabled = true;
-                        registrationTimer.Start();
-                    }
+			        lock (regLock)
+			        {
+			            if (registrationTimer == null)
+			            {
+			                registrationTimer = new System.Timers.Timer();
+			                registrationTimer.Elapsed += new System.Timers.ElapsedEventHandler(RegistrationTimerTick);
+			                registrationTimer.Interval = 30000;
+			                registrationTimer.Enabled = true;
+			                registrationTimer.Start();
+			            }
+			        }
 			        return;
 				case LinphoneRegistrationState.LinphoneRegistrationOk:
-                    if (registrationTimer != null)
-                    {
-                        registrationTimer.Stop();
-                        registrationTimer = null;
-                    }
+                    DestroyRegistrationTimer();
 
+                    _playRegistrationFailureNotify = true;
                     if (_playRegisterNotify)
 			        {
 			            _playRegisterNotify = false;
 			            ServiceManager.Instance.SoundService.PlayConnectionChanged(true);
 			        }
+                    signOutRequest = false;
 					break;
                 case LinphoneRegistrationState.LinphoneRegistrationNone:
                 case LinphoneRegistrationState.LinphoneRegistrationFailed:
-                    if (registrationTimer != null)
-                    {
-                        registrationTimer.Stop();
-                        registrationTimer = null;
-                    }
-                    ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
+                    DestroyRegistrationTimer();
+
+			        if (state == LinphoneRegistrationState.LinphoneRegistrationFailed)
+			        {
+                        signOutRequest = false;
+			            _playRegisterNotify = true;
+                        if (_playRegistrationFailureNotify)
+			            {
+			                ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
+                            _playRegistrationFailureNotify = false;
+			            }
+			            lock (regLock)
+			            {
+			                registrationTimer = new System.Timers.Timer();
+			                registrationTimer.Elapsed += new System.Timers.ElapsedEventHandler(RegistrationTimerTick);
+			                registrationTimer.Interval = 120000;
+			                registrationTimer.Start();
+			            }
+			            Debug.WriteLine("Start register retry timer: ");
+			        }
                     break;
-                    if (registrationTimer != null)
-                    {
-                        registrationTimer.Stop();
-                        registrationTimer = null;
-                    }
-					ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
-			        _playRegisterNotify = true;
-                //    if (signOutRequest || defaultConfigRequest)
-                //    {
-                        processSignOut = true;
-                //    }
-					break;
 				case LinphoneRegistrationState.LinphoneRegistrationCleared:
-                    if (registrationTimer != null)
-                    {
-                        registrationTimer.Stop();
-                        registrationTimer = null;
-                    }
+                    DestroyRegistrationTimer();
 
 					ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
 			        _playRegisterNotify = true;
+			        _playRegistrationFailureNotify = false;
 					if (registerRequested)
 					{
 						registerRequested = false;
@@ -826,58 +833,67 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
             UpdateMenuSettingsForRegistrationState();
 		    if (processSignOut)
 		    {
-                // Liz E. note: we want to perfomr different actions for logout and default configuration request.
-                // If we are just logging out, then we need to not clear the account, just the password, 
-                // and jump to the second page of the wizard.
-                WizardPagepanel.Children.Clear();
-                // VATRP - 1325, Go directly to VRS page
-                _mainViewModel.OfferServiceSelection = false;
-                _mainViewModel.ActivateWizardPage = true;
-
-                signOutRequest = false;
-                _mainViewModel.IsAccountLogged = false;
-                CloseDialpadAnimated();
-                _mainViewModel.IsCallHistoryDocked = false;
-                _mainViewModel.IsContactDocked = false;
-                _mainViewModel.IsMessagingDocked = false;
-                
-                if (defaultConfigRequest)
-                {
-                    ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-        Configuration.ConfEntry.ACCOUNT_IN_USE, string.Empty);
-
-                    defaultConfigRequest = false;
-                    ServiceManager.Instance.AccountService.DeleteAccount(App.CurrentAccount);
-                    ResetConfiguration();
-                    App.CurrentAccount = null;
-                    // VATRP - 1325, Go directly to VRS page
-                    OnVideoRelaySelect(this, null);
-                }
-                else
-                {
-                    this.Wizard_HandleLogout();
-                }
-		        ServiceManager.Instance.ContactService.Stop();
-                ServiceManager.Instance.HistoryService.Stop();
-                ServiceManager.Instance.ChatService.Stop();
-
-                // stop linphone to force contacts list reload
-                ServiceManager.Instance.LinphoneService.Stop();
-
-                // hide messaging window
-		        if (_messagingWindow.IsVisible)
-		        {
-		            _messagingWindow.Hide();
-                    ShowMessagingViewItem.IsChecked = false;
-		        }
-                signOutRequest = false;
+		        ProceedToLoginPage();
+		        signOutRequest = false;
 		    }
 		}
 
-        private void RegistrationTimerTick(object source, System.Timers.ElapsedEventArgs e)
-        {
-            registrationTimer.Stop();
-            registrationTimer = null;
+	    private void ProceedToLoginPage()
+	    {
+// Liz E. note: we want to perfomr different actions for logout and default configuration request.
+	        // If we are just logging out, then we need to not clear the account, just the password, 
+	        // and jump to the second page of the wizard.
+	        if (!_mainViewModel.IsAccountLogged)
+	            return;
+
+	        WizardPagepanel.Children.Clear();
+	        // VATRP - 1325, Go directly to VRS page
+	        _mainViewModel.OfferServiceSelection = false;
+	        _mainViewModel.ActivateWizardPage = true;
+
+	        signOutRequest = false;
+	        _mainViewModel.IsAccountLogged = false;
+	        CloseDialpadAnimated();
+	        _mainViewModel.IsCallHistoryDocked = false;
+	        _mainViewModel.IsContactDocked = false;
+	        _mainViewModel.IsMessagingDocked = false;
+
+	        if (defaultConfigRequest)
+	        {
+	            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
+	                Configuration.ConfEntry.ACCOUNT_IN_USE, string.Empty);
+
+	            defaultConfigRequest = false;
+	            ServiceManager.Instance.AccountService.DeleteAccount(App.CurrentAccount);
+	            ResetConfiguration();
+	            App.CurrentAccount = null;
+	            // VATRP - 1325, Go directly to VRS page
+	            OnVideoRelaySelect(this, null);
+	        }
+	        else
+	        {
+	            this.Wizard_HandleLogout();
+	        }
+	        ServiceManager.Instance.ContactService.Stop();
+	        ServiceManager.Instance.HistoryService.Stop();
+	        ServiceManager.Instance.ChatService.Stop();
+
+	        // stop linphone to force contacts list reload
+	        ServiceManager.Instance.LinphoneService.Stop();
+
+	        // hide messaging window
+	        if (_messagingWindow.IsVisible)
+	        {
+	            _messagingWindow.Hide();
+	            ShowMessagingViewItem.IsChecked = false;
+	        }
+	        signOutRequest = false;
+	    }
+
+	    private void RegistrationTimerTick(object source, System.Timers.ElapsedEventArgs e)
+	    {
+	        bool register = registrationTimer.Interval == 120000;
+            DestroyRegistrationTimer();
             // VATRP-3225 - if we get here, then we recieved a registration state of Progress without a followup change. We need to invalidate and try to register again.
             //   This is a workaround - I do not prefer this, would rather have the solution, be we need answers as to what is causing the state in order to fix it properly.
             if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationProgress)
@@ -891,7 +907,11 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 //                ServiceManager.Instance.LinphoneService.Stop();
                 registerRequested = true;
                 _linphoneService.Unregister(false);
-
+            } 
+            else if (register)
+            {
+                registerRequested = true;
+                _linphoneService.Register();
             }
         }
 
@@ -940,6 +960,11 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                 UpdateVideomailCount();
 
                 _mainViewModel.IsCallHistoryDocked = true;
+                _mainViewModel.IsContactDocked = false;
+                _mainViewModel.IsSettingsDocked = false;
+                _mainViewModel.IsResourceDocked = false;
+                _mainViewModel.IsMenuDocked = false;
+
                 _mainViewModel.DialpadModel.UpdateProvider();
                 SetToUserAgentView(false);
             }
@@ -1116,7 +1141,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
         private void OnLinphoneCoreStopped(object sender, EventArgs e)
         {
             ServiceManager.Instance.LinphoneService.OnCameraMuteEvent -= OnCameraMuted;
-            ServiceManager.Instance.LinphoneService.Start(true);
+            //ServiceManager.Instance.LinphoneService.Start(true);
         }
 
         private void OnCameraMuted(InfoEventBaseArgs args)
@@ -1184,6 +1209,74 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 	            deferredHideTimer.Stop();
                 deferredHideTimer.Interval = TimeSpan.FromSeconds(5);
 	            deferredHideTimer.Start();
+	        }
+	    }
+
+        private void OnLinphoneConnectivityChanged(bool reachable)
+        {
+            if (_isNeworkReachable == reachable)
+                return;
+
+            _isNeworkReachable = reachable;
+            LOG.Info("### Network Connectivity changed to " + (reachable ? "UP" :"DOWN") );
+            if (!_isNeworkReachable)
+            {
+                // TODO VATRP-3600, proceed to login 
+                if (this.Dispatcher != null)
+                {
+                    if (this.Dispatcher.Thread != Thread.CurrentThread)
+                    {
+                        this.Dispatcher.BeginInvoke((Action) delegate
+                        {
+                            _mainViewModel.ContactModel.RegistrationState = LinphoneRegistrationState.LinphoneRegistrationFailed;
+                            RegistrationFailReason = LinphoneReason.LinphoneReasonIOError;
+                            if (_playRegistrationFailureNotify)
+                            {
+                                ServiceManager.Instance.SoundService.PlayConnectionChanged(false);
+                                _playRegistrationFailureNotify = false;
+                            }
+                            _playRegisterNotify = true;
+                            lock (regLock)
+                            {
+                                if (registrationTimer == null)
+                                {
+                                    registrationTimer = new System.Timers.Timer();
+                                    registrationTimer.Elapsed +=
+                                        new System.Timers.ElapsedEventHandler(RegistrationTimerTick);
+                                }
+                                else
+                                {
+                                    registrationTimer.Stop();
+                                }
+                                registrationTimer.Interval = 120000;
+                                registrationTimer.Start();
+                            }
+                        });
+                    }
+                }
+            }
+            else
+            {
+                if (registrationTimer != null && registrationTimer.Enabled)
+                {
+                    DestroyRegistrationTimer();
+                    signOutRequest = false;
+                    if (_linphoneService != null) 
+                        _linphoneService.Register();
+                }
+            }
+        }
+
+	    private void DestroyRegistrationTimer()
+	    {
+	        lock (regLock)
+	        {
+	            if (registrationTimer != null)
+	            {
+	                registrationTimer.Stop();
+	                registrationTimer.Dispose();
+	            }
+	            registrationTimer = null;
 	        }
 	    }
 	}

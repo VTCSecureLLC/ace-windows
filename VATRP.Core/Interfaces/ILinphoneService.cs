@@ -23,6 +23,7 @@ namespace VATRP.Core.Interfaces
         event LinphoneService.OnCallLogUpdatedDelegate OnLinphoneCallLogUpdatedEvent;
         event LinphoneService.MWIReceivedDelegate OnMWIReceivedEvent;
         event LinphoneService.InfoReceivedDelegate OnCameraMuteEvent;
+        event LinphoneService.NetworkReachabilityChanged NetworkReachableEvent;
 
         #endregion
 

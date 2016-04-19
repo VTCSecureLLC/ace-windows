@@ -339,7 +339,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
                 SipPort = sipPort;
                 RtpPort = rtpPort;
-                bool has_video = LinphoneAPI.linphone_call_params_video_enabled(curparams);
+                bool has_video = LinphoneAPI.linphone_call_params_video_enabled(curparams) == 1;
 
                 MSVideoSizeDef size_received = LinphoneAPI.linphone_call_params_get_received_video_size(curparams);
                 MSVideoSizeDef size_sent = LinphoneAPI.linphone_call_params_get_sent_video_size(curparams);
