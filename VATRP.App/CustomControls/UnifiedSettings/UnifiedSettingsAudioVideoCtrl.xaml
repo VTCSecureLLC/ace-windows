@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="400">
     <Grid>
         <Grid  Background="{StaticResource RecentsPageMainBg}">
             <Grid.RowDefinitions>
@@ -20,9 +20,9 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="120"/>
-                <ColumnDefinition Width="160*" MaxWidth="120"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="180*"/>
+                <ColumnDefinition Width="40"/>
             </Grid.ColumnDefinitions>
             <!-- Row 0: Mute Speaker -->
             <Label Grid.Column="0" Grid.Row="0" Content="Mute Speaker" VerticalContentAlignment="Center" 
@@ -52,7 +52,7 @@
             <Label Grid.Column="0" Grid.Row="4" Content="Preferred Video Size" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="PreferredVideoSizeLabel" Visibility="Visible">
             </Label>
-            <ComboBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" x:Name="PreferredVideoSizeComboBox" FontSize="14" Margin="0,3,0,3" Width="130" Height="24" 
+            <ComboBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" x:Name="PreferredVideoSizeComboBox" FontSize="14" Margin="0,3,0,3" Width="160" Height="24" 
                        VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="OnPreferredVideoSize" Visibility="Visible">
                 <TextBlock >720p (1280x720)</TextBlock>
                 <TextBlock >vga (640x480)</TextBlock>
@@ -109,7 +109,7 @@
 
             
             <!-- Row 8: Settings Content-->
-            <ScrollViewer Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3"  MaxHeight="500" MaxWidth="240">
+            <ScrollViewer Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3"  MaxHeight="150" MaxWidth="400">
                 <ContentControl  Name="ContentPanel" VerticalAlignment="Stretch"></ContentControl>
             </ScrollViewer>
 

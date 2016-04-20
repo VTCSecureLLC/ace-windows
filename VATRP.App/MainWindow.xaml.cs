@@ -934,12 +934,13 @@ namespace com.vtcsecure.ace.windows
 
         private void OnMyAccount(object sender, RoutedEventArgs e)
         {
-            CloseDialpadAnimated();
-            _mainViewModel.IsCallHistoryDocked = false;
-            _mainViewModel.IsContactDocked = false;
-            _mainViewModel.IsResourceDocked = false;
-            _mainViewModel.IsSettingsDocked = true;
-
+//            CloseDialpadAnimated();
+//            _mainViewModel.IsCallHistoryDocked = false;
+//            _mainViewModel.IsContactDocked = false;
+//            _mainViewModel.IsResourceDocked = false;
+//            _mainViewModel.IsSettingsDocked = true;
+            com.vtcsecure.ace.windows.CustomControls.UnifiedSettings.SettingsWindow settingsWindow = new CustomControls.UnifiedSettings.SettingsWindow();
+            settingsWindow.Show();
         }
         private void OnGoToSupport(object sender, RoutedEventArgs e)
         {
