@@ -19,8 +19,8 @@ namespace VATRP.Core.Interfaces
         void ExportVCards(string vcardPath);
 
         void AddLinphoneContact(string name, string username, string sipAddress);
-        void EditLinphoneContact(string oldname, string oldsipAddress, string newname, string newsipassdress);
-        void DeleteLinphoneContact(string name, string sipAddress);
+        void EditLinphoneContact(VATRPContact contact, string newname, string newsipassdress);
+        void DeleteLinphoneContact(VATRPContact contact);
         void UpdateFavoriteOption(VATRPContact contact);
 
         event EventHandler<ContactEventArgs> ContactAdded;
