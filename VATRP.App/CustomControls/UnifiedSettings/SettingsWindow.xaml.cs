@@ -20,15 +20,17 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
     /// </summary>
     public partial class SettingsWindow : Window
     {
-        public UnifiedSettings_AccountChange AccountChangeRequested;
+        private UnifiedSettings_AccountChange AccountChangeRequested;
         private CallViewCtrl _callControl;
         private BaseUnifiedSettingsPanel _currentContent;
         private BaseUnifiedSettingsPanel _previousContent;
         private List<BaseUnifiedSettingsPanel> _allPanels;
 
-        public SettingsWindow()
+        public SettingsWindow(CallViewCtrl callControl, UnifiedSettings_AccountChange accountChangeRequestedMethod)
         {
             InitializeComponent();
+            
+            AccountChangeRequested += accountChangeRequestedMethod;
 
             _allPanels = new List<BaseUnifiedSettingsPanel>();
 
@@ -68,8 +70,16 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 #else
             HandleShowSettingsUpdate(UnifiedSettings_LevelToShow.Normal, true);
 #endif
+            SetCallControl(callControl);
         }
 
+        private void SetCallControl(CallViewCtrl callControl)
+        {
+            _callControl = callControl;
+            TextSettings.CallControl = _callControl;
+//            AudioSettings.CallControl = _callControl;
+            AudioVideoSettings.CallControl = _callControl;
+        }
 
         private void InitializePanelAndEvents(BaseUnifiedSettingsPanel panel)
         {
@@ -112,9 +122,22 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnClose(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Close Clicked");
-            this.Close();
+            _currentContent.SaveData();
+            this.Hide();
         }
 
+        private void SetHidden()
+        {
+            _currentContent.SaveData();
+            this.Hide();
+        }
+
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            //base.OnClosing(e);
+            e.Cancel = true;
+            SetHidden();
+        }
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             _currentContent.SaveData();

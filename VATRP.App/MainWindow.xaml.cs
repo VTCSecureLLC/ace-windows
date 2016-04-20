@@ -30,6 +30,7 @@ using HockeyApp;
 using com.vtcsecure.ace.windows.CustomControls.Resources;
 using System.IO;
 using VATRP.Core.Events;
+using com.vtcsecure.ace.windows.CustomControls.UnifiedSettings;
 
 namespace com.vtcsecure.ace.windows
 {
@@ -49,6 +50,7 @@ namespace com.vtcsecure.ace.windows
         private CallView _remoteVideoView;
         private SelfView _selfView = new SelfView();
         private readonly SettingsView _settingsView = new SettingsView();
+        private SettingsWindow _settingsWindow;
         private readonly CallInfoView _callInfoView = new CallInfoView();
         private readonly CallOverlayView _callOverlayView = new CallOverlayView();
         private readonly ILinphoneService _linphoneService;
@@ -103,10 +105,12 @@ namespace com.vtcsecure.ace.windows
             ctrlLocalContact.SetDataContext(_mainViewModel.ContactModel);
             ctrlCall.ParentViewModel =_mainViewModel;
             ctrlMoreMenu.SetDataContext(_mainViewModel.MoreMenuModel);
-            _settingsView.SetSettingsModel(_mainViewModel.SettingsModel);
+            //_settingsView.SetSettingsModel(_mainViewModel.SettingsModel);
+            
             EnterFullScreenCheckBox.IsEnabled = false;
 
-            ctrlSettings.SetCallControl(ctrlCall);
+            _settingsWindow = new SettingsWindow(ctrlCall, OnAccountChangeRequested);
+//            ctrlSettings.SetCallControl(ctrlCall);
             ctrlCall.SettingsControl = ctrlSettings;
             deferredHideTimer.Tick += DeferedHideOnError;
             deferredShowPreviewTimer.Tick += DeferredShowPreview;
@@ -196,16 +200,20 @@ namespace com.vtcsecure.ace.windows
         private void OnShowSettings(object sender, EventArgs e)
         {
             CloseMeunAnimated();
-            CloseDialpadAnimated();
-            if (_mainViewModel.IsSettingsDocked)
-                return;
-            _mainViewModel.IsCallHistoryDocked = false;
-            _mainViewModel.IsContactDocked = false;
-            _mainViewModel.IsResourceDocked = false;
+//            CloseDialpadAnimated();
+//            if (_mainViewModel.IsSettingsDocked)
+//                return;
+//            _mainViewModel.IsCallHistoryDocked = false;
+//            _mainViewModel.IsContactDocked = false;
+//            _mainViewModel.IsResourceDocked = false;
 
-            _mainViewModel.IsMenuDocked = true;
-            _mainViewModel.IsSettingsDocked = true;
-            ctrlSettings.Initialize();
+//           _mainViewModel.IsMenuDocked = true;
+//            _mainViewModel.IsSettingsDocked = true;
+            if (_settingsWindow == null)
+            {
+                _settingsWindow = new SettingsWindow(ctrlCall, OnAccountChangeRequested);
+            }
+            _settingsWindow.Show();
         }
 
         private void btnDialpad_Click(object sender, RoutedEventArgs e)
@@ -560,10 +568,10 @@ namespace com.vtcsecure.ace.windows
             _historyView.MakeCallRequested += OnMakeCallRequested;
             _contactBox.IsVisibleChanged += OnChildVisibilityChanged;
             _dialpadBox.IsVisibleChanged += OnChildVisibilityChanged;
-            _settingsView.IsVisibleChanged += OnChildVisibilityChanged;
+            //_settingsView.IsVisibleChanged += OnChildVisibilityChanged;
             _messagingWindow.IsVisibleChanged += OnChildVisibilityChanged;
             _selfView.IsVisibleChanged += OnChildVisibilityChanged;
-            _settingsView.SettingsSavedEvent += OnSettingsSaved;
+            //_settingsView.SettingsSavedEvent += OnSettingsSaved;
             _keypadCtrl.KeypadClicked += OnKeypadClicked;
             _dialpadBox.KeypadClicked += OnDialpadClicked;
             _callInfoView.IsVisibleChanged += OnCallInfoVisibilityChanged;
@@ -592,7 +600,7 @@ namespace com.vtcsecure.ace.windows
             ServiceManager.Instance.LinphoneService.OnMWIReceivedEvent += OnVideoMailCountChanged;
 
             // Liz E. - ToDo unified Settings
-            ctrlSettings.AccountChangeRequested += OnAccountChangeRequested;
+//            ctrlSettings.AccountChangeRequested += OnAccountChangeRequested;
             //ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
             //ctrlSettings.CodecSettingsChangeClicked += OnSettingsChangeRequired;
             //ctrlSettings.MultimediaSettingsChangeClicked += OnSettingsChangeRequired;
@@ -939,8 +947,8 @@ namespace com.vtcsecure.ace.windows
 //            _mainViewModel.IsContactDocked = false;
 //            _mainViewModel.IsResourceDocked = false;
 //            _mainViewModel.IsSettingsDocked = true;
-            com.vtcsecure.ace.windows.CustomControls.UnifiedSettings.SettingsWindow settingsWindow = new CustomControls.UnifiedSettings.SettingsWindow();
-            settingsWindow.Show();
+//            com.vtcsecure.ace.windows.CustomControls.UnifiedSettings.SettingsWindow settingsWindow = new CustomControls.UnifiedSettings.SettingsWindow();
+//            settingsWindow.Show();
         }
         private void OnGoToSupport(object sender, RoutedEventArgs e)
         {
@@ -1004,11 +1012,14 @@ namespace com.vtcsecure.ace.windows
             App.CurrentAccount.ShowSelfView = enabled;
             ServiceManager.Instance.ApplyMediaSettingsChanges();
             ServiceManager.Instance.SaveAccountSettings();
-
-            if (ctrlSettings != null)
+            if (_settingsWindow != null)
             {
-                ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.ShowSelfViewMenu);
+                _settingsWindow.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.ShowSelfViewMenu);
             }
+//            if (ctrlSettings != null)
+//            {
+//                ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.ShowSelfViewMenu);
+//            }
         }
 
         private void OnShowPreviewWindow(object sender, RoutedEventArgs e)
@@ -1140,9 +1151,10 @@ namespace com.vtcsecure.ace.windows
                 ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
 
-                if (ctrlSettings != null)
+//                if (ctrlSettings != null)
+                if (_settingsWindow != null)
                 {
-                    ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.MuteMicrophoneMenu);
+                    _settingsWindow.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.MuteMicrophoneMenu);
                 }
                 if ((ctrlCall != null) && ctrlCall.IsLoaded)
                 {

@@ -65,10 +65,10 @@
                     <unifiedSettings:AccountSettings x:Name="AccountSettings" Margin="0" VerticalAlignment="Stretch"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="Media" Name="MediaTab" FontSize="16">
+            <TabItem Header="Media" Name="MediaTab" FontSize="16" Visibility="Collapsed">
                 <Grid Background="#FFE5E5E5"/>
             </TabItem>
-            <TabItem Header="Testing" Name="TestingTab" FontSize="16">
+            <TabItem Header="Testing" Name="TestingTab" FontSize="16" Visibility="Collapsed">
                 <Grid Background="#FFE5E5E5"/>
             </TabItem>
             <TabItem Header="Advanced" Name="AdvancedTab" FontSize="16" Visibility="Collapsed">
