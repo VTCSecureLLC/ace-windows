@@ -591,6 +591,7 @@ namespace com.vtcsecure.ace.windows
             _callOverlayView.CallManagerView = _callView;
             ctrlHistory.MakeCallRequested += OnMakeCallRequested;
             ctrlContacts.MakeCallRequested += OnMakeCallRequested;
+            ctrlDialpad.MakeCallRequested += OnMakeCallRequested;
             ctrlCall.KeypadCtrl = _keypadCtrl;
             ctrlDialpad.KeypadPressed += OnDialpadClicked;
             _mainViewModel.DialpadHeight = ctrlDialpad.ActualHeight;
