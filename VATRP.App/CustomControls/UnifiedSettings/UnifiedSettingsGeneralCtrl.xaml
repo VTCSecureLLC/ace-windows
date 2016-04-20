@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="400">
     <Grid>
         <Grid  Background="{StaticResource RecentsPageMainBg}">
             <Grid.RowDefinitions>
@@ -17,9 +17,9 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="180"/>
-                <ColumnDefinition Width="116*"/>
-                <ColumnDefinition Width="27*"/>
+                <ColumnDefinition Width="240"/>
+                <ColumnDefinition Width="120*"/>
+                <ColumnDefinition Width="40*"/>
             </Grid.ColumnDefinitions>
             <!-- Row 0: Start at Boot -->
             <Label Grid.Column="0" Grid.Row="0" Content="Start at boot" VerticalContentAlignment="Center" 

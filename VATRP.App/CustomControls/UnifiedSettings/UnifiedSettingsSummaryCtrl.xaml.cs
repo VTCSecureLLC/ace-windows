@@ -22,11 +22,14 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
     public partial class UnifiedSettingsSummaryCtrl : BaseUnifiedSettingsPanel
     {
         public event UnifiedSettings_EnableSettings ShowSettingsUpdate;
+        private TechnicalSupportSheetCtrl _viewTechnicalSupportPanel;
 
         public UnifiedSettingsSummaryCtrl()
         {
             InitializeComponent();
             Title = "Summary";
+            Initialize();
+            _viewTechnicalSupportPanel = new TechnicalSupportSheetCtrl();
         }
 
         public override void ShowAdvancedOptions(bool show)

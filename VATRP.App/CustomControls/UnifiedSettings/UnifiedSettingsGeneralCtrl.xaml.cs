@@ -37,6 +37,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         public void Initialize()
         {
+            base.Initialize();
             // intialize start on boot:
             RegistryKey registryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
             string applicationName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
