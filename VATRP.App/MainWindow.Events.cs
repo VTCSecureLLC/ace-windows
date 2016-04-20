@@ -18,6 +18,7 @@ using VATRP.Core.Services;
 using VATRP.Linphone.VideoWrapper;
 using VATRP.LinphoneWrapper;
 using VATRP.LinphoneWrapper.Enums;
+using com.vtcsecure.ace.windows.CustomControls.UnifiedSettings;
 
 namespace com.vtcsecure.ace.windows
 {
@@ -1063,11 +1064,17 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 
 		private void OnSettingsChangeRequired(Enums.VATRPSettings settingsType)
 		{
-			if (_settingsView.IsVisible)
-				return;
+            if ((_settingsWindow != null) && _settingsWindow.IsVisible)
+                return;
+            if (_settingsWindow == null)
+            {
+                _settingsWindow = new SettingsWindow(ctrlCall, OnAccountChangeRequested);
+            }
 
 			_mainViewModel.SettingsModel.SetActiveSettings(settingsType);
-			_settingsView.Show();
+            _settingsWindow.Show();
+
+            _settingsView.Show();
 			_settingsView.Activate();
 		}
 

@@ -55,6 +55,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         public void Initialize()
         {
+            base.Initialize();
             if (App.CurrentAccount == null)
                 return;
 /*            List<VATRPDevice> cameraList = ServiceManager.Instance.GetAvailableCameras();
