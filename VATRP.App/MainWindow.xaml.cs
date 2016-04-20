@@ -282,6 +282,8 @@ namespace com.vtcsecure.ace.windows
                     break;
                 case Enums.ACEMenuSettingsUpdateType.AdvancedSettingsChanged: HandleAdvancedSettingsChange();
                     break;
+                case Enums.ACEMenuSettingsUpdateType.CardDavConfigChanged: HandleCardDAVSettingsChange();
+                    break;
                 default:
                     break;
             }
@@ -315,6 +317,13 @@ namespace com.vtcsecure.ace.windows
             ServiceManager.Instance.SaveAccountSettings();
             ApplyRegistrationChanges();
         }
+
+        private void HandleCardDAVSettingsChange()
+        {
+            ServiceManager.Instance.SaveAccountSettings();
+            ApplyCardDAVChanges();
+        }
+
         private void UpdateVideoPolicy()
         {
             if (App.CurrentAccount != null)
@@ -392,9 +401,15 @@ namespace com.vtcsecure.ace.windows
                 //  If we call unregister above, then after the app has finished unregistering, it will use the 
                 //  register requested flag to call Register. Otherwise, go on and call Register here. This
                 //  mechanism was previously put in place as a lock to make sure that we move through the states properly
-                //  befor calling register.
+                //  before calling register.
                 _linphoneService.Register();
             }
+        }
+
+        private void ApplyCardDAVChanges()
+        {
+            ServiceManager.Instance.UpdateLinphoneConfig();
+            ServiceManager.Instance.LinphoneService.CardDAVSync();
         }
 
         private void UpdateMenuSettingsForRegistrationState()
