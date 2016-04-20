@@ -1479,7 +1479,12 @@ namespace VATRP.Core.Services
 
 		public bool IsVideoEnabled(VATRPCall call)
 		{
-			var linphoneCallParams = LinphoneAPI.linphone_call_get_current_params(call.NativeCallPtr);
+            if (linphoneCore == IntPtr.Zero)
+                return false;
+		    IntPtr curCallPtr = LinphoneAPI.linphone_core_get_current_call(linphoneCore);
+		    if (curCallPtr == IntPtr.Zero)
+		        return false;
+            var linphoneCallParams = LinphoneAPI.linphone_call_get_current_params(curCallPtr);
             var videoCodecName = string.Empty;
             if (linphoneCallParams != IntPtr.Zero)
                 videoCodecName = GetUsedVideoCodec(linphoneCallParams);
