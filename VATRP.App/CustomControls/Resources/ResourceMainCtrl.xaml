@@ -14,6 +14,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="96"/>
@@ -40,15 +41,20 @@
         </Button>
         <Label Grid.Column="2" Grid.Row="3" Content=">" MouseDown="OnDeafHoh" TouchDown="OnDeafHoh"
                    VerticalContentAlignment="Center"/>
-        <!-- Row 4: ACE version -->
-        <Label Grid.Column="0" Grid.Row="4" Content="ACE" VerticalContentAlignment="Center"  Name="AceLabel">
+        <!-- Row 4: Technical Support -->
+        <Button Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="3" Content="Sync Contacts" Margin="0,2" 
+                    BorderThickness="0"  Click="OnSyncCardDAV"
+                    VerticalContentAlignment="Center">
+        </Button>
+        <!-- Row 5: ACE version -->
+        <Label Grid.Column="0" Grid.Row="5" Content="ACE" VerticalContentAlignment="Center"  Name="AceLabel">
         </Label>
-        <Label Grid.Column="1" Grid.Row="4" Content="1.0" VerticalContentAlignment="Center"  Name="AceVersionLabel">
+        <Label Grid.Column="1" Grid.Row="5" Content="1.0" VerticalContentAlignment="Center"  Name="AceVersionLabel">
         </Label>
-        <!-- Row 5: General Video Settings Label (in call) -->
-        <Label Grid.Column="0" Grid.Row="5" Content="liblinphone" VerticalContentAlignment="Center"  Name="LinphoneLabel">
+        <!-- Row 6: General Video Settings Label (in call) -->
+        <Label Grid.Column="0" Grid.Row="6" Content="liblinphone" VerticalContentAlignment="Center"  Name="LinphoneLabel">
         </Label>
-        <Label Grid.Column="1" Grid.Row="5" Content="1.0" VerticalContentAlignment="Center" Name="LinphoneVersionLabel" >
+        <Label Grid.Column="1" Grid.Row="6" Content="1.0" VerticalContentAlignment="Center" Name="LinphoneVersionLabel" >
         </Label>
 
 
