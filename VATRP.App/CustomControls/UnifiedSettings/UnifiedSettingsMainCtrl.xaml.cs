@@ -440,12 +440,13 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         // ToDo VATRP-985 - Liz E. - not sure where the outbound proxy setting lives
         private void OnOutboundProxy(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("Outbound Proxy Clicked");
-            if (App.CurrentAccount == null)
-                return;
-            bool enabled = OutboundProxyCheckbox.IsChecked ?? false;
-            App.CurrentAccount.UseOutboundProxy = enabled;
-            ServiceManager.Instance.SaveAccountSettings();
+            // ToDO VATRP-3709 - T.M.
+            //Console.WriteLine("Outbound Proxy Clicked");
+            //if (App.CurrentAccount == null)
+            //    return;
+            //bool enabled = OutboundProxyCheckbox.IsChecked ?? false;
+            //App.CurrentAccount.UseOutboundProxy = enabled;
+            //ServiceManager.Instance.SaveAccountSettings();
         }
         private void OnAvpf(object sender, RoutedEventArgs e)
         {
