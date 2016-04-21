@@ -11,6 +11,7 @@
 			 x:Class="com.vtcsecure.ace.windows.CustomControls.CallViewCtrl"
 			 mc:Ignorable="d" 
 			 d:DesignWidth="700" d:DesignHeight="700"
+            MinWidth="700"
 	d:DataContext="{d:DesignData Source=../SampleData/CallViewSampleData.xaml}" SizeChanged="OnSizeChanged"
 			 >
     <UserControl.Resources>
