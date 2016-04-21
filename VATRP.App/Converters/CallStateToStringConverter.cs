@@ -23,7 +23,7 @@ namespace com.vtcsecure.ace.windows.Converters
                 switch (state)
                 {
                     case VATRPCallState.Trying:
-                        return "Connecting...";
+                        return "Trying";
                     case VATRPCallState.Ringing:
                         return "Ringing";
                     case VATRPCallState.InProgress:
