@@ -46,7 +46,7 @@
                     <unifiedSettings:UnifiedSettingsAudioVideoCtrl x:Name="AudioVideoSettings"  Margin="0" VerticalAlignment="Stretch"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="Theme" Name="ThemeTab">
+            <TabItem Header="Theme" Name="ThemeTab" Visibility="Collapsed">
                 <Grid Background="#FFE5E5E5">
                     <unifiedSettings:UnifiedSettingsThemeCtrl x:Name="ThemeSettings"  Margin="0" VerticalAlignment="Stretch"/>
                 </Grid>

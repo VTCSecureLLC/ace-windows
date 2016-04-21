@@ -28,16 +28,20 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         public CallViewCtrl CallControl;
 
-        private UnifiedSettingsDeviceCtrl _cameraSelectionCtrl;
-        private UnifiedSettingsDeviceCtrl _microphoneSelectionCtrl;
-        private UnifiedSettingsDeviceCtrl _speakerSelectionCtrl;
+//        private UnifiedSettingsDeviceCtrl _cameraSelectionCtrl;
+//        private UnifiedSettingsDeviceCtrl _microphoneSelectionCtrl;
+//        private UnifiedSettingsDeviceCtrl _speakerSelectionCtrl;
+
+        public ObservableCollection<VATRPDevice> CameraList { get; private set; }
+        public ObservableCollection<VATRPDevice> SpeakerList { get; private set; }
+        public ObservableCollection<VATRPDevice> MicrophoneList { get; private set; }
 
         public UnifiedSettingsAudioVideoCtrl()
         {
             InitializeComponent();
             Title = "Audio/Video";
             this.Loaded += UnifiedSettingsAudioVideoCtrl_Loaded;
-            _cameraSelectionCtrl = new UnifiedSettingsDeviceCtrl();
+/*            _cameraSelectionCtrl = new UnifiedSettingsDeviceCtrl();
             _cameraSelectionCtrl.OnDeviceSelected += HandleDeviceSelected;
 
             _microphoneSelectionCtrl = new UnifiedSettingsDeviceCtrl();
@@ -45,6 +49,13 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             _speakerSelectionCtrl = new UnifiedSettingsDeviceCtrl();
             _speakerSelectionCtrl.OnDeviceSelected += HandleDeviceSelected;
+*/
+            CameraList = new ObservableCollection<VATRPDevice>();
+            MicrophoneList = new ObservableCollection<VATRPDevice>();
+            SpeakerList = new ObservableCollection<VATRPDevice>();
+
+            this.DataContext = this;
+
         }
 
         // ToDo VATRP987 - Liz E. these need to be hooked into acutal settings. not sure where they live.
@@ -84,18 +95,50 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 }
             }
 
-            MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
-            MuteSpeakerCheckBox.IsChecked = App.CurrentAccount.MuteSpeaker;
-            EchoCancelCheckBox.IsChecked = App.CurrentAccount.EchoCancel;
-            ShowSelfViewCheckBox.IsChecked = App.CurrentAccount.ShowSelfView;
-            // VATRP-1200 TODO - populate device combo boxes from stored settings.
             List<VATRPDevice> availableCameras = ServiceManager.Instance.GetAvailableCameras();
-            string selectedCameraId = App.CurrentAccount.SelectedCameraId;
+            VATRPDevice selectedCamera = ServiceManager.Instance.GetSelectedCamera();
+            CameraList.Clear();
+            foreach (VATRPDevice camera in availableCameras)
+            {
+                CameraList.Add(camera);
+                if ((selectedCamera != null) && selectedCamera.deviceId.Trim().Equals(camera.deviceId.Trim()))
+                {
+                    SelectCameraComboBox.SelectedItem = camera;
+                }
+
+            }
+
+            List<VATRPDevice> availableMicrophones = ServiceManager.Instance.GetAvailableMicrophones();
+            VATRPDevice selectedMicrophone = ServiceManager.Instance.GetSelectedMicrophone();
+            MicrophoneList.Clear();
+            foreach (VATRPDevice microphone in availableMicrophones)
+            {
+                MicrophoneList.Add(microphone);
+                if ((selectedMicrophone != null) && selectedMicrophone.deviceId.Trim().Equals(microphone.deviceId.Trim()))
+                {
+                    SelectMicrophoneComboBox.SelectedItem = microphone;
+                }
+
+            }
+            List<VATRPDevice> availableSpeakers = ServiceManager.Instance.GetAvailableSpeakers();
+            VATRPDevice selectedSpeaker = ServiceManager.Instance.GetSelectedSpeakers();
+            SpeakerList.Clear();
+            foreach (VATRPDevice speaker in availableSpeakers)
+            {
+                SpeakerList.Add(speaker);
+                if ((selectedSpeaker != null) && selectedSpeaker.deviceId.Trim().Equals(speaker.deviceId.Trim()))
+                {
+                    SelectSpeakerComboBox.SelectedItem = speaker;
+                }
+
+            }
+
+            /*            string selectedCameraId = App.CurrentAccount.SelectedCameraId;
             if (string.IsNullOrEmpty(selectedCameraId))
             {
                 VATRPDevice selectedCamera = ServiceManager.Instance.GetSelectedCamera();
-                SelectedCameraLabel.Content = selectedCamera.displayName;
-                SelectedCameraLabel.ToolTip = selectedCamera.displayName;
+//                SelectedCameraLabel.Content = selectedCamera.displayName;
+//                SelectedCameraLabel.ToolTip = selectedCamera.displayName;
             }
             else
             {
@@ -103,12 +146,13 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 {
                     if (!string.IsNullOrEmpty(selectedCameraId) && selectedCameraId.Equals(camera.deviceId))
                     {
-                        SelectedCameraLabel.Content = camera.displayName;
-                        SelectedCameraLabel.ToolTip = camera.displayName;
+                        SelectCameraComboBox.SelectedItem = camera;
+//                        SelectedCameraLabel.Content = camera.displayName;
+//                        SelectedCameraLabel.ToolTip = camera.displayName;
                     }
                 }
             }
-
+            
             List<VATRPDevice> availableMicrophones = ServiceManager.Instance.GetAvailableMicrophones();
             string selectedMicrophoneId = App.CurrentAccount.SelectedMicrophoneId;
             if (string.IsNullOrEmpty(selectedMicrophoneId))
@@ -148,112 +192,16 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                     }
                 }
             }
+             * */
         }
 
 
 
-        public override void UpdateForMenuSettingChange(ACEMenuSettingsUpdateType menuSetting)
-        {
-            if (App.CurrentAccount == null)
-                return;
 
-            switch (menuSetting)
-            {
-                case ACEMenuSettingsUpdateType.MuteMicrophoneMenu: MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
-                    break;
-                case ACEMenuSettingsUpdateType.MuteSpeakerMenu: MuteSpeakerCheckBox.IsChecked = App.CurrentAccount.MuteSpeaker;
-                    break;
-                case ACEMenuSettingsUpdateType.ShowSelfViewMenu: ShowSelfViewCheckBox.IsChecked = App.CurrentAccount.ShowSelfView;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        public override void ShowSuperOptions(bool show)
-        {
-            base.ShowSuperOptions(show);
-            // 1170-ready: specified for android. is implemented here if we want to enable it.
-            EchoCancelCheckBox.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
-            EchoCancelLabel.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
-
-            // 1170-ready: specified for ios. Is connected and implemented for windows.
-            ShowSelfViewLabel.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
-            ShowSelfViewCheckBox.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
-        }
-
-
-        private void OnMuteMicrophone(object sender, RoutedEventArgs e)
-        {
-            if (App.CurrentAccount == null)
-                return;
-            Console.WriteLine("Mute Microphone Clicked");
-            bool enabled = MuteMicrophoneCheckBox.IsChecked ?? false;
-            if (enabled != App.CurrentAccount.MuteMicrophone)
-            {
-                App.CurrentAccount.MuteMicrophone = enabled;
-                ServiceManager.Instance.ApplyMediaSettingsChanges();
-                ServiceManager.Instance.SaveAccountSettings();
-
-                if ((CallControl != null) && CallControl.IsLoaded)
-                {
-                    CallControl.UpdateMuteSettingsIfOpen();
-                }
-            }
-        }
-        private void OnMuteSpeaker(object sender, RoutedEventArgs e)
-        {
-            if (App.CurrentAccount == null)
-                return;
-            Console.WriteLine("Mute Speaker Clicked");
-            bool enabled = MuteSpeakerCheckBox.IsChecked ?? false;
-            if (enabled != App.CurrentAccount.MuteSpeaker)
-            {
-                App.CurrentAccount.MuteSpeaker = enabled;
-                ServiceManager.Instance.ApplyMediaSettingsChanges();
-                ServiceManager.Instance.SaveAccountSettings();
-
-                if ((CallControl != null) && CallControl.IsLoaded)
-                {
-                    CallControl.UpdateMuteSettingsIfOpen();
-                }
-            }
-        }
-        private void OnEchoCancel(object sender, RoutedEventArgs e)
-        {
-            if (App.CurrentAccount == null)
-                return;
-            Console.WriteLine("Echo Cancel Call Clicked");
-            bool enabled = this.EchoCancelCheckBox.IsChecked ?? false;
-            if (enabled != App.CurrentAccount.EchoCancel)
-            {
-                App.CurrentAccount.EchoCancel = enabled;
-                ServiceManager.Instance.ApplyMediaSettingsChanges();
-                ServiceManager.Instance.SaveAccountSettings();
-            }
-        }
-        private void OnShowSelfView(object sender, RoutedEventArgs e)
-        {
-            if (App.CurrentAccount == null)
-                return;
-            Console.WriteLine("Show Self View Clicked");
-            if (App.CurrentAccount == null)
-                return;
-            bool enable = this.ShowSelfViewCheckBox.IsChecked ?? true;
-            if (enable != App.CurrentAccount.ShowSelfView)
-            {
-                App.CurrentAccount.ShowSelfView = enable;
-                ServiceManager.Instance.ApplyMediaSettingsChanges();
-                ServiceManager.Instance.SaveAccountSettings();
-
-                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.ShowSelfViewChanged);
-
-            }
-        }
 
         // VATRP-1200 TODO - store settings, update Linphone
         #region Device selection
-        private void OnShowCameraOptions(object sender, RoutedEventArgs e)
+/*        private void OnShowCameraOptions(object sender, RoutedEventArgs e)
         {
             List<VATRPDevice> availableCameras = ServiceManager.Instance.GetAvailableCameras();
             _cameraSelectionCtrl.deviceList = availableCameras;
@@ -294,132 +242,53 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 default: break;
             }
         }
-
+*/
 
         private void OnSelectCamera(object sender, RoutedEventArgs e)
         {
-/*            Console.WriteLine("Camera Selected");
+            Console.WriteLine("Camera Selected");
             if (App.CurrentAccount == null)
                 return;
 
-            string str = SelectCameraComboBox.SelectedItem as string;
-            if (!string.IsNullOrEmpty(str))
-            {
-                List<VATRPDevice> cameraList = ServiceManager.Instance.GetAvailableCameras();
-                string selectedCameraId = App.CurrentAccount.SelectedCameraId;
-                VATRPDevice selectedDevice = new VATRPDevice(selectedCameraId, VATRPDeviceType.CAMERA);
-                foreach(VATRPDevice camera in cameraList)
-                {
-                    if (camera.displayName.Equals(str))
-                    {
-                        selectedDevice = camera;
-                    }
-                }
-                if (!selectedDevice.deviceId.Equals(selectedCameraId))
-                {
-                    App.CurrentAccount.SelectedCameraId = selectedDevice.deviceId;
-                    ServiceManager.Instance.ApplyMediaSettingsChanges();
-                    ServiceManager.Instance.SaveAccountSettings();
-                }
-            }
-*/        }
-        public void HandleCameraSelected(VATRPDevice device)
-        {
-            if ((App.CurrentAccount == null) || (device == null))
-                return;
-            SelectedCameraLabel.Content = device.displayName;
+            VATRPDevice selectedCamera = (VATRPDevice)SelectCameraComboBox.SelectedItem;
             string selectedCameraId = App.CurrentAccount.SelectedCameraId;
-            if (!device.deviceId.Equals(selectedCameraId))
+            if (!string.IsNullOrEmpty(selectedCameraId) && (selectedCamera != null) && !selectedCamera.deviceId.Equals(selectedCameraId))
             {
-                App.CurrentAccount.SelectedCameraId = device.deviceId;
+                App.CurrentAccount.SelectedCameraId = selectedCamera.deviceId;
                 ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
             }
         }
-
-        public void HandleMicrophoneSelected(VATRPDevice device)
-        {
-            if ((App.CurrentAccount == null) || (device == null))
-                return;
-
-            SelectedMicrophoneLabel.Content = device.displayName;
-            string selectedDeviceId = App.CurrentAccount.SelectedMicrophoneId;
-            if (!device.deviceId.Equals(selectedDeviceId))
-            {
-                App.CurrentAccount.SelectedMicrophoneId = device.deviceId;
-                ServiceManager.Instance.ApplyMediaSettingsChanges();
-                ServiceManager.Instance.SaveAccountSettings();
-            }
-        }
-
-        public void HandleSpeakerSelected(VATRPDevice device)
-        {
-            if ((App.CurrentAccount == null) || (device == null))
-                return;
-
-            SelectedSpeakerLabel.Content = device.displayName;
-            string selectedDeviceId = App.CurrentAccount.SelectedSpeakerId;
-            if (!device.deviceId.Equals(selectedDeviceId))
-            {
-                App.CurrentAccount.SelectedSpeakerId = device.deviceId;
-                ServiceManager.Instance.ApplyMediaSettingsChanges();
-                ServiceManager.Instance.SaveAccountSettings();
-            }
-        }
-
 
         private void OnSelectMicrophone(object sender, RoutedEventArgs e)
         {
-/*            Console.WriteLine("Microphone Selected");
+            Console.WriteLine("Microphone Selected");
             if (App.CurrentAccount == null)
                 return;
-            string str = SelectMicrophoneComboBox.SelectedItem as string;
-            if (!string.IsNullOrEmpty(str))
+            VATRPDevice selectedMicrophone = (VATRPDevice)SelectMicrophoneComboBox.SelectedItem;
+            string selectedMicrophoneId = App.CurrentAccount.SelectedMicrophoneId;
+            if (!string.IsNullOrEmpty(selectedMicrophoneId) && (selectedMicrophone != null) && !selectedMicrophone.deviceId.Equals(selectedMicrophoneId))
             {
-                List<VATRPDevice> microphoneList = ServiceManager.Instance.GetAvailableMicrophones();
-                string selectedMicrophoneId = App.CurrentAccount.SelectedMicrophoneId;
-                VATRPDevice selectedDevice = new VATRPDevice(selectedMicrophoneId, VATRPDeviceType.MICROPHONE);
-                foreach (VATRPDevice camera in microphoneList)
-                {
-                    if (camera.displayName.Equals(str))
-                    {
-                        selectedDevice = camera;
-                    }
-                }
-                if (!selectedDevice.deviceId.Equals(selectedMicrophoneId))
-                {
-                    App.CurrentAccount.SelectedMicrophoneId = selectedDevice.deviceId;
-                    ServiceManager.Instance.ApplyMediaSettingsChanges();
-                    ServiceManager.Instance.SaveAccountSettings();
-                }
+                App.CurrentAccount.SelectedCameraId = selectedMicrophone.deviceId;
+                ServiceManager.Instance.ApplyMediaSettingsChanges();
+                ServiceManager.Instance.SaveAccountSettings();
             }
-*/        }
+        }
+
         private void OnSelectSpeaker(object sender, RoutedEventArgs e)
         {
-/*            Console.WriteLine("Speaker Selected");
+            Console.WriteLine("Speaker Selected");
             if (App.CurrentAccount == null)
                 return;
-            string str = SelectSpeakerComboBox.SelectedItem as string;
-            if (!string.IsNullOrEmpty(str))
+            VATRPDevice selectedSpeaker = (VATRPDevice)SelectSpeakerComboBox.SelectedItem;
+            string selectedSpeakerId = App.CurrentAccount.SelectedSpeakerId;
+            if (!string.IsNullOrEmpty(selectedSpeakerId) && (selectedSpeaker != null) && !selectedSpeaker.deviceId.Equals(selectedSpeakerId))
             {
-                List<VATRPDevice> speakerList = ServiceManager.Instance.GetAvailableSpeakers();
-                string selectedSpeakerId = App.CurrentAccount.SelectedSpeakerId;
-                VATRPDevice selectedDevice = new VATRPDevice(selectedSpeakerId, VATRPDeviceType.SPEAKER);
-                foreach (VATRPDevice camera in speakerList)
-                {
-                    if (camera.displayName.Equals(str))
-                    {
-                        selectedDevice = camera;
-                    }
-                }
-                if (!selectedDevice.deviceId.Equals(selectedSpeakerId))
-                {
-                    App.CurrentAccount.SelectedSpeakerId = selectedDevice.deviceId;
-                    ServiceManager.Instance.ApplyMediaSettingsChanges();
-                    ServiceManager.Instance.SaveAccountSettings();
-                }
+                App.CurrentAccount.SelectedCameraId = selectedSpeaker.deviceId;
+                ServiceManager.Instance.ApplyMediaSettingsChanges();
+                ServiceManager.Instance.SaveAccountSettings();
             }
-*/        }
+        }
         #endregion
 
         private bool IsPreferredVideoSizeChanged()

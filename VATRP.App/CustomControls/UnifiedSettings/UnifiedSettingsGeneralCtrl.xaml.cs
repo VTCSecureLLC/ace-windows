@@ -1,4 +1,5 @@
-﻿using com.vtcsecure.ace.windows.Services;
+﻿using com.vtcsecure.ace.windows.Enums;
+using com.vtcsecure.ace.windows.Services;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
     /// </summary>
     public partial class UnifiedSettingsGeneralCtrl : BaseUnifiedSettingsPanel
     {
+        public CallViewCtrl CallControl;
+
         public UnifiedSettingsGeneralCtrl()
         {
             InitializeComponent();
@@ -67,7 +70,10 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             {
                 SipEncryptionCheckbox.IsChecked = true;
             }
-            VideoMailUriTextBox.Text = App.CurrentAccount.VideoMailUri;
+            MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
+            MuteSpeakerCheckBox.IsChecked = App.CurrentAccount.MuteSpeaker;
+            EchoCancelCheckBox.IsChecked = App.CurrentAccount.EchoCancel;
+            ShowSelfViewCheckBox.IsChecked = App.CurrentAccount.ShowSelfView;
 
         }
 
@@ -170,52 +176,100 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             ServiceManager.Instance.ConfigurationService.SaveConfig();
         }
 
-        private void OnVideoMailUriChanged(Object sender, RoutedEventArgs args)
+        public override void UpdateForMenuSettingChange(ACEMenuSettingsUpdateType menuSetting)
         {
-            Console.WriteLine("VideoMail URI Changed");
             if (App.CurrentAccount == null)
                 return;
-            string oldVideoMailUri = App.CurrentAccount.VideoMailUri;
-            string newVideoMailUri = VideoMailUriTextBox.Text;
-            if (string.IsNullOrEmpty(newVideoMailUri))
+
+            switch (menuSetting)
             {
-                VideoMailUriTextBox.Text = oldVideoMailUri;
+                case ACEMenuSettingsUpdateType.MuteMicrophoneMenu: MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
+                    break;
+                case ACEMenuSettingsUpdateType.MuteSpeakerMenu: MuteSpeakerCheckBox.IsChecked = App.CurrentAccount.MuteSpeaker;
+                    break;
+                case ACEMenuSettingsUpdateType.ShowSelfViewMenu: ShowSelfViewCheckBox.IsChecked = App.CurrentAccount.ShowSelfView;
+                    break;
+                default:
+                    break;
             }
-            else
+        }
+
+        private void OnMuteMicrophone(object sender, RoutedEventArgs e)
+        {
+            if (App.CurrentAccount == null)
+                return;
+            Console.WriteLine("Mute Microphone Clicked");
+            bool enabled = MuteMicrophoneCheckBox.IsChecked ?? false;
+            if (enabled != App.CurrentAccount.MuteMicrophone)
             {
-                if (!string.IsNullOrEmpty(newVideoMailUri))
+                App.CurrentAccount.MuteMicrophone = enabled;
+                ServiceManager.Instance.ApplyMediaSettingsChanges();
+                ServiceManager.Instance.SaveAccountSettings();
+
+                if ((CallControl != null) && CallControl.IsLoaded)
                 {
-                    try
-                    {
-                        App.CurrentAccount.VideoMailUri = newVideoMailUri;
-                        ServiceManager.Instance.SaveAccountSettings();                       
-                    }
-                    catch (Exception)
-                    {
-                        //TODO: ADD logging handler this class
-                    }
+                    CallControl.UpdateMuteSettingsIfOpen();
                 }
             }
         }
-
-        private void MWIUriTextBox_LostFocus(object sender, RoutedEventArgs e)
+        private void OnMuteSpeaker(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("MWI URI Changed");
             if (App.CurrentAccount == null)
                 return;
-            string newmwiUri = MWIUriTextBox.Text;
-            try
+            Console.WriteLine("Mute Speaker Clicked");
+            bool enabled = MuteSpeakerCheckBox.IsChecked ?? false;
+            if (enabled != App.CurrentAccount.MuteSpeaker)
             {
-                App.CurrentAccount.MWIUri = newmwiUri;
+                App.CurrentAccount.MuteSpeaker = enabled;
+                ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
 
-                // Subscribe for video mail
-                ServiceManager.Instance.LinphoneService.SubscribeForVideoMWI(newmwiUri);
+                if ((CallControl != null) && CallControl.IsLoaded)
+                {
+                    CallControl.UpdateMuteSettingsIfOpen();
+                }
             }
-            catch (Exception)
-            {
-                //TODO: ADD logging handler this class
-            }            
         }
+        private void OnEchoCancel(object sender, RoutedEventArgs e)
+        {
+            if (App.CurrentAccount == null)
+                return;
+            Console.WriteLine("Echo Cancel Call Clicked");
+            bool enabled = this.EchoCancelCheckBox.IsChecked ?? false;
+            if (enabled != App.CurrentAccount.EchoCancel)
+            {
+                App.CurrentAccount.EchoCancel = enabled;
+                ServiceManager.Instance.ApplyMediaSettingsChanges();
+                ServiceManager.Instance.SaveAccountSettings();
+            }
+        }
+        private void OnShowSelfView(object sender, RoutedEventArgs e)
+        {
+            if (App.CurrentAccount == null)
+                return;
+            Console.WriteLine("Show Self View Clicked");
+            if (App.CurrentAccount == null)
+                return;
+            bool enable = this.ShowSelfViewCheckBox.IsChecked ?? true;
+            if (enable != App.CurrentAccount.ShowSelfView)
+            {
+                App.CurrentAccount.ShowSelfView = enable;
+                ServiceManager.Instance.ApplyMediaSettingsChanges();
+                ServiceManager.Instance.SaveAccountSettings();
+
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.ShowSelfViewChanged);
+
+            }
+        }
+
+        private void OnHighContrast(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Coming Soon: High Contrast Theme");
+            if (HighContrastCheckBox.IsChecked ?? false)
+            {
+                System.Windows.MessageBox.Show("Coming soon", "ACE", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
     }
 }

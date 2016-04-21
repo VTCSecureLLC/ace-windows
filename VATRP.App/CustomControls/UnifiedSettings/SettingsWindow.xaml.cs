@@ -95,7 +95,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             _callControl = callControl;
             TextSettings.CallControl = _callControl;
 //            AudioSettings.CallControl = _callControl;
-            AudioVideoSettings.CallControl = _callControl;
+            GeneralSettings.CallControl = _callControl;
         }
 
         private void InitializePanelAndEvents(BaseUnifiedSettingsPanel panel)
@@ -220,13 +220,21 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         private void UpdateVideoSettingsIfOpen(ACEMenuSettingsUpdateType menuSetting)
         {
-            if (AdvancedSettings.IsLoaded)
+//<<<<<<< HEAD
+////            if (VideoSettingsSettings.IsLoaded)
+////            {
+////                VideoSettingsSettings.UpdateForMenuSettingChange(menuSetting);
+////            }
+            if (GeneralSettings.IsLoaded)
+//=======
+//            if (AdvancedSettings.IsLoaded)
+//            {
+//                AdvancedSettings.UpdateForMenuSettingChange(menuSetting);
+//            }
+//            if (AudioVideoSettings.IsLoaded)
+//>>>>>>> master
             {
-                AdvancedSettings.UpdateForMenuSettingChange(menuSetting);
-            }
-            if (AudioVideoSettings.IsLoaded)
-            {
-                AudioVideoSettings.UpdateForMenuSettingChange(menuSetting);
+                GeneralSettings.UpdateForMenuSettingChange(menuSetting);
             }
         }
         private void UpdateAudioSettingsIfOpen(ACEMenuSettingsUpdateType menuSetting)
@@ -235,9 +243,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 //            {
 //                AdvancedSettings.UpdateForMenuSettingChange(menuSetting);
 //            }
-            if (AudioVideoSettings.IsLoaded)
+            if (GeneralSettings.IsLoaded)
             {
-                AudioVideoSettings.UpdateForMenuSettingChange(menuSetting);
+                GeneralSettings.UpdateForMenuSettingChange(menuSetting);
             }
         }
         #endregion
