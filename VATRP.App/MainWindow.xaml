@@ -151,10 +151,10 @@
                     VerticalAlignment="Stretch" >
                 <customControls:CallLogCtrl x:Name="ctrlHistory"  Margin="0" VerticalAlignment="Stretch"/>
 			</Border>
-            <Border x:Name="SettingsPaneHolder" Grid.Row="1"  Visibility="{Binding IsSettingsDocked, Converter={StaticResource bvc}}" 
+<!--            <Border x:Name="SettingsPaneHolder" Grid.Row="1"  Visibility="{Binding IsSettingsDocked, Converter={StaticResource bvc}}" 
                     VerticalAlignment="Stretch" >
                 <unifiedSettings:UnifiedSettingsCtrl x:Name="ctrlSettings"  Margin="0" VerticalAlignment="Stretch"/>
-            </Border>
+            </Border>-->
             <Border x:Name="ResourcesPaneHolder" Grid.Row="1"  Visibility="{Binding IsResourceDocked, Converter={StaticResource bvc}}" 
                     VerticalAlignment="Stretch" >
                 <resourceControls:ResourcePanel x:Name="ctrlResource"  Margin="0" VerticalAlignment="Stretch"/>
