@@ -115,6 +115,15 @@ namespace com.vtcsecure.ace.windows.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Destination not rechable..
+        /// </summary>
+        internal static string ERR_NotReachable {
+            get {
+                return ResourceManager.GetString("ERR_NotReachable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The call failed of an unknown error..
         /// </summary>
         internal static string ERR_Unknown {

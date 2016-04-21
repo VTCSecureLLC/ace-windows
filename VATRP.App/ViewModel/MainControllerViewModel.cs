@@ -431,7 +431,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             return false;
         }
 
-        internal void TerminateCall(CallViewModel viewModel)
+        internal void TerminateCall(CallViewModel viewModel, string message)
         {
             lock (CallsViewModelList)
             {
@@ -443,12 +443,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     }
                     else
                     {
-                        LOG.Info(String.Format("Terminating call call for {0}. {1}", viewModel.CallerInfo,
-                            viewModel.ActiveCall.NativeCallPtr));
 
+                        LOG.Info(String.Format("Terminating call for {0}. {1}", viewModel.CallerInfo,
+                            viewModel.ActiveCall.NativeCallPtr));
                         try
                         {
-                            _linphoneService.TerminateCall(viewModel.ActiveCall.NativeCallPtr);
+                            _linphoneService.TerminateCall(viewModel.ActiveCall.NativeCallPtr, message);
                         }
                         catch (Exception ex)
                         {
@@ -544,7 +544,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 CallViewModel nextCall = GetNextViewModel(viewModel);
                 if (nextCall != null)
                 {
-                    TerminateCall(nextCall);
+                    TerminateCall(nextCall, "Call terminated");
 
                     AcceptCall(viewModel);
                 }

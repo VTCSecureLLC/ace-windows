@@ -202,4 +202,7 @@
   <data name="SIP_604" xml:space="preserve">
     <value>The number/address you are trying to reach is no longer available.</value>
   </data>
+  <data name="ERR_NotReachable" xml:space="preserve">
+    <value>Destination not reachable.</value>
+  </data>
 </root>

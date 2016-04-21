@@ -132,7 +132,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             if (_parentViewModel != null)
             {
-                _parentViewModel.TerminateCall(bRunning ? _viewModel : _backgroundCallViewModel);
+                _parentViewModel.TerminateCall(bRunning ? _viewModel : _backgroundCallViewModel, "Call terminated");
             }
         }
 

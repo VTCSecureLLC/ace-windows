@@ -116,6 +116,7 @@ namespace com.vtcsecure.ace.windows
 					CallInfoCtrl = _callInfoView
 				};
 
+			    callViewModel.CallConnectingTimeout += OnCallConnectingTimeout;
 			    callViewModel.CallQualityChangedEvent += OnCallQualityChanged;
 
                 callViewModel.VideoWidth = (int)CombinedUICallViewSize.Width;
@@ -648,7 +649,17 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 		    }
 		}
 
-        private void WakeupScreenSaver()
+        private void OnCallConnectingTimeout(object sender, EventArgs e)
+        {
+            var callViewModel = sender as CallViewModel;
+
+            if (callViewModel != null && callViewModel.ActiveCall != null)
+            {
+                _mainViewModel.TerminateCall(callViewModel, "NotReachable");
+            }
+        }
+
+	    private void WakeupScreenSaver()
         {
             // simulate mouse move event
             ScreenSaverHelper.SimulateMouseMoveEvent(this);
