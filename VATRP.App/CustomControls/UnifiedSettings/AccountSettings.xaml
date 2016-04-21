@@ -30,7 +30,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="140"/>
                 <ColumnDefinition Width="260*"/>
             </Grid.ColumnDefinitions>
 
@@ -47,64 +47,83 @@
                 </Button>
 
                 <!-- Row 2: User Name text box -->
-                <Label Grid.Column="0" Grid.Row="2" Content="User Name" VerticalContentAlignment="Center" 
+            <Label Grid.Column="0" Grid.Row="2" Content="User Name" VerticalAlignment="Center" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left">
                 </Label>
                 <TextBox Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Name="UserNameTextBox"  LostFocus="OnUserNameChanged" IsEnabled="false"/>
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" 
+                     VerticalContentAlignment="Center" FontSize="12" Foreground="Blue" Name="UserNameTextBox"  LostFocus="OnUserNameChanged" IsEnabled="false"/>
 
                 <!-- Row 3: User Id text box -->
-                <Label Grid.Column="0" Grid.Row="3" Content="User Id" VerticalContentAlignment="Center" 
+            <Label Grid.Column="0" Grid.Row="3" Content="User Id" VerticalAlignment="Center" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Visibility="Collapsed" Name="UserIdLabel">
                 </Label>
                 <TextBox Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Visibility="Collapsed" Name="UserIdTextBox" IsEnabled="false"/>
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" 
+                     VerticalContentAlignment="Center" FontSize="12" Foreground="Blue" Visibility="Collapsed" Name="UserIdTextBox" IsEnabled="false"/>
 
 
                 <!-- Row 4: Password text box -->
-                <Label Grid.Column="0" Grid.Row="4" Content="Password" VerticalContentAlignment="Center" 
+            <Label Grid.Column="0" Grid.Row="4" Content="Password" VerticalAlignment="Center" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="PasswordLabel">
                 </Label>
                 <PasswordBox Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" VerticalAlignment="Top" Foreground="Blue" Name="PasswordTextBox" LostFocus="OnPasswordChanged"/>
+                     Height="23" Margin="0,0,0,0" VerticalAlignment="Center" VerticalContentAlignment="Center" FontSize="12" 
+                     Foreground="Blue" Name="PasswordTextBox" LostFocus="OnPasswordChanged"/>
 
                 <!-- Row 5: Domain button -->
-                <Label Grid.Column="0" Grid.Row="5" Content="Domain" VerticalContentAlignment="Center" 
+            <Label Grid.Column="0" Grid.Row="5" Content="Domain" VerticalAlignment="Center" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left">
                 </Label>
                 <TextBox Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Name="DomainTextBox" LostFocus="OnDomainChanged" IsEnabled="false"/>
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" 
+                     VerticalContentAlignment="Center" FontSize="12" Foreground="Blue" Name="DomainTextBox" LostFocus="OnDomainChanged" IsEnabled="false"/>
 
                 <!-- Row 6: Proxy Domain Text box -->
-                <Label Grid.Column="0" Grid.Row="6" Content="Port" VerticalContentAlignment="Center" 
+            <Label Grid.Column="0" Grid.Row="6" Content="Port" VerticalAlignment="Center" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Visibility="Collapsed" Name="ProxyLabel">
                 </Label>
                 <TextBox Grid.Column="1" Grid.Row="6" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" Visibility="Collapsed" Name="ProxyTextBox" LostFocus="OnProxyPortChanged" IsEnabled="false"/>
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" 
+                     VerticalContentAlignment="Center" FontSize="12" Foreground="Blue" Visibility="Collapsed" Name="ProxyTextBox" LostFocus="OnProxyPortChanged" IsEnabled="false"/>
             <!-- Row 7: Transport -->
-            <Label Grid.Column="0" Grid.Row="7" Content="Transport" VerticalContentAlignment="Center" 
+            <Label Grid.Column="0" Grid.Row="7" Content="Transport" VerticalAlignment="Center" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="TransportLabel" Visibility="Collapsed">
             </Label>
-            <ComboBox Grid.Row="7" Grid.Column="1" x:Name="TransportComboBox" FontSize="14" Margin="0,3,0,3" Width="120" Height="24" 
-                           VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="OnTransportChanged" Visibility="Collapsed">
+            <ComboBox Grid.Row="7" Grid.Column="1" x:Name="TransportComboBox"  Margin="0,3,0,3" Width="120" Height="24" 
+                           VerticalAlignment="Center" HorizontalAlignment="Left" VerticalContentAlignment="Center" FontSize="12" SelectionChanged="OnTransportChanged" Visibility="Collapsed">
                 <TextBlock >TCP</TextBlock>
                 <TextBlock >TLS</TextBlock>
             </ComboBox>
 
-            <!-- Row 8: CardDAV server Text box -->
-            <Label Grid.Column="0" Grid.Row="8" Content="CardDAV URI" VerticalContentAlignment="Center" 
+            <!-- Row 8: Video Main URI checkbox -->
+            <Label Grid.Column="0" Grid.Row="8" Content="Video Mail URI" VerticalAlignment="Center" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left" Name="VideoMailUriLabel">
+            </Label>
+            <TextBox Grid.Column="1" Grid.Row="8" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
+                     Height="23" Margin="0,0,0,0" Text=""  VerticalAlignment="Center"
+                     VerticalContentAlignment="Center" FontSize="12" Foreground="Blue" Name="VideoMailUriTextBox"  LostFocus="OnVideoMailUriChanged"/>
+            <!-- Row 9: Video Main URI checkbox -->
+            <Label Grid.Column="0" Grid.Row="9" Content="Mail Waiting URI" VerticalAlignment="Center" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left" Name="MWIUriLabel">
+            </Label>
+            <TextBox Grid.Column="1" Grid.Row="9" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
+                     Height="23" Margin="0,0,0,0" Text=""  VerticalAlignment="Center" VerticalContentAlignment="Center" FontSize="12" 
+                     Foreground="Blue" Name="MWIUriTextBox"  LostFocus="MWIUriTextBox_LostFocus"/>
+            <!-- Row 10: CardDAV server Text box -->
+            <Label Grid.Column="0" Grid.Row="10" Content="CardDAV URI" VerticalAlignment="Center" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Visibility="Visible" Name="CardDAVServerLabel">
             </Label>
-            <TextBox Grid.Column="1" Grid.Row="8" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" Text=""  VerticalAlignment="Top" Foreground="Blue" 
+            <TextBox Grid.Column="1" Grid.Row="10" HorizontalAlignment="Stretch" 
+                     Height="23" Margin="0,0,0,0" Text=""  VerticalAlignment="Center" Foreground="Blue" VerticalContentAlignment="Center" FontSize="12"
                      Name="CardDAVServerTextBox" LostFocus="OnCardDAVServerChanged" IsEnabled="true"/>
 
-            <!-- Row 9: CardDAV realm Text box -->
-            <Label Grid.Column="0" Grid.Row="9" Content="CardDAV Realm" VerticalContentAlignment="Center" 
+            <!-- Row 11: CardDAV realm Text box -->
+            <Label Grid.Column="0" Grid.Row="11" Content="CardDAV Realm" VerticalAlignment="Center" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Visibility="Visible" Name="CardDAVRealmLabel">
             </Label>
-            <TextBox Grid.Column="1" Grid.Row="9" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Top" Foreground="Blue" 
+            <TextBox Grid.Column="1" Grid.Row="11" HorizontalAlignment="Stretch" 
+                     Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" VerticalContentAlignment="Center" FontSize="12" Foreground="Blue" 
                      Name="CardDAVRealmTextBox" LostFocus="OnCardDAVRealmChanged" IsEnabled="true"/>
 
         </Grid>
