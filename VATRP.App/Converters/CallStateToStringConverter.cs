@@ -25,9 +25,9 @@ namespace com.vtcsecure.ace.windows.Converters
                     case VATRPCallState.Trying:
                         return "Connecting...";
                     case VATRPCallState.Ringing:
-                        return "Ringing";
+                        return "Ringing...";
                     case VATRPCallState.InProgress:
-                        return "Ringing";
+                        return "Ringing...";
                     case VATRPCallState.StreamsRunning:
                     case VATRPCallState.Connected:
                         return "Connected";
