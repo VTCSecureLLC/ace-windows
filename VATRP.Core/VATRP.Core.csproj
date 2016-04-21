@@ -84,6 +84,8 @@
     <Compile Include="Enums\MessageDirection.cs" />
     <Compile Include="Enums\TypingAction.cs" />
     <Compile Include="Enums\UserStatus.cs" />
+    <Compile Include="Events\CardDavContactEventArgs.cs" />
+    <Compile Include="Events\CardDavSyncEventArgs.cs" />
     <Compile Include="Events\DeclineMessageArgs.cs" />
     <Compile Include="Events\InfoEventArgs.cs" />
     <Compile Include="Events\HttpDownloadEventArgs.cs" />

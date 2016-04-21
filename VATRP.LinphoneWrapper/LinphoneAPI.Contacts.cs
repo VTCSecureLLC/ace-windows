@@ -10,6 +10,56 @@ namespace VATRP.LinphoneWrapper
 {
     public static partial class LinphoneAPI
     {
+        /**
+ * Create a new empty LinphoneFriendList object.
+ * @param[in] lc LinphoneCore object.
+ * @return A new LinphoneFriendList object.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_create_friend_list(IntPtr lc);
+
+        /**
+ * Removes a friend list.
+ * @param[in] lc LinphoneCore object
+ * @param[in] list LinphoneFriendList object
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_remove_friend_list(IntPtr lc, IntPtr list);
+
+        /**
+ * Add a friend list.
+ * @param[in] lc LinphoneCore object
+ * @param[in] list LinphoneFriendList object
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_core_add_friend_list(IntPtr lc, IntPtr list);
+
+
+
+        /**
+ * Get the URI associated with the friend list.
+ * @param[in] list LinphoneFriendList object.
+ * @return The URI associated with the friend list.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_list_get_uri(IntPtr list);
+
+/**
+ * Set the URI associated with the friend list.
+ * @param[in] list LinphoneFriendList object.
+ * @param[in] rls_uri The URI to associate with the friend list.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_friend_list_set_uri(IntPtr list, string uri);
+
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_list_get_callbacks(IntPtr list);
 
         /**
  * Returns the vCard object associated to this friend, if any
@@ -55,11 +105,13 @@ namespace VATRP.LinphoneWrapper
          */
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int linphone_friend_list_import_friends_from_vcard4_file(IntPtr friendsList, string vcard_file);
+        public static extern int linphone_friend_list_import_friends_from_vcard4_file(IntPtr friendsList,
+            string vcard_file);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_friend_list_export_friends_as_vcard4_file(IntPtr friendsList, string vcard_file);
+        public static extern void linphone_friend_list_export_friends_as_vcard4_file(IntPtr friendsList,
+            string vcard_file);
 
         /**
          * Sets the database filename where friends will be stored.
@@ -154,5 +206,195 @@ namespace VATRP.LinphoneWrapper
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_friend_done(IntPtr fr);
 
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_list_cbs_ref(IntPtr cbs);
+
+/**
+ * Release a reference to a LinphoneFriendListCbs object.
+ * @param[in] cbs LinphoneFriendListCbs object.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_friend_list_cbs_unref(IntPtr cbs);
+
+/**
+ * Retrieve the user pointer associated with a LinphoneFriendListCbs object.
+ * @param[in] cbs LinphoneFriendListCbs object.
+ * @return The user pointer associated with the LinphoneFriendListCbs object.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_list_cbs_get_user_data(IntPtr cbs);
+
+/**
+ * Assign a user pointer to a LinphoneFriendListCbs object.
+ * @param[in] cbs LinphoneFriendListCbs object.
+ * @param[in] ud The user pointer to associate with the LinphoneFriendListCbs object.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_friend_list_cbs_set_user_data(IntPtr cbs, IntPtr ud);
+
+/**
+ * Get the contact created callback.
+ * @param[in] cbs LinphoneFriendListCbs object.
+ * @return The current contact created callback.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_list_cbs_get_contact_created(IntPtr cbs);
+
+/**
+ * Set the contact created callback.
+ * @param[in] cbs LinphoneFriendListCbs object.
+ * @param[in] cb The contact created to be used.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_friend_list_cbs_set_contact_created(IntPtr cbs, IntPtr cb);
+
+/**
+ * Get the contact deleted callback.
+ * @param[in] cbs LinphoneFriendListCbs object.
+ * @return The current contact deleted callback.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_list_cbs_get_contact_deleted(IntPtr cbs);
+
+/**
+ * Set the contact deleted callback.
+ * @param[in] cbs LinphoneFriendListCbs object.
+ * @param[in] cb The contact deleted to be used.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_friend_list_cbs_set_contact_deleted(IntPtr cbs, IntPtr cb);
+
+/**
+ * Get the contact updated callback.
+ * @param[in] cbs LinphoneFriendListCbs object.
+ * @return The current contact updated callback.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_list_cbs_get_contact_updated(IntPtr cbs);
+
+/**
+ * Set the contact updated callback.
+ * @param[in] cbs LinphoneFriendListCbs object.
+ * @param[in] cb The contact updated to be used.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_friend_list_cbs_set_contact_updated(IntPtr cbs, IntPtr cb);
+
+/**
+ * Get the sync status changed callback.
+ * @param[in] cbs LinphoneFriendListCbs object.
+ * @return The current sync status changedcallback.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_list_cbs_get_sync_status_changed(IntPtr cbs);
+
+/**
+ * Set the contact updated callback.
+ * @param[in] cbs LinphoneFriendListCbs object.
+ * @param[in] cb The sync status changed to be used.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_friend_list_cbs_set_sync_status_changed(IntPtr cbs, IntPtr cb);
+
+/**
+ * Starts a CardDAV synchronization using value set using linphone_friend_list_set_uri.
+ * @param[in] list LinphoneFriendList object.
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_friend_list_synchronize_friends_from_server(IntPtr list);
+
+        /**
+ * Add a friend to a friend list. If or when a remote CardDAV server will be attached to the list, the friend will be sent to the server.
+ * @param[in] list LinphoneFriendList object.
+ * @param[in] friend LinphoneFriend object to add to the friend list.
+ * @return LinphoneFriendListOK if successfully added, LinphoneFriendListInvalidFriend if the friend is not valid.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_friend_list_add_friend(IntPtr list, IntPtr lf);
+
+/**
+ * Add a friend to a friend list. The friend will never be sent to a remote CardDAV server.
+ * Warning! LinphoneFriends added this way will be removed on the next synchronization, and the callback contact_deleted will be called.
+ * @param[in] list LinphoneFriendList object.
+ * @param[in] friend LinphoneFriend object to add to the friend list.
+ * @return LinphoneFriendListOK if successfully added, LinphoneFriendListInvalidFriend if the friend is not valid.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_friend_list_add_local_friend(IntPtr list, IntPtr lf);
+
+/**
+ * Remove a friend from a friend list.
+ * @param[in] list LinphoneFriendList object.
+ * @param[in] friend LinphoneFriend object to remove from the friend list.
+ * @return LinphoneFriendListOK if removed successfully, LinphoneFriendListNonExistentFriend if the friend is not in the list.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern LinphoneFriendListStatus linphone_friend_list_remove_friend(IntPtr list, IntPtr afriend);
+
+/**
+ * Retrieves the list of LinphoneFriend from this LinphoneFriendList.
+ * @param[in] list LinphoneFriendList object
+ * @return \mslist{LinphoneFriend} a list of LinphoneFriend
+ */
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_list_get_friends(IntPtr list);
+
+/**
+ * Find a friend in the friend list using a LinphoneAddress.
+ * @param[in] list LinphoneFriendList object.
+ * @param[in] address LinphoneAddress object of the friend we want to search for.
+ * @return A LinphoneFriend if found, NULL otherwise.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_list_find_friend_by_address(IntPtr list, IntPtr address);
+
+/**
+ * Find a friend in the friend list using an URI string.
+ * @param[in] list LinphoneFriendList object.
+ * @param[in] uri A string containing the URI of the friend we want to search for.
+ * @return A LinphoneFriend if found, NULL otherwise.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_list_find_friend_by_uri(IntPtr list, string uri);
+
+/**
+ * Find a frient in the friend list using a ref key.
+ * @param[in] list LinphoneFriendList object.
+ * @param[in] ref_key The ref key string of the friend we want to search for.
+ * @return A LinphoneFriend if found, NULL otherwise.
+**/
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_list_find_friend_by_ref_key(IntPtr list, string ref_key);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_friend_list_close_subscriptions(IntPtr list);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_vcard_get_uid(IntPtr vCard);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void linphone_friend_set_ref_key(IntPtr lf, string key);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_friend_get_ref_key(IntPtr lf);
     }
 }

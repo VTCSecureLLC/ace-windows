@@ -24,6 +24,10 @@ namespace VATRP.Core.Interfaces
         event LinphoneService.MWIReceivedDelegate OnMWIReceivedEvent;
         event LinphoneService.InfoReceivedDelegate OnCameraMuteEvent;
         event LinphoneService.NetworkReachabilityChanged NetworkReachableEvent;
+        event LinphoneService.CardDavContactDelegate CardDAVContactCreated;
+        event LinphoneService.CardDavContactDelegate CardDAVContactUpdated;
+        event LinphoneService.CardDavContactDelegate CardDAVContactDeleted;
+        event LinphoneService.CardDavSyncDelegate CardDAVSyncEvent;
 
         #endregion
 
@@ -124,8 +128,9 @@ namespace VATRP.Core.Interfaces
         string GetTechnicalSupportInfo();
         string GetTechnicalSupportInfo(IntPtr callPtr);
         void UpdatePrivateDataPath();
+        void CardDAVSync();
+        void RemoveCardDAVAuthInfo();
 
         #endregion
-
     }
 }

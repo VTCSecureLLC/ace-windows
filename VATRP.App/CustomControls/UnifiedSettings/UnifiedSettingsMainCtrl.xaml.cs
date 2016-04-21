@@ -47,6 +47,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 PasswordTextBox.Password = App.CurrentAccount.Password;
                 DomainTextBox.Text = App.CurrentAccount.ProxyHostname;
                 ProxyTextBox.Text = Convert.ToString(App.CurrentAccount.ProxyPort);
+                CardDAVServerTextBox.Text = App.CurrentAccount.CardDavServerPath;
+                CardDAVRealmTextBox.Text = App.CurrentAccount.CardDavRealm;
                 string transport = App.CurrentAccount.Transport;
                 if (string.IsNullOrWhiteSpace(transport))
                 {
@@ -271,7 +273,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             if (App.CurrentAccount != null)
             {
                 bool isChanged = false;
-
+                bool resyncContacts = false;
                 if (App.CurrentAccount.ProxyPort != port)
                 {
                     App.CurrentAccount.ProxyPort = port;
@@ -292,6 +294,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 if (ValueChanged(App.CurrentAccount.Password, PasswordTextBox.Password))
                 {
                     App.CurrentAccount.Password = PasswordTextBox.Password;
+                    resyncContacts = true;
                     isChanged = true;
                 }
                 if (ValueChanged(App.CurrentAccount.ProxyHostname, DomainTextBox.Text))
@@ -299,20 +302,36 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                     App.CurrentAccount.ProxyHostname = DomainTextBox.Text;
                     isChanged = true;
                 }
-                if (ValueChanged(App.CurrentAccount.RegistrationUser, UserNameTextBox.Text))
-                { 
-                    App.CurrentAccount.RegistrationUser = UserNameTextBox.Text;
-                    isChanged = true;
-                }
                 if (ValueChanged(App.CurrentAccount.RegistrationPassword, PasswordTextBox.Password))
                 { 
                     App.CurrentAccount.RegistrationPassword = PasswordTextBox.Password;
+                    resyncContacts = true;
                     isChanged = true;
+                }
+                if (ValueChanged(App.CurrentAccount.RegistrationUser, UserNameTextBox.Text))
+                {
+                    App.CurrentAccount.RegistrationUser = UserNameTextBox.Text;
+                    resyncContacts = true;
+                    isChanged = true;
+                }
+                if (ValueChanged(App.CurrentAccount.CardDavServerPath, CardDAVServerTextBox.Text))
+                {
+                    App.CurrentAccount.CardDavServerPath = CardDAVServerTextBox.Text;
+                    resyncContacts = true;
+                }
+                if (ValueChanged(App.CurrentAccount.CardDavRealm, CardDAVRealmTextBox.Text))
+                {
+                    App.CurrentAccount.CardDavRealm = CardDAVRealmTextBox.Text;
+                    resyncContacts = true;
                 }
                 //App.CurrentAccount.Transport = (string)TransportValueLabel.Content; // saved when changed
                 if (isChanged)
                 {
                     OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.RegistrationChanged);
+                }
+                if (resyncContacts)
+                {
+                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.CardDavConfigChanged);
                 }
             }
         }
@@ -396,6 +415,27 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
         }
 
+        public void OnCardDAVServerChanged(Object sender, RoutedEventArgs args)
+        {
+            if ((App.CurrentAccount == null) || !this.IsVisible)
+                return;
+            if (App.CurrentAccount.CardDavServerPath != CardDAVServerTextBox.Text)
+            {
+                App.CurrentAccount.CardDavServerPath = CardDAVServerTextBox.Text;
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.CardDavConfigChanged);
+            }
+        }
+
+        public void OnCardDAVRealmChanged(Object sender, RoutedEventArgs args)
+        {
+            if ((App.CurrentAccount == null) || !this.IsVisible)
+                return;
+            if (App.CurrentAccount.CardDavRealm != CardDAVRealmTextBox.Text)
+            {
+                App.CurrentAccount.CardDavRealm = CardDAVRealmTextBox.Text;
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.CardDavConfigChanged);
+            }
+        }
 
         // ToDo VATRP-985 - Liz E. - not sure where the outbound proxy setting lives
         private void OnOutboundProxy(object sender, RoutedEventArgs e)

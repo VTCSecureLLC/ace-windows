@@ -60,6 +60,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _contactsService = contactService;
             _contactsService.ContactAdded += ContactAdded;
             _contactsService.ContactRemoved += ContactRemoved;
+            _contactsService.ContactsChanged += ContactChanged;
             _contactsService.ContactsLoadCompleted += ContactsLoadCompleted;
             _dialpadViewModel = dialpadViewModel;
             _dialpadViewModel.PropertyChanged += OnDialpadPropertyChanged;
@@ -202,6 +203,18 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 EventSearchCriteria = _dialpadViewModel.RemotePartyNumber;
             }
+        }
+        
+        private void ContactChanged(object sender, ContactEventArgs e)
+        {
+            if (ServiceManager.Instance.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
+            {
+                ServiceManager.Instance.Dispatcher.BeginInvoke((Action)(() => this.ContactChanged(sender, e)));
+                return;
+            }
+
+            if (ContactsListView != null) 
+                ContactsListView.Refresh();
         }
 
         private void ContactAdded(object sender, ContactEventArgs e)
