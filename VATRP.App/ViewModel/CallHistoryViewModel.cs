@@ -269,19 +269,22 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         public void AddNewContact(HistoryCallEventViewModel callEventViewModel)
         {
-            var remote = callEventViewModel.CallEvent.RemoteParty.TrimSipPrefix();
-            ContactEditViewModel model = new ContactEditViewModel(false, remote, string.Empty);
-            model.ContactName = callEventViewModel.DisplayName;
-            var contactEditView = new com.vtcsecure.ace.windows.Views.ContactEditView(model);
-            var dialogResult = contactEditView.ShowDialog();
-            if (dialogResult != null && dialogResult.Value)
+            if (!ServiceManager.Instance.ContactService.IsEditing())
             {
-                var contact = ServiceManager.Instance.ContactService.FindContact(new ContactID(model.ContactSipAddress, IntPtr.Zero));
-                if (contact != null && contact.Fullname == model.ContactName)
-                    return;
+                var remote = callEventViewModel.CallEvent.RemoteParty.TrimSipPrefix();
+                ContactEditViewModel model = new ContactEditViewModel(false, remote, string.Empty);
+                model.ContactName = callEventViewModel.DisplayName;
+                var contactEditView = new com.vtcsecure.ace.windows.Views.ContactEditView(model);
+                var dialogResult = contactEditView.ShowDialog();
+                if (dialogResult != null && dialogResult.Value)
+                {
+                    var contact = ServiceManager.Instance.ContactService.FindContact(new ContactID(model.ContactSipAddress, IntPtr.Zero));
+                    if (contact != null && contact.Fullname == model.ContactName)
+                        return;
 
-                ServiceManager.Instance.ContactService.AddLinphoneContact(model.ContactName, model.ContactSipUsername,
-                    model.ContactSipAddress);
+                    ServiceManager.Instance.ContactService.AddLinphoneContact(model.ContactName, model.ContactSipUsername,
+                        model.ContactSipAddress);
+                }
             }
         }
 

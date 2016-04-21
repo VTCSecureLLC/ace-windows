@@ -13,6 +13,11 @@ namespace VATRP.Core.Services
             {
                 IsOutboundProxyOn = true;
                 Expires = 280;
+                CardDavUser = string.Empty;
+                CardDavPass = string.Empty;
+                CardDavRealm = string.Empty;
+                CardDavDomain = string.Empty;
+                CardDavServer = string.Empty;
             }
 
             public string DisplayName { get; set; }
@@ -45,6 +50,13 @@ namespace VATRP.Core.Services
             public bool IsOutboundProxyOn { get; set; }
 
             public int Expires { get; set; }
+
+            public string CardDavUser { get; set; }
+            public string CardDavPass { get; set; }
+            public string CardDavRealm { get; set; }
+            public string CardDavServer { get; set; }
+
+            public string CardDavDomain { get; set; }
         }
     }
 }

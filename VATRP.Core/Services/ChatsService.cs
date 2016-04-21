@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Input;
+using com.vtcsecure.ace.windows.Model;
 using VATRP.Core.Enums;
 using VATRP.Core.Events;
 using VATRP.Core.Extensions;
@@ -53,7 +54,9 @@ namespace VATRP.Core.Services
         public event EventHandler<ConversationEventArgs> NewConversationCreated;
 
         public event EventHandler<EventArgs> RttReceived;
-		
+
+        public event EventHandler<DeclineMessageArgs> ConversationDeclineMessageReceived;
+
         public bool IsRTTenabled { get; set; }
         public ChatsService(ServiceManagerBase mngBase)
         {
@@ -330,14 +333,27 @@ namespace VATRP.Core.Services
                     if (chat.CheckMessage(chatMessage))
                     {
                         chat.UnreadMsgCount++;
-
-                        contact.UnreadMsgCount += chat.UnreadMsgCount;
+                        if (!chat.IsSelected)
+                            contact.UnreadMsgCount++;
                         chatMessage.IsRTTMessage = false;
                         chatMessage.IsIncompleteMessage = false;
                         chatMessage.Chat = chat;
+                        if (chatMessage.Content.StartsWith(VATRPChatMessage.DECLINE_PREFIX))
+                        {
+                            chatMessage.Content = chatMessage.Content.Substring(VATRPChatMessage.DECLINE_PREFIX.Length);
+
+                            chatMessage.IsDeclineMessage = true;
+                            if (ConversationDeclineMessageReceived != null)
+                            {
+                                var declineArgs = new DeclineMessageArgs(chatMessage.Content) { Sender = contact };
+                                ConversationDeclineMessageReceived(this, declineArgs);
+                            }
+                        }
+
                         chat.AddMessage(chatMessage, false);
                         chat.UpdateLastMessage(false);
 
+                        OnConversationUnReadStateChanged(chat);
                         this.OnConversationUpdated(chat, true);
                     }
                 });
@@ -702,6 +718,7 @@ namespace VATRP.Core.Services
             if (chat != null)
             {
                 chat.UnreadMsgCount = 0;
+                OnConversationUnReadStateChanged(chat);
                 if ( chat.Contact != null )
                 {
                     chat.Contact.UnreadMsgCount = 0;
@@ -751,6 +768,39 @@ namespace VATRP.Core.Services
                         chatItem.MessageFont = newFont;
                     }
                 }
+            }
+        }
+
+        public bool HasUnreadMessages()
+        {
+            lock (this._chatItems)
+            {
+                foreach (VATRPChat chatItem in this._chatItems)
+                {
+                    if (chatItem != null)
+                    {
+                        if (chatItem.HasUnreadMsg)
+                            return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public void ActivateChat(VATRPChat chat)
+        {
+            lock (this._chatItems)
+            {
+                foreach (VATRPChat chatItem in this._chatItems)
+                {
+                    if (chatItem != null && chatItem != chat)
+                    {
+                        chatItem.IsSelected = false;
+                    }
+                }
+
+                if (chat != null)
+                    chat.IsSelected = true;
             }
         }
 
@@ -835,28 +885,36 @@ namespace VATRP.Core.Services
             {
                 return false;
             }
-
+            var declineMessage = text.StartsWith(VATRPChatMessage.DECLINE_PREFIX);
             var message = new VATRPChatMessage(MessageContentType.Text)
             {
                 Direction = MessageDirection.Outgoing,
                 Status = LinphoneChatMessageState.LinphoneChatMessageStateIdle,
                 MessageTime = DateTime.Now,
                 IsIncompleteMessage = false,
-                Content = text,
-                Chat = chatID
+                Chat = chatID,
+                IsDeclineMessage = declineMessage
             };
 
+            message.Content = declineMessage ? text.Substring(VATRPChatMessage.DECLINE_PREFIX.Length) : text;
+
+            // send message to linphone
+            IntPtr msgPtr = IntPtr.Zero;
+            _linphoneSvc.SendChatMessage(chat, text, ref msgPtr);
+            if (msgPtr != IntPtr.Zero)
+                message.MessageTime = Time.ConvertUtcTimeToLocalTime(LinphoneAPI.linphone_chat_message_get_time(msgPtr));
+            
+            message.NativePtr = msgPtr;
+            
             chat.AddMessage(message, false);
             chat.UpdateLastMessage(false);
 
             chat.UnreadMsgCount = 0;
             chat.Contact.UnreadMsgCount = 0;
+
+            OnConversationUnReadStateChanged(chat);
             this.OnConversationUpdated(chat, true);
 
-            // send message to linphone
-            IntPtr msgPtr = IntPtr.Zero;
-            _linphoneSvc.SendChatMessage(chat, message.Content, ref msgPtr);
-            message.NativePtr = msgPtr;
             return true;
         }
 
@@ -1141,7 +1199,12 @@ namespace VATRP.Core.Services
                                             var localTime =
                                                 Time.ConvertUtcTimeToLocalTime(
                                                     LinphoneAPI.linphone_chat_message_get_time(msMessagePtr.data));
-
+                                            var declineMessage = false;
+                                            if (messageString.StartsWith(VATRPChatMessage.DECLINE_PREFIX))
+                                            {
+                                                messageString = messageString.Substring(VATRPChatMessage.DECLINE_PREFIX.Length);
+                                                declineMessage = true;
+                                            }
                                             var chatMessage = new VATRPChatMessage(MessageContentType.Text)
                                             {
                                                 Direction =
@@ -1152,7 +1215,8 @@ namespace VATRP.Core.Services
                                                 MessageTime = localTime,
                                                 Content = messageString,
                                                 IsRTTMessage = false,
-                                                IsRead = LinphoneAPI.linphone_chat_message_is_read(msMessagePtr.data),
+                                                IsDeclineMessage = declineMessage,
+                                                IsRead = LinphoneAPI.linphone_chat_message_is_read(msMessagePtr.data) == 1,
                                                 Status = LinphoneAPI.linphone_chat_message_get_state(msMessagePtr.data),
                                                 Chat = chat
                                             };

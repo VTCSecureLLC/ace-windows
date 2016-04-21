@@ -123,6 +123,7 @@ namespace VATRP.Core.Model
             this.IsLinphoneContact = false;
             this.RegistrationName = string.Empty;
             this.DbID = 0;
+            this.LinphoneRefKey = string.Empty;
         }
 
         public bool IsGroupExistInGroupList(string _groupName)
@@ -307,6 +308,7 @@ namespace VATRP.Core.Model
 
         public string Group { get; set; }
 
+        public string LinphoneRefKey { get; set; }
 
         public List<int> GroupIdList
         {

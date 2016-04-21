@@ -24,6 +24,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         {
             InitializeComponent();
             Title = "Theme";
+            Initialize();
         }
         // ToDo VATRP-988 - implement color picker, connect Force  508
         private void OnForegroundColor(object sender, RoutedEventArgs e)

@@ -14,6 +14,7 @@ namespace com.vtcsecure.ace.windows.Enums
         RunWizard,
         UserNameChanged,
         RegistrationChanged,
+        CardDavConfigChanged,
         VideoPolicyChanged,
         // Preferences
         NetworkSettingsChanged,

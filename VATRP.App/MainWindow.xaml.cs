@@ -29,6 +29,8 @@ using VATRP.LinphoneWrapper.Enums;
 using HockeyApp;
 using com.vtcsecure.ace.windows.CustomControls.Resources;
 using System.IO;
+using VATRP.Core.Events;
+using com.vtcsecure.ace.windows.CustomControls.UnifiedSettings;
 
 namespace com.vtcsecure.ace.windows
 {
@@ -48,6 +50,7 @@ namespace com.vtcsecure.ace.windows
         private CallView _remoteVideoView;
         private SelfView _selfView = new SelfView();
         private readonly SettingsView _settingsView = new SettingsView();
+        private SettingsWindow _settingsWindow;
         private readonly CallInfoView _callInfoView = new CallInfoView();
         private readonly CallOverlayView _callOverlayView = new CallOverlayView();
         private readonly ILinphoneService _linphoneService;
@@ -56,6 +59,7 @@ namespace com.vtcsecure.ace.windows
         private Size CombinedUICallViewSize = new Size(700, 700);
         private Point _lastWindowPosition;
         private bool _playRegisterNotify = true;
+        private bool _playRegistrationFailureNotify = true;
         private readonly DispatcherTimer deferredHideTimer = new DispatcherTimer()
         {
             Interval = TimeSpan.FromMilliseconds(2000),
@@ -68,7 +72,11 @@ namespace com.vtcsecure.ace.windows
 
         #region Properties
         public static LinphoneRegistrationState RegistrationState { get; set; }
-        
+        public static LinphoneReason RegistrationFailReason { get; set; }
+        public bool IsSlidingDialpad { get; set; }
+
+        public bool IsSlidingMenu { get; set; }
+
         #endregion
 
 
@@ -82,6 +90,8 @@ namespace com.vtcsecure.ace.windows
             _linphoneService.RegistrationStateChangedEvent += OnRegistrationChanged;
             _linphoneService.CallStateChangedEvent += OnCallStateChanged;
             _linphoneService.GlobalStateChangedEvent += OnGlobalStateChanged;
+            _linphoneService.NetworkReachableEvent += OnLinphoneConnectivityChanged;
+
             ServiceManager.Instance.NewAccountRegisteredEvent += OnNewAccountRegistered;
             ServiceManager.Instance.LinphoneCoreStartedEvent += OnLinphoneCoreStarted;
             ServiceManager.Instance.LinphoneCoreStoppedEvent += OnLinphoneCoreStopped;
@@ -94,11 +104,14 @@ namespace com.vtcsecure.ace.windows
             ctrlDialpad.SetViewModel(_mainViewModel.DialpadModel);
             ctrlLocalContact.SetDataContext(_mainViewModel.ContactModel);
             ctrlCall.ParentViewModel =_mainViewModel;
-            _settingsView.SetSettingsModel(_mainViewModel.SettingsModel);
+            ctrlMoreMenu.SetDataContext(_mainViewModel.MoreMenuModel);
+            //_settingsView.SetSettingsModel(_mainViewModel.SettingsModel);
+            
             EnterFullScreenCheckBox.IsEnabled = false;
 
-            ctrlSettings.SetCallControl(ctrlCall);
-            ctrlCall.SettingsControl = ctrlSettings;
+//            _settingsWindow = new SettingsWindow(ctrlCall, OnAccountChangeRequested);
+//            ctrlSettings.SetCallControl(ctrlCall);
+//            ctrlCall.SettingsControl = ctrlSettings;
             deferredHideTimer.Tick += DeferedHideOnError;
             deferredShowPreviewTimer.Tick += DeferredShowPreview;
             CombinedUICallViewSize.Width = 700;
@@ -107,14 +120,15 @@ namespace com.vtcsecure.ace.windows
 
         private void btnRecents_Click(object sender, RoutedEventArgs e)
         {
-            //ToggleWindow(_historyView);
+            CloseMeunAnimated();
             bool isChecked = BtnRecents.IsChecked ?? false;
             if (isChecked)
             {
-                CloseAnimated();
+                CloseDialpadAnimated();
                 _mainViewModel.IsContactDocked = false;
                 _mainViewModel.IsSettingsDocked = false;
                 _mainViewModel.IsResourceDocked = false;
+                _mainViewModel.IsMenuDocked = false;
                 _mainViewModel.HistoryModel.ResetLastMissedCallTime();
                 _mainViewModel.UIMissedCallsCount = 0;
             }
@@ -123,14 +137,15 @@ namespace com.vtcsecure.ace.windows
 
         private void btnContacts_Click(object sender, RoutedEventArgs e)
         {
-           // ToggleWindow(_contactBox);
+            CloseMeunAnimated();
             bool isChecked = BtnContacts.IsChecked ?? false;
             if (isChecked)
             {
-                CloseAnimated();
+                CloseDialpadAnimated();
                 _mainViewModel.IsCallHistoryDocked = false;
                 _mainViewModel.IsSettingsDocked = false;
                 _mainViewModel.IsResourceDocked = false;
+                _mainViewModel.IsMenuDocked = false;
             }
             _mainViewModel.IsContactDocked = isChecked;
         }
@@ -150,46 +165,99 @@ namespace com.vtcsecure.ace.windows
             }
         }
 
+        private void OnVideoMailClicked(object sender, EventArgs e)
+        {
+            CloseMeunAnimated();
+            if (App.CurrentAccount != null)
+            {
+                App.CurrentAccount.VideoMailCount = 0;
+                _mainViewModel.ShowVideomailIndicator = false;
+                if (_mainViewModel.ContactModel != null)
+                    _mainViewModel.ContactModel.VideoMailCount = App.CurrentAccount.VideoMailCount;
+                if (_mainViewModel.MoreMenuModel != null)
+                    _mainViewModel.MoreMenuModel.VideoMailCount = App.CurrentAccount.VideoMailCount;
+
+                ServiceManager.Instance.AccountService.Save();
+            }
+        }
+
+        private void OnSelfViewClicked(object sender, EventArgs e)
+        {
+            CloseMeunAnimated();
+            if (_selfView != null)
+            {
+                bool enabled = _mainViewModel.MoreMenuModel.IsSelfViewActive;
+                ShowSelfPreview(enabled);
+                ShowSelfPreviewItem.IsChecked = enabled;
+            }
+            else
+            {
+                this.ShowSelfPreviewItem.IsChecked = false;
+                _mainViewModel.MoreMenuModel.IsSelfViewActive = false;
+            }
+        }
+
+        private void OnShowSettings(object sender, EventArgs e)
+        {
+            CloseMeunAnimated();
+//            CloseDialpadAnimated();
+//            if (_mainViewModel.IsSettingsDocked)
+//                return;
+//            _mainViewModel.IsCallHistoryDocked = false;
+//            _mainViewModel.IsContactDocked = false;
+//            _mainViewModel.IsResourceDocked = false;
+
+//           _mainViewModel.IsMenuDocked = true;
+//            _mainViewModel.IsSettingsDocked = true;
+            if (_settingsWindow == null)
+            {
+                _settingsWindow = new SettingsWindow(ctrlCall, OnAccountChangeRequested);
+            }
+            _settingsWindow.Show();
+        }
+
         private void btnDialpad_Click(object sender, RoutedEventArgs e)
         {
             //ToggleWindow(_dialpadBox);
             _mainViewModel.IsDialpadDocked = BtnDialpad.IsChecked ?? false;
             if (_mainViewModel.IsDialpadDocked)
-                OpenAnimated();
+                OpenDialpadAnimated();
             else
-                CloseAnimated();
+                CloseDialpadAnimated();
         }
 
-        private void btnShowResources(object sender, RoutedEventArgs e)
+        private void btnShowResources(object sender, EventArgs e)
         {
-            bool isChecked = BtnResourcesView.IsChecked ?? false;
-            if (isChecked)
-            {
-                CloseAnimated();
-                _mainViewModel.IsCallHistoryDocked = false;
-                _mainViewModel.IsContactDocked = false;
-                _mainViewModel.IsSettingsDocked = false;
-            }
-            _mainViewModel.IsResourceDocked = isChecked;// BtnSettings.IsChecked ?? false;
-            // VATRP 856
-            // ToggleWindow(_messagingWindow);
+            CloseDialpadAnimated();
+            CloseMeunAnimated();
+            _mainViewModel.IsCallHistoryDocked = false;
+            _mainViewModel.IsContactDocked = false;
+            _mainViewModel.IsSettingsDocked = false;
+            _mainViewModel.IsResourceDocked = true;
+            _mainViewModel.IsMenuDocked = true;
         }
 
-        private void btnSettings_Click(object sender, RoutedEventArgs e)
+        private void btnShowChatClicked(object sender, RoutedEventArgs e)
         {
-            bool isChecked = BtnSettings.IsChecked ?? false;
-            if (isChecked)
+            if (_messagingWindow != null)
             {
-                CloseAnimated();
-                _mainViewModel.IsCallHistoryDocked = false;
-                _mainViewModel.IsContactDocked = false;
-                _mainViewModel.IsResourceDocked = false;
+                bool enabled = BtnChatView.IsChecked ?? false;
+                ActivateChatWindow(enabled);
+                ShowMessagingViewItem.IsChecked = enabled;
             }
-            _mainViewModel.IsSettingsDocked = BtnSettings.IsChecked ?? false;
-            if (_mainViewModel.IsSettingsDocked)
+            else
             {
-                ctrlSettings.Initialize();
+                this.ShowMessagingViewItem.IsChecked = false;
+                _mainViewModel.IsChatViewEnabled = false;
             }
+        }
+
+        private void btnMoreMenuClicked(object sender, RoutedEventArgs e)
+        {
+            OpenMenuAnimated();
+            _mainViewModel.ShowVideomailIndicator = false;
+            if (_mainViewModel.IsSettingsDocked || _mainViewModel.IsResourceDocked)
+                _mainViewModel.IsMenuDocked = true;
         }
 
         private void OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType changeType)
@@ -213,6 +281,8 @@ namespace com.vtcsecure.ace.windows
                 case Enums.ACEMenuSettingsUpdateType.ShowSelfViewChanged: HandleShowSelfViewChanged();
                     break;
                 case Enums.ACEMenuSettingsUpdateType.AdvancedSettingsChanged: HandleAdvancedSettingsChange();
+                    break;
+                case Enums.ACEMenuSettingsUpdateType.CardDavConfigChanged: HandleCardDAVSettingsChange();
                     break;
                 default:
                     break;
@@ -247,6 +317,13 @@ namespace com.vtcsecure.ace.windows
             ServiceManager.Instance.SaveAccountSettings();
             ApplyRegistrationChanges();
         }
+
+        private void HandleCardDAVSettingsChange()
+        {
+            ServiceManager.Instance.SaveAccountSettings();
+            ApplyCardDAVChanges();
+        }
+
         private void UpdateVideoPolicy()
         {
             if (App.CurrentAccount != null)
@@ -324,24 +401,38 @@ namespace com.vtcsecure.ace.windows
                 //  If we call unregister above, then after the app has finished unregistering, it will use the 
                 //  register requested flag to call Register. Otherwise, go on and call Register here. This
                 //  mechanism was previously put in place as a lock to make sure that we move through the states properly
-                //  befor calling register.
+                //  before calling register.
                 _linphoneService.Register();
             }
         }
 
+        private void ApplyCardDAVChanges()
+        {
+            ServiceManager.Instance.UpdateLinphoneConfig();
+            ServiceManager.Instance.LinphoneService.CardDAVSync();
+        }
+
         private void UpdateMenuSettingsForRegistrationState()
         {
-            if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk)
+            if (RegistrationState != LinphoneRegistrationState.LinphoneRegistrationOk)
             {
                 MuteMicrophoneCheckbox.IsChecked = false;
                 MuteMicrophoneCheckbox.IsEnabled = false;
+                SelfViewItem.IsEnabled = false;
+                SelfViewItem.IsChecked = false;
             }
             else
             {
+                if (RegistrationState != LinphoneRegistrationState.LinphoneRegistrationCleared)
+                {
+                    MyAccountMenuItem.IsEnabled = true;
+                }
                 MuteMicrophoneCheckbox.IsEnabled = true;
+                SelfViewItem.IsEnabled = true;
                 if (App.CurrentAccount != null)
                 {
-                    MuteMicrophoneCheckbox.IsEnabled = App.CurrentAccount.MuteMicrophone;
+                    MuteMicrophoneCheckbox.IsChecked = App.CurrentAccount.MuteMicrophone;
+                    SelfViewItem.IsChecked = App.CurrentAccount.ShowSelfView;
                 }
             }
 
@@ -492,13 +583,19 @@ namespace com.vtcsecure.ace.windows
             _historyView.MakeCallRequested += OnMakeCallRequested;
             _contactBox.IsVisibleChanged += OnChildVisibilityChanged;
             _dialpadBox.IsVisibleChanged += OnChildVisibilityChanged;
-            _settingsView.IsVisibleChanged += OnChildVisibilityChanged;
+            //_settingsView.IsVisibleChanged += OnChildVisibilityChanged;
             _messagingWindow.IsVisibleChanged += OnChildVisibilityChanged;
             _selfView.IsVisibleChanged += OnChildVisibilityChanged;
-            _settingsView.SettingsSavedEvent += OnSettingsSaved;
+            //_settingsView.SettingsSavedEvent += OnSettingsSaved;
             _keypadCtrl.KeypadClicked += OnKeypadClicked;
             _dialpadBox.KeypadClicked += OnDialpadClicked;
             _callInfoView.IsVisibleChanged += OnCallInfoVisibilityChanged;
+
+            ctrlMoreMenu.ResourceClicked += btnShowResources;
+            ctrlMoreMenu.SettingsClicked += OnShowSettings;
+            ctrlMoreMenu.SelfViewClicked += OnSelfViewClicked;
+            ctrlMoreMenu.VideoMailClicked += OnVideoMailClicked;
+            ctrlLocalContact.VideomailCountReset += OnVideoMailClicked;
 
             ctrlCall.KeypadClicked += OnKeypadClicked;
             ctrlCall.RttToggled += OnRttToggled;
@@ -509,14 +606,17 @@ namespace com.vtcsecure.ace.windows
             _callOverlayView.CallManagerView = _callView;
             ctrlHistory.MakeCallRequested += OnMakeCallRequested;
             ctrlContacts.MakeCallRequested += OnMakeCallRequested;
+            ctrlDialpad.MakeCallRequested += OnMakeCallRequested;
             ctrlCall.KeypadCtrl = _keypadCtrl;
             ctrlDialpad.KeypadPressed += OnDialpadClicked;
             _mainViewModel.DialpadHeight = ctrlDialpad.ActualHeight;
 
             _mainViewModel.RttMessagingModel.RttReceived += OnRttReceived;
+            _mainViewModel.SipSimpleMessagingModel.DeclineMessageReceived += OnDeclineMessageReceived;
+            ServiceManager.Instance.LinphoneService.OnMWIReceivedEvent += OnVideoMailCountChanged;
 
             // Liz E. - ToDo unified Settings
-            ctrlSettings.AccountChangeRequested += OnAccountChangeRequested;
+//            ctrlSettings.AccountChangeRequested += OnAccountChangeRequested;
             //ctrlSettings.SipSettingsChangeClicked += OnSettingsChangeRequired;
             //ctrlSettings.CodecSettingsChangeClicked += OnSettingsChangeRequired;
             //ctrlSettings.MultimediaSettingsChangeClicked += OnSettingsChangeRequired;
@@ -544,11 +644,11 @@ namespace com.vtcsecure.ace.windows
                 {
                     _mainViewModel.OfferServiceSelection = false;
                     _mainViewModel.IsAccountLogged = true;
-                    _mainViewModel.ContactModel.VideoMailCount = App.CurrentAccount.VideoMailCount;
                     // VATRP-1899: This is a quick and dirty solution for POC. It will be functional, but not the end implementation we will want.
                     if (!App.CurrentAccount.UserNeedsAgentView)
                     {
-                        OpenAnimated();
+                        OpenDialpadAnimated();
+                        UpdateVideomailCount();
                         _mainViewModel.IsCallHistoryDocked = true;
                         _mainViewModel.DialpadModel.UpdateProvider();
                         SetToUserAgentView(false);
@@ -633,61 +733,100 @@ namespace com.vtcsecure.ace.windows
         private void RearrangeUICallView(Size callViewDimensions)
         {
             Point topleftInScreen = new Point(0, 0);
-
-            int offset = 0;
-            if (!_mainViewModel.IsInCallFullScreen)
+            try
             {
-                topleftInScreen = ctrlCall.PointToScreen(new Point(0, 0));
-                topleftInScreen = this.PointFromScreen(topleftInScreen);
-                topleftInScreen.Y += SystemParameters.CaptionHeight;
-                offset = 8;
-            }
+                int offset = 0;
+                if (!_mainViewModel.IsInCallFullScreen)
+                {
+                    topleftInScreen = ctrlCall.PointToScreen(new Point(0, 0));
+                    topleftInScreen = this.PointFromScreen(topleftInScreen);
+                    topleftInScreen.Y += SystemParameters.CaptionHeight;
+                    offset = 8;
+                }
 
-            if (_mainViewModel.IsMessagingDocked && _mainViewModel.IsInCallFullScreen)
+                if (_mainViewModel.IsMessagingDocked && _mainViewModel.IsInCallFullScreen)
+                {
+                    callViewDimensions.Width -= ctrlRTT.ActualWidth;
+                }
+
+                CombinedUICallViewSize = callViewDimensions;
+
+                ctrlCall.Width = callViewDimensions.Width;
+
+                ctrlCall.ctrlOverlay.Width = callViewDimensions.Width;
+                ctrlCall.ctrlOverlay.Height = callViewDimensions.Height;
+
+                if (_mainViewModel.ActiveCallModel != null)
+                {
+                    _mainViewModel.ActiveCallModel.VideoWidth = (int) CombinedUICallViewSize.Width;
+                    _mainViewModel.ActiveCallModel.VideoHeight = (int) ctrlCall.ActualHeight;
+                }
+
+                ctrlCall.ctrlOverlay.CommandWindowLeftMargin = topleftInScreen.X +
+                                                               (callViewDimensions.Width -
+                                                                ctrlCall.ctrlOverlay.CommandOverlayWidth)/2 + offset;
+                ctrlCall.ctrlOverlay.CommandWindowTopMargin = topleftInScreen.Y +
+                                                              (ctrlCall.ActualHeight - 40 -
+                                                               ctrlCall.ctrlOverlay.CommandOverlayHeight);
+
+                ctrlCall.ctrlOverlay.NumpadWindowLeftMargin = topleftInScreen.X +
+                                                              (callViewDimensions.Width -
+                                                               ctrlCall.ctrlOverlay.NumpadOverlayWidth)/2 + offset;
+                ctrlCall.ctrlOverlay.NumpadWindowTopMargin = ctrlCall.ctrlOverlay.CommandWindowTopMargin -
+                                                             ctrlCall.ctrlOverlay.NumpadOverlayHeight;
+
+                ctrlCall.ctrlOverlay.CallInfoOverlayWidth = (int) callViewDimensions.Width - 30;
+                ctrlCall.ctrlOverlay.CallInfoWindowLeftMargin = topleftInScreen.X +
+                                                                (callViewDimensions.Width -
+                                                                 ctrlCall.ctrlOverlay.CallInfoOverlayWidth)/2 + offset;
+                ctrlCall.ctrlOverlay.CallInfoWindowTopMargin = topleftInScreen.Y + 40;
+
+                ctrlCall.ctrlOverlay.CallsSwitchWindowLeftMargin = topleftInScreen.X + 10;
+                ctrlCall.ctrlOverlay.CallsSwitchWindowTopMargin = topleftInScreen.Y + 10;
+
+                ctrlCall.ctrlOverlay.NewCallAcceptWindowLeftMargin = topleftInScreen.X +
+                                                                     (callViewDimensions.Width -
+                                                                      ctrlCall.ctrlOverlay.NewCallAcceptOverlayWidth)/2 +
+                                                                     offset;
+                ctrlCall.ctrlOverlay.NewCallAcceptWindowTopMargin = topleftInScreen.Y +
+                                                                    (ctrlCall.ActualHeight -
+                                                                     ctrlCall.ctrlOverlay.NewCallAcceptOverlayHeight)/2;
+
+                ctrlCall.ctrlOverlay.OnHoldOverlayWidth = 100; // (int)callViewDimensions.Width - 30;
+                ctrlCall.ctrlOverlay.OnHoldWindowLeftMargin = topleftInScreen.X +
+                                                              (callViewDimensions.Width -
+                                                               ctrlCall.ctrlOverlay.OnHoldOverlayWidth)/2 + offset;
+                ctrlCall.ctrlOverlay.OnHoldWindowTopMargin = ctrlCall.ctrlOverlay.CallInfoOverlayHeight +
+                                                             ctrlCall.ctrlOverlay.CallInfoWindowTopMargin + 40;
+                // topleftInScreen.Y + 40;
+
+                ctrlCall.ctrlOverlay.QualityIndicatorWindowLeftMargin = topleftInScreen.X + offset + 20;
+                ctrlCall.ctrlOverlay.QualityIndicatorWindowTopMargin = topleftInScreen.Y +
+                                                                       (ctrlCall.ActualHeight - 20 -
+                                                                        ctrlCall.ctrlOverlay
+                                                                            .QualityIndicatorOverlayHeight);
+
+                ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(false);
+                ctrlCall.ctrlOverlay.Refresh();
+                if (_mainViewModel.ActiveCallModel != null &&
+                    _mainViewModel.ActiveCallModel.CallState != VATRPCallState.Closed)
+                    ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(this.WindowState != WindowState.Minimized);
+
+                ctrlCall.ctrlOverlay.EncryptionIndicatorWindowLeftMargin = topleftInScreen.X +
+                                                                callViewDimensions.Width - 40 + offset;
+                ctrlCall.ctrlOverlay.EncryptionIndicatorWindowTopMargin = topleftInScreen.Y + 20;
+
+                ctrlCall.ctrlOverlay.ShowEncryptionIndicatorWindow(false);
+                ctrlCall.ctrlOverlay.Refresh();
+                if (_mainViewModel.ActiveCallModel != null &&
+                    _mainViewModel.ActiveCallModel.CallState != VATRPCallState.Closed)
+                    ctrlCall.ctrlOverlay.ShowEncryptionIndicatorWindow(this.WindowState != WindowState.Minimized);
+
+            }
+            catch (Exception ex)
             {
-                callViewDimensions.Width -= ctrlRTT.ActualWidth;
+                LOG.Error("RearrangeUICallView", ex);
             }
-
-            CombinedUICallViewSize = callViewDimensions;
-
-            ctrlCall.Width = callViewDimensions.Width;
-
-            ctrlCall.ctrlOverlay.Width = callViewDimensions.Width;
-            ctrlCall.ctrlOverlay.Height = callViewDimensions.Height;
-
-            if (_mainViewModel.ActiveCallModel != null)
-            {
-                _mainViewModel.ActiveCallModel.VideoWidth = (int)CombinedUICallViewSize.Width;
-                _mainViewModel.ActiveCallModel.VideoHeight = (int)ctrlCall.ActualHeight;
-            }
-
-            ctrlCall.ctrlOverlay.CommandWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.CommandOverlayWidth) / 2 + offset;
-            ctrlCall.ctrlOverlay.CommandWindowTopMargin = topleftInScreen.Y + (ctrlCall.ActualHeight - 40 - ctrlCall.ctrlOverlay.CommandOverlayHeight);
-
-            ctrlCall.ctrlOverlay.NumpadWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.NumpadOverlayWidth) / 2 + offset;
-            ctrlCall.ctrlOverlay.NumpadWindowTopMargin = ctrlCall.ctrlOverlay.CommandWindowTopMargin - ctrlCall.ctrlOverlay.NumpadOverlayHeight;
-
-            ctrlCall.ctrlOverlay.CallInfoOverlayWidth = (int)callViewDimensions.Width - 30;
-            ctrlCall.ctrlOverlay.CallInfoWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.CallInfoOverlayWidth) / 2 + offset;
-            ctrlCall.ctrlOverlay.CallInfoWindowTopMargin = topleftInScreen.Y + 40;
-
-            ctrlCall.ctrlOverlay.CallsSwitchWindowLeftMargin = topleftInScreen.X + 10;
-            ctrlCall.ctrlOverlay.CallsSwitchWindowTopMargin = topleftInScreen.Y + 10;
-
-            ctrlCall.ctrlOverlay.NewCallAcceptWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.NewCallAcceptOverlayWidth) / 2 + offset;
-            ctrlCall.ctrlOverlay.NewCallAcceptWindowTopMargin = topleftInScreen.Y + (ctrlCall.ActualHeight - ctrlCall.ctrlOverlay.NewCallAcceptOverlayHeight) / 2;
-
-            ctrlCall.ctrlOverlay.OnHoldOverlayWidth = 100;// (int)callViewDimensions.Width - 30;
-            ctrlCall.ctrlOverlay.OnHoldWindowLeftMargin = topleftInScreen.X + (callViewDimensions.Width - ctrlCall.ctrlOverlay.OnHoldOverlayWidth) / 2 + offset;
-            ctrlCall.ctrlOverlay.OnHoldWindowTopMargin = ctrlCall.ctrlOverlay.CallInfoOverlayHeight + ctrlCall.ctrlOverlay.CallInfoWindowTopMargin + 40;// topleftInScreen.Y + 40;
-
-            ctrlCall.ctrlOverlay.QualityIndicatorWindowLeftMargin = topleftInScreen.X + offset + 20;
-            ctrlCall.ctrlOverlay.QualityIndicatorWindowTopMargin = topleftInScreen.Y + (ctrlCall.ActualHeight - 20 - ctrlCall.ctrlOverlay.QualityIndicatorOverlayHeight);
-
-            ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(false);
-            ctrlCall.ctrlOverlay.Refresh();
-            if(_mainViewModel.ActiveCallModel != null && _mainViewModel.ActiveCallModel.CallState != VATRPCallState.Closed)
-                ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(this.WindowState != WindowState.Minimized);
         }
 
         private void OnCameraSwitched(bool switch_on)
@@ -717,25 +856,21 @@ namespace com.vtcsecure.ace.windows
                 OnRttToggled(true);
             }
         }
-
-        internal void ResetToggleButton(VATRPWindowType wndType)
+        
+        private void OnVideoMailCountChanged(MWIEventArgs args)
         {
-            switch (wndType)
+            if (ServiceManager.Instance.Dispatcher.Thread != Thread.CurrentThread)
             {
-                case VATRPWindowType.MESSAGE_VIEW:
-                    this.BtnResourcesView.IsChecked = false;
-                    break;
-                case VATRPWindowType.CONTACT_VIEW:
-                    this.BtnContacts.IsChecked = false;
-                    break;
-                case VATRPWindowType.DIALPAD_VIEW:
-                    this.BtnDialpad.IsChecked = false;
-                    break;
-                case VATRPWindowType.RECENTS_VIEW:
-                    BtnRecents.IsChecked = false;
-                    break;
-                default:
-                    break;
+                ServiceManager.Instance.Dispatcher.BeginInvoke((Action)(() => this.OnVideoMailCountChanged(args)));
+                return;
+            }
+
+            if (App.CurrentAccount != null)
+            {
+                if (args != null) 
+                    App.CurrentAccount.VideoMailCount += args.MwiCount;
+                UpdateVideomailCount();
+                ServiceManager.Instance.AccountService.Save();
             }
         }
 
@@ -761,6 +896,8 @@ namespace com.vtcsecure.ace.windows
                     _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr);
                 }
             }
+
+            _mainViewModel.ContactModel.RegistrationState = LinphoneRegistrationState.LinphoneRegistrationFailed;
 
             signOutRequest = true;
             // remove the password file - the user is manually signing out, do not remember the password despite autologin in this case
@@ -793,6 +930,7 @@ namespace com.vtcsecure.ace.windows
                     break;
                 case LinphoneRegistrationState.LinphoneRegistrationCleared:
                 case LinphoneRegistrationState.LinphoneRegistrationFailed:
+                case LinphoneRegistrationState.LinphoneRegistrationNone:
                 {
                     signOutRequest = false;
                     WizardPagepanel.Children.Clear();
@@ -800,7 +938,7 @@ namespace com.vtcsecure.ace.windows
                     _mainViewModel.ActivateWizardPage = true;
 
                     _mainViewModel.IsAccountLogged = false;
-                    CloseAnimated();
+                    CloseDialpadAnimated();
                     _mainViewModel.IsCallHistoryDocked = false;
                     _mainViewModel.IsContactDocked = false;
                     _mainViewModel.IsMessagingDocked = false;
@@ -820,12 +958,13 @@ namespace com.vtcsecure.ace.windows
 
         private void OnMyAccount(object sender, RoutedEventArgs e)
         {
-            CloseAnimated();
-            _mainViewModel.IsCallHistoryDocked = false;
-            _mainViewModel.IsContactDocked = false;
-            _mainViewModel.IsResourceDocked = false;
-            _mainViewModel.IsSettingsDocked = true;
-
+//            CloseDialpadAnimated();
+//            _mainViewModel.IsCallHistoryDocked = false;
+//            _mainViewModel.IsContactDocked = false;
+//            _mainViewModel.IsResourceDocked = false;
+//            _mainViewModel.IsSettingsDocked = true;
+//            com.vtcsecure.ace.windows.CustomControls.UnifiedSettings.SettingsWindow settingsWindow = new CustomControls.UnifiedSettings.SettingsWindow();
+//            settingsWindow.Show();
         }
         private void OnGoToSupport(object sender, RoutedEventArgs e)
         {
@@ -846,14 +985,21 @@ namespace com.vtcsecure.ace.windows
             // http://support.hockeyapp.net/kb/api/api-versions
             // ToDo VATRP-1057: When we have a publishable version, that is where we should be checking for updates, not hockeyapp.s
             //check for updates on the HockeyApp server
-            await HockeyClient.Current.CheckForUpdatesAsync(true, () =>
+            try
             {
-                if (Application.Current.MainWindow != null)
+                await HockeyClient.Current.CheckForUpdatesAsync(true, () =>
                 {
-                    Application.Current.MainWindow.Close();
-                }
-                return true;
-            }); 
+                    if (Application.Current.MainWindow != null)
+                    {
+                        Application.Current.MainWindow.Close();
+                    }
+                    return true;
+                });
+            }
+            catch (Exception ex)
+            {
+                LOG.Error("OnCheckUpdates", ex);
+            }
         }
 
         // View Menu
@@ -873,15 +1019,23 @@ namespace com.vtcsecure.ace.windows
             bool enabled = this.SelfViewItem.IsChecked;
             if (enabled != App.CurrentAccount.ShowSelfView)
             {
-                App.CurrentAccount.ShowSelfView = enabled;
-                ServiceManager.Instance.ApplyMediaSettingsChanges();
-                ServiceManager.Instance.SaveAccountSettings();
-
-                if (ctrlSettings != null)
-                {
-                    ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.ShowSelfViewMenu);
-                }
+                ShowSelfView(enabled);
             }
+        }
+
+        private void ShowSelfView(bool enabled)
+        {
+            App.CurrentAccount.ShowSelfView = enabled;
+            ServiceManager.Instance.ApplyMediaSettingsChanges();
+            ServiceManager.Instance.SaveAccountSettings();
+            if (_settingsWindow != null)
+            {
+                _settingsWindow.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.ShowSelfViewMenu);
+            }
+//            if (ctrlSettings != null)
+//            {
+//                ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.ShowSelfViewMenu);
+//            }
         }
 
         private void OnShowPreviewWindow(object sender, RoutedEventArgs e)
@@ -889,6 +1043,20 @@ namespace com.vtcsecure.ace.windows
             if (_selfView != null)
             {
                 bool enabled = this.ShowSelfPreviewItem.IsChecked;
+                ShowSelfPreview(enabled);
+                _mainViewModel.MoreMenuModel.IsSelfViewActive = enabled;
+            }
+            else
+            {
+                this.ShowSelfPreviewItem.IsChecked = false;
+                _mainViewModel.MoreMenuModel.IsSelfViewActive = false;
+            }
+        }
+
+        private void ShowSelfPreview(bool enabled)
+        {
+            try
+            {
                 if (!enabled)
                 {
                     _selfView.Hide();
@@ -899,9 +1067,9 @@ namespace com.vtcsecure.ace.windows
                     _selfView.Activate();
                 }
             }
-            else
+            catch
             {
-                this.ShowSelfPreviewItem.IsChecked = false;
+                
             }
         }
 
@@ -910,6 +1078,20 @@ namespace com.vtcsecure.ace.windows
             if (_messagingWindow != null)
             {
                 bool enabled = this.ShowMessagingViewItem.IsChecked;
+                ActivateChatWindow(enabled);
+                _mainViewModel.IsChatViewEnabled = enabled;
+            }
+            else
+            {
+                this.ShowMessagingViewItem.IsChecked = false;
+                _mainViewModel.IsChatViewEnabled = false;
+            }
+        }
+
+        private void ActivateChatWindow(bool enabled)
+        {
+            try
+            {
                 if (!enabled)
                 {
                     _messagingWindow.Hide();
@@ -920,9 +1102,9 @@ namespace com.vtcsecure.ace.windows
                     _messagingWindow.Activate();
                 }
             }
-            else
+            catch
             {
-                this.ShowMessagingViewItem.IsChecked = false;
+                
             }
         }
 
@@ -961,7 +1143,7 @@ namespace com.vtcsecure.ace.windows
         // Audio Menu
         private void OnAudioMenuItemOpened(object sender, RoutedEventArgs e)
         {
-            if (App.CurrentAccount != null)
+            if (RegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk)
             {
                 MuteMicrophoneCheckbox.IsEnabled = true;
                 MuteMicrophoneCheckbox.IsChecked = App.CurrentAccount.MuteMicrophone;
@@ -985,9 +1167,10 @@ namespace com.vtcsecure.ace.windows
                 ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
 
-                if (ctrlSettings != null)
+//                if (ctrlSettings != null)
+                if (_settingsWindow != null)
                 {
-                    ctrlSettings.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.MuteMicrophoneMenu);
+                    _settingsWindow.RespondToMenuUpdate(Enums.ACEMenuSettingsUpdateType.MuteMicrophoneMenu);
                 }
                 if ((ctrlCall != null) && ctrlCall.IsLoaded)
                 {
@@ -1034,25 +1217,24 @@ namespace com.vtcsecure.ace.windows
             }
         }
 
-        public bool IsSliding { get; set; }
-		
         private void SlideDownCompleted(object sender, EventArgs e)
         {
-            IsSliding = false;
+            IsSlidingDialpad = false;
             _mainViewModel.DialpadHeight = 1;
         }
 
         private void SlideUpCompleted(object sender, EventArgs e)
         {
-            IsSliding = false;
+            IsSlidingDialpad = false;
             _mainViewModel.DialpadHeight = ctrlDialpad.ActualHeight;
         }
 
-        public void OpenAnimated()
+        public void OpenDialpadAnimated()
         {
-            if (IsSliding )
+            if (IsSlidingDialpad )
                 return;
-            IsSliding = true;
+            CloseMeunAnimated();
+            IsSlidingDialpad = true;
             _mainViewModel.DialpadHeight = 1;
             _mainViewModel.IsDialpadDocked = true;
             var s = (Storyboard)Resources["SlideUpAnimation"];
@@ -1063,15 +1245,51 @@ namespace com.vtcsecure.ace.windows
             }
         }
 
-        public void CloseAnimated()
+        public void CloseDialpadAnimated()
         {
-            if (IsSliding )
+            if (IsSlidingDialpad )
                 return;
-            IsSliding = true;
+            IsSlidingDialpad = true;
             _mainViewModel.DialpadHeight = 1;
             _mainViewModel.IsDialpadDocked = false;
             var s = (Storyboard)Resources["SlideDownAnimation"];
             if (s != null) s.Begin();
         }
+
+        #region Menu Animation
+        public void OpenMenuAnimated()
+        {
+            CloseDialpadAnimated();
+            if (IsSlidingMenu)
+                return;
+            IsSlidingMenu = true;
+            var s = (Storyboard)Resources["SlideMenuUpAnimation"];
+
+            if (s != null)
+            {
+                s.Begin();
+            }
+        }
+
+        public void CloseMeunAnimated()
+        {
+            if (IsSlidingMenu)
+                return;
+            IsSlidingMenu = true;
+            var s = (Storyboard)Resources["SlideMenuDownAnimation"];
+            if (s != null) s.Begin();
+        }
+
+        private void SlideMenuUpCompleted(object sender, EventArgs e)
+        {
+            IsSlidingMenu = false;
+        }
+
+        private void SlideMenuDownCompleted(object sender, EventArgs e)
+        {
+            IsSlidingMenu = false;
+        }
+        
+        #endregion
     }
 }
