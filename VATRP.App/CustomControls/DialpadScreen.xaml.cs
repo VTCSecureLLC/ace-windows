@@ -22,6 +22,9 @@ namespace com.vtcsecure.ace.windows.CustomControls
         public event EventHandler<KeyPadEventArgs> KeypadPressed;
         private bool plusButtonHold;
         private System.Windows.Forms.Timer timerHold;
+        public delegate void MakeCallRequestedDelegate(string called_address);
+
+        public event MakeCallRequestedDelegate MakeCallRequested;
         #endregion
 
         public DialPadScreen()
@@ -125,8 +128,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 return;
             }
 
-            MediaActionHandler.MakeVideoCall(_viewModel.RemotePartyNumber);
-            _viewModel.RemotePartyNumber = "";
+            if (MakeCallRequested != null) 
+                MakeCallRequested(_viewModel.RemotePartyNumber);
         }
 
         private void OnBackSpaceClicked(object sender, MouseButtonEventArgs e)

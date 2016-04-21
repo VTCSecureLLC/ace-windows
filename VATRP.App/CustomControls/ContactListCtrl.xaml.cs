@@ -82,9 +82,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
                     {
                         if (model.AvatarChanged)
                             contact.Avatar = string.Empty;
-                        ServiceManager.Instance.ContactService.EditLinphoneContact(
-                            contact.Fullname,
-                            contact.RegistrationName, model.ContactName,
+                        ServiceManager.Instance.ContactService.EditLinphoneContact(contact,
+                            model.ContactName,
                             model.ContactSipAddress);
                     }
                 }
@@ -101,9 +100,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
                     if (MessageBox.Show("Are you sure you want to remove/delete contact?", "ACE", MessageBoxButton.OKCancel,
                         MessageBoxImage.Question) == MessageBoxResult.OK)
 
-                        ServiceManager.Instance.ContactService.DeleteLinphoneContact(
-                            contact.Fullname,
-                            contact.RegistrationName);
+                        ServiceManager.Instance.ContactService.DeleteLinphoneContact(contact);
                 }
             }
         }

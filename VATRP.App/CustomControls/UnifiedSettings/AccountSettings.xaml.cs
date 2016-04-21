@@ -45,6 +45,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 DomainTextBox.Text = App.CurrentAccount.ProxyHostname;
                 ProxyTextBox.Text = Convert.ToString(App.CurrentAccount.ProxyPort);
                 string transport = App.CurrentAccount.Transport;
+                CardDAVServerTextBox.Text = App.CurrentAccount.CardDavServerPath;
+                CardDAVRealmTextBox.Text = App.CurrentAccount.CardDavRealm;
+
                 if (string.IsNullOrWhiteSpace(transport))
                 {
                     transport = "TCP";
@@ -192,7 +195,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             if (App.CurrentAccount != null)
             {
                 bool isChanged = false;
-
+                bool resyncContacts = false;
                 if (App.CurrentAccount.ProxyPort != port)
                 {
                     App.CurrentAccount.ProxyPort = port;
@@ -224,16 +227,32 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 {
                     App.CurrentAccount.RegistrationUser = UserNameTextBox.Text;
                     isChanged = true;
+                    resyncContacts = true;
                 }
                 if (ValueChanged(App.CurrentAccount.RegistrationPassword, PasswordTextBox.Password))
                 {
                     App.CurrentAccount.RegistrationPassword = PasswordTextBox.Password;
                     isChanged = true;
+                    resyncContacts = true;
+                }
+                if (ValueChanged(App.CurrentAccount.CardDavServerPath, CardDAVServerTextBox.Text))
+                {
+                    App.CurrentAccount.CardDavServerPath = CardDAVServerTextBox.Text;
+                    resyncContacts = true;
+                }
+                if (ValueChanged(App.CurrentAccount.CardDavRealm, CardDAVRealmTextBox.Text))
+                {
+                    App.CurrentAccount.CardDavRealm = CardDAVRealmTextBox.Text;
+                    resyncContacts = true;
                 }
                 //App.CurrentAccount.Transport = (string)TransportValueLabel.Content; // saved when changed
                 if (isChanged)
                 {
                     OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.RegistrationChanged);
+                }
+                if (resyncContacts)
+                {
+                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.CardDavConfigChanged);
                 }
             }
         }
@@ -314,6 +333,28 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                     App.CurrentAccount.ProxyPort = 25061;
                 }
                 OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.RegistrationChanged);
+            }
+        }
+
+        public void OnCardDAVServerChanged(Object sender, RoutedEventArgs args)
+        {
+            if ((App.CurrentAccount == null) || !this.IsVisible)
+                return;
+            if (App.CurrentAccount.CardDavServerPath != CardDAVServerTextBox.Text)
+            {
+                App.CurrentAccount.CardDavServerPath = CardDAVServerTextBox.Text;
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.CardDavConfigChanged);
+            }
+        }
+
+        public void OnCardDAVRealmChanged(Object sender, RoutedEventArgs args)
+        {
+            if ((App.CurrentAccount == null) || !this.IsVisible)
+                return;
+            if (App.CurrentAccount.CardDavRealm != CardDAVRealmTextBox.Text)
+            {
+                App.CurrentAccount.CardDavRealm = CardDAVRealmTextBox.Text;
+                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.CardDavConfigChanged);
             }
         }
 
