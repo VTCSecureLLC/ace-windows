@@ -15,6 +15,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="240"/>
@@ -35,7 +36,7 @@
                      Height="23" Margin="5,0,5,0" VerticalAlignment="Center" Foreground="Blue" Name="AdvancedSettingsPasswordBox"/>
             <Button Grid.Column="0" Grid.Row="2" Content="Show Advanced" Margin="0,2" 
                     BorderThickness="0"  Click="OnShowAdvanced"
-                    VerticalContentAlignment="Center">
+                    VerticalContentAlignment="Center" IsDefault="True">
             </Button>
             <!-- Row 3: ShowDebug -->
             <PasswordBox Grid.Column="1" Grid.Row="3" HorizontalAlignment="Stretch" 
@@ -51,9 +52,15 @@
                     BorderThickness="0"  Click="OnShowAllSettings"
                     VerticalContentAlignment="Center" Name="ShowAllSettingsButton" Visibility="Collapsed">
             </Button>
-            
-            <ScrollViewer Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3"  MaxHeight="500">
-                <ContentControl  Name="ContentPanel" VerticalAlignment="Stretch"></ContentControl>
+
+            <Label Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="3" Content="Technical Support Sheet" VerticalContentAlignment="Center"  Name="ViewTSSLabel" Visibility="Collapsed">
+            </Label>
+            <ScrollViewer Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3"  MinHeight="200" MaxHeight="300" Name="ViewTSSScrollView" Visibility="Collapsed">
+                <ContentControl  Name="ContentPanel" VerticalAlignment="Stretch">
+                <Grid Background="#FFE5E5E5">
+                    <local:TechnicalSupportSheetCtrl x:Name="ViewTSSCtrl" VerticalAlignment="Stretch" Margin="5,5,5,5"/>
+                </Grid>
+                </ContentControl>
             </ScrollViewer>
 
         </Grid>
