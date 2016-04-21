@@ -19,7 +19,6 @@ namespace com.vtcsecure.ace.windows.CustomControls
     /// </summary>
     public partial class CallViewCtrl
     {
-        public UnifiedSettings.UnifiedSettingsCtrl SettingsControl;
 
         #region Members
 

@@ -11,6 +11,7 @@
         <TabControl HorizontalAlignment="Left" Grid.Row="0" Height="480" VerticalAlignment="Top" Width="410" Margin="0,0,0,0" SelectionChanged="TabControl_SelectionChanged">
             <TabControl.Resources>
                 <Style TargetType="TabItem">
+                    <Setter Property="FontSize" Value="14" />
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="TabItem">
@@ -35,44 +36,46 @@
                 </Style>
             </TabControl.Resources>
 
-            <TabItem Header="General" Name="GeneralTab" FontSize="16" >
+            <TabItem Header="General" Name="GeneralTab" >
                 <Grid Background="#FFE5E5E5">
                     <unifiedSettings:UnifiedSettingsGeneralCtrl x:Name="GeneralSettings" VerticalAlignment="Stretch" Margin="5,5,5,5"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="Audio/Video" Name="AudioVideoTab" FontSize="16">
+            <TabItem Header="Audio/Video" Name="AudioVideoTab">
                 <Grid Background="#FFE5E5E5">
                     <unifiedSettings:UnifiedSettingsAudioVideoCtrl x:Name="AudioVideoSettings"  Margin="0" VerticalAlignment="Stretch"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="Theme" Name="ThemeTab" FontSize="16">
+            <TabItem Header="Theme" Name="ThemeTab">
                 <Grid Background="#FFE5E5E5">
                     <unifiedSettings:UnifiedSettingsThemeCtrl x:Name="ThemeSettings"  Margin="0" VerticalAlignment="Stretch"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="Text" Name="TextTab" FontSize="16">
+            <TabItem Header="Text" Name="TextTab">
                 <Grid Background="#FFE5E5E5">
                     <unifiedSettings:UnifiedSettingsTextCtrl x:Name="TextSettings"  Margin="0" VerticalAlignment="Stretch"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="Summary" Name="SummaryTab" FontSize="16">
+            <TabItem Header="Summary" Name="SummaryTab">
                 <Grid Background="#FFE5E5E5">
                     <unifiedSettings:UnifiedSettingsSummaryCtrl x:Name="SummarySettings"  Margin="0" VerticalAlignment="Stretch"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="Account" Name="AccountTab" FontSize="16">
+            <TabItem Header="Account" Name="AccountTab">
                 <Grid Background="#FFE5E5E5">
                     <unifiedSettings:AccountSettings x:Name="AccountSettings" Margin="0" VerticalAlignment="Stretch"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="Media" Name="MediaTab" FontSize="16" Visibility="Collapsed">
+            <TabItem Header="Media" Name="MediaTab" Visibility="Collapsed">
                 <Grid Background="#FFE5E5E5"/>
             </TabItem>
-            <TabItem Header="Testing" Name="TestingTab" FontSize="16" Visibility="Collapsed">
+            <TabItem Header="Testing" Name="TestingTab" Visibility="Collapsed">
                 <Grid Background="#FFE5E5E5"/>
             </TabItem>
-            <TabItem Header="Advanced" Name="AdvancedTab" FontSize="16" Visibility="Collapsed">
-                <Grid Background="#FFE5E5E5"/>
+            <TabItem Header="Advanced" Name="AdvancedTab" Visibility="Collapsed">
+                <Grid Background="#FFE5E5E5">
+                    <unifiedSettings:AdvancedSettings x:Name="AdvancedSettings"  Margin="0" VerticalAlignment="Stretch"/>
+                </Grid>
             </TabItem>
         </TabControl>
         

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -9,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -20,6 +22,13 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
     /// </summary>
     public partial class SettingsWindow : Window
     {
+        private const int GWL_STYLE = -16;
+        private const int WS_SYSMENU = 0x80000;
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+        [DllImport("user32.dll")]
+        private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
         private UnifiedSettings_AccountChange AccountChangeRequested;
         private CallViewCtrl _callControl;
         private BaseUnifiedSettingsPanel _currentContent;
@@ -60,7 +69,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
 //            InitializePanelAndEvents(NetworkSettings);
 
- //           InitializePanelAndEvents(AdvancedSettings);
+            InitializePanelAndEvents(AdvancedSettings);
 
 //            InitializePanelAndEvents(_viewTechnicalSupportPanel);
 
@@ -71,6 +80,14 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             HandleShowSettingsUpdate(UnifiedSettings_LevelToShow.Normal, true);
 #endif
             SetCallControl(callControl);
+
+            this.Loaded += SettingsWindow_Loaded;
+        }
+
+        void SettingsWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            var hwnd = new WindowInteropHelper(this).Handle;
+            SetWindowLong(hwnd, GWL_STYLE, GetWindowLong(hwnd, GWL_STYLE) & ~WS_SYSMENU);
         }
 
         private void SetCallControl(CallViewCtrl callControl)
@@ -91,7 +108,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 _allPanels.Add(panel);
             }
 //            panel.ContentChanging += HandleContentChanging;
-            panel.AccountChangeRequested += HandleAccountChangeRequested;
+            panel.AddAccountChangedMethod(HandleAccountChangeRequested);
+//            panel.AccountChangeRequested += HandleAccountChangeRequested;
         }
 
         #region ShowSettingsLevel
@@ -100,6 +118,10 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             switch (settingsType)
             {
                 case UnifiedSettings_LevelToShow.Advanced: BaseUnifiedSettingsPanel.EnableAdvancedSettings = show;
+                    if (show)
+                    {
+                        AdvancedTab.Visibility = System.Windows.Visibility.Visible;
+                    }
                     break;
                 case UnifiedSettings_LevelToShow.Debug: BaseUnifiedSettingsPanel.EnabledDebugSettings = show;
                     break;
@@ -132,12 +154,12 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             this.Hide();
         }
 
-        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
-        {
-            //base.OnClosing(e);
-            e.Cancel = true;
-            SetHidden();
-        }
+//        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+//        {
+//            //base.OnClosing(e);
+//            e.Cancel = true;
+//            SetHidden();
+//        }
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             _currentContent.SaveData();
@@ -175,7 +197,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
             else if (AdvancedTab.IsSelected)
             {
-//                _currentContent = AdvancedSettings;
+                _currentContent = AdvancedSettings;
             }
         }
 
@@ -198,10 +220,10 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         private void UpdateVideoSettingsIfOpen(ACEMenuSettingsUpdateType menuSetting)
         {
-//            if (VideoSettingsSettings.IsLoaded)
-//            {
-//                VideoSettingsSettings.UpdateForMenuSettingChange(menuSetting);
-//            }
+            if (AdvancedSettings.IsLoaded)
+            {
+                AdvancedSettings.UpdateForMenuSettingChange(menuSetting);
+            }
             if (AudioVideoSettings.IsLoaded)
             {
                 AudioVideoSettings.UpdateForMenuSettingChange(menuSetting);
@@ -209,9 +231,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         }
         private void UpdateAudioSettingsIfOpen(ACEMenuSettingsUpdateType menuSetting)
         {
-//            if (AudioSettingsSettings.IsLoaded)
+//            if (AdvancedSettings.IsLoaded)
 //            {
-//                AudioSettingsSettings.UpdateForMenuSettingChange(menuSetting);
+//                AdvancedSettings.UpdateForMenuSettingChange(menuSetting);
 //            }
             if (AudioVideoSettings.IsLoaded)
             {
