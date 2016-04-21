@@ -20,7 +20,8 @@ namespace com.vtcsecure.ace.windows.Services
 {
     internal class ServiceManager : ServiceManagerBase
     {
-        private const string CDN_DOMAIN_URL = "http://cdn.vatrp.net/domains.json";
+        public const string CDN_DOMAIN = "cdn.vatrp.net";
+        public const string CDN_DOMAIN_URL = "http://" + CDN_DOMAIN + "/domains.json";
 
         #region Members
         private static readonly ILog LOG = LogManager.GetLogger(typeof(ServiceManager));
@@ -358,6 +359,27 @@ namespace com.vtcsecure.ace.windows.Services
             LinphoneService.LinphoneConfig.STUNPort = App.CurrentAccount.STUNPort;
             LinphoneService.LinphoneConfig.MediaEncryption = GetMediaEncryptionText(App.CurrentAccount.MediaEncryption);
             LinphoneService.LinphoneConfig.EnableAVPF = App.CurrentAccount.EnableAVPF;
+            // cardDAV
+            if (!String.IsNullOrEmpty(App.CurrentAccount.CardDavServerPath))
+            {
+                LinphoneService.RemoveCardDAVAuthInfo();
+                LinphoneService.LinphoneConfig.CardDavRealm = App.CurrentAccount.CardDavRealm;
+
+                LinphoneService.LinphoneConfig.CardDavUser = App.CurrentAccount.RegistrationUser;
+                LinphoneService.LinphoneConfig.CardDavPass = App.CurrentAccount.RegistrationPassword;
+                LinphoneService.LinphoneConfig.CardDavServer = App.CurrentAccount.CardDavServerPath;
+
+                try
+                {
+                    Uri cardDavServer = new Uri(LinphoneService.LinphoneConfig.CardDavServer);
+                    LinphoneService.LinphoneConfig.CardDavDomain = cardDavServer.Host;
+                }
+                catch (Exception ex)
+                {
+                    LOG.Error(string.Format("Parse CardDAV server. {0}\n{1}",
+                        LinphoneService.LinphoneConfig.CardDavServer, ex.Message));
+                }
+            }
             LOG.Info("Linphone service configured for account: " + App.CurrentAccount.RegistrationUser);
             return true;
         }
@@ -475,7 +497,7 @@ namespace com.vtcsecure.ace.windows.Services
             {
                 return;
             }
-            string[] labels = { "Sorenson VRS", "Purple VRS", "ZVRS", "Convo Relay", "CAAG", "Global VRS" };
+            string[] labels = { "Sorenson", "Purple", "ZVRS", "Convo", "Global" };
             foreach (var label in labels)
             {
                 if (ProviderService.FindProvider(label) == null)
@@ -668,21 +690,75 @@ namespace com.vtcsecure.ace.windows.Services
             }
         }
 
+        // Note: if the selected device is not available, use the default, and store the default for the current user
         internal void ApplyMediaSettingsChanges()
         {
+            // this should never be an issue, but just in case
+            if (App.CurrentAccount == null)
+                return;
             LinphoneService.LinphoneConfig.MediaEncryption = GetMediaEncryptionText(App.CurrentAccount.MediaEncryption);
             LinphoneService.UpdateMediaSettings(App.CurrentAccount);
+            bool accountChanged = false;
+            // prior to setting the devices we need to ensure that the selected devices are still options.
+            //  for example - did the user unplug the camera since the last run?
             if (!string.IsNullOrEmpty(App.CurrentAccount.SelectedCameraId))
             {
-                LinphoneService.SetCamera(App.CurrentAccount.SelectedCameraId);
+                List<VATRPDevice> availableCameras = GetAvailableCameras();
+                if (IsDeviceAvailable(App.CurrentAccount.SelectedCameraId, availableCameras))
+                {
+                    LinphoneService.SetCamera(App.CurrentAccount.SelectedCameraId);
+                }
+                else
+                {
+                    // update the stored setting in the account because the previously selected device is not available
+                    VATRPDevice device = GetSelectedCamera();
+                    if (device != null)
+                    {
+                        App.CurrentAccount.SelectedCameraId = device.deviceId;
+                        accountChanged = true;
+                    }
+                }
             }
             if (!string.IsNullOrEmpty(App.CurrentAccount.SelectedMicrophoneId))
             {
-                LinphoneService.SetCaptureDevice(App.CurrentAccount.SelectedMicrophoneId);
+                List<VATRPDevice> availableMicrophones = GetAvailableMicrophones();
+                if (IsDeviceAvailable(App.CurrentAccount.SelectedMicrophoneId, availableMicrophones))
+                {
+                    LinphoneService.SetCaptureDevice(App.CurrentAccount.SelectedMicrophoneId);
+                }
+                else
+                {
+                    // update the stored setting in the account because the previously selected device is not available
+                    VATRPDevice device = GetSelectedMicrophone();
+                    if (device != null)
+                    {
+                        App.CurrentAccount.SelectedMicrophoneId = device.deviceId;
+                        accountChanged = true;
+                    }
+                }
             }
             if (!string.IsNullOrEmpty(App.CurrentAccount.SelectedSpeakerId))
             {
-                LinphoneService.SetSpeakers(App.CurrentAccount.SelectedSpeakerId);
+                List<VATRPDevice> availableSpeakers = GetAvailableSpeakers();
+                if (IsDeviceAvailable(App.CurrentAccount.SelectedSpeakerId, availableSpeakers))
+                {
+                    LinphoneService.SetSpeakers(App.CurrentAccount.SelectedSpeakerId);
+                }
+                else
+                {
+                    // update the stored setting in the account because the previously selected device is not available
+                    VATRPDevice device = GetSelectedSpeakers();
+                    if (device != null)
+                    {
+                        App.CurrentAccount.SelectedSpeakerId = device.deviceId;
+                        accountChanged = true;
+                    }
+                }
+            }
+            // if there was a change to the account, save it
+            if (accountChanged)
+            {
+                SaveAccountSettings();
             }
         }
 
@@ -759,7 +835,7 @@ namespace com.vtcsecure.ace.windows.Services
                     Geoposition pos = await loc.GetGeopositionAsync();
                     var lat = pos.Coordinate.Latitude;
                     var lang = pos.Coordinate.Longitude;
-                    LocationString = string.Format("{0},{1}", lat, lang);
+                    LocationString = string.Format("<geo:{0},{1}>", lat, lang);
                     StartLocationRequestTimer();
                 }
                 catch (System.UnauthorizedAccessException ex)
@@ -806,6 +882,22 @@ namespace com.vtcsecure.ace.windows.Services
                     Register();
                 }
             }
+        }
+
+        public bool IsDeviceAvailable(string deviceId, List<VATRPDevice> deviceList)
+        {
+            if (string.IsNullOrEmpty(deviceId))
+            {
+                return false;
+            }
+            foreach (VATRPDevice device in deviceList)
+            {
+                if (device.deviceId.Equals(deviceId))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public List<VATRPDevice> GetAvailableCameras()

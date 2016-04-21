@@ -20,11 +20,12 @@ namespace VATRP.Linphone.VideoWrapper
         private VATRPTranslucentWindow newCallAcceptWindow;
         private VATRPTranslucentWindow onHoldWindow;
         private VATRPTranslucentWindow qualityIndicatoWindow;
+        private VATRPTranslucentWindow encryptionIndicatoWindow;
         private System.Timers.Timer _timerCall;
         private int _foregroundCallDuration = 0;
         private int _backgroundCallDuration = 0;
         private QualityIndicator _lastQuality = QualityIndicator.Unknown;
-		
+        private MediaEncryptionIndicator _lastEncryption = MediaEncryptionIndicator.None;
         public VATRPOverlay()
         {
             commandBarWindow = new VATRPTranslucentWindow(this);
@@ -34,6 +35,7 @@ namespace VATRP.Linphone.VideoWrapper
             newCallAcceptWindow = new VATRPTranslucentWindow(this);
             onHoldWindow = new VATRPTranslucentWindow(this);
             qualityIndicatoWindow = new VATRPTranslucentWindow(this);
+            encryptionIndicatoWindow = new VATRPTranslucentWindow(this);
 
             _timerCall = new System.Timers.Timer
             {
@@ -860,7 +862,7 @@ namespace VATRP.Linphone.VideoWrapper
                         lastIndicator = "GoodIndicator";
                         break;
                     default:
-                        lastIndicator = string.Empty;
+                        lastIndicator = "None";
                         break;
                 }
 
@@ -968,6 +970,176 @@ namespace VATRP.Linphone.VideoWrapper
 
         #endregion
 
+        #region Media encryption indicator window
+
+        public double EncryptionIndicatorWindowLeftMargin
+        {
+            get
+            {
+                if (encryptionIndicatoWindow != null)
+                    return encryptionIndicatoWindow.WindowLeftMargin;
+                return 0;
+            }
+            set
+            {
+                if (encryptionIndicatoWindow != null)
+                    encryptionIndicatoWindow.WindowLeftMargin = value;
+            }
+        }
+
+        public double EncryptionIndicatorWindowTopMargin
+        {
+            get
+            {
+                if (encryptionIndicatoWindow != null)
+                    return encryptionIndicatoWindow.WindowTopMargin;
+                return 0;
+            }
+            set
+            {
+                if (encryptionIndicatoWindow != null)
+                    encryptionIndicatoWindow.WindowTopMargin = value;
+            }
+        }
+
+        public int EncryptionIndicatorOverlayWidth
+        {
+            get
+            {
+                if (encryptionIndicatoWindow != null)
+                    return encryptionIndicatoWindow.OverlayWidth;
+                return 0;
+            }
+            set
+            {
+                if (encryptionIndicatoWindow != null)
+                    encryptionIndicatoWindow.OverlayWidth = value;
+            }
+        }
+
+        public int EncryptionIndicatorOverlayHeight
+        {
+            get
+            {
+                if (encryptionIndicatoWindow != null)
+                    return encryptionIndicatoWindow.OverlayHeight;
+                return 0;
+            }
+            set
+            {
+                if (encryptionIndicatoWindow != null)
+                    encryptionIndicatoWindow.OverlayHeight = value;
+            }
+        }
+
+        public void UpdateEncryptionIndicator(MediaEncryptionIndicator currentEncryption)
+        {
+            if (_lastEncryption != currentEncryption)
+            {
+                var currentIndicator = "EncryptionOff";
+                var lastIndicator = "EncryptionOff";
+                switch (_lastEncryption)
+                {
+                    case MediaEncryptionIndicator.On:
+                        lastIndicator = "EncryptionOn";
+                        break;
+                    case MediaEncryptionIndicator.Off:
+                        lastIndicator = "EncryptionOff";
+                        break;
+                    default:
+                        lastIndicator = "None";
+                        break;
+                }
+
+                switch (currentEncryption)
+                {
+                    case MediaEncryptionIndicator.On:
+                        currentIndicator = "EncryptionOn";
+                        break;
+                    case MediaEncryptionIndicator.Off:
+                        currentIndicator = "EncryptionOff";
+                        break;
+                    default:
+                        return;
+                }
+
+                _lastEncryption = currentEncryption;
+                var container =
+                    FindChild<Grid>(encryptionIndicatoWindow.TransparentWindow, "MediaEncryptionContainer");
+                if (container != null)
+                {
+                    var image =
+                        FindChild<Image>(container, lastIndicator);
+                    if (image != null)
+                    {
+                        image.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        image =
+                            FindChild<Image>(container, "EncryptionOn");
+
+                        if (image != null)
+                            image.Visibility = Visibility.Collapsed;
+                        image =
+                            FindChild<Image>(container, "EncryptionOff");
+                        if (image != null)
+                            image.Visibility = Visibility.Collapsed;
+                    }
+
+                    image =
+                        FindChild<Image>(container, currentIndicator);
+                    if (image != null)
+                        image.Visibility = Visibility.Visible;
+                }
+            }
+            encryptionIndicatoWindow.Refresh();
+            encryptionIndicatoWindow.UpdateWindow();
+        }
+
+        public void ShowEncryptionIndicatorWindow(bool bshow)
+        {
+            encryptionIndicatoWindow.ShowWindow = bshow;
+            encryptionIndicatoWindow.Refresh();
+            if (bshow)
+            {
+                encryptionIndicatoWindow.UpdateWindow();
+            }
+            else
+            {
+                _lastEncryption = MediaEncryptionIndicator.None;
+            }
+        }
+
+        public object OverlayEncryptionIndicatorChild
+        {
+            get
+            {
+                if (encryptionIndicatoWindow != null && encryptionIndicatoWindow.TransparentWindow != null)
+                {
+                    return encryptionIndicatoWindow.TransparentWindow.Content;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                if (encryptionIndicatoWindow != null && encryptionIndicatoWindow.TransparentWindow != null)
+                {
+                    encryptionIndicatoWindow.TransparentWindow.Content = value;
+                }
+            }
+        }
+
+        public VATRPTranslucentWindow EncryptionIndicatorWindow
+        {
+            get { return onHoldWindow; }
+        }
+
+        #endregion
+
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);
@@ -976,6 +1148,8 @@ namespace VATRP.Linphone.VideoWrapper
             callInfoWindow.UpdateWindow();
             callsSwitchWindow.UpdateWindow();
             newCallAcceptWindow.UpdateWindow();
+            qualityIndicatoWindow.Refresh();
+            encryptionIndicatoWindow.Refresh();
         }
 
         protected override void OnRender(DrawingContext drawingContext)
@@ -992,6 +1166,7 @@ namespace VATRP.Linphone.VideoWrapper
             callsSwitchWindow.Refresh();
             newCallAcceptWindow.Refresh();
             qualityIndicatoWindow.Refresh();
+            encryptionIndicatoWindow.Refresh();
         }
 
         private static T FindChild<T>(DependencyObject parent, string childName)

@@ -84,6 +84,9 @@
     <Compile Include="Enums\MessageDirection.cs" />
     <Compile Include="Enums\TypingAction.cs" />
     <Compile Include="Enums\UserStatus.cs" />
+    <Compile Include="Events\CardDavContactEventArgs.cs" />
+    <Compile Include="Events\CardDavSyncEventArgs.cs" />
+    <Compile Include="Events\DeclineMessageArgs.cs" />
     <Compile Include="Events\InfoEventArgs.cs" />
     <Compile Include="Events\HttpDownloadEventArgs.cs" />
     <Compile Include="Events\ConfigurationEventArgs.cs" />
@@ -116,12 +119,14 @@
     <Compile Include="Model\ACEConfig.cs" />
     <Compile Include="Model\CallParams.cs" />
     <Compile Include="Model\Commands\CreateCallCommand.cs" />
+    <Compile Include="Model\Commands\SendChatMessageCommand.cs" />
     <Compile Include="Model\Commands\DeclineCallCommand.cs" />
     <Compile Include="Model\Commands\CallCommand.cs" />
     <Compile Include="Model\Commands\LinphoneCommand.cs" />
     <Compile Include="Model\Commands\AcceptCallCommand.cs" />
     <Compile Include="Model\Commands\ResumeCallCommand.cs" />
     <Compile Include="Model\Commands\PauseCallCommand.cs" />
+    <Compile Include="Model\Commands\MuteCallCommand.cs" />
     <Compile Include="Model\Commands\TerminateCallCommand.cs" />
     <Compile Include="Model\Utils\HttpDownloadHelper.cs" />
     <Compile Include="Model\VATRPDevice.cs" />

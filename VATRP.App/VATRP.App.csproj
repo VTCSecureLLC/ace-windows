@@ -129,6 +129,9 @@
     <Compile Include="CustomControls\CallViewCtrl.xaml.cs">
       <DependentUpon>CallViewCtrl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\MoreMenuCtrl.xaml.cs">
+      <DependentUpon>MoreMenuCtrl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\Resources\BaseResourcePanel.cs" />
     <Compile Include="CustomControls\Resources\DeafHoHResourcesPanel.xaml.cs">
       <DependentUpon>DeafHoHResourcesPanel.xaml</DependentUpon>
@@ -147,9 +150,18 @@
     <Compile Include="CustomControls\MainSettingsCtrl.xaml.cs">
       <DependentUpon>MainSettingsCtrl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\AccountSettings.xaml.cs">
+      <DependentUpon>AccountSettings.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\AdvancedSettings.xaml.cs">
+      <DependentUpon>AdvancedSettings.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\UnifiedSettings\BaseUnifiedSettingsPanel.cs" />
     <Compile Include="CustomControls\Resources\ResourcePanel.xaml.cs">
       <DependentUpon>ResourcePanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\SettingsWindow.xaml.cs">
+      <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\UnifiedSettings\TechnicalSupportSheetCtrl.xaml.cs">
       <DependentUpon>TechnicalSupportSheetCtrl.xaml</DependentUpon>
@@ -203,6 +215,7 @@
     <Compile Include="Utilities\JsonDeserializer.cs" />
     <Compile Include="Utilities\JsonException.cs" />
     <Compile Include="Utilities\JsonWebRequest.cs" />
+    <Compile Include="Utilities\NetworkUtility.cs" />
     <Compile Include="Utilities\ScreenSaverHelper.cs" />
     <Compile Include="Utilities\SRVLookup.cs" />
     <Compile Include="Utilities\TechnicalSupportInfoBuilder.cs" />
@@ -215,6 +228,7 @@
     <Compile Include="ViewModel\CallInfoViewModel.cs" />
     <Compile Include="ViewModel\AboutViewModel.cs" />
     <Compile Include="ViewModel\CallHistoryViewModel.cs" />
+    <Compile Include="ViewModel\MenuViewModel.cs" />
     <Compile Include="ViewModel\VideoViewModel.cs" />
     <Compile Include="ViewModel\HistoryCallEventViewModel.cs" />
     <Compile Include="ViewModel\ProviderViewModel.cs" />
@@ -324,6 +338,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="CustomControls\MoreMenuCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="CustomControls\Resources\DeafHoHResourcesPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -354,6 +372,18 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="CustomControls\Resources\ResourcePanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\AccountSettings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\AdvancedSettings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\SettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -634,14 +664,6 @@
     <Resource Include="Resources\resources.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\zvrs.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\convovrs.png" />
-    <Resource Include="Resources\purpleVRS.png" />
-    <Resource Include="Resources\sorensonvrs.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\video_mail.png" />
   </ItemGroup>
   <ItemGroup>
@@ -662,12 +684,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\fav_contact.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\caag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\globalvrs.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\switch_call.png" />
@@ -693,14 +709,6 @@
     <Resource Include="Resources\plus.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\caag_gr.png" />
-    <Resource Include="Resources\convovrs_gr.png" />
-    <Resource Include="Resources\globalvrs_gr.png" />
-    <Resource Include="Resources\purpleVRS_gr.png" />
-    <Resource Include="Resources\sorensonvrs_gr.png" />
-    <Resource Include="Resources\zvrs_gr.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\resources_books.png" />
   </ItemGroup>
   <ItemGroup>
@@ -718,6 +726,25 @@
     <Resource Include="Resources\call_quality_indicator_1.png" />
     <Resource Include="Resources\call_quality_indicator_2.png" />
     <Resource Include="Resources\call_quality_indicator_3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\resource_menu.png" />
+    <Resource Include="Resources\setting_menu.png" />
+    <Resource Include="Resources\sview_menu.png" />
+    <Resource Include="Resources\videomail_menu.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\more.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\chat.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\videomail.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\security_ko.png" />
+    <Resource Include="Resources\security_ok.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

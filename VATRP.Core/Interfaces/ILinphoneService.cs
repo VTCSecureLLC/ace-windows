@@ -23,6 +23,11 @@ namespace VATRP.Core.Interfaces
         event LinphoneService.OnCallLogUpdatedDelegate OnLinphoneCallLogUpdatedEvent;
         event LinphoneService.MWIReceivedDelegate OnMWIReceivedEvent;
         event LinphoneService.InfoReceivedDelegate OnCameraMuteEvent;
+        event LinphoneService.NetworkReachabilityChanged NetworkReachableEvent;
+        event LinphoneService.CardDavContactDelegate CardDAVContactCreated;
+        event LinphoneService.CardDavContactDelegate CardDAVContactUpdated;
+        event LinphoneService.CardDavContactDelegate CardDAVContactDeleted;
+        event LinphoneService.CardDavSyncDelegate CardDAVSyncEvent;
 
         #endregion
 
@@ -121,9 +126,11 @@ namespace VATRP.Core.Interfaces
         void SendCameraSwtichAsInfo(IntPtr callPtr, bool muteCamera);
         bool SubscribeForVideoMWI(string newVideoMailUri);
         string GetTechnicalSupportInfo();
+        string GetTechnicalSupportInfo(IntPtr callPtr);
         void UpdatePrivateDataPath();
+        void CardDAVSync();
+        void RemoveCardDAVAuthInfo();
 
         #endregion
-
     }
 }

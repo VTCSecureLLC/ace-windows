@@ -111,6 +111,8 @@ namespace VATRP.Core.Model
             set { _linphoneMessage = value; }
         }
 
+        public int SipErrorCode { get; set; }
+		
         public static bool ParseSipAddress(string sipAddress, out string username, out string hostname, out int port)
         {
             username = string.Empty;
@@ -128,7 +130,9 @@ namespace VATRP.Core.Model
             {
                 hostname = username.Substring(pos + 1);
                 username = username.Substring(0, pos);
-
+                var hParts = hostname.Split(new[] {';'}); // trim user=phone
+                if (hParts.Length > 0)
+                    hostname = hParts[0];
                 pos = hostname.LastIndexOf(":", StringComparison.InvariantCulture);
                 if (pos != -1)
                 {

@@ -20,7 +20,7 @@
 				   >
     <Window.Resources>
         <converters:ContactSelectionToBrushConverter x:Key="csbc"/>
-        <converters:BoolToVisibilityConverter x:Key="bvcno" />
+        <converters:IntToVisibilityConverter x:Key="oivc" OppositeBooleanValue="True"/>
         <converters:BoolToVisibilityConverter x:Key="bvc" OppositeBooleanValue="False"/>
         <converters:BoolToBubbleColorConverter x:Key="bcolorc"/>
         <converters:BoolToBubbleCornerConverter x:Key="bcornerc0" Radius="6.0"/>
@@ -87,15 +87,20 @@
                                         </Border>
 
                                         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10, 0,0,0">
-                                            <TextBlock   Text="{Binding Contact.ContactName_ForUI}"
+                                            <TextBlock   Text="{Binding ContactUI}"
 								FontSize="14"  Foreground="#ff5e6366" FontWeight="SemiBold" HorizontalAlignment="Left" />
                                         </StackPanel>
-                                        <Border Grid.Column="2" Grid.Row="0" Width="10" Height="10" CornerRadius="15" 
-                                            Background="#FFF9AD81" Visibility="{Binding Contact.HasUnreadMsg, Converter={StaticResource bvcno}, Mode=OneWay}">
-                                            <!--Text="{Binding Contact.UnreadMsgCount}"-->
-                                            <TextBlock  FontSize="12"  Margin="0" FontWeight="SemiBold" 
-                                              HorizontalAlignment="Center"     VerticalAlignment="Center"  />
+                                        <Border Grid.Column="2" Grid.Row="0" Width="22" Height="22" CornerRadius="11" 
+                                            Background="{StaticResource NavigationBarPressedButtonBg}" 
+                                                Visibility="{Binding UnreadMsgCount, Converter={StaticResource oivc}, Mode=OneWay}">
+                                            
+                                            <TextBlock  FontSize="14"  Margin="0" FontWeight="SemiBold" 
+                                              HorizontalAlignment="Center"  Text="{Binding UnreadMsgCount}"  
+                                                        Foreground="{StaticResource AppMainWindowBrush}"
+                                                        VerticalAlignment="Center"  />
                                         </Border>
+
+                                        
                                     </Grid>
                                     <Separator VerticalAlignment="Bottom" Margin="0"/>
                                 </StackPanel>
@@ -137,7 +142,72 @@
                         </Grid>
                         <Border Grid.Column ="1" Background="{StaticResource ChatPageMainBg}" BorderBrush="{StaticResource ChatPageMainBg}" 
 		   BorderThickness="1,0,0,0">
-                            <Button Width="32" Height="32" Background="{StaticResource AppMainWindowBrush}" BorderThickness="1" BorderBrush="{StaticResource ChatPageSelectContactTextBorder}"/>
+                            <Button x:Name="buttonAudioCall" Margin="0.5,0.5,0,0" Click="OnCallClick"  Cursor="Hand" IsEnabled="{Binding CanMakeCall}">
+                                <Button.Resources>
+                                    <Grid x:Key="CallButtonNormal" Background="#FF2B912D">
+
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Margin="3,0,5,0" Grid.Column="0">
+                                            <Rectangle Width="20" Height="10"   Fill="White" VerticalAlignment="Top" >
+                                                <Rectangle.OpacityMask>
+                                                    <ImageBrush ImageSource="..\Resources\cameraview.png" />
+                                                </Rectangle.OpacityMask>
+                                            </Rectangle>
+                                        </StackPanel>
+
+                                        <TextBlock Grid.Column="1" Text="Call" HorizontalAlignment="Left" FontSize="16" VerticalAlignment="Center" Margin ="3,-3,3,0" 
+                               Foreground="White"/>
+
+                                    </Grid>
+                                </Button.Resources>
+
+                                <Button.Style>
+                                    <Style TargetType="{x:Type Button}">
+                                        <Setter Property="Opacity" Value="1" />
+                                        <Setter Property="BorderThickness" Value="0" />
+                                        <Setter Property="Padding" Value="0" />
+                                        <Setter Property="SnapsToDevicePixels" Value="True"/>
+                                        <Setter Property="VerticalAlignment" Value="Stretch"/>
+                                        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                                        <Setter Property="Content" Value="{StaticResource CallButtonNormal}" />
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="{x:Type Button}">
+                                                    <Grid Background="Transparent">
+
+                                                        <Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" Margin="0">
+                                                            <ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                                        </Border>
+                                                    </Grid>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Content" Value="{DynamicResource CallButtonNormal}" />
+                                            </Trigger>
+                                            <Trigger Property="IsPressed" Value="True">
+                                                <Setter Property="Content" Value="{DynamicResource CallButtonNormal}" />
+                                            </Trigger>
+
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsPressed}" Value="True"/>
+                                                </MultiDataTrigger.Conditions>
+
+                                                <Setter Property="Opacity" Value="0.7"/>
+                                                <Setter Property="Content" Value="{DynamicResource CallButtonNormal}"/>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+
+                            </Button>
+
                         </Border>
                     </Grid>
                 </Border>
@@ -222,6 +292,12 @@
 
                                                     <!--Text part-->
                                                     <StackPanel HorizontalAlignment="Stretch" >
+                                                        <TextBlock  Text="Call declined with message" 
+    							Margin="5,0,5,0" TextWrapping="Wrap"
+    							Foreground="{StaticResource ChatPageBubbleTextFont}"
+    							FontSize="12" 
+                                  Visibility="{Binding IsDeclineMessage, Converter={StaticResource bvc}}"
+    							  VerticalAlignment="Top"/>
                                                         <TextBlock  Text="{Binding Content}" 
     							Margin="5,0,5,0" TextWrapping="Wrap"
     							Foreground="{StaticResource ChatPageBubbleTextFont}"

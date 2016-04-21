@@ -3,7 +3,9 @@ using System.Windows;
 using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Model;
 using System.Collections.ObjectModel;
+using com.vtcsecure.ace.windows.CustomControls;
 using log4net;
+using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 
 namespace com.vtcsecure.ace.windows.ViewModel
@@ -20,6 +22,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _isResourceDocked;
         private bool _isMessagingDocked;
         private bool _isCallPanelDocked;
+        private bool _isMoreMenuDocked;
+        private bool _isChatViewEnabled;
         private bool _isIncallFullScreen;
         private bool _offerServiceSelection;
         private bool _activateWizardPage;
@@ -31,13 +35,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private InCallMessagingViewModel _inCallMessageViewModel;
         private SimpleMessagingViewModel _simpleMessageViewModel;
         private SettingsViewModel _settingsViewModel;
+        private MenuViewModel _menuViewModel;
         private ObservableCollection<CallViewModel> _callsViewModelList;
         private CallViewModel _activeCallViewModel;
         private ContactsViewModel _contactsViewModel;
         private ILinphoneService _linphoneService;
         private int _uiMissedCallsCount;
+        private bool _hasUnreadMessages;
+        private bool _showVideomailIndicator;
         private bool _isRttViewEnabled;
-
 
         public MainControllerViewModel()
         {
@@ -60,7 +66,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _simpleMessageViewModel = new SimpleMessagingViewModel(ServiceManager.Instance.ChatService,
                 ServiceManager.Instance.ContactService);
             _settingsViewModel = new SettingsViewModel();
+            _menuViewModel = new MenuViewModel();
             _historyViewModel.MissedCallsCountChanged += OnMissedCallsCountChanged;
+            _simpleMessageViewModel.UnreadMessagesCountChanged += OnUnreadMesagesCountChanged;
             _callsViewModelList = new ObservableCollection<CallViewModel>();
             _linphoneService = ServiceManager.Instance.LinphoneService;
             _dialpadHeight = 350;
@@ -76,6 +84,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 }
                 UIMissedCallsCount = _historyViewModel.UnseenMissedCallsCount;
             }
+        }
+		
+        private void OnUnreadMesagesCountChanged(object callEvent, EventArgs args)
+        {
+            if (_simpleMessageViewModel != null)
+                HasUnreadMessages = ServiceManager.Instance.ChatService.HasUnreadMessages();
         }
 
         #region Properties
@@ -187,7 +201,27 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 OnPropertyChanged("IsCallPanelDocked");
             }
         }
-
+		
+        public bool IsMenuDocked
+        {
+            get { return _isMoreMenuDocked; }
+            set
+            {
+                _isMoreMenuDocked = value;
+                OnPropertyChanged("IsMenuDocked");
+            }
+        }
+		
+        public bool IsChatViewEnabled
+        {
+            get { return _isChatViewEnabled; }
+            set
+            {
+                _isChatViewEnabled = value;
+                OnPropertyChanged("IsChatViewEnabled");
+            }
+        }
+		
         public bool OfferServiceSelection
         {
             get { return _offerServiceSelection; }
@@ -231,6 +265,26 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
+        public bool HasUnreadMessages
+        {
+            get { return _hasUnreadMessages; }
+            set
+            {
+                _hasUnreadMessages = value;
+                OnPropertyChanged("HasUnreadMessages");
+            }
+        }
+
+        public bool ShowVideomailIndicator
+        {
+            get { return _showVideomailIndicator; }
+            set
+            {
+                _showVideomailIndicator = value;
+                OnPropertyChanged("ShowVideomailIndicator");
+            }
+        }
+
         public DialpadViewModel DialpadModel
         {
             get { return _dialPadViewModel; }
@@ -266,6 +320,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
             get { return _settingsViewModel; }
         }
 
+        public MenuViewModel MoreMenuModel
+        {
+            get { return _menuViewModel; }
+        }
+        
         public CallViewModel ActiveCallModel
         {
             get { return _activeCallViewModel; }
@@ -378,16 +437,23 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 if (FindCallViewModel(viewModel))
                 {
-                    LOG.Info(String.Format("Terminating call call for {0}. {1}", viewModel.CallerInfo,
-                        viewModel.ActiveCall.NativeCallPtr));
+                    if (viewModel.CallState == VATRPCallState.Declined)
+                    {
 
-                    try
-                    {
-                        _linphoneService.TerminateCall(viewModel.ActiveCall.NativeCallPtr);
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        ServiceManager.LogError("TerminateCall", ex);
+                        LOG.Info(String.Format("Terminating call call for {0}. {1}", viewModel.CallerInfo,
+                            viewModel.ActiveCall.NativeCallPtr));
+
+                        try
+                        {
+                            _linphoneService.TerminateCall(viewModel.ActiveCall.NativeCallPtr);
+                        }
+                        catch (Exception ex)
+                        {
+                            ServiceManager.LogError("TerminateCall", ex);
+                        }
                     }
                 }
             }
@@ -426,7 +492,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
-        internal void DeclineCall(CallViewModel viewModel)
+        internal void DeclineCall(CallViewModel viewModel, string message)
         {
             lock (CallsViewModelList)
             {
@@ -434,7 +500,21 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 {
                     LOG.Info(String.Format("Declining call for {0}. {1}", viewModel.CallerInfo,
                         viewModel.ActiveCall.NativeCallPtr));
-
+                    var contactID = new ContactID(
+                            string.Format("{0}@{1}", viewModel.ActiveCall.RemoteParty.Username,
+                                viewModel.ActiveCall.RemoteParty.HostAddress), IntPtr.Zero);
+                    var contact = ServiceManager.Instance.ContactService.FindContact(contactID);
+                    if (contact == null)
+                    {
+                        contact = new VATRPContact(contactID)
+                        {
+                            Fullname = viewModel.ActiveCall.RemoteParty.Username,
+                            DisplayName = viewModel.ActiveCall.RemoteParty.Username,
+                            SipUsername = viewModel.ActiveCall.RemoteParty.Username,
+                            RegistrationName = contactID.ID
+                        };
+                        ServiceManager.Instance.ContactService.AddContact(contact, string.Empty);
+                    }
                     viewModel.DeclineCall(false);
                     try
                     {
@@ -443,6 +523,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     catch (Exception ex)
                     {
                         ServiceManager.LogError("DeclineCall", ex);
+                    }
+
+                    if (message.NotBlank())
+                    {
+                        if (_simpleMessageViewModel != null)
+                        {
+                            _simpleMessageViewModel.SetActiveChatContact(contact, IntPtr.Zero);
+                            _simpleMessageViewModel.SendMessage(string.Format("{0}{1}", VATRPChatMessage.DECLINE_PREFIX, message));
+                        }
                     }
                 }
             }
@@ -509,6 +598,19 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 PauseCall(activeCallViewModel);
             }
             return true;
+        }
+
+        internal CallViewModel FindDeclinedCallViewModel()
+        {
+            lock (CallsViewModelList)
+            {
+                foreach (var callVM in CallsViewModelList)
+                {
+                    if (callVM.CallState == VATRPCallState.Declined)
+                        return callVM;
+                }
+            }
+            return null;
         }
     }
 }

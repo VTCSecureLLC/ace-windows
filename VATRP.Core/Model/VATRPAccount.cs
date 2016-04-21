@@ -239,6 +239,12 @@ namespace VATRP.Core.Model
         [Column]
         public string RTTFontFamily { get; set; }
 
+        [Column]
+        public string CardDavServerPath { get; set; }
+
+        [Column]
+        public string CardDavRealm { get; set; }
+
         #endregion
 
         #region Methods
@@ -278,7 +284,7 @@ namespace VATRP.Core.Model
             UserNeedsAgentView = false;
             VideoMailCount = 0;
             PreferredFPS = 30;
-            EnableAdaptiveRate = true;
+            EnableAdaptiveRate = false;
             UploadBandwidth = 1500;
             DownloadBandwidth = 1500;
             EnableQualityOfService = true;
@@ -289,6 +295,8 @@ namespace VATRP.Core.Model
             EnableIPv6 = false;
             Logging = "Info";
             RTTFontFamily = "Segoe UI";
+            CardDavServerPath = string.Empty;
+            CardDavRealm = string.Empty;
         }
 		
         public void StorePassword(string filePath)

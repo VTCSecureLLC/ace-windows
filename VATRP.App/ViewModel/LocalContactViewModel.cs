@@ -29,7 +29,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             this._contactService = contactSvc;
             this._contactService.LoggedInContactUpdated += OnLocalContactChanged;
-            ServiceManager.Instance.LinphoneService.OnMWIReceivedEvent += OnVideoMailCountChanged;
         }
 
         private void OnLocalContactChanged(object sender, VATRP.Core.Events.ContactEventArgs e)
@@ -40,16 +39,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 return;
             }
             Contact = this._contactService.FindContact(e.Contact);
-        }
-
-        private void OnVideoMailCountChanged(MWIEventArgs args)
-        {
-            if (ServiceManager.Instance.Dispatcher.Thread != Thread.CurrentThread)
-            {
-                ServiceManager.Instance.Dispatcher.BeginInvoke((Action)(() => this.OnVideoMailCountChanged(args)));
-                return;
-            }
-            VideoMailCount++;
         }
 
         public VATRPContact Contact
@@ -78,13 +67,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             set
             {
                 _videoMailCount = value;
-
-                if (App.CurrentAccount != null)
-                {
-                    App.CurrentAccount.VideoMailCount = value;
-                    ServiceManager.Instance.AccountService.Save();
-                }
-
                 OnPropertyChanged("VideoMailCount");
             }
         }

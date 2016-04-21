@@ -77,6 +77,10 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             ShowAdvancedOptions(show);
         }
 
+        public virtual void AddAccountChangedMethod(UnifiedSettings_AccountChange accountChangedHandler)
+        {
+            this.AccountChangeRequested += accountChangedHandler;
+        }
         // Invoke the Content Changed event
         public virtual void OnContentChanging(UnifiedSettingsContentType contentType)
         {
@@ -98,6 +102,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         public virtual void Initialize()
         {
             _initialized = true;
+            //ShowNormalOptions();
         }
 		
         public virtual void SaveData()

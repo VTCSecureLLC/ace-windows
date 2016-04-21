@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using com.vtcsecure.ace.windows.Model;
 using VATRP.Core.Events;
 using VATRP.Core.Model;
 
@@ -15,7 +16,9 @@ namespace VATRP.Core.Interfaces
 		bool ComposeAndSendMessage(VATRPChat chat, string text);
         void MarkChatAsRead(ChatID chat);
         void UpdateRTTFontFamily(string newFont);
-        
+        bool HasUnreadMessages();
+        void ActivateChat(VATRPChat chat);
+
         event EventHandler<ConversationEventArgs> ConversationClosed;
         event EventHandler<ConversationEventArgs> ConversationStateChanged;
         event EventHandler<ConversationEventArgs> ConversationUnReadStateChanged;
@@ -25,5 +28,7 @@ namespace VATRP.Core.Interfaces
         event EventHandler<EventArgs> ContactsChanged;
         event EventHandler<ConversationEventArgs> NewConversationCreated;
         event EventHandler<EventArgs> RttReceived;
+        event EventHandler<DeclineMessageArgs> ConversationDeclineMessageReceived;
+        
     }
 }

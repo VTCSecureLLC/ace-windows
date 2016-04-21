@@ -61,12 +61,65 @@ namespace com.vtcsecure.ace.windows.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        ///   Looks up a localized string similar to The call did not go through because  of access rights failure..
         /// </summary>
-        internal static System.Drawing.Bitmap Hold {
+        internal static string ERR_BadCredentials {
             get {
-                object obj = ResourceManager.GetObject("Hold", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ResourceManager.GetString("ERR_BadCredentials", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The call failed because of communication problems..
+        /// </summary>
+        internal static string ERR_DoNotDisturb {
+            get {
+                return ResourceManager.GetString("ERR_DoNotDisturb", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Call failed because called terminal detected and error..
+        /// </summary>
+        internal static string ERR_Generic {
+            get {
+                return ResourceManager.GetString("ERR_Generic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Communication error: Bad network connection..
+        /// </summary>
+        internal static string ERR_IOError {
+            get {
+                return ResourceManager.GetString("ERR_IOError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The called terminal was not reachable because of technical reasons..
+        /// </summary>
+        internal static string ERR_NoResponse {
+            get {
+                return ResourceManager.GetString("ERR_NoResponse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No answer..
+        /// </summary>
+        internal static string ERR_NotAnswered {
+            get {
+                return ResourceManager.GetString("ERR_NotAnswered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The call failed of an unknown error..
+        /// </summary>
+        internal static string ERR_Unknown {
+            get {
+                return ResourceManager.GetString("ERR_Unknown", resourceCulture);
             }
         }
         
@@ -124,6 +177,141 @@ namespace com.vtcsecure.ace.windows.Properties {
         internal static string RecentsOutgoing {
             get {
                 return ResourceManager.GetString("RecentsOutgoing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The called person or organization has changed their number or call address..
+        /// </summary>
+        internal static string SIP_301 {
+            get {
+                return ResourceManager.GetString("SIP_301", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Call failed because called terminal detected and error..
+        /// </summary>
+        internal static string SIP_400 {
+            get {
+                return ResourceManager.GetString("SIP_400", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The number or address could not be found..
+        /// </summary>
+        internal static string SIP_404 {
+            get {
+                return ResourceManager.GetString("SIP_404", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The call was not accepted of technical reasons by the called terminal..
+        /// </summary>
+        internal static string SIP_406 {
+            get {
+                return ResourceManager.GetString("SIP_406", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The called terminal was not reachable because of technical reasons..
+        /// </summary>
+        internal static string SIP_408 {
+            get {
+                return ResourceManager.GetString("SIP_408", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The person or organization you are trying to reach is not available at this time.  Check the number or address or try again later..
+        /// </summary>
+        internal static string SIP_480 {
+            get {
+                return ResourceManager.GetString("SIP_480", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The address was incomplete. Please try again..
+        /// </summary>
+        internal static string SIP_484 {
+            get {
+                return ResourceManager.GetString("SIP_484", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The number/address you are trying to reach is busy.
+        /// </summary>
+        internal static string SIP_486 {
+            get {
+                return ResourceManager.GetString("SIP_486", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The called terminal has no media in common with yours..
+        /// </summary>
+        internal static string SIP_488 {
+            get {
+                return ResourceManager.GetString("SIP_488", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The call failed because it requires authorization..
+        /// </summary>
+        internal static string SIP_494 {
+            get {
+                return ResourceManager.GetString("SIP_494", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The call failed because of a service error..
+        /// </summary>
+        internal static string SIP_501 {
+            get {
+                return ResourceManager.GetString("SIP_501", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Call failed because of error in the communication service..
+        /// </summary>
+        internal static string SIP_502 {
+            get {
+                return ResourceManager.GetString("SIP_502", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The call failed because of a service timeout error..
+        /// </summary>
+        internal static string SIP_504 {
+            get {
+                return ResourceManager.GetString("SIP_504", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The call has been declined..
+        /// </summary>
+        internal static string SIP_603 {
+            get {
+                return ResourceManager.GetString("SIP_603", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The number/address you are trying to reach is no longer available..
+        /// </summary>
+        internal static string SIP_604 {
+            get {
+                return ResourceManager.GetString("SIP_604", resourceCulture);
             }
         }
     }

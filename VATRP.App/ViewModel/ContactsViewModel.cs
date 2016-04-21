@@ -60,6 +60,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _contactsService = contactService;
             _contactsService.ContactAdded += ContactAdded;
             _contactsService.ContactRemoved += ContactRemoved;
+            _contactsService.ContactsChanged += ContactChanged;
             _contactsService.ContactsLoadCompleted += ContactsLoadCompleted;
             _dialpadViewModel = dialpadViewModel;
             _dialpadViewModel.PropertyChanged += OnDialpadPropertyChanged;
@@ -173,17 +174,20 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         private void ExecuteAddCommand(object obj)
         {
-            ContactEditViewModel model = new ContactEditViewModel(true, string.Empty, string.Empty);
-            var contactEditView = new ContactEditView(model);
-            var dialogResult = contactEditView.ShowDialog();
-            if (dialogResult != null && dialogResult.Value)
+            if (!ServiceManager.Instance.ContactService.IsEditing())
             {
-                var contact = ServiceManager.Instance.ContactService.FindContact(new ContactID(model.ContactSipAddress, IntPtr.Zero));
-                if (contact != null && contact.Fullname == model.ContactName)
-                    return;
+                ContactEditViewModel model = new ContactEditViewModel(true, string.Empty, string.Empty);
+                var contactEditView = new ContactEditView(model);
+                var dialogResult = contactEditView.ShowDialog();
+                if (dialogResult != null && dialogResult.Value)
+                {
+                    var contact = ServiceManager.Instance.ContactService.FindContact(new ContactID(model.ContactSipAddress, IntPtr.Zero));
+                    if (contact != null && contact.Fullname == model.ContactName)
+                        return;
 
-                ServiceManager.Instance.ContactService.AddLinphoneContact(model.ContactName, model.ContactSipUsername,
-                    model.ContactSipAddress);
+                    ServiceManager.Instance.ContactService.AddLinphoneContact(model.ContactName, model.ContactSipUsername,
+                        model.ContactSipAddress);
+                }
             }
         }
 
@@ -199,6 +203,18 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 EventSearchCriteria = _dialpadViewModel.RemotePartyNumber;
             }
+        }
+        
+        private void ContactChanged(object sender, ContactEventArgs e)
+        {
+            if (ServiceManager.Instance.Dispatcher.Thread != System.Threading.Thread.CurrentThread)
+            {
+                ServiceManager.Instance.Dispatcher.BeginInvoke((Action)(() => this.ContactChanged(sender, e)));
+                return;
+            }
+
+            if (ContactsListView != null) 
+                ContactsListView.Refresh();
         }
 
         private void ContactAdded(object sender, ContactEventArgs e)
