@@ -85,6 +85,13 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         private void OnChatContactRemoved(object sender, ContactRemovedEventArgs e)
         {
+            if (ServiceManager.Instance.Dispatcher.Thread != Thread.CurrentThread)
+            {
+                ServiceManager.Instance.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                    new EventHandler<ContactRemovedEventArgs>(OnChatContactRemoved), sender, new object[] { e });
+                return;
+            }
+
             var contactVM = FindContactViewModel(e.contactId);
             if (contactVM != null)
             {

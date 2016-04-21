@@ -150,9 +150,15 @@
     <Compile Include="CustomControls\MainSettingsCtrl.xaml.cs">
       <DependentUpon>MainSettingsCtrl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\AccountSettings.xaml.cs">
+      <DependentUpon>AccountSettings.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\UnifiedSettings\BaseUnifiedSettingsPanel.cs" />
     <Compile Include="CustomControls\Resources\ResourcePanel.xaml.cs">
       <DependentUpon>ResourcePanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\SettingsWindow.xaml.cs">
+      <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\UnifiedSettings\TechnicalSupportSheetCtrl.xaml.cs">
       <DependentUpon>TechnicalSupportSheetCtrl.xaml</DependentUpon>
@@ -363,6 +369,14 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="CustomControls\Resources\ResourcePanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\AccountSettings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\SettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

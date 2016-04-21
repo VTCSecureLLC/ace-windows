@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="400">
     <UserControl.Resources>
         <CollectionViewSource Source="{Binding Source={x:Static Fonts.SystemFontFamilies}}" x:Key="AvailableFonts"/>
     </UserControl.Resources>
@@ -17,9 +17,9 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="160*"/>
-                <ColumnDefinition Width="160*"/>
-                <ColumnDefinition Width="27*"/>
+                <ColumnDefinition Width="220*"/>
+                <ColumnDefinition Width="140*"/>
+                <ColumnDefinition Width="40*"/>
             </Grid.ColumnDefinitions>
             <!-- Row 0: Enable Real Time Text -->
             <Label Grid.Column="0" Grid.Row="0" Content="Enable Real Time Text" VerticalContentAlignment="Center" 

@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using com.vtcsecure.ace.windows.Services;
 
 namespace com.vtcsecure.ace.windows.CustomControls.Resources
 {
@@ -61,6 +62,12 @@ namespace com.vtcsecure.ace.windows.CustomControls.Resources
         {
             Console.WriteLine("Deaf/Hard of Hearing Resources Clicked");
             OnContentChanging(ResourcesType.DeafHoHResourcesContent);
+        }
+
+        private void OnSyncCardDAV(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Sync Contacts Clicked");
+            ServiceManager.Instance.LinphoneService.CardDAVSync();
         }
     }
 }

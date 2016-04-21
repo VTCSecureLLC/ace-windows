@@ -1,8 +1,8 @@
-﻿using com.vtcsecure.ace.windows.Services;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -12,27 +12,23 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using VATRP.Core.Model;
 
 namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 {
     /// <summary>
-    /// Interaction logic for UnifiedSettingsMainCtrl.xaml
+    /// Interaction logic for AccountSettings.xaml
     /// </summary>
-    // ToDo VATRP-985: Unified Settings: Make it so that if the edit boxes are done editing the data validates/updates immediately
-    public partial class UnifiedSettingsMainCtrl : BaseUnifiedSettingsPanel
+    public partial class AccountSettings : BaseUnifiedSettingsPanel
     {
         public event UnifiedSettings_EnableSettings ShowSettingsUpdate;
 
-        public UnifiedSettingsMainCtrl()
+        public AccountSettings()
         {
             InitializeComponent();
-            Title = "Settings";
-            this.Loaded += UnifiedSettingsMainCtrl_Loaded;
-            
+            this.Loaded += AccountSettings_Loaded;
         }
 
-        void UnifiedSettingsMainCtrl_Loaded(object sender, RoutedEventArgs e)
+        void AccountSettings_Loaded(object sender, RoutedEventArgs e)
         {
             Initialize();
         }
@@ -47,9 +43,10 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 PasswordTextBox.Password = App.CurrentAccount.Password;
                 DomainTextBox.Text = App.CurrentAccount.ProxyHostname;
                 ProxyTextBox.Text = Convert.ToString(App.CurrentAccount.ProxyPort);
+                string transport = App.CurrentAccount.Transport;
                 CardDAVServerTextBox.Text = App.CurrentAccount.CardDavServerPath;
                 CardDAVRealmTextBox.Text = App.CurrentAccount.CardDavRealm;
-                string transport = App.CurrentAccount.Transport;
+
                 if (string.IsNullOrWhiteSpace(transport))
                 {
                     transport = "TCP";
@@ -66,15 +63,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                         break;
                     }
                 }
-                this.EnableVideoCheckBox.IsChecked = App.CurrentAccount.EnableVideo;
             }
 
-            this.EnableRTTCheckBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.USE_RTT, true);
-            this.AutoAnswerCheckBox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.AUTO_ANSWER, false);
-            this.AvpfCheckbox.IsChecked = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.AVPF_ON, true);
         }
 
         #region SettingsLevel
@@ -85,9 +75,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             {
                 visibleSetting = System.Windows.Visibility.Visible;
             }
-            DebugMenuLabel.Visibility = visibleSetting;
-            AutoAnswerLabel.Visibility = visibleSetting;
-            AutoAnswerCheckBox.Visibility = visibleSetting;
             ClearSettingsButton.Visibility = visibleSetting;
         }
 
@@ -107,34 +94,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             TransportLabel.Visibility = visibleSetting;
             TransportComboBox.Visibility = visibleSetting;
 
-            OutboundProxyLabel.Visibility = visibleSetting;
-            OutboundProxyCheckbox.Visibility = visibleSetting;
-
-//            AvpfLabel.Visibility = visibleSetting;
-//            AvpfCheckbox.Visibility = visibleSetting;
-
-            PreferencesLabel.Visibility = visibleSetting;
-
-
-//            EnableRTTLabel.Visibility = visibleSetting;
-//            EnableRTTCheckBox.Visibility = visibleSetting;
-
-            AudioButton.Visibility = visibleSetting;
-            AudioButtonLabel.Visibility = visibleSetting;
-
-            VideoButton.Visibility = visibleSetting;
-            VideoButtonLabel.Visibility = visibleSetting;
-
-            CallButton.Visibility = visibleSetting;
-            CallButtonLabel.Visibility = visibleSetting;
-
-            NetworkButton.Visibility = visibleSetting;
-            NetworkButtonLabel.Visibility = visibleSetting;
-
-            // not yet specified for windows
-            AdvancedButton.Visibility = visibleSetting;
-            AdvancedButtonLabel.Visibility = visibleSetting;
-
         }
 
         public override void ShowSuperOptions(bool show)
@@ -150,13 +109,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             PasswordLabel.Visibility = visibleSetting;
             PasswordTextBox.Visibility = visibleSetting;
-
-            ReleaseCoreButton.Visibility = visibleSetting;
-            ClearCacheButton.Visibility = visibleSetting;
-            BatteryAlertButton.Visibility = visibleSetting;
-
-//            EnableVideoLabel.Visibility = visibleSetting;
-//            EnableVideoCheckBox.Visibility = visibleSetting;
 
         }
         #endregion
@@ -178,37 +130,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             return false;
         }
 
-        #region Settings Menu
-        private void OnGeneralSettings(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("GeneralSettings Clicked");
-            OnContentChanging(UnifiedSettingsContentType.GeneralContent);
-        }
-
-        private void OnAudioVideo(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("AudioVideo Clicked");
-            OnContentChanging(UnifiedSettingsContentType.AudioVideoContent);
-        }
-
-        private void OnTheme(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Theme Clicked");
-            OnContentChanging(UnifiedSettingsContentType.ThemeContent);
-        }
-
-        private void OnText(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("OnText Clicked");
-            OnContentChanging(UnifiedSettingsContentType.TextContent);
-        }
-
-        private void OnSummary(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Summary Clicked");
-            OnContentChanging(UnifiedSettingsContentType.SummaryContent);
-        }
-        #endregion
 
         #region SIP Account
         private void OnRunAssistant(object sender, RoutedEventArgs e)
@@ -241,19 +162,19 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             if (string.IsNullOrWhiteSpace(UserNameTextBox.Text))
             {
                 errorMessage.Append("Please enter a user name.");
-//                MessageBox.Show("Incorrect login", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
+                //                MessageBox.Show("Incorrect login", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             if (string.IsNullOrWhiteSpace(PasswordTextBox.Password))
             {
                 errorMessage.Append("Please enter a password.");
-//                MessageBox.Show("Empty password is not allowed", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
+                //                MessageBox.Show("Empty password is not allowed", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             if (string.IsNullOrWhiteSpace(DomainTextBox.Text))
             {
                 errorMessage.Append("Please enter a SIP Server Address.");
-//                MessageBox.Show("Incorrect SIP Server Address", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
+                //                MessageBox.Show("Incorrect SIP Server Address", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
 
@@ -263,7 +184,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             if (port < 1 || port > 65535)
             {
                 errorMessage.Append("Please enter a valid SIP Server Port.");
-//                MessageBox.Show("Incorrect SIP Server Port", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
+                //                MessageBox.Show("Incorrect SIP Server Port", "ACE", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             if (!string.IsNullOrEmpty(errorMessage.ToString()))
             {
@@ -285,7 +206,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                     isChanged = true;
                 }
                 if (ValueChanged(App.CurrentAccount.Username, UserNameTextBox.Text))
-                { 
+                {
                     App.CurrentAccount.Username = UserNameTextBox.Text;
                     // let the UI reflect the change.
                     OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.UserNameChanged);
@@ -294,25 +215,24 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 if (ValueChanged(App.CurrentAccount.Password, PasswordTextBox.Password))
                 {
                     App.CurrentAccount.Password = PasswordTextBox.Password;
-                    resyncContacts = true;
                     isChanged = true;
                 }
                 if (ValueChanged(App.CurrentAccount.ProxyHostname, DomainTextBox.Text))
-                { 
+                {
                     App.CurrentAccount.ProxyHostname = DomainTextBox.Text;
-                    isChanged = true;
-                }
-                if (ValueChanged(App.CurrentAccount.RegistrationPassword, PasswordTextBox.Password))
-                { 
-                    App.CurrentAccount.RegistrationPassword = PasswordTextBox.Password;
-                    resyncContacts = true;
                     isChanged = true;
                 }
                 if (ValueChanged(App.CurrentAccount.RegistrationUser, UserNameTextBox.Text))
                 {
                     App.CurrentAccount.RegistrationUser = UserNameTextBox.Text;
-                    resyncContacts = true;
                     isChanged = true;
+                    resyncContacts = true;
+                }
+                if (ValueChanged(App.CurrentAccount.RegistrationPassword, PasswordTextBox.Password))
+                {
+                    App.CurrentAccount.RegistrationPassword = PasswordTextBox.Password;
+                    isChanged = true;
+                    resyncContacts = true;
                 }
                 if (ValueChanged(App.CurrentAccount.CardDavServerPath, CardDAVServerTextBox.Text))
                 {
@@ -437,118 +357,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
         }
 
-        // ToDo VATRP-985 - Liz E. - not sure where the outbound proxy setting lives
-        private void OnOutboundProxy(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Outbound Proxy Clicked");
-            if (App.CurrentAccount == null)
-                return;
-            bool enabled = OutboundProxyCheckbox.IsChecked ?? false;
-            App.CurrentAccount.UseOutboundProxy = enabled;
-            ServiceManager.Instance.SaveAccountSettings();
-        }
-        private void OnAvpf(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("AVPF Clicked");
-            bool enabled = AvpfCheckbox.IsChecked ?? false;
-            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.AVPF_ON, enabled);
-            ServiceManager.Instance.ConfigurationService.SaveConfig();
-            ServiceManager.Instance.ApplyAVPFChanges();
-        }
         #endregion
-
-        #region Preferences
-        private void OnEnableVideo(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Enable Video Clicked");
-            if (App.CurrentAccount != null)
-            {
-                bool enabled = EnableVideoCheckBox.IsChecked ?? false;
-                if (App.CurrentAccount.EnableVideo != enabled)
-                {
-                    App.CurrentAccount.EnableVideo = enabled;
-                    ServiceManager.Instance.SaveAccountSettings();
-                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.VideoPolicyChanged);
-                }
-            }                        
-        }
-
-        private void OnEnableRTT(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Enable Real Time Text Call Clicked");
-            bool enabled = EnableRTTCheckBox.IsChecked ?? false;
-            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.USE_RTT, enabled);
-            ServiceManager.Instance.ConfigurationService.SaveConfig();
-        }
-
-        // Liz E. - the spreadsheet calls for an rtt checkbox - using that instead.
-        /*
-        private void OnTextPreferences(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Text Preferences Clicked");
-            OnContentChanging(UnifiedSettingsContentType.TextContent);
-        }
-         * */
-
-        private void OnAudioPreferences(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Audio Preferences Clicked");
-            OnContentChanging(UnifiedSettingsContentType.AudioSettingsContent);
-        }
-
-        private void OnVideoPreferences(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Video Preferences Clicked");
-            OnContentChanging(UnifiedSettingsContentType.VideoSettingsContent);
-        }
-
-        private void OnCallPreferences(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Call Preferences Clicked");
-            OnContentChanging(UnifiedSettingsContentType.CallSettingsContent);
-        }
-
-        private void OnNetworkPreferences(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Network Preferences Clicked");
-            OnContentChanging(UnifiedSettingsContentType.NetworkSettingsContent);
-        }
-
-        private void OnAdvancedPreferences(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Advanced Preferences Clicked");
-            OnContentChanging(UnifiedSettingsContentType.AdvancedSettingsContent);
-        }
-        #endregion
-
-        #region DebugMenu
-        private void OnReleaseCore(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Release Core Clicked");
-        }
-
-        private void OnClearCache(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Clear Cache Clicked");
-        }
-
-        private void OnBatteryAlert(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Battery Alert Clicked");
-        }
-
-        private void OnAutoAnswerCall(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Auto Answer Call Clicked");
-            bool enabled = AutoAnswerCheckBox.IsChecked ?? false;
-            ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.AUTO_ANSWER, enabled);
-            ServiceManager.Instance.ConfigurationService.SaveConfig();
-
-        }
-        #endregion
-
     }
 }

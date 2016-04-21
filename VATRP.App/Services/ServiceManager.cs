@@ -359,6 +359,27 @@ namespace com.vtcsecure.ace.windows.Services
             LinphoneService.LinphoneConfig.STUNPort = App.CurrentAccount.STUNPort;
             LinphoneService.LinphoneConfig.MediaEncryption = GetMediaEncryptionText(App.CurrentAccount.MediaEncryption);
             LinphoneService.LinphoneConfig.EnableAVPF = App.CurrentAccount.EnableAVPF;
+            // cardDAV
+            if (!String.IsNullOrEmpty(App.CurrentAccount.CardDavServerPath))
+            {
+                LinphoneService.RemoveCardDAVAuthInfo();
+                LinphoneService.LinphoneConfig.CardDavRealm = App.CurrentAccount.CardDavRealm;
+
+                LinphoneService.LinphoneConfig.CardDavUser = App.CurrentAccount.RegistrationUser;
+                LinphoneService.LinphoneConfig.CardDavPass = App.CurrentAccount.RegistrationPassword;
+                LinphoneService.LinphoneConfig.CardDavServer = App.CurrentAccount.CardDavServerPath;
+
+                try
+                {
+                    Uri cardDavServer = new Uri(LinphoneService.LinphoneConfig.CardDavServer);
+                    LinphoneService.LinphoneConfig.CardDavDomain = cardDavServer.Host;
+                }
+                catch (Exception ex)
+                {
+                    LOG.Error(string.Format("Parse CardDAV server. {0}\n{1}",
+                        LinphoneService.LinphoneConfig.CardDavServer, ex.Message));
+                }
+            }
             LOG.Info("Linphone service configured for account: " + App.CurrentAccount.RegistrationUser);
             return true;
         }

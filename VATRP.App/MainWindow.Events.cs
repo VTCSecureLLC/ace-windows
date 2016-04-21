@@ -18,6 +18,7 @@ using VATRP.Core.Services;
 using VATRP.Linphone.VideoWrapper;
 using VATRP.LinphoneWrapper;
 using VATRP.LinphoneWrapper.Enums;
+using com.vtcsecure.ace.windows.CustomControls.UnifiedSettings;
 
 namespace com.vtcsecure.ace.windows
 {
@@ -30,6 +31,7 @@ namespace com.vtcsecure.ace.windows
         private object regLock = new object();
         private System.Timers.Timer registrationTimer;
         private bool _isNeworkReachable;
+	    private const int DECLINE_WAIT_TIMEOUT = 3000;
 	    
 	    private void DeferedHideOnError(object sender, EventArgs e)
 	    {
@@ -47,7 +49,7 @@ namespace com.vtcsecure.ace.windows
 	                        // restart timer
                             _mainViewModel.ActiveCallModel.WaitForDeclineMessage = false;
                             deferredHideTimer.Stop();
-                            deferredHideTimer.Interval = TimeSpan.FromMilliseconds(3000);
+                            deferredHideTimer.Interval = TimeSpan.FromMilliseconds(DECLINE_WAIT_TIMEOUT);
                             deferredHideTimer.Start();
 	                        return;
 	                    }
@@ -89,8 +91,11 @@ namespace com.vtcsecure.ace.windows
 		    if (call == null)
 		        return;
 
-            if (deferredHideTimer != null && deferredHideTimer.IsEnabled)
-                deferredHideTimer.Stop();
+	        lock (deferredLock)
+	        {
+	            if (deferredHideTimer != null && deferredHideTimer.IsEnabled)
+	                deferredHideTimer.Stop();
+	        }
 
 	        if (_mainViewModel == null)
 	            return;
@@ -467,7 +472,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			            {
 			                lock (deferredLock)
 			                {
-			                    deferredHideTimer.Interval = TimeSpan.FromSeconds(5);
+                                deferredHideTimer.Interval = TimeSpan.FromMilliseconds(DECLINE_WAIT_TIMEOUT);
 			                    deferredHideTimer.Start();
 			                }
 			            }
@@ -494,7 +499,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                                 {
                                     lock (deferredLock)
                                     {
-                                        deferredHideTimer.Interval = TimeSpan.FromSeconds(5);
+                                        deferredHideTimer.Interval = TimeSpan.FromMilliseconds(DECLINE_WAIT_TIMEOUT);
                                         deferredHideTimer.Start();
                                     }
                                 }
@@ -593,7 +598,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 					    {
 					        lock (deferredLock)
 					        {
-                                deferredHideTimer.Interval = TimeSpan.FromSeconds(5);
+                                deferredHideTimer.Interval = TimeSpan.FromMilliseconds(DECLINE_WAIT_TIMEOUT);
 					            deferredHideTimer.Start();
 					        }
 					    }
@@ -1045,6 +1050,12 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 
 		private void OnMakeCallRequested(string called_address)
 		{
+		    lock (_mainViewModel.CallsViewModelList)
+		    {
+		        if (_mainViewModel.CallsViewModelList.Count > 0)
+		            return;
+		    }
+
 		    _mainViewModel.DialpadModel.RemotePartyNumber = "";
 			MediaActionHandler.MakeVideoCall(called_address);
 		}
@@ -1063,11 +1074,17 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 
 		private void OnSettingsChangeRequired(Enums.VATRPSettings settingsType)
 		{
-			if (_settingsView.IsVisible)
-				return;
+            if ((_settingsWindow != null) && _settingsWindow.IsVisible)
+                return;
+            if (_settingsWindow == null)
+            {
+                _settingsWindow = new SettingsWindow(ctrlCall, OnAccountChangeRequested);
+            }
 
 			_mainViewModel.SettingsModel.SetActiveSettings(settingsType);
-			_settingsView.Show();
+            _settingsWindow.Show();
+
+            _settingsView.Show();
 			_settingsView.Activate();
 		}
 
@@ -1207,7 +1224,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 	            if (_mainViewModel.ActiveCallModel != null) 
                     _mainViewModel.ActiveCallModel.WaitForDeclineMessage = false;
 	            deferredHideTimer.Stop();
-                deferredHideTimer.Interval = TimeSpan.FromSeconds(5);
+                deferredHideTimer.Interval = TimeSpan.FromMilliseconds(DECLINE_WAIT_TIMEOUT);
 	            deferredHideTimer.Start();
 	        }
 	    }

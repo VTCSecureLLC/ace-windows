@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using log4net;
@@ -27,12 +28,13 @@ namespace VATRP.Core.Services
     public partial class LinphoneService : ILinphoneService
     {
 		#region Members
-		private static readonly ILog LOG = LogManager.GetLogger(typeof(LinphoneService));
+		private static readonly ILog LOG = LogManager.GetLogger(typeof(LinphoneService) );
 		private readonly Preferences preferences;
 		private readonly ServiceManagerBase manager;
 		private IntPtr linphoneCore;
 		private IntPtr proxy_cfg;
 		private IntPtr auth_info;
+        private IntPtr carddav_auth = IntPtr.Zero;
 		private IntPtr t_configPtr;
 		private IntPtr vtablePtr;
 		private string identity;
@@ -50,6 +52,11 @@ namespace VATRP.Core.Services
         private Object messagingLock = new Object();
 		LinphoneCoreVTable vtable;
 		LCSipTransports t_config;
+        private LinphoneCardDAVStats _cardDavStats;
+        private IntPtr _cardDavStatsPtr;
+        private IntPtr _cardDAVFriends;
+        private bool _cardDavSyncInProgress = false;
+
         private static ManualResetEvent regulator = new ManualResetEvent(false);
         private static Queue<LinphoneCommand> commandQueue;
 
@@ -64,7 +71,12 @@ namespace VATRP.Core.Services
         private LinphoneCoreCallLogUpdatedCb call_log_updated;
         private LinphoneCoreInfoReceivedCb info_received;
         private LinphoneLogFuncCB linphone_log_received;
+        private LinphoneFriendListContactCreatedCb carddav_new_contact;
+        private LinphoneFriendListContactDeletedCb carddav_removed_contact;
+        private LinphoneFriendListContactUpdatedCb carddav_updated_contact;
+        private LinphoneFriendListSyncStateChangedCb carddav_sync_done;
         private LinphoneCoreNetworkReachableCb network_reachable;
+
         private string _chatLogPath;
         private string _callLogPath;
         private string _contactsPath;
@@ -125,9 +137,22 @@ namespace VATRP.Core.Services
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void LinphoneLogFuncCB(IntPtr domain, OrtpLogLevel lev, IntPtr fmt, IntPtr args);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void LinphoneFriendListContactCreatedCb(IntPtr list, IntPtr lf);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void LinphoneFriendListContactDeletedCb(IntPtr list, IntPtr lf);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void LinphoneFriendListContactUpdatedCb(IntPtr list, IntPtr new_friend, IntPtr old_friend);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void LinphoneFriendListSyncStateChangedCb(IntPtr list, LinphoneFriendListSyncStatus status, IntPtr message);
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void LinphoneCoreNetworkReachableCb(IntPtr lc, bool reachable);
+
 		#endregion
 
 		#region Events
@@ -169,6 +194,13 @@ namespace VATRP.Core.Services
 
         public delegate void NetworkReachabilityChanged(bool reachable);
         public event NetworkReachabilityChanged NetworkReachableEvent;
+
+        public delegate void CardDavContactDelegate(CardDavContactEventArgs args);
+        public delegate void CardDavSyncDelegate(CardDavSyncEventArgs args);
+        public event CardDavContactDelegate CardDAVContactCreated;
+        public event CardDavContactDelegate CardDAVContactUpdated;
+        public event CardDavContactDelegate CardDAVContactDeleted;
+        public event CardDavSyncDelegate CardDAVSyncEvent;
 
 		#endregion
 
@@ -299,6 +331,11 @@ namespace VATRP.Core.Services
             call_log_updated = new LinphoneCoreCallLogUpdatedCb(OnCallLogUpdated);
             info_received = new LinphoneCoreInfoReceivedCb(OnInfoEventReceived);
             network_reachable = new LinphoneCoreNetworkReachableCb(OnNetworkReachable);
+            // cardDAV stuff
+            carddav_new_contact = new LinphoneFriendListContactCreatedCb(OnCardDAVContactCreated);
+            carddav_removed_contact = new LinphoneFriendListContactDeletedCb(OnCardDAVContactRemoved);
+            carddav_updated_contact = new LinphoneFriendListContactUpdatedCb(OnCardDAVContactUpdated);
+            carddav_sync_done = new LinphoneFriendListSyncStateChangedCb(OnCardDAVSyncChanged);
 			vtable = new LinphoneCoreVTable()
 			{
 				global_state_changed = Marshal.GetFunctionPointerForDelegate(global_state_changed),
@@ -527,7 +564,12 @@ namespace VATRP.Core.Services
             if (t_configPtr != IntPtr.Zero)
                 Marshal.FreeHGlobal(t_configPtr);
 
-            
+            if (_cardDavStatsPtr != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(_cardDavStatsPtr);
+               _cardDavStatsPtr = IntPtr.Zero;
+            }
+
             //Marshal.FreeHGlobal(linphoneCore);
             LinphoneAPI.linphone_core_destroy(linphoneCore);
             registration_state_changed = null;
@@ -538,6 +580,11 @@ namespace VATRP.Core.Services
             message_received = null;
             message_status_changed = null;
             call_log_updated = null;
+            carddav_new_contact = null;
+            carddav_removed_contact = null;
+            carddav_updated_contact = null;
+            carddav_sync_done = null;
+            carddav_auth = IntPtr.Zero;
             linphoneCore = proxy_cfg = auth_info = t_configPtr = IntPtr.Zero;
             call_stats_updated = null;
             coreLoop = null;
@@ -1479,7 +1526,12 @@ namespace VATRP.Core.Services
 
 		public bool IsVideoEnabled(VATRPCall call)
 		{
-			var linphoneCallParams = LinphoneAPI.linphone_call_get_current_params(call.NativeCallPtr);
+            if (linphoneCore == IntPtr.Zero)
+                return false;
+		    IntPtr curCallPtr = LinphoneAPI.linphone_core_get_current_call(linphoneCore);
+		    if (curCallPtr == IntPtr.Zero)
+		        return false;
+            var linphoneCallParams = LinphoneAPI.linphone_call_get_current_params(curCallPtr);
             var videoCodecName = string.Empty;
             if (linphoneCallParams != IntPtr.Zero)
                 videoCodecName = GetUsedVideoCodec(linphoneCallParams);
@@ -2782,6 +2834,178 @@ namespace VATRP.Core.Services
                 _videoMWiSubscription = LinphoneAPI.linphone_core_subscribe(linphoneCore, mwiAddressPtr, "message-summary", 1800, IntPtr.Zero);
 
             return _videoMWiSubscription != IntPtr.Zero;
+        }
+
+        #endregion
+
+        #region CardDAV
+
+        public void RemoveCardDAVAuthInfo()
+        {
+            if (linphoneCore == IntPtr.Zero)
+                return;
+            carddav_auth = LinphoneAPI.linphone_core_find_auth_info(linphoneCore, LinphoneConfig.CardDavRealm, LinphoneConfig.CardDavUser, LinphoneConfig.CardDavDomain);
+            if (carddav_auth != IntPtr.Zero)
+            {
+                LinphoneAPI.linphone_core_remove_auth_info(linphoneCore, carddav_auth);
+            }
+        }
+
+        private string GetMd5Hash(string user, string password, string realm)
+        {
+            MD5 md5 = System.Security.Cryptography.MD5.Create();
+            byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(string.Format("{0}:{1}:{2}", user, realm, password));
+            byte[] hash = md5.ComputeHash(inputBytes);
+            var sb = new StringBuilder();
+            for (int i = 0; i < hash.Length; i++)
+                sb.Append(hash[i].ToString("X2"));
+
+            return sb.ToString().ToLower();
+        }
+
+        public void CardDAVSync()
+        {
+            if (linphoneCore == IntPtr.Zero || string.IsNullOrEmpty(LinphoneConfig.CardDavServer) )
+                return;
+
+            if (_cardDavSyncInProgress)
+                return;
+
+            carddav_auth = LinphoneAPI.linphone_core_find_auth_info(linphoneCore, LinphoneConfig.CardDavRealm, LinphoneConfig.CardDavUser, LinphoneConfig.CardDavDomain);
+            if (carddav_auth != IntPtr.Zero)
+            {
+                LinphoneAPI.linphone_core_remove_auth_info(linphoneCore, carddav_auth);
+            }
+
+            //var hash = GetMd5Hash(LinphoneConfig.CardDavUser, LinphoneConfig.CardDavPass, LinphoneConfig.CardDavRealm);
+            carddav_auth = LinphoneAPI.linphone_auth_info_new(LinphoneConfig.CardDavUser, null, LinphoneConfig.CardDavPass, null, LinphoneConfig.CardDavRealm,
+                    LinphoneConfig.CardDavDomain);
+
+            if (carddav_auth == IntPtr.Zero)
+            {
+                LOG.Debug("Failed to create cardDAV info");
+                return;
+            }
+            LinphoneAPI.linphone_core_add_auth_info(linphoneCore, carddav_auth);
+            
+            _cardDAVFriends = LinphoneAPI.linphone_core_get_default_friend_list(linphoneCore);
+            if (_cardDAVFriends == IntPtr.Zero)
+                return;
+            _cardDavStats = new LinphoneCardDAVStats();
+
+            if (_cardDavStatsPtr != IntPtr.Zero)
+                Marshal.FreeHGlobal(_cardDavStatsPtr);
+
+            _cardDavStatsPtr = Marshal.AllocHGlobal(Marshal.SizeOf(_cardDavStats));
+            Marshal.StructureToPtr(_cardDavStats, _cardDavStatsPtr, false);
+            
+            LinphoneAPI.linphone_friend_list_set_uri(_cardDAVFriends, LinphoneConfig.CardDavServer);
+
+            var cardDavCallbacksPtr = LinphoneAPI.linphone_friend_list_get_callbacks(_cardDAVFriends);
+
+            if (cardDavCallbacksPtr != IntPtr.Zero)
+            {
+                LinphoneAPI.linphone_friend_list_cbs_set_user_data(cardDavCallbacksPtr, _cardDavStatsPtr);
+
+                LinphoneAPI.linphone_friend_list_cbs_set_sync_status_changed(cardDavCallbacksPtr,
+                    Marshal.GetFunctionPointerForDelegate(carddav_sync_done));
+                LinphoneAPI.linphone_friend_list_cbs_set_contact_created(cardDavCallbacksPtr,
+                    Marshal.GetFunctionPointerForDelegate(carddav_new_contact));
+                LinphoneAPI.linphone_friend_list_cbs_set_contact_deleted(cardDavCallbacksPtr,
+                    Marshal.GetFunctionPointerForDelegate(carddav_removed_contact));
+                LinphoneAPI.linphone_friend_list_cbs_set_contact_updated(cardDavCallbacksPtr,
+                    Marshal.GetFunctionPointerForDelegate(carddav_updated_contact));
+            }
+            _cardDavSyncInProgress = true;
+            LinphoneAPI.linphone_friend_list_synchronize_friends_from_server(_cardDAVFriends);
+
+        }
+
+        private void OnCardDAVSyncChanged(IntPtr list, LinphoneFriendListSyncStatus status, IntPtr msgPtr)
+        {
+            var message = string.Empty;
+            if (msgPtr != IntPtr.Zero)
+                message = Marshal.PtrToStringAnsi(msgPtr);
+
+            LOG.Info(string.Format("##OnSync {0} Msg: {1}. ", status, message));
+            _cardDavSyncInProgress = status == LinphoneFriendListSyncStatus.LinphoneFriendListSyncStarted;
+        }
+
+        private void OnCardDAVContactUpdated(IntPtr list, IntPtr newFriend, IntPtr oldFriend)
+        {
+            var neweTag = "";
+            IntPtr tmpPtr = LinphoneAPI.linphone_friend_get_ref_key(newFriend);
+            if (tmpPtr != IntPtr.Zero)
+            {
+                neweTag = Marshal.PtrToStringAnsi(tmpPtr);
+            }
+
+   
+
+            var oldeTag = "";
+            tmpPtr = LinphoneAPI.linphone_friend_get_ref_key(oldFriend);
+            if (tmpPtr != IntPtr.Zero)
+            {
+                neweTag = Marshal.PtrToStringAnsi(tmpPtr);
+            }
+            LOG.Info(string.Format("### OnCardDAVContactUpdated New eTag: {0} Old: ETag: {1}", neweTag, oldeTag));
+
+            if (CardDAVContactUpdated != null)
+            {
+                var args = new CardDavContactEventArgs(CardDavContactEventArgs.CardDavAction.Update)
+                {
+                    FriendListPtr = list,
+                    NewContactPtr = newFriend,
+                    ChangedContactPtr = oldFriend
+                };
+                CardDAVContactUpdated(args);
+            }
+        }
+
+        private void OnCardDAVContactRemoved(IntPtr list, IntPtr lf)
+        {
+            var refKey = "";
+            IntPtr tmpPtr = LinphoneAPI.linphone_friend_get_ref_key(lf);
+            if (tmpPtr != IntPtr.Zero)
+            {
+                refKey = Marshal.PtrToStringAnsi(tmpPtr);
+            }
+
+            tmpPtr = LinphoneAPI.linphone_friend_get_ref_key(lf);
+            if (tmpPtr != IntPtr.Zero)
+            {
+                refKey = Marshal.PtrToStringAnsi(tmpPtr);
+            }
+            LOG.Info(string.Format( "### OnCardDAVContactRemoved RefKey: {0}", refKey));
+            if (CardDAVContactDeleted != null)
+            {
+                var args = new CardDavContactEventArgs(CardDavContactEventArgs.CardDavAction.Delete)
+                {
+                    FriendListPtr = list,
+                    ChangedContactPtr = lf
+                };
+                CardDAVContactDeleted(args);
+            }
+        }
+
+        private void OnCardDAVContactCreated(IntPtr list, IntPtr lf)
+        {
+            var eTag = "";
+            IntPtr tmpPtr = LinphoneAPI.linphone_friend_get_ref_key(lf);
+            if (tmpPtr != IntPtr.Zero)
+            {
+                eTag = Marshal.PtrToStringAnsi(tmpPtr);
+            }
+            LOG.Info(string.Format("### OnCardDAVContactCreated eTag: {0}", eTag));
+            if (CardDAVContactCreated != null)
+            {
+                var args = new CardDavContactEventArgs(CardDavContactEventArgs.CardDavAction.Create)
+                {
+                    FriendListPtr = list,
+                    NewContactPtr = lf
+                };
+                CardDAVContactCreated(args);
+            }
         }
 
         #endregion
