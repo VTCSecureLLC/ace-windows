@@ -84,10 +84,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 }
             }
 
-            MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
-            MuteSpeakerCheckBox.IsChecked = App.CurrentAccount.MuteSpeaker;
-            EchoCancelCheckBox.IsChecked = App.CurrentAccount.EchoCancel;
-            ShowSelfViewCheckBox.IsChecked = App.CurrentAccount.ShowSelfView;
             // VATRP-1200 TODO - populate device combo boxes from stored settings.
             List<VATRPDevice> availableCameras = ServiceManager.Instance.GetAvailableCameras();
             string selectedCameraId = App.CurrentAccount.SelectedCameraId;
@@ -152,104 +148,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
 
 
-        public override void UpdateForMenuSettingChange(ACEMenuSettingsUpdateType menuSetting)
-        {
-            if (App.CurrentAccount == null)
-                return;
-
-            switch (menuSetting)
-            {
-                case ACEMenuSettingsUpdateType.MuteMicrophoneMenu: MuteMicrophoneCheckBox.IsChecked = App.CurrentAccount.MuteMicrophone;
-                    break;
-                case ACEMenuSettingsUpdateType.MuteSpeakerMenu: MuteSpeakerCheckBox.IsChecked = App.CurrentAccount.MuteSpeaker;
-                    break;
-                case ACEMenuSettingsUpdateType.ShowSelfViewMenu: ShowSelfViewCheckBox.IsChecked = App.CurrentAccount.ShowSelfView;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        public override void ShowSuperOptions(bool show)
-        {
-            base.ShowSuperOptions(show);
-            // 1170-ready: specified for android. is implemented here if we want to enable it.
-            EchoCancelCheckBox.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
-            EchoCancelLabel.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
-
-            // 1170-ready: specified for ios. Is connected and implemented for windows.
-            ShowSelfViewLabel.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
-            ShowSelfViewCheckBox.Visibility = BaseUnifiedSettingsPanel.VisibilityForSuperSettingsAsPreview;
-        }
 
 
-        private void OnMuteMicrophone(object sender, RoutedEventArgs e)
-        {
-            if (App.CurrentAccount == null)
-                return;
-            Console.WriteLine("Mute Microphone Clicked");
-            bool enabled = MuteMicrophoneCheckBox.IsChecked ?? false;
-            if (enabled != App.CurrentAccount.MuteMicrophone)
-            {
-                App.CurrentAccount.MuteMicrophone = enabled;
-                ServiceManager.Instance.ApplyMediaSettingsChanges();
-                ServiceManager.Instance.SaveAccountSettings();
 
-                if ((CallControl != null) && CallControl.IsLoaded)
-                {
-                    CallControl.UpdateMuteSettingsIfOpen();
-                }
-            }
-        }
-        private void OnMuteSpeaker(object sender, RoutedEventArgs e)
-        {
-            if (App.CurrentAccount == null)
-                return;
-            Console.WriteLine("Mute Speaker Clicked");
-            bool enabled = MuteSpeakerCheckBox.IsChecked ?? false;
-            if (enabled != App.CurrentAccount.MuteSpeaker)
-            {
-                App.CurrentAccount.MuteSpeaker = enabled;
-                ServiceManager.Instance.ApplyMediaSettingsChanges();
-                ServiceManager.Instance.SaveAccountSettings();
-
-                if ((CallControl != null) && CallControl.IsLoaded)
-                {
-                    CallControl.UpdateMuteSettingsIfOpen();
-                }
-            }
-        }
-        private void OnEchoCancel(object sender, RoutedEventArgs e)
-        {
-            if (App.CurrentAccount == null)
-                return;
-            Console.WriteLine("Echo Cancel Call Clicked");
-            bool enabled = this.EchoCancelCheckBox.IsChecked ?? false;
-            if (enabled != App.CurrentAccount.EchoCancel)
-            {
-                App.CurrentAccount.EchoCancel = enabled;
-                ServiceManager.Instance.ApplyMediaSettingsChanges();
-                ServiceManager.Instance.SaveAccountSettings();
-            }
-        }
-        private void OnShowSelfView(object sender, RoutedEventArgs e)
-        {
-            if (App.CurrentAccount == null)
-                return;
-            Console.WriteLine("Show Self View Clicked");
-            if (App.CurrentAccount == null)
-                return;
-            bool enable = this.ShowSelfViewCheckBox.IsChecked ?? true;
-            if (enable != App.CurrentAccount.ShowSelfView)
-            {
-                App.CurrentAccount.ShowSelfView = enable;
-                ServiceManager.Instance.ApplyMediaSettingsChanges();
-                ServiceManager.Instance.SaveAccountSettings();
-
-                OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.ShowSelfViewChanged);
-
-            }
-        }
 
         // VATRP-1200 TODO - store settings, update Linphone
         #region Device selection

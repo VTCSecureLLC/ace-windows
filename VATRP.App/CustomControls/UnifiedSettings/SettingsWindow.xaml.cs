@@ -78,7 +78,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             _callControl = callControl;
             TextSettings.CallControl = _callControl;
 //            AudioSettings.CallControl = _callControl;
-            AudioVideoSettings.CallControl = _callControl;
+            GeneralSettings.CallControl = _callControl;
         }
 
         private void InitializePanelAndEvents(BaseUnifiedSettingsPanel panel)
@@ -202,9 +202,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 //            {
 //                VideoSettingsSettings.UpdateForMenuSettingChange(menuSetting);
 //            }
-            if (AudioVideoSettings.IsLoaded)
+            if (GeneralSettings.IsLoaded)
             {
-                AudioVideoSettings.UpdateForMenuSettingChange(menuSetting);
+                GeneralSettings.UpdateForMenuSettingChange(menuSetting);
             }
         }
         private void UpdateAudioSettingsIfOpen(ACEMenuSettingsUpdateType menuSetting)
@@ -213,9 +213,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 //            {
 //                AudioSettingsSettings.UpdateForMenuSettingChange(menuSetting);
 //            }
-            if (AudioVideoSettings.IsLoaded)
+            if (GeneralSettings.IsLoaded)
             {
-                AudioVideoSettings.UpdateForMenuSettingChange(menuSetting);
+                GeneralSettings.UpdateForMenuSettingChange(menuSetting);
             }
         }
         #endregion

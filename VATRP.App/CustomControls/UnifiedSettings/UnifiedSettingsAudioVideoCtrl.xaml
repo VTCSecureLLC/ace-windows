@@ -24,35 +24,11 @@
                 <ColumnDefinition Width="180*"/>
                 <ColumnDefinition Width="40"/>
             </Grid.ColumnDefinitions>
-            <!-- Row 0: Mute Speaker -->
-            <Label Grid.Column="0" Grid.Row="0" Content="Mute Speaker" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left" Name="MuteSpeakerLabel">
-            </Label>
-            <CheckBox Grid.Column="2" Grid.Row="0" Checked="OnMuteSpeaker" Unchecked="OnMuteSpeaker" HorizontalAlignment="Center" VerticalAlignment="Center" Name="MuteSpeakerCheckBox"/>
-
-            <!-- Row 1: Mute Microphone -->
-            <Label Grid.Column="0" Grid.Row="1" Content="Mute Microphone" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left" Name="MuteMicrophoneLabel">
-            </Label>
-            <CheckBox Grid.Column="2" Grid.Row="1" Checked="OnMuteMicrophone" Unchecked="OnMuteMicrophone" HorizontalAlignment="Center" VerticalAlignment="Center" Name="MuteMicrophoneCheckBox"/>
-
-            <!-- Row 2: Echo Cancel -->
-            <Label Grid.Column="0" Grid.Row="2" Content="Echo Cancel" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left" Name="EchoCancelLabel">
-            </Label>
-            <CheckBox Grid.Column="2" Grid.Row="2" Checked="OnEchoCancel"  Unchecked="OnEchoCancel" HorizontalAlignment="Center" VerticalAlignment="Center"  Name="EchoCancelCheckBox"/>
-
-            <!-- Row 3: Show Self View -->
-            <Label Grid.Column="0" Grid.Row="3" Content="Show Self View" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left"  Name="ShowSelfViewLabel">
-            </Label>
-            <CheckBox Grid.Column="2" Grid.Row="3" Checked="OnShowSelfView" Unchecked="OnShowSelfView" HorizontalAlignment="Center" VerticalAlignment="Center"  Name="ShowSelfViewCheckBox"/>
-
-            <!-- Row 4: Preferred Video Size -->
-            <Label Grid.Column="0" Grid.Row="4" Content="Preferred Video Size" VerticalContentAlignment="Center" 
+            <!-- Row 0: Preferred Video Size -->
+            <Label Grid.Column="0" Grid.Row="0" Content="Preferred Video Size" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="PreferredVideoSizeLabel" Visibility="Visible">
             </Label>
-            <ComboBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" x:Name="PreferredVideoSizeComboBox" FontSize="14" Margin="0,3,0,3" Width="160" Height="24" 
+            <ComboBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" x:Name="PreferredVideoSizeComboBox" FontSize="14" Margin="0,3,0,3" Width="160" Height="24" 
                        VerticalAlignment="Center" HorizontalAlignment="Left" SelectionChanged="OnPreferredVideoSize" Visibility="Visible">
                 <TextBlock >720p (1280x720)</TextBlock>
                 <TextBlock >vga (640x480)</TextBlock>
@@ -61,14 +37,14 @@
                 <TextBlock >qcif (176x144)</TextBlock>
             </ComboBox>
             
-            <!-- Row 5: Select Camera -->
-            <Label Grid.Column="0" Grid.Row="5" Content="Select Camera" VerticalContentAlignment="Center" 
+            <!-- Row 1: Select Camera -->
+            <Label Grid.Column="0" Grid.Row="1" Content="Select Camera" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="SelectCameraLabel">
             </Label>
-            <Label Grid.Column="1" Grid.Row="5" Content="" VerticalContentAlignment="Center" 
+            <Label Grid.Column="1" Grid.Row="1" Content="" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="SelectedCameraLabel" MouseDown="OnShowCameraOptions" TouchDown="OnShowCameraOptions">
             </Label>
-            <Label Grid.Column="2" Grid.Row="5" Content=">" VerticalContentAlignment="Center" 
+            <Label Grid.Column="2" Grid.Row="1" Content=">" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="SelectedCameraLabel2" MouseDown="OnShowCameraOptions" TouchDown="OnShowCameraOptions">
             </Label>
             <!--            <ComboBox  Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" x:Name="SelectCameraComboBox" FontSize="14" Margin="0,3,0,3" Width="160" Height="24" 
@@ -77,30 +53,30 @@
                        SelectedItem="{Binding SelectedCamera}">
             </ComboBox>-->
 
-            <!-- Row 6: Select Microphone -->
-            <Label Grid.Column="0" Grid.Row="6" Content="Select Microphone" VerticalContentAlignment="Center" 
+            <!-- Row 2: Select Microphone -->
+            <Label Grid.Column="0" Grid.Row="2" Content="Select Microphone" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="SelectMicrophoneLabel">
             </Label>
-            <Label Grid.Column="1" Grid.Row="6" Content="" VerticalContentAlignment="Center" 
+            <Label Grid.Column="1" Grid.Row="2" Content="" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="SelectedMicrophoneLabel" 
                    MouseDown="OnShowMicrophoneOptions" TouchDown="OnShowMicrophoneOptions" TextOptions.TextHintingMode="Fixed"
                    >
             </Label>
-            <Label Grid.Column="2" Grid.Row="6" Content=">" VerticalContentAlignment="Center" 
+            <Label Grid.Column="2" Grid.Row="2" Content=">" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="SelectedMicrophoneLabel2" MouseDown="OnShowMicrophoneOptions" TouchDown="OnShowMicrophoneOptions">
             </Label>
             <!-- <ComboBox  Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" x:Name="SelectMicrophoneComboBox" FontSize="14" Margin="0,3,0,3" Width="160" Height="24" 
                        VerticalAlignment="Center" HorizontalAlignment="Right" SelectionChanged="OnSelectMicrophone" >
             </ComboBox>-->
 
-            <!-- Row 7: Select Speaker -->
-            <Label Grid.Column="0" Grid.Row="7" Content="Select Speaker" VerticalContentAlignment="Center" 
+            <!-- Row 3: Select Speaker -->
+            <Label Grid.Column="0" Grid.Row="3" Content="Select Speaker" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="SelectSpeakerLabel">
             </Label>
-            <Label Grid.Column="1" Grid.Row="7" Content="" VerticalContentAlignment="Center" 
+            <Label Grid.Column="1" Grid.Row="3" Content="" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="SelectedSpeakerLabel" MouseDown="OnShowSpeakerOptions" TouchDown="OnShowSpeakerOptions">
             </Label>
-            <Label Grid.Column="2" Grid.Row="7" Content=">" VerticalContentAlignment="Center" 
+            <Label Grid.Column="2" Grid.Row="3" Content=">" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="SelectedSpeakerLabel2" MouseDown="OnShowSpeakerOptions" TouchDown="OnShowSpeakerOptions">
             </Label>
             <!--<ComboBox  Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" x:Name="SelectSpeakerComboBox" FontSize="14" Margin="0,3,0,3" Width="160" Height="24" 
