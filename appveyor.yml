@@ -1,4 +1,5 @@
 version: 1.0.0.{build}
+os: Visual Studio 2015
 skip_tags: true
 
 install:
@@ -6,9 +7,17 @@ install:
 - choco install wixtoolset -y -version 3.10.0.2103
 
 build_script:
+#- bash -c 'grep "submodule " .gitmodules  | cut -d'"'"'"'"'"' -f2 | xargs -P20 -L1 git submodule update --init --recursive' || true
+- git submodule update --init --recursive
 - nuget restore VATRP.sln
 - set vatrpVersion=%APPVEYOR_BUILD_VERSION%
 - set vatrpConfiguration="Release"
+- dir "C:\Program Files\"
+- dir "C:\Program Files (x86)\"
+#- powershell .\submodules\linphone-windows-dependencies\install.ps1
+- python prepare.py -C
+- python .\prepare.py -G "Visual Studio 14 2015" -DENABLE_UNIT_TESTS=OFF -DENABLE_NON_FREE_CODECS=ON -DENABLE_H263=ON -DENABLE_OPENH264=ON -DENABLE_WEBRTC_AEC=ON -DENABLE_VCARD=ON -DCMAKE_VERBOSE_MAKEFILE=ON
+- devenv .\WORK\cmake\Project.sln /build
 - msbuild VATRP.sln /p:Configuration=%vatrpConfiguration%  /p:Targets="Build" /p:BuildInParallel=true /m
 - set PATH="C:\Program Files (x86)\WiX Toolset v3.10\bin";%PATH%
 - Candle -dVATRP.Version=%vatrpVersion% -dConfiguration=%vatrpConfiguration% -dOutDir=.\Setup\Out -dPlatform=x86 -dTargetDir=.\Setup\Out -dTargetExt=.msi -out .\Setup\obj\ -arch x86 -ext WixNetFxExtension.dll -ext WixUtilExtension.dll -ext WixUIExtension.dll .\Setup\ACE-Setup.wxs

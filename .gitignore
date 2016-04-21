@@ -1,3 +1,7 @@
+WORK
+OUTPUT
+Makefile
+submodules/tunnel
 *.pfx
 *.cer
 *.pvk
