@@ -1189,7 +1189,14 @@ namespace VATRP.Core.Services
                 LOG.Error(string.Format( "Can't send dtmf {0}. Call {1}", dtmf, call.NativeCallPtr));
         }
 
-		#endregion
+        public void SetIncomingCallRingingTimeout(int timeout)
+        {
+            if (linphoneCore == IntPtr.Zero) return;
+            if (LinphoneAPI.linphone_core_get_inc_timeout(linphoneCore) != timeout)
+                LinphoneAPI.linphone_core_set_inc_timeout(linphoneCore, timeout);
+        }
+
+        #endregion
 
         #region Messaging
 

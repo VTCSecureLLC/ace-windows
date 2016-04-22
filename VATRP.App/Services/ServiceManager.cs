@@ -596,7 +596,13 @@ namespace com.vtcsecure.ace.windows.Services
             ApplyDtmfOnSIPInfoChanges();
             ApplyDtmfInbandChanges();
             ApplyMediaSettingsChanges();
+            ApplyCallSettingsChanges();
             return true;
+        }
+
+        private void ApplyCallSettingsChanges()
+        {
+            LinphoneService.SetIncomingCallRingingTimeout(300);
         }
 
         internal void Register()
