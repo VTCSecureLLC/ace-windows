@@ -73,9 +73,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _showAvatar;
         private bool _showDeclineMenu;
         private string _declinedMessage;
+        private string _declinedMessageHeader;
         private bool _showRingingTimer;
         private bool _showDeclinedMessage;
         private VATRPContact _contact;
+        private bool _showInfoMsg;
 
         public event CallInfoViewModel.CallQualityChangedDelegate CallQualityChangedEvent;
 
@@ -86,6 +88,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _declinedMessage = string.Empty;
             _showDeclineMenu = false;
             _showRingingTimer = true;
+            _showInfoMsg = false;
             _callState = VATRPCallState.None;
             _hasVideo = true;
             _displayNameSize = 30;
@@ -564,7 +567,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         public bool ShowDeclinedMessage
         {
-            get { return _showDeclinedMessage; }
+            get { return _showDeclinedMessage && !ShowInfoMessage; }
             set
             {
                 _showDeclinedMessage = value;
@@ -582,6 +585,30 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     _declinedMessage = value;
                     OnPropertyChanged("DeclinedMessage");
                 }
+            }
+        }
+
+        public string DeclinedMessageHeader
+        {
+            get { return _declinedMessageHeader; }
+            set
+            {
+                if (_declinedMessageHeader != value)
+                {
+                    _declinedMessageHeader = value;
+                    OnPropertyChanged("DeclinedMessageHeader");
+                }
+            }
+        }
+
+        public bool ShowInfoMessage
+        {
+            get { return _showInfoMsg; }
+            set
+            {
+                _showInfoMsg = value;
+                OnPropertyChanged("ShowInfoMessage");
+                OnPropertyChanged("ShowDeclinedMessage");
             }
         }
 
