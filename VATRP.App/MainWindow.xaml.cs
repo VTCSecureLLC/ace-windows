@@ -233,6 +233,7 @@ namespace com.vtcsecure.ace.windows
             _mainViewModel.IsCallHistoryDocked = false;
             _mainViewModel.IsContactDocked = false;
             _mainViewModel.IsSettingsDocked = false;
+            ctrlResource.ActivateDeafHohResource();
             _mainViewModel.IsResourceDocked = true;
             _mainViewModel.IsMenuDocked = true;
         }
