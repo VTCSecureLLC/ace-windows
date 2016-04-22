@@ -44,6 +44,16 @@ namespace VATRP.Linphone.VideoWrapper
                 };
                 RaiseEvent(e);
             };
+
+            Child.MouseDown += delegate(object sender, System.Windows.Forms.MouseEventArgs args)
+            {
+                MouseButtonEventArgs e = new MouseButtonEventArgs(Mouse.PrimaryDevice, (int)DateTime.Now.Ticks,
+                   MouseButton.Left)
+                {
+                    RoutedEvent = Mouse.MouseDownEvent
+                };
+                RaiseEvent(e);
+            };
         }
 
         public Renderable RenderContent

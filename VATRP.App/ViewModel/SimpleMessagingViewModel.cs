@@ -53,7 +53,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 return;
             }
 
-            var newArgs = new DeclineMessageArgs(args.DeclineMessage);
+            var newArgs = new DeclineMessageArgs(args.MessageHeader, args.DeclineMessage);
             newArgs.Sender = args.Sender;
             if (DeclineMessageReceived != null) 
                 DeclineMessageReceived(sender, newArgs);
