@@ -1230,6 +1230,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 	                    _mainViewModel.ActiveCallModel.Contact.Equals(args.Sender))
 	                {
 	                    _mainViewModel.ActiveCallModel.DeclinedMessage = args.DeclineMessage;
+	                    _mainViewModel.ActiveCallModel.DeclinedMessageHeader = args.MessageHeader;
 	                    switch (_mainViewModel.ActiveCallModel.CallState)
 	                    {
 	                        case VATRPCallState.Closed:
