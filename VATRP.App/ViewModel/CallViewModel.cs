@@ -81,6 +81,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         public event CallInfoViewModel.CallQualityChangedDelegate CallQualityChangedEvent;
 
+        public event EventHandler HideMessageWindowTimeout;
+		
         public CallViewModel()
         {
             _visualizeRing = false;
@@ -1239,5 +1241,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
             return ActiveCall.Equals(other);
         }
 
+        internal void DeferredHideMessageControl()
+        {
+            SetTimeout(delegate
+            {
+                if (ShowInfoMessage)
+                {
+                    if (HideMessageWindowTimeout != null) 
+                        HideMessageWindowTimeout(this, EventArgs.Empty);
+                }
+            }, 5000);
+        }
     }
 }

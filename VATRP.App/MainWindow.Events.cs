@@ -116,6 +116,7 @@ namespace com.vtcsecure.ace.windows
 					CallInfoCtrl = _callInfoView
 				};
 
+                callViewModel.HideMessageWindowTimeout += OnMessageHideTimeout;
 			    callViewModel.CallQualityChangedEvent += OnCallQualityChanged;
 
                 callViewModel.VideoWidth = (int)CombinedUICallViewSize.Width;
@@ -647,6 +648,25 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                 }
 		    }
 		}
+
+        private void OnMessageHideTimeout(object sender, EventArgs e)
+        {
+            if (this.Dispatcher == null)
+                return;
+
+            if (this.Dispatcher.Thread != Thread.CurrentThread)
+            {
+                this.Dispatcher.BeginInvoke((Action)(() => this.OnMessageHideTimeout(sender, e)));
+                return;
+            }
+
+            var callViewModel = sender as CallViewModel;
+            if (callViewModel != null && callViewModel.ShowInfoMessage)
+            {
+                _mainViewModel.ActiveCallModel.ShowInfoMessage = false;
+                ctrlCall.ctrlOverlay.ShowInfoMsgWindow(false);
+            }
+        }
 
         private void WakeupScreenSaver()
         {
@@ -1225,6 +1245,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                                 RearrangeUICallView(GetCallViewSize());
                                 ctrlCall.ctrlOverlay.UpdateInfoMsg(args.MessageHeader, args.DeclineMessage);
                                 ctrlCall.ctrlOverlay.ShowInfoMsgWindow(this.WindowState != WindowState.Minimized);
+	                            _mainViewModel.ActiveCallModel.DeferredHideMessageControl();
 	                            return;
 	                    }
 	                }
