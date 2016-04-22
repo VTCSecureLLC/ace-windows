@@ -32,27 +32,29 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             _viewTechnicalSupportPanel = new TechnicalSupportSheetCtrl();
         }
 
-        public override void ShowAdvancedOptions(bool show)
-        {
-            base.ShowAdvancedOptions(show);
-            System.Windows.Visibility visibleSetting = System.Windows.Visibility.Collapsed;
-            if (show)
-            {
-                visibleSetting = System.Windows.Visibility.Visible;
-            }
-            DebugSettingsPasswordBox.Visibility = visibleSetting;
-            ShowDebugSettingsButton.Visibility = visibleSetting;
+//        public override void ShowAdvancedOptions(bool show)
+//        {
+//            base.ShowAdvancedOptions(show);
+//            System.Windows.Visibility visibleSetting = System.Windows.Visibility.Collapsed;
+//            if (show)
+//            {
+//                visibleSetting = System.Windows.Visibility.Visible;
+//            }
+//            DebugSettingsPasswordBox.Visibility = visibleSetting;
+//            ShowDebugSettingsButton.Visibility = visibleSetting;
 
-            SuperSettingsPasswordBox.Visibility = visibleSetting;
-            ShowAllSettingsButton.Visibility = visibleSetting;
-        }
+//            SuperSettingsPasswordBox.Visibility = visibleSetting;
+//            ShowAllSettingsButton.Visibility = visibleSetting;
+//        }
 
-        // ToDo VATRP-990 - connect these to the correct actions
 
         private void OnViewTss(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("View TSS Clicked");
-            OnContentChanging(UnifiedSettingsContentType.ViewTSS);
+//            OnContentChanging(UnifiedSettingsContentType.ViewTSS);
+            ViewTSSCtrl.Initialize();
+            this.ViewTSSLabel.Visibility = System.Windows.Visibility.Visible;
+            this.ViewTSSScrollView.Visibility = System.Windows.Visibility.Visible;
         }
         private void OnMailTss(object sender, RoutedEventArgs e)
         {

@@ -29,7 +29,7 @@ namespace VATRP.Core.Model
         private bool _isRTTMarker;
         private bool _isDeclineMessage;
 
-        public static string DECLINE_PREFIX = "!@$%#CALL_DECLINE_MESSAGE#";
+        public static string DECLINE_PREFIX = "@@info@@ ";
 
         public VATRPChatMessage()
         {

@@ -109,9 +109,9 @@ namespace com.vtcsecure.ace.windows
             
             EnterFullScreenCheckBox.IsEnabled = false;
 
-            _settingsWindow = new SettingsWindow(ctrlCall, OnAccountChangeRequested);
+//            _settingsWindow = new SettingsWindow(ctrlCall, OnAccountChangeRequested);
 //            ctrlSettings.SetCallControl(ctrlCall);
-            ctrlCall.SettingsControl = ctrlSettings;
+//            ctrlCall.SettingsControl = ctrlSettings;
             deferredHideTimer.Tick += DeferedHideOnError;
             deferredShowPreviewTimer.Tick += DeferredShowPreview;
             CombinedUICallViewSize.Width = 700;
