@@ -148,6 +148,10 @@ namespace com.vtcsecure.ace.windows.CustomControls.Resources
             }
         }
 
+        public void ActivateDeafHohResource()
+        {
+            HandleContentChanging(ResourcesType.DeafHoHResourcesContent);
+        }
 
     }
 }

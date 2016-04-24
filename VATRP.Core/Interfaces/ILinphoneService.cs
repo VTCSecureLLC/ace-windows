@@ -130,6 +130,7 @@ namespace VATRP.Core.Interfaces
         void UpdatePrivateDataPath();
         void CardDAVSync();
         void RemoveCardDAVAuthInfo();
+        void SetIncomingCallRingingTimeout(int timeout);
 
         #endregion
     }

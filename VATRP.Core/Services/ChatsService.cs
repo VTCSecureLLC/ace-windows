@@ -8,7 +8,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Input;
-using com.vtcsecure.ace.windows.Model;
 using VATRP.Core.Enums;
 using VATRP.Core.Events;
 using VATRP.Core.Extensions;
@@ -345,7 +344,8 @@ namespace VATRP.Core.Services
                             chatMessage.IsDeclineMessage = true;
                             if (ConversationDeclineMessageReceived != null)
                             {
-                                var declineArgs = new DeclineMessageArgs(chatMessage.Content) { Sender = contact };
+                                var header = "Call declined with message";
+                                var declineArgs = new DeclineMessageArgs(header, chatMessage.Content) { Sender = contact };
                                 ConversationDeclineMessageReceived(this, declineArgs);
                             }
                         }

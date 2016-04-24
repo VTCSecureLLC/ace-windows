@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using com.vtcsecure.ace.windows.Model;
 using VATRP.Core.Events;
 using VATRP.Core.Model;
 
