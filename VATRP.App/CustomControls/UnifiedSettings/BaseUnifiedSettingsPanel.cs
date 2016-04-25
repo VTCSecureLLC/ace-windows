@@ -34,11 +34,28 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private MainControllerViewModel _parentViewModel;
 
         protected bool _initialized;
+        internal bool IsDirty { get; set; }
+
         public string Title { get; set; }
         // Call When Panel Content needs to change
         public event UnifiedSettings_ContentChanging ContentChanging;
         public event UnifiedSettings_AccountChange AccountChangeRequested;
 
+        public BaseUnifiedSettingsPanel()
+        {
+            this.IsVisibleChanged += OnVisibilityChanged;
+        }
+
+        private void OnVisibilityChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
+        {
+            if ((bool) e.NewValue)
+            {
+                if (IsDirty)
+                {
+                    Initialize();
+                }
+            }
+        }
 
         public void ShowSettings(UnifiedSettings_LevelToShow settingsType, bool show)
         {
@@ -102,6 +119,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         public virtual void Initialize()
         {
             _initialized = true;
+            IsDirty = false;
             //ShowNormalOptions();
         }
 		
