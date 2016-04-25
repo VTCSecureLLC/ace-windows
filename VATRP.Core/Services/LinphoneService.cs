@@ -31,15 +31,13 @@ namespace VATRP.Core.Services
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(LinphoneService) );
 		private readonly Preferences preferences;
 		private readonly ServiceManagerBase manager;
-		private IntPtr linphoneCore;
-		private IntPtr proxy_cfg;
-		private IntPtr auth_info;
+		private IntPtr linphoneCore = IntPtr.Zero;
+		private IntPtr proxy_cfg = IntPtr.Zero;
+		private IntPtr reg_auth_info = IntPtr.Zero;
         private IntPtr carddav_auth = IntPtr.Zero;
-		private IntPtr t_configPtr;
+		private IntPtr t_configPtr = IntPtr.Zero;
 		private IntPtr vtablePtr;
-		private string identity;
 		Thread coreLoop;
-		private string server_addr;
 		private bool _isStarting;
 		private bool _isStarted;
 		private bool _isStopping;
@@ -404,15 +402,8 @@ namespace VATRP.Core.Services
 			    LoadAudioCodecs();
                 LoadVideoCodecs();
 
-			    IntPtr defProxyCfg = LinphoneAPI.linphone_core_get_default_proxy_config(linphoneCore);
-			    if (defProxyCfg != IntPtr.Zero)
-			    {
-			        proxy_cfg = defProxyCfg;
-                    LinphoneAPI.linphone_proxy_config_edit(proxy_cfg);
-                    LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, false);
-                    LinphoneAPI.linphone_proxy_config_done(proxy_cfg);
-			    }
-                
+                ClearProxyInformation();
+
                 IntPtr coreConfig = LinphoneAPI.linphone_core_get_config(linphoneCore);
                 if (coreConfig != IntPtr.Zero)
                 {
@@ -558,11 +549,18 @@ namespace VATRP.Core.Services
             }
 
             LinphoneAPI.linphone_core_iterate(linphoneCore); // roll
-            
+
             if (vtablePtr != IntPtr.Zero)
+            {
                 Marshal.FreeHGlobal(vtablePtr);
+                vtablePtr = IntPtr.Zero;
+            }
+
             if (t_configPtr != IntPtr.Zero)
+            {
                 Marshal.FreeHGlobal(t_configPtr);
+                t_configPtr = IntPtr.Zero;
+            }
 
             if (_cardDavStatsPtr != IntPtr.Zero)
             {
@@ -570,7 +568,8 @@ namespace VATRP.Core.Services
                _cardDavStatsPtr = IntPtr.Zero;
             }
 
-            //Marshal.FreeHGlobal(linphoneCore);
+            ClearProxyInformation();
+
             LinphoneAPI.linphone_core_destroy(linphoneCore);
             registration_state_changed = null;
             call_state_changed = null;
@@ -585,11 +584,9 @@ namespace VATRP.Core.Services
             carddav_updated_contact = null;
             carddav_sync_done = null;
             carddav_auth = IntPtr.Zero;
-            linphoneCore = proxy_cfg = auth_info = t_configPtr = IntPtr.Zero;
+            linphoneCore = proxy_cfg = reg_auth_info = t_configPtr = IntPtr.Zero;
             call_stats_updated = null;
             coreLoop = null;
-            identity = null;
-            server_addr = null;
             _isStarting = false;
             _isStarted = false;
             _isStopping = false;
@@ -737,14 +734,28 @@ namespace VATRP.Core.Services
 		        Marshal.StructureToPtr(t_config, t_configPtr, false);
 		    }
 
+		    string identitStr;
             if (string.IsNullOrEmpty(preferences.DisplayName))
             {
-                identity = string.Format("sip:{0}@{1}", preferences.Username, preferences.ProxyHost);
+                identitStr = string.Format("sip:{0}@{1}", preferences.Username, preferences.ProxyHost);
             }
             else
             {
-                identity = string.Format("\"{0}\" <sip:{1}@{2}>", preferences.DisplayName, preferences.Username,
+                identitStr = string.Format("\"{0}\" <sip:{1}@{2}>", preferences.DisplayName, preferences.Username,
                     preferences.ProxyHost);
+            }
+
+            var identityAddressPtr = LinphoneAPI.linphone_address_new(identitStr);
+
+            if (!string.IsNullOrEmpty(LinphoneConfig.DisplayName))
+            {
+                LinphoneAPI.linphone_address_set_display_name(identityAddressPtr, LinphoneConfig.DisplayName);
+            }
+
+		    string route = null;
+            if (preferences.IsOutboundProxyOn)
+            {
+                route = string.Format("sip:{0};transport={1}", preferences.OutboundProxyAddress, preferences.Transport.ToLower());
             }
 
 		    LinphoneAPI.linphone_core_set_sip_transports(linphoneCore, t_configPtr);
@@ -755,43 +766,47 @@ namespace VATRP.Core.Services
             {
                 port = 25061;
             }
-			server_addr = string.Format("sip:{0}:{1};transport={2}", preferences.ProxyHost,
+
+			var domain = string.Format("sip:{0}:{1};transport={2}", preferences.ProxyHost,
                 port, preferences.Transport.ToLower());
 
-            LOG.Info(string.Format("Registering SIP account: {0} Server: {1}", identity, server_addr));
+            LOG.Info(string.Format("Registering SIP account: {0} Server: {1}", identitStr, domain));
 
-            if (auth_info != IntPtr.Zero)
-            {
-                LinphoneAPI.linphone_core_remove_auth_info(linphoneCore, auth_info);
-                auth_info = IntPtr.Zero;
-            }
+		    if (reg_auth_info != IntPtr.Zero)
+		    {
+		        LinphoneAPI.linphone_core_remove_auth_info(linphoneCore, reg_auth_info);
+		    }
 
-			auth_info = LinphoneAPI.linphone_auth_info_new(preferences.Username,
-                string.IsNullOrEmpty(preferences.AuthID) ? null : preferences.AuthID, preferences.Password, null, null, null);
-			if (auth_info == IntPtr.Zero)
+			reg_auth_info = LinphoneAPI.linphone_auth_info_new(preferences.Username,
+                string.IsNullOrEmpty(preferences.AuthID) ? null : preferences.AuthID, preferences.Password, null, null, preferences.ProxyHost);
+			if (reg_auth_info == IntPtr.Zero)
 				LOG.Debug("failed to get auth info");
-			LinphoneAPI.linphone_core_add_auth_info(linphoneCore, auth_info);
+			LinphoneAPI.linphone_core_add_auth_info(linphoneCore, reg_auth_info);
 
-		    LinphoneAPI.linphone_core_set_primary_contact(linphoneCore, identity);
+		    LinphoneAPI.linphone_core_set_primary_contact(linphoneCore, identitStr);
             // remove all proxy entries from linphone configuration file
 
-            if (proxy_cfg == IntPtr.Zero)
-                proxy_cfg = LinphoneAPI.linphone_core_create_proxy_config(linphoneCore);
+		    if (proxy_cfg != IntPtr.Zero)
+		    {
+		        LinphoneAPI.linphone_core_remove_proxy_config(linphoneCore, proxy_cfg);
+		        LinphoneAPI.linphone_proxy_config_unref(proxy_cfg);
+		    }
+
+		    proxy_cfg = LinphoneAPI.linphone_core_create_proxy_config(linphoneCore);
+
 			/*set localParty with user name and domain*/
-			LinphoneAPI.linphone_proxy_config_set_identity(proxy_cfg, identity);
-
-		    LinphoneAPI.linphone_proxy_config_set_server_addr(proxy_cfg, server_addr);
-
+            LinphoneAPI.linphone_proxy_config_set_identity_address(proxy_cfg, identityAddressPtr);
+		    LinphoneAPI.linphone_proxy_config_set_server_addr(proxy_cfg, domain);
+            LinphoneAPI.linphone_proxy_config_set_route(proxy_cfg, route);
+            LinphoneAPI.linphone_proxy_config_enable_publish(proxy_cfg, false);
 		    LinphoneAPI.linphone_proxy_config_set_avpf_mode(proxy_cfg, (LinphoneAVPFMode)LinphoneAPI.linphone_core_get_avpf_mode(LinphoneCore));
             LinphoneAPI.linphone_proxy_config_set_avpf_rr_interval(proxy_cfg, 3);
 
-		    string route = preferences.IsOutboundProxyOn ? server_addr : string.Empty;
-            // use proxy as route if outbound_proxy is enabled
-		    LinphoneAPI.linphone_proxy_config_set_route(proxy_cfg, route);
             LinphoneAPI.linphone_proxy_config_set_expires(proxy_cfg, preferences.Expires);
 			LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, true);
 			LinphoneAPI.linphone_core_add_proxy_config(linphoneCore, proxy_cfg);
             LinphoneAPI.linphone_core_set_default_proxy_config(linphoneCore, proxy_cfg);
+            LinphoneAPI.linphone_address_destroy(identityAddressPtr);
             UpdateMediaEncryption();
 			return true;
 
@@ -822,7 +837,7 @@ namespace VATRP.Core.Services
             IntPtr proxyCfg = LinphoneAPI.linphone_core_get_default_proxy_config(LinphoneCore);
             if (proxyCfg != IntPtr.Zero && LinphoneAPI.linphone_proxy_config_is_registered(proxyCfg) == 1)
             {
-                if (RegistrationStateChangedEvent != null)
+                if (IsStopping &&RegistrationStateChangedEvent != null)
                     RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationProgress, LinphoneReason.LinphoneReasonNone); // disconnecting
 
                 try
@@ -830,21 +845,15 @@ namespace VATRP.Core.Services
                     LinphoneAPI.linphone_proxy_config_edit(proxyCfg);
                     LinphoneAPI.linphone_proxy_config_enable_register(proxyCfg, false);
                     LinphoneAPI.linphone_proxy_config_done(proxyCfg);
-                    if (RegistrationStateChangedEvent != null)
+                    if (IsStopping && RegistrationStateChangedEvent != null)
                         RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationCleared, LinphoneReason.LinphoneReasonNone);
                 }
                 catch (Exception ex)
                 {
                     LOG.Error("DoUnregister: " + ex.Message);
                 }
-                if (t_configPtr != IntPtr.Zero)
-                {
-                    Marshal.FreeHGlobal(t_configPtr);
-                    t_configPtr = IntPtr.Zero;
-                }
-            }
-			ClearProxyInformation();
-	    }
+            }            
+        }
 
         public void ClearProxyInformation()
         {
@@ -2289,17 +2298,20 @@ namespace VATRP.Core.Services
 			{
 				case LinphoneCallState.LinphoneCallIncomingReceived:
 				case LinphoneCallState.LinphoneCallIncomingEarlyMedia:
-					newstate = cstate == LinphoneCallState.LinphoneCallIncomingReceived
-						? VATRPCallState.InProgress
-						: VATRPCallState.EarlyMedia;
-					addressStringPtr = LinphoneAPI.linphone_call_get_remote_address_as_string(callPtr);
+			    {
+                    var identity = string.Empty;
+			        newstate = cstate == LinphoneCallState.LinphoneCallIncomingReceived
+			            ? VATRPCallState.InProgress
+			            : VATRPCallState.EarlyMedia;
+			        addressStringPtr = LinphoneAPI.linphone_call_get_remote_address_as_string(callPtr);
 			        if (addressStringPtr != IntPtr.Zero)
 			        {
 			            identity = Marshal.PtrToStringAnsi(addressStringPtr);
-                        LinphoneAPI.ortp_free(addressStringPtr);
+			            LinphoneAPI.ortp_free(addressStringPtr);
 			        }
-					remoteParty = identity;
-					break;
+			        remoteParty = identity;
+			    }
+			        break;
 
                 case LinphoneCallState.LinphoneCallOutgoingEarlyMedia:
 				case LinphoneCallState.LinphoneCallConnected:

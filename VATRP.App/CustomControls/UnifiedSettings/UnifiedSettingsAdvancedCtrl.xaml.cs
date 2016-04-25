@@ -120,7 +120,7 @@ This parameter can be set dynamically also via the traditional wrappers to get/s
 Default value = 1
              * */
             string rtcpFeedbackString = ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.RTCP_FEEDBACK, "Off");
+                Configuration.ConfEntry.RTCP_FEEDBACK, "Implicit");
 
             foreach (var item in RtcpFeedbackComboBox.Items)
             {

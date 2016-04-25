@@ -64,6 +64,9 @@ namespace VATRP.Core.Model
         public bool UseOutboundProxy { get; set; }
 
         [Column]
+        public string OutboundProxyAddress { get; set; }
+
+        [Column]
         public string DisplayName { get; set; }
 
         [Column]
@@ -276,7 +279,8 @@ namespace VATRP.Core.Model
             MuteMicrophone = false;
             MuteSpeaker = false;
             EchoCancel = true;
-            UseOutboundProxy = false;
+            UseOutboundProxy = true;
+            OutboundProxyAddress = string.Empty;
             VideoPreset = "high-fps";
             SelectedCameraId = string.Empty;
             SelectedMicrophoneId = string.Empty;
