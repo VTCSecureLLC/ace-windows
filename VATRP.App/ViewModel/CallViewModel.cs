@@ -35,7 +35,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private double _infoTextSize;
         private VATRPCall _currentCall = null;
         private readonly System.Timers.Timer ringTimer;
-        private readonly System.Timers.Timer autoAnswerTimer;
+        private System.Timers.Timer serviceTimer;
         private bool subscribedForStats;
         private System.Timers.Timer timerCall;
         private CallInfoViewModel _callInfoViewModel;
@@ -77,12 +77,13 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _showRingingTimer;
         private bool _showDeclinedMessage;
         private VATRPContact _contact;
-        private bool _showInfoMsg;
-
+        private object serviceLock = new object();
+        private object timerCallLock = new object();
         public event CallInfoViewModel.CallQualityChangedDelegate CallQualityChangedEvent;
-
+        public event EventHandler CallConnectingTimeout;
         public event EventHandler HideMessageWindowTimeout;
-		
+        private bool _showInfoMsg;
+	
         public CallViewModel()
         {
             _visualizeRing = false;
@@ -131,14 +132,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             };
             ringTimer.Elapsed += OnUpdateRingCounter;
 
-//#if DEBUG
-            autoAnswerTimer = new System.Timers.Timer
-            {
-                Interval = 1000,
-                AutoReset = true
-            };
-            autoAnswerTimer.Elapsed += OnAutoAnswerTimer;
-//#endif
             _callInfoViewModel = new CallInfoViewModel();
         }
 
@@ -641,7 +634,13 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     return;
                 }
                 OnPropertyChanged("RingDuration");
-                timerCall.Start();
+                lock (timerCallLock)
+                {
+                    if (timerCall != null)
+                    {
+                        timerCall.Start();
+                    }
+                }
             }
         }
 
@@ -660,24 +659,31 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
-        private void OnAutoAnswerTimer(object sender, ElapsedEventArgs e)
+        private void OnServiceTimer(object sender, ElapsedEventArgs e)
         {
             if (ServiceManager.Instance.Dispatcher != null)
             {
                 if (ServiceManager.Instance.Dispatcher.Thread != Thread.CurrentThread)
                 {
                     ServiceManager.Instance.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
-                        new EventHandler<ElapsedEventArgs>(OnAutoAnswerTimer), sender, new object[] {e});
+                        new EventHandler<ElapsedEventArgs>(OnServiceTimer), sender, new object[] { e });
                     return;
                 }
 
-                if (AutoAnswer > 0)
+                if (CallState == VATRPCallState.Trying)
+                {
+                    DestroyServiceTimer();
+                    if (CallConnectingTimeout != null)
+                        CallConnectingTimeout(this, EventArgs.Empty);
+                }
+                else if (AutoAnswer > 0)
                 {
                     AutoAnswer--;
 
                     if (AutoAnswer == 0)
                     {
-                        autoAnswerTimer.Stop();
+                        DestroyServiceTimer();
+
                         bool muteMicrophone = false;
                         bool muteSpeaker = false;
                         //bool enableVideo = true;
@@ -696,6 +702,18 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
+        private void DestroyServiceTimer()
+        {
+            lock (serviceLock)
+            {
+                if (serviceTimer != null)
+                {
+                    serviceTimer.Stop();
+                    serviceTimer.Dispose();
+                    serviceTimer = null;
+                }
+            }
+        }
 
         private void StopAnimation()
         {
@@ -708,7 +726,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         internal void TerminateCall()
         {
             if (_currentCall != null)
-                _linphoneService.TerminateCall(_currentCall.NativeCallPtr);
+                _linphoneService.TerminateCall(_currentCall.NativeCallPtr, "Call ended");
         }
 
         internal void MuteSpeaker(bool isMuted)
@@ -790,8 +808,23 @@ namespace com.vtcsecure.ace.windows.ViewModel
             RemoteNumber = _currentCall.To.Username;
             AutoAnswer = 0;
             ShowIncomingCallPanel = false;
+            ShowRingingTimer = false;
             ShowOutgoingEndCall = true;
             ShowAvatar = true;
+            CallState = VATRPCallState.Trying;
+            lock (serviceLock)
+            {
+                if (serviceTimer == null)
+                {
+                    serviceTimer = new System.Timers.Timer
+                    {
+                        Interval = 5000,
+                        AutoReset = false
+                    };
+                    serviceTimer.Elapsed += OnServiceTimer;
+                    serviceTimer.Start();
+                }
+            }
         }
 
         internal void OnRinging()
@@ -803,12 +836,18 @@ namespace com.vtcsecure.ace.windows.ViewModel
             AutoAnswer = 0;
             ShowAvatar = true;
             VisualizeIncoming = false;
-            if (timerCall != null)
+            DestroyServiceTimer();
+            lock (timerCallLock)
             {
-                if (!timerCall.Enabled)
-                    timerCall.Start();
+                if (timerCall != null)
+                {
+                    if (!timerCall.Enabled)
+                        timerCall.Start();
+                }
             }
+
             CallState = VATRPCallState.Ringing;
+            ShowRingingTimer = true;
             if (!VisualizeRinging)
             {
                 RingCounterBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0xD8, 0x1C, 0x1C));
@@ -845,29 +884,43 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 isUserAgent = App.CurrentAccount.UserNeedsAgentView;
             }
             if ((ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.AUTO_ANSWER, false) || isUserAgent) && 
-                (ServiceManager.Instance.LinphoneService.GetActiveCallsCount == 1) )
+                Configuration.ConfEntry.AUTO_ANSWER, false) || isUserAgent) &&
+                (ServiceManager.Instance.LinphoneService.GetActiveCallsCount == 1))
             {
-                if (autoAnswerTimer != null)
-                {
-                    var autoAnswerDuration =
-                        ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                            Configuration.ConfEntry.AUTO_ANSWER_AFTER, 2);
-                    if (autoAnswerDuration > 60)
-                        autoAnswerDuration = 60;
-                    else if (autoAnswerDuration < 0)
-                        autoAnswerDuration = 0;
 
-                    AutoAnswer = autoAnswerDuration;
-                    if (autoAnswerDuration > 0)
-                        autoAnswerTimer.Start();
-                }
+
+                var autoAnswerDuration =
+                    ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+                        Configuration.ConfEntry.AUTO_ANSWER_AFTER, 2);
+                if (autoAnswerDuration > 60)
+                    autoAnswerDuration = 60;
+                else if (autoAnswerDuration < 0)
+                    autoAnswerDuration = 0;
+
+                AutoAnswer = autoAnswerDuration;
+                if (autoAnswerDuration > 0)
+                    lock (serviceLock)
+                    {
+                        if (serviceTimer == null)
+                        {
+                            serviceTimer = new System.Timers.Timer
+                            {
+                                Interval = 1000,
+                                AutoReset = true
+                            };
+                            serviceTimer.Elapsed += OnServiceTimer;
+                        }
+                        serviceTimer.Start();
+                    }
             }
 //#endif
-            if (timerCall != null)
+            lock (timerCallLock)
             {
-                if (!timerCall.Enabled)
-                    timerCall.Start();
+                if (timerCall != null)
+                {
+                    if (!timerCall.Enabled)
+                        timerCall.Start();
+                }
             }
 
             VisualizeIncoming = true;
@@ -893,9 +946,17 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         internal void OnConnected()
         {
-            if (timerCall != null && timerCall.Enabled)
-                timerCall.Stop();
+            DestroyServiceTimer();
 
+            lock (timerCallLock)
+            {
+                if (timerCall != null)
+                {
+                    timerCall.Stop();
+                    timerCall.Dispose();
+                }
+                timerCall = null;
+            }
             AllowHideContorls = true;
             StopAnimation();
 
@@ -934,11 +995,13 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         internal void OnClosed(ref bool isError, string errorMessage, int errorCode, bool isDeclined)
         {
+            DestroyServiceTimer();
             ShowIncomingCallPanel = false;
             ShowInfo = false ;
 
             var errString = string.Empty;
             var sipErrCodeStr = string.Empty;
+            isError = true;
             switch (errorCode)
             {
                 case 200:
@@ -1014,8 +1077,17 @@ namespace com.vtcsecure.ace.windows.ViewModel
                         string.Compare(errorMessage, "NotAnswered", StringComparison.InvariantCultureIgnoreCase) ==
                         0)
                         errString = Properties.Resources.ERR_NotAnswered;
-
-                    else
+                    else if (
+                        string.Compare(errorMessage, "NotReachable", StringComparison.InvariantCultureIgnoreCase) ==
+                    0)
+                        errString = Properties.Resources.ERR_NotReachable;
+                    else if ( (
+                        string.Compare(errorMessage, "Call terminated", StringComparison.InvariantCultureIgnoreCase) ==
+                            0) || (
+                        string.Compare(errorMessage, "Call ended", StringComparison.InvariantCultureIgnoreCase) ==
+                            0))
+                            isError = false;
+                    else 
                     {
                         errString = Properties.Resources.ERR_Generic;
                         sipErrCodeStr = string.Format(" (SIP: {0})", errorCode);
@@ -1024,8 +1096,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
 
             if (string.IsNullOrEmpty(sipErrCodeStr))
-                    sipErrCodeStr = string.Format(" (SIP: {0})", errorCode);
-                ErrorMessage = string.Format("{0}{1}", errString, sipErrCodeStr);
+                sipErrCodeStr = string.Format(" (SIP: {0})", errorCode);
+            ErrorMessage = string.Format("{0}{1}", errString, sipErrCodeStr);
 
             ShowAvatar = isDeclined;
 
@@ -1043,13 +1115,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
             UnsubscribeCallStaistics();
 
-            if (timerCall.Enabled)
-                timerCall.Stop();
-//#if DEBUG
-            if (autoAnswerTimer.Enabled)
-                autoAnswerTimer.Stop();
-//#endif
-
+            lock (timerCallLock)
+            {
+                if (timerCall != null)
+                {
+                    timerCall.Stop();
+                    timerCall.Dispose();
+                }
+                timerCall = null;
+            }
         }
 
         #endregion
@@ -1057,11 +1131,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
         internal void AcceptCall()
         {
 //#if DEBUG
-            if (autoAnswerTimer.Enabled)
-            {
-                AutoAnswer = 0;
-                autoAnswerTimer.Stop();
-            }
+            AutoAnswer = 0;
+            DestroyServiceTimer();
 //#endif
             StopAnimation();
 
@@ -1076,11 +1147,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
         internal void DeclineCall(bool declineOnTimeout)
         {
 //#if DEBUG
-            if (autoAnswerTimer.Enabled)
-            {
-                AutoAnswer = 0;
-                autoAnswerTimer.Stop();
-            }
+            AutoAnswer = 0;
+            DestroyServiceTimer();
 //#endif
             SetTimeout(delegate
             {
@@ -1170,11 +1238,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
         internal void HoldAndAcceptCall()
         {
 //#if DEBUG
-            if (autoAnswerTimer.Enabled)
-            {
-                AutoAnswer = 0;
-                autoAnswerTimer.Stop();
-            }
+            AutoAnswer = 0;
+            DestroyServiceTimer();
 //#endif
             StopAnimation();
 
