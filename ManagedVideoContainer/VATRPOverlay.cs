@@ -21,11 +21,13 @@ namespace VATRP.Linphone.VideoWrapper
         private VATRPTranslucentWindow onHoldWindow;
         private VATRPTranslucentWindow qualityIndicatoWindow;
         private VATRPTranslucentWindow encryptionIndicatoWindow;
+        private VATRPTranslucentWindow infoMsgWindow;
         private System.Timers.Timer _timerCall;
         private int _foregroundCallDuration = 0;
         private int _backgroundCallDuration = 0;
         private QualityIndicator _lastQuality = QualityIndicator.Unknown;
         private MediaEncryptionIndicator _lastEncryption = MediaEncryptionIndicator.None;
+
         public VATRPOverlay()
         {
             commandBarWindow = new VATRPTranslucentWindow(this);
@@ -36,6 +38,7 @@ namespace VATRP.Linphone.VideoWrapper
             onHoldWindow = new VATRPTranslucentWindow(this);
             qualityIndicatoWindow = new VATRPTranslucentWindow(this);
             encryptionIndicatoWindow = new VATRPTranslucentWindow(this);
+            infoMsgWindow = new VATRPTranslucentWindow(this);
 
             _timerCall = new System.Timers.Timer
             {
@@ -1139,7 +1142,125 @@ namespace VATRP.Linphone.VideoWrapper
         }
 
         #endregion
+        
+        #region Decline message window
 
+        public double InfoMsgWindowLeftMargin
+        {
+            get
+            {
+                if (infoMsgWindow != null)
+                    return infoMsgWindow.WindowLeftMargin;
+                return 0;
+            }
+            set
+            {
+                if (infoMsgWindow != null)
+                    infoMsgWindow.WindowLeftMargin = value;
+            }
+        }
+
+        public double InfoMsgWindowTopMargin
+        {
+            get
+            {
+                if (infoMsgWindow != null)
+                    return infoMsgWindow.WindowTopMargin;
+                return 0;
+            }
+            set
+            {
+                if (infoMsgWindow != null)
+                    infoMsgWindow.WindowTopMargin = value;
+            }
+        }
+
+        public int InfoMsgOverlayWidth
+        {
+            get
+            {
+                if (infoMsgWindow != null)
+                    return infoMsgWindow.OverlayWidth;
+                return 0;
+            }
+            set
+            {
+                if (infoMsgWindow != null)
+                    infoMsgWindow.OverlayWidth = value;
+            }
+        }
+
+        public int InfoMsgOverlayHeight
+        {
+            get
+            {
+                if (infoMsgWindow != null)
+                    return infoMsgWindow.OverlayHeight;
+                return 0;
+            }
+            set
+            {
+                if (infoMsgWindow != null)
+                    infoMsgWindow.OverlayHeight = value;
+            }
+        }
+
+        public void UpdateInfoMsg(string header, string info)
+        {
+                var container =
+                    FindChild<Grid>(infoMsgWindow.TransparentWindow, "InfoMsgContainer");
+                if (container != null)
+                {
+                    var textBlock = FindChild<TextBlock>(container, "MsgHeader");
+                    if (textBlock != null)
+                        textBlock.Text = header;
+
+                    textBlock = FindChild<TextBlock>(container, "Info");
+                    if (textBlock != null)
+                        textBlock.Text = info;
+                }
+            infoMsgWindow.Refresh();
+            infoMsgWindow.UpdateWindow();
+        }
+
+        public void ShowInfoMsgWindow(bool bshow)
+        {
+            infoMsgWindow.ShowWindow = bshow;
+            infoMsgWindow.Refresh();
+            if (bshow)
+            {
+                infoMsgWindow.UpdateWindow();
+            }
+        }
+
+        public object OverlayInfoMsgChild
+        {
+            get
+            {
+                if (infoMsgWindow != null && infoMsgWindow.TransparentWindow != null)
+                {
+                    return infoMsgWindow.TransparentWindow.Content;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                if (infoMsgWindow != null && infoMsgWindow.TransparentWindow != null)
+                {
+                    infoMsgWindow.TransparentWindow.Content = value;
+                }
+            }
+        }
+
+        public VATRPTranslucentWindow InfoMsgWindow
+        {
+            get { return onHoldWindow; }
+        }
+
+        #endregion
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);
@@ -1150,6 +1271,7 @@ namespace VATRP.Linphone.VideoWrapper
             newCallAcceptWindow.UpdateWindow();
             qualityIndicatoWindow.Refresh();
             encryptionIndicatoWindow.Refresh();
+            infoMsgWindow.Refresh();
         }
 
         protected override void OnRender(DrawingContext drawingContext)
@@ -1167,6 +1289,7 @@ namespace VATRP.Linphone.VideoWrapper
             newCallAcceptWindow.Refresh();
             qualityIndicatoWindow.Refresh();
             encryptionIndicatoWindow.Refresh();
+            infoMsgWindow.Refresh();
         }
 
         private static T FindChild<T>(DependencyObject parent, string childName)

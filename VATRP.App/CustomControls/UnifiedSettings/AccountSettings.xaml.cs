@@ -1,4 +1,5 @@
-﻿using System;
+﻿using com.vtcsecure.ace.windows.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -67,8 +68,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                         break;
                     }
                 }
+                VideoMailUriTextBox.Text = App.CurrentAccount.VideoMailUri;
             }
-
         }
 
         #region SettingsLevel
@@ -381,11 +382,62 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
         }
 
-        #endregion
-
         private void OnProxyChangedByUser(object sender, KeyEventArgs e)
         {
             App.CurrentAccount.UseOutboundProxy = true;
         }
+
+        #endregion
+
+
+        #region VoiceMail Uri & MWI
+        private void OnVideoMailUriChanged(Object sender, RoutedEventArgs args)
+        {
+            Console.WriteLine("VideoMail URI Changed");
+            if (App.CurrentAccount == null)
+                return;
+            string oldVideoMailUri = App.CurrentAccount.VideoMailUri;
+            string newVideoMailUri = VideoMailUriTextBox.Text;
+            if (string.IsNullOrEmpty(newVideoMailUri))
+            {
+                VideoMailUriTextBox.Text = oldVideoMailUri;
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(newVideoMailUri))
+                {
+                    try
+                    {
+                        App.CurrentAccount.VideoMailUri = newVideoMailUri;
+                        ServiceManager.Instance.SaveAccountSettings();
+                    }
+                    catch (Exception)
+                    {
+                        //TODO: ADD logging handler this class
+                    }
+                }
+            }
+        }
+
+        private void MWIUriTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("MWI URI Changed");
+            if (App.CurrentAccount == null)
+                return;
+            string newmwiUri = MWIUriTextBox.Text;
+            try
+            {
+                App.CurrentAccount.MWIUri = newmwiUri;
+                ServiceManager.Instance.SaveAccountSettings();
+
+                // Subscribe for video mail
+                ServiceManager.Instance.LinphoneService.SubscribeForVideoMWI(newmwiUri);
+            }
+            catch (Exception)
+            {
+                //TODO: ADD logging handler this class
+            }
+        }
+        #endregion
     }
 }

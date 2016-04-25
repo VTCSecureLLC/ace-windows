@@ -116,6 +116,7 @@ namespace com.vtcsecure.ace.windows
 					CallInfoCtrl = _callInfoView
 				};
 
+                callViewModel.HideMessageWindowTimeout += OnMessageHideTimeout;
 			    callViewModel.CallQualityChangedEvent += OnCallQualityChanged;
 
                 callViewModel.VideoWidth = (int)CombinedUICallViewSize.Width;
@@ -648,6 +649,25 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 		    }
 		}
 
+        private void OnMessageHideTimeout(object sender, EventArgs e)
+        {
+            if (this.Dispatcher == null)
+                return;
+
+            if (this.Dispatcher.Thread != Thread.CurrentThread)
+            {
+                this.Dispatcher.BeginInvoke((Action)(() => this.OnMessageHideTimeout(sender, e)));
+                return;
+            }
+
+            var callViewModel = sender as CallViewModel;
+            if (callViewModel != null && callViewModel.ShowInfoMessage)
+            {
+                _mainViewModel.ActiveCallModel.ShowInfoMessage = false;
+                ctrlCall.ctrlOverlay.ShowInfoMsgWindow(false);
+            }
+        }
+
         private void WakeupScreenSaver()
         {
             // simulate mouse move event
@@ -681,6 +701,11 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                     : MediaEncryptionIndicator.On;
                 ctrlCall.ctrlOverlay.UpdateEncryptionIndicator(encryption);
                 ctrlCall.ctrlOverlay.ShowEncryptionIndicatorWindow(this.WindowState != WindowState.Minimized);
+
+                if (_mainViewModel.ActiveCallModel.ShowInfoMessage)
+                {
+                    ctrlCall.ctrlOverlay.ShowInfoMsgWindow(this.WindowState != WindowState.Minimized);
+                }
             }
         }
 
@@ -715,7 +740,8 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 	    }
 
 	    private void ShowCallOverlayWindow(bool bShow)
-		{
+	    {
+	        bShow &= (this.WindowState != WindowState.Minimized);
             if (bShow)
                 RearrangeUICallView(GetCallViewSize());
 
@@ -732,6 +758,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                 ctrlCall.ctrlOverlay.ShowOnHoldWindow(false);
                 ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(false);
                 ctrlCall.ctrlOverlay.ShowEncryptionIndicatorWindow(false);
+                ctrlCall.ctrlOverlay.ShowInfoMsgWindow(false);
             }
 		}
 
@@ -1194,7 +1221,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
             }
         }
 
-	    private void OnDeclineMessageReceived(object sender, Model.DeclineMessageArgs args)
+	    private void OnDeclineMessageReceived(object sender, DeclineMessageArgs args)
 	    {
 	        var restartTimer = false;
 
@@ -1206,11 +1233,24 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 	                    _mainViewModel.ActiveCallModel.Contact.Equals(args.Sender))
 	                {
 	                    _mainViewModel.ActiveCallModel.DeclinedMessage = args.DeclineMessage;
-	                    if (_mainViewModel.ActiveCallModel.CallState == VATRPCallState.Closed ||
-	                        _mainViewModel.ActiveCallModel.CallState == VATRPCallState.Declined)
+	                    _mainViewModel.ActiveCallModel.DeclinedMessageHeader = args.MessageHeader;
+	                    switch (_mainViewModel.ActiveCallModel.CallState)
 	                    {
-	                        _mainViewModel.ActiveCallModel.ShowDeclinedMessage = true;
-	                        restartTimer = true;
+	                        case VATRPCallState.Closed:
+	                        case VATRPCallState.Declined:
+                            _mainViewModel.ActiveCallModel.ShowInfoMessage = false;    
+                            _mainViewModel.ActiveCallModel.ShowDeclinedMessage = true;
+                            ctrlCall.ctrlOverlay.ShowInfoMsgWindow(false);
+	                            restartTimer = true;
+	                            break;
+                            case VATRPCallState.Connected:
+                            case VATRPCallState.StreamsRunning:
+                                _mainViewModel.ActiveCallModel.ShowInfoMessage = true;
+                                RearrangeUICallView(GetCallViewSize());
+                                ctrlCall.ctrlOverlay.UpdateInfoMsg(args.MessageHeader, args.DeclineMessage);
+                                ctrlCall.ctrlOverlay.ShowInfoMsgWindow(this.WindowState != WindowState.Minimized);
+	                            _mainViewModel.ActiveCallModel.DeferredHideMessageControl();
+	                            return;
 	                    }
 	                }
 	            }
@@ -1299,5 +1339,54 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 	            registrationTimer = null;
 	        }
 	    }
+
+        private void OnHideDeclineMessage(object sender, EventArgs e)
+        {
+            lock (deferredLock)
+            {
+                if (deferredHideTimer != null && deferredHideTimer.IsEnabled)
+                {
+                    deferredHideTimer.Stop();
+                }
+            }
+
+            lock (_mainViewModel.CallsViewModelList)
+            {
+                if (_mainViewModel.ActiveCallModel != null)
+                {
+                    var viewModel = _mainViewModel.ActiveCallModel;
+                    if (viewModel.CallState == VATRPCallState.Closed ||
+                        viewModel.CallState == VATRPCallState.Declined ||
+                        viewModel.CallState == VATRPCallState.Error)
+                    {
+                        viewModel.ShowInfoMessage = false;
+                        viewModel.DeclinedMessage = string.Empty;
+                        viewModel.ShowDeclinedMessage = false;
+
+                        if (_mainViewModel.CallsViewModelList.Count == 1)
+                        {
+                            _mainViewModel.ActiveCallModel = null;
+                            _mainViewModel.RemoveCalViewModel(viewModel);
+                        }
+
+                        if (ServiceManager.Instance.LinphoneService.GetActiveCallsCount == 0)
+                            ctrlCall.SetCallViewModel(null);
+                        _mainViewModel.IsCallPanelDocked = false;
+                    }
+                    else
+                    {
+                        if (viewModel.ShowInfoMessage)
+                        {
+                            _mainViewModel.ActiveCallModel.ShowInfoMessage = false;
+                            ctrlCall.ctrlOverlay.ShowInfoMsgWindow(false);
+                        }
+                    }
+                }
+                else
+                {
+                    _mainViewModel.IsCallPanelDocked = false;
+                }
+            }
+        }
 	}
 }
