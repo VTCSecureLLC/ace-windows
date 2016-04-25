@@ -262,6 +262,13 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         #endregion
 
-
+        private void OnVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            var isVisible = (bool) e.NewValue;
+            if (!isVisible && (_currentContent != null))
+            {
+                _currentContent.IsDirty = true;
+            }
+        }
     }
 }
