@@ -116,6 +116,7 @@ namespace com.vtcsecure.ace.windows
 					CallInfoCtrl = _callInfoView
 				};
 
+			    callViewModel.CallConnectingTimeout += OnCallConnectingTimeout;
                 callViewModel.HideMessageWindowTimeout += OnMessageHideTimeout;
 			    callViewModel.CallQualityChangedEvent += OnCallQualityChanged;
 
@@ -648,6 +649,16 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                 }
 		    }
 		}
+
+        private void OnCallConnectingTimeout(object sender, EventArgs e)
+        {
+            var callViewModel = sender as CallViewModel;
+
+            if (callViewModel != null && callViewModel.ActiveCall != null)
+            {
+                _mainViewModel.TerminateCall(callViewModel, "NotReachable");
+            }
+        }
 
         private void OnMessageHideTimeout(object sender, EventArgs e)
         {

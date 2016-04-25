@@ -387,7 +387,7 @@ namespace com.vtcsecure.ace.windows
 
                 if (r == MessageBoxResult.OK)
                 {
-                    _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr);
+                    _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr, "Call ended");
                 }
                 return;
             }
@@ -912,7 +912,7 @@ namespace com.vtcsecure.ace.windows
 
                 if (r == MessageBoxResult.OK)
                 {
-                    _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr);
+                    _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr, "Call ended");
                 }
             }
 
