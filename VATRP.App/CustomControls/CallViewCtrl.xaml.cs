@@ -67,6 +67,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
         public event SwitchCallbarButton CallInfoToggled;
         public event EventHandler<KeyPadEventArgs> KeypadClicked;
         public event EventHandler SwitchHoldCallsRequested;
+        public event EventHandler HideDeclineMessageRequested;
         private bool _mouseInControlArea = false;
 
         #endregion
@@ -98,6 +99,9 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
             ctrlOverlay.EncryptionIndicatorOverlayHeight = 19;
             ctrlOverlay.EncryptionIndicatorOverlayWidth = 24;
+
+            ctrlOverlay.InfoMsgOverlayHeight = 180;
+            ctrlOverlay.InfoMsgOverlayWidth = 670;
 
             _mouseInactivityTimer = new DispatcherTimer
             {
@@ -132,7 +136,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             if (_parentViewModel != null)
             {
-                _parentViewModel.TerminateCall(bRunning ? _viewModel : _backgroundCallViewModel);
+                _parentViewModel.TerminateCall(bRunning ? _viewModel : _backgroundCallViewModel, "Call terminated");
             }
         }
 
@@ -639,6 +643,10 @@ namespace com.vtcsecure.ace.windows.CustomControls
             }
         }
 
+        private void CtrlVieo_MouseDown(object sender, MouseEventArgs e)
+        {
+            
+        }
 
         private void OnMouseInactivityTimer(object sender, EventArgs e)
         {
@@ -716,6 +724,17 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 _viewModel.ShowDeclineMenu = !_viewModel.ShowDeclineMenu;
                 ArrowBtn.Focus();
             }
+        }
+
+        private void OnControlClicked(object sender, MouseButtonEventArgs e)
+        {
+            HideDeclineMessage(sender);
+        }
+
+        private void HideDeclineMessage(object sender)
+        {
+            if (HideDeclineMessageRequested != null) 
+                HideDeclineMessageRequested(sender, EventArgs.Empty);
         }
     }
 }

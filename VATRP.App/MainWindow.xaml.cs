@@ -233,6 +233,7 @@ namespace com.vtcsecure.ace.windows
             _mainViewModel.IsCallHistoryDocked = false;
             _mainViewModel.IsContactDocked = false;
             _mainViewModel.IsSettingsDocked = false;
+            ctrlResource.ActivateDeafHohResource();
             _mainViewModel.IsResourceDocked = true;
             _mainViewModel.IsMenuDocked = true;
         }
@@ -386,7 +387,7 @@ namespace com.vtcsecure.ace.windows
 
                 if (r == MessageBoxResult.OK)
                 {
-                    _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr);
+                    _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr, "Call ended");
                 }
                 return;
             }
@@ -602,6 +603,7 @@ namespace com.vtcsecure.ace.windows
             ctrlCall.FullScreenOnToggled += OnFullScreenToggled;
             ctrlCall.SwitchHoldCallsRequested += OnSwitchHoldCallsRequested;
             ctrlCall.VideoOnToggled += OnCameraSwitched;
+            ctrlCall.HideDeclineMessageRequested += OnHideDeclineMessage;
 
             _callOverlayView.CallManagerView = _callView;
             ctrlHistory.MakeCallRequested += OnMakeCallRequested;
@@ -818,10 +820,27 @@ namespace com.vtcsecure.ace.windows
 
                 ctrlCall.ctrlOverlay.ShowEncryptionIndicatorWindow(false);
                 ctrlCall.ctrlOverlay.Refresh();
-                if (_mainViewModel.ActiveCallModel != null &&
-                    _mainViewModel.ActiveCallModel.CallState != VATRPCallState.Closed)
+
+                if (_mainViewModel.ActiveCallModel == null) return;
+
+                if (_mainViewModel.ActiveCallModel.CallState != VATRPCallState.Closed &&
+                    _mainViewModel.ActiveCallModel.CallState != VATRPCallState.Declined &&
+                    _mainViewModel.ActiveCallModel.CallState != VATRPCallState.Error)
+                {
                     ctrlCall.ctrlOverlay.ShowEncryptionIndicatorWindow(this.WindowState != WindowState.Minimized);
 
+                    if (_mainViewModel.ActiveCallModel.ShowInfoMessage)
+                    {
+                        ctrlCall.ctrlOverlay.InfoMsgWindowLeftMargin = topleftInScreen.X +
+                                              (callViewDimensions.Width -
+                                               ctrlCall.ctrlOverlay.InfoMsgOverlayWidth) / 2 + offset;
+                        ctrlCall.ctrlOverlay.InfoMsgWindowTopMargin = ctrlCall.ctrlOverlay.CommandWindowTopMargin -
+                                                                     ctrlCall.ctrlOverlay.InfoMsgOverlayHeight - 30;
+
+                        ctrlCall.ctrlOverlay.ShowInfoMsgWindow(this.WindowState != WindowState.Minimized);
+                    }
+                    ctrlCall.ctrlOverlay.Refresh();
+                }
             }
             catch (Exception ex)
             {
@@ -893,7 +912,7 @@ namespace com.vtcsecure.ace.windows
 
                 if (r == MessageBoxResult.OK)
                 {
-                    _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr);
+                    _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr, "Call ended");
                 }
             }
 

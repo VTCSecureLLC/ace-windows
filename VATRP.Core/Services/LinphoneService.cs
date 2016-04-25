@@ -999,7 +999,7 @@ namespace VATRP.Core.Services
 
         }
 
-        public bool TerminateCall(IntPtr callPtr)
+        public bool TerminateCall(IntPtr callPtr, string message)
         {
             if (linphoneCore == IntPtr.Zero)
             {
@@ -1023,7 +1023,8 @@ namespace VATRP.Core.Services
                 //    LinphoneAPI.linphone_call_stop_recording(call.NativeCallPtr);
 
                 LOG.Info("Terminate Call " + callPtr);
-
+                call.LinphoneMessage = message;
+                call.SipErrorCode = 0;
                 call.CallState = VATRPCallState.Closed;
                 if (CallStateChangedEvent != null)
                     CallStateChangedEvent(call);
@@ -1189,7 +1190,14 @@ namespace VATRP.Core.Services
                 LOG.Error(string.Format( "Can't send dtmf {0}. Call {1}", dtmf, call.NativeCallPtr));
         }
 
-		#endregion
+        public void SetIncomingCallRingingTimeout(int timeout)
+        {
+            if (linphoneCore == IntPtr.Zero) return;
+            if (LinphoneAPI.linphone_core_get_inc_timeout(linphoneCore) != timeout)
+                LinphoneAPI.linphone_core_set_inc_timeout(linphoneCore, timeout);
+        }
+
+        #endregion
 
         #region Messaging
 
@@ -2293,6 +2301,7 @@ namespace VATRP.Core.Services
 					remoteParty = identity;
 					break;
 
+                case LinphoneCallState.LinphoneCallOutgoingEarlyMedia:
 				case LinphoneCallState.LinphoneCallConnected:
 					newstate = VATRPCallState.Connected;
 					break;
@@ -2314,8 +2323,7 @@ namespace VATRP.Core.Services
 				case LinphoneCallState.LinphoneCallOutgoingInit:
 				case LinphoneCallState.LinphoneCallOutgoingProgress:
 				case LinphoneCallState.LinphoneCallOutgoingRinging:
-				case LinphoneCallState.LinphoneCallOutgoingEarlyMedia:
-					newstate = cstate == LinphoneCallState.LinphoneCallOutgoingInit
+                    newstate = cstate != LinphoneCallState.LinphoneCallOutgoingRinging
 						? VATRPCallState.Trying
 						: VATRPCallState.Ringing;
 					direction = LinphoneCallDir.LinphoneCallOutgoing;
