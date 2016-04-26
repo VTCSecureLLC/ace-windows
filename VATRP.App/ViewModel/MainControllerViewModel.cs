@@ -431,19 +431,14 @@ namespace com.vtcsecure.ace.windows.ViewModel
             return false;
         }
 
-        internal void TerminateCall(CallViewModel viewModel, string message)
+        internal bool TerminateCall(CallViewModel viewModel, string message)
         {
             lock (CallsViewModelList)
             {
                 if (FindCallViewModel(viewModel))
                 {
-                    if (viewModel.CallState == VATRPCallState.Declined)
+                    if (viewModel.CallState != VATRPCallState.Declined)
                     {
-
-                    }
-                    else
-                    {
-
                         LOG.Info(String.Format("Terminating call for {0}. {1}", viewModel.CallerInfo,
                             viewModel.ActiveCall.NativeCallPtr));
                         try
@@ -454,9 +449,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
                         {
                             ServiceManager.LogError("TerminateCall", ex);
                         }
+                        return true;
                     }
                 }
             }
+            return false;
         }
 
         internal void AcceptCall(CallViewModel viewModel)

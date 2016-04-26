@@ -136,7 +136,8 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             if (_parentViewModel != null)
             {
-                _parentViewModel.TerminateCall(bRunning ? _viewModel : _backgroundCallViewModel, "Call terminated");
+                if (!_parentViewModel.TerminateCall(bRunning ? _viewModel : _backgroundCallViewModel, "Call terminated"))
+                    HideDeclineMessage(bRunning ? _viewModel : _backgroundCallViewModel);
             }
         }
 

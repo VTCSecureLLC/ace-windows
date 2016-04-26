@@ -158,13 +158,12 @@
             <Button Grid.Column="0"  Width="240" Click="OnEndCall"  
 					BorderThickness="0" HorizontalAlignment="Center" 
 					VerticalContentAlignment="Center"
-                    Visibility="{Binding ErrorMessage.Length, Converter={StaticResource ivc}}"
 					>
                 <Button.Resources>
                     <Grid x:Key="CallButtonNormal" 
 							Background="{StaticResource CallBarEndCallBg}"  
 								>
-                        <TextBlock Text="Hang Up" FontSize="40" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="Cancel" FontSize="40" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Grid>
                 </Button.Resources>
 
