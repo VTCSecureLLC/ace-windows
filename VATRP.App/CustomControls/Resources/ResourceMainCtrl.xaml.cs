@@ -64,10 +64,5 @@ namespace com.vtcsecure.ace.windows.CustomControls.Resources
             OnContentChanging(ResourcesType.DeafHoHResourcesContent);
         }
 
-        private void OnSyncCardDAV(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Sync Contacts Clicked");
-            ServiceManager.Instance.LinphoneService.CardDAVSync();
-        }
     }
 }
