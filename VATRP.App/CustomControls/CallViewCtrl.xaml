@@ -158,7 +158,6 @@
             <Button Grid.Column="0"  Width="240" Click="OnEndCall"  
 					BorderThickness="0" HorizontalAlignment="Center" 
 					VerticalContentAlignment="Center"
-                    Visibility="{Binding ErrorMessage.Length, Converter={StaticResource ivc}}"
 					>
                 <Button.Resources>
                     <Grid x:Key="CallButtonNormal" 
