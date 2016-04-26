@@ -224,12 +224,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                     
                     if (_flashWindowHelper != null)
                         _flashWindowHelper.FlashWindow(this);
-			        if (WindowState == WindowState.Minimized)
-                        this.WindowState = WindowState.Normal;
-                    
-                    Topmost = true;
-                    Activate();
-                    Topmost = false;
+			        BringToFront();
 			        break;
 				case VATRPCallState.Ringing:
                     this.ShowSelfPreviewItem.IsEnabled = false;
@@ -650,7 +645,17 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 		    }
 		}
 
-        private void OnCallConnectingTimeout(object sender, EventArgs e)
+	    private void BringToFront()
+	    {
+	        if (WindowState == WindowState.Minimized)
+	            this.WindowState = WindowState.Normal;
+
+	        Topmost = true;
+	        Activate();
+	        Topmost = false;
+	    }
+
+	    private void OnCallConnectingTimeout(object sender, EventArgs e)
         {
             var callViewModel = sender as CallViewModel;
 
@@ -1104,6 +1109,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 		            return;
 		    }
 
+		    BringToFront();
 		    _mainViewModel.DialpadModel.RemotePartyNumber = "";
 			MediaActionHandler.MakeVideoCall(called_address);
 		}
