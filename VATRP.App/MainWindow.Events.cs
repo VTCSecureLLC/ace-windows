@@ -995,6 +995,9 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 				App.CurrentAccount.ProxyHostname,
 				App.CurrentAccount.ProxyPort));
 
+            if (App.CurrentAccount.UseOutboundProxy && string.IsNullOrEmpty(App.CurrentAccount.OutboundProxyAddress))
+                App.CurrentAccount.OutboundProxyAddress = App.CurrentAccount.ProxyHostname;
+
             _mainViewModel.IsAccountLogged = true;
             // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
             if ((App.CurrentAccount != null) && (!App.CurrentAccount.UserNeedsAgentView))
