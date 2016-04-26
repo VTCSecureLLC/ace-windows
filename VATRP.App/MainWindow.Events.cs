@@ -1051,6 +1051,13 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			            this.ShowMessagingViewItem.IsChecked = bShow;
 			            _mainViewModel.IsChatViewEnabled = bShow;
 			        }
+			        if (_mainViewModel.SipSimpleMessagingModel != null)
+			        {
+                        _mainViewModel.SipSimpleMessagingModel.ShowUnreadMessageInfo(true);
+                        if (bShow && _mainViewModel.SipSimpleMessagingModel.Contact != null)
+                            _mainViewModel.SipSimpleMessagingModel.SetActiveChatContact(_mainViewModel.SipSimpleMessagingModel.Contact.Contact, IntPtr.Zero);
+                        _mainViewModel.SipSimpleMessagingModel.ShowUnreadMessageInfo(!bShow);
+			        }
 			        break;
 				case VATRPWindowType.RECENTS_VIEW:
 					BtnRecents.IsChecked = bShow;
