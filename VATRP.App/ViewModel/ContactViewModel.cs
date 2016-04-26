@@ -16,6 +16,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool _isSelected;
         private SolidColorBrush backColor;
         private ImageSource _avatar;
+        private DateTime _lastUnreadMessageTime;
 
         public SolidColorBrush ContactStateBrush
         {
@@ -145,6 +146,20 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 if (vatrpContact != null)
                     return (int)vatrpContact.UnreadMsgCount;
                 return 0;
+            }
+        }
+
+        public DateTime LastUnreadMessageTime
+        {
+            get
+            {
+                return _lastUnreadMessageTime; 
+                
+            }
+            set
+            {
+                _lastUnreadMessageTime = value;
+                OnPropertyChanged("LastUnreadMessageTime");
             }
         }
 
