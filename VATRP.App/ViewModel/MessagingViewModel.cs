@@ -191,6 +191,17 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 if (ConversationUpdated != null)
                     ConversationUpdated(this, EventArgs.Empty);
             }
+            else
+            {
+                foreach (var contactVM in this.Contacts)
+                {
+                    if (contactVM.Contact == e.Conversation.Contact)
+                    {
+                        contactVM.LastUnreadMessageTime = e.Conversation.LastUnreadMessageTime;
+                    }
+                }
+            }
+            RefreshContactsList();
         }
 
         private void OnContactsChanged(object sender, EventArgs e)
@@ -236,6 +247,10 @@ namespace com.vtcsecure.ace.windows.ViewModel
         protected virtual void ChangeUnreadCounter()
         {
             
+        }
+        protected virtual void RefreshContactsList()
+        {
+
         }
 
         #endregion
