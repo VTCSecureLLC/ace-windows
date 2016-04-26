@@ -26,7 +26,14 @@ namespace com.vtcsecure.ace.windows.Views
     /// </summary>
     public partial class MediaTextWindow
     {
+        #region Members
+
         private SimpleMessagingViewModel _viewModel;
+
+        public delegate void MakeCallRequestedDelegate(string called_address);
+        public event MakeCallRequestedDelegate MakeCallRequested;
+        #endregion
+
         public MediaTextWindow(SimpleMessagingViewModel vm)
             : base(VATRPWindowType.MESSAGE_VIEW)
         {
@@ -100,11 +107,9 @@ namespace com.vtcsecure.ace.windows.Views
 
         private void OnCallClick(object sender, RoutedEventArgs e)
         {
-            if (_viewModel != null && _viewModel.Chat != null)
-            {
-                if (_viewModel.Chat.Contact != null)
-                    MediaActionHandler.MakeVideoCall(_viewModel.Chat.Contact.RegistrationName);
-            }
+            if (_viewModel != null && _viewModel.Chat != null && _viewModel.Chat.Contact != null)
+                if (MakeCallRequested != null)
+                    MakeCallRequested(_viewModel.Chat.Contact.RegistrationName);
         }
     }
 }
