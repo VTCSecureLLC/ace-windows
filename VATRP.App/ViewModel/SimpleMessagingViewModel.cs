@@ -221,6 +221,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         internal void ShowUnreadMessageInfo(bool updUnreadCounter)
         {
+            _chatsManager.UpdateUnreadCounter = updUnreadCounter;
             if (Chat == null)
                 return;
             Chat.UpdateUnreadCounter = updUnreadCounter;
