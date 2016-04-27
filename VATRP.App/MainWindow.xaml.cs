@@ -831,16 +831,17 @@ namespace com.vtcsecure.ace.windows
                 {
                     ctrlCall.ctrlOverlay.ShowEncryptionIndicatorWindow(this.WindowState != WindowState.Minimized);
 
-                    if (_mainViewModel.ActiveCallModel.ShowInfoMessage)
-                    {
-                        ctrlCall.ctrlOverlay.InfoMsgWindowLeftMargin = topleftInScreen.X +
-                                              (callViewDimensions.Width -
-                                               ctrlCall.ctrlOverlay.InfoMsgOverlayWidth) / 2 + offset;
-                        ctrlCall.ctrlOverlay.InfoMsgWindowTopMargin = ctrlCall.ctrlOverlay.CommandWindowTopMargin -
-                                                                     ctrlCall.ctrlOverlay.InfoMsgOverlayHeight - 30;
+                    // ToDo VATRP - 3878
+                    //if (_mainViewModel.ActiveCallModel.ShowInfoMessage)
+                    //{
+                    //    ctrlCall.ctrlOverlay.InfoMsgWindowLeftMargin = topleftInScreen.X +
+                    //                          (callViewDimensions.Width -
+                    //                           ctrlCall.ctrlOverlay.InfoMsgOverlayWidth) / 2 + offset;
+                    //    ctrlCall.ctrlOverlay.InfoMsgWindowTopMargin = ctrlCall.ctrlOverlay.CommandWindowTopMargin -
+                    //                                                 ctrlCall.ctrlOverlay.InfoMsgOverlayHeight - 30;
 
-                        ctrlCall.ctrlOverlay.ShowInfoMsgWindow(this.WindowState != WindowState.Minimized);
-                    }
+                    //    ctrlCall.ctrlOverlay.ShowInfoMsgWindow(this.WindowState != WindowState.Minimized);
+                    //}
                     ctrlCall.ctrlOverlay.Refresh();
                 }
             }
