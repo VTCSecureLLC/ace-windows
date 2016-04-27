@@ -240,6 +240,11 @@ namespace com.vtcsecure.ace.windows.CustomControls
                     {
                         config.user_is_agent = false;
                     }
+
+                    App.CurrentAccount.AuthID = AuthIDBox.Text;
+                    App.CurrentAccount.RegistrationPassword = PasswdBox.Password;
+                    App.CurrentAccount.RegistrationUser = LoginBox.Text;
+
                     config.UpdateVATRPAccountFromACEConfig(App.CurrentAccount);
                     bool autoLogin = this.AutoLoginBox.IsChecked ?? false;
                     ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL,
