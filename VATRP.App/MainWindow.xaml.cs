@@ -584,6 +584,8 @@ namespace com.vtcsecure.ace.windows
             _historyView.MakeCallRequested += OnMakeCallRequested;
             _contactBox.IsVisibleChanged += OnChildVisibilityChanged;
             _dialpadBox.IsVisibleChanged += OnChildVisibilityChanged;
+            _messagingWindow.MakeCallRequested += OnMakeCallRequested;
+
             //_settingsView.IsVisibleChanged += OnChildVisibilityChanged;
             _messagingWindow.IsVisibleChanged += OnChildVisibilityChanged;
             _selfView.IsVisibleChanged += OnChildVisibilityChanged;
@@ -996,6 +998,7 @@ namespace com.vtcsecure.ace.windows
             var feedbackView = new FeedbackView();
             feedbackView.Show();
         }
+
         private async void OnCheckForUpdates(object sender, RoutedEventArgs e)
         {
             // Liz E. - not entirely certain this check works - putting it into the build to test it, but I believe it should already be being called
@@ -1019,6 +1022,12 @@ namespace com.vtcsecure.ace.windows
             {
                 LOG.Error("OnCheckUpdates", ex);
             }
+        }
+
+        private void OnSyncContacts(object sender, RoutedEventArgs e)
+        {
+            // T.M  VATRP - 3664 Moved from resources page
+            ServiceManager.Instance.LinphoneService.CardDAVSync();
         }
 
         // View Menu

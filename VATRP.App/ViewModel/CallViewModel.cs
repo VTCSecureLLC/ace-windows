@@ -10,7 +10,6 @@ using VATRP.Core.Model;
 using System.Windows.Threading;
 using com.vtcsecure.ace.windows.CustomControls;
 using com.vtcsecure.ace.windows.Views;
-using log4net;
 using System.IO;
 using System.Windows.Media.Imaging;
 
@@ -18,7 +17,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
 {
     public class CallViewModel : ViewModelBase, IEquatable<CallViewModel>, IEquatable<VATRPCall>
     {
-        private static readonly ILog LOG = LogManager.GetLogger(typeof(CallViewModel));
         private bool _visualizeRing;
         private bool _visualizeIncoming;
         private int _ringCount;

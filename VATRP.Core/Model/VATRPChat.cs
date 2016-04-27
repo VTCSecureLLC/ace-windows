@@ -365,14 +365,15 @@ namespace VATRP.Core.Model
             {
                 int offset = !updateRttMessage ? 1 : 2;
                 this.LastMessage = this._messages[this._messages.Count - offset].Content;
-                
-                if (this.LastMessageTime.Date != this._messages[this._messages.Count - offset].MessageTime.Date)
+                LastMessageTime = this._messages[this._messages.Count - offset].MessageTime;
+
+                if (this.LastMessageDate.Date != this._messages[this._messages.Count - offset].MessageTime.Date)
                 {
-                    this.LastMessageTime = this._messages[this._messages.Count - offset].MessageTime.Date;
+                    this.LastMessageDate = this._messages[this._messages.Count - offset].MessageTime.Date;
                     // Add date separator here
                     var chatMsg = new VATRPChatMessage(MessageContentType.Info)
                     {
-                        MessageTime = new DateTime(this.LastMessageTime.Year, this.LastMessageTime.Month, this.LastMessageTime.Day),
+                        MessageTime = new DateTime(this.LastMessageDate.Year, this.LastMessageDate.Month, this.LastMessageDate.Day),
                         IsSeparator = true,
                         IsRTTMarker = updateRttMessage,
                         IsIncompleteMessage = false
@@ -381,7 +382,7 @@ namespace VATRP.Core.Model
                 }
                 else
                 {
-                    this.LastMessageTime = this._messages[this._messages.Count - offset].MessageTime.Date;
+                    this.LastMessageDate = this._messages[this._messages.Count - offset].MessageTime.Date;
                 }
             }
         }
@@ -494,7 +495,18 @@ namespace VATRP.Core.Model
             }
         }
 
+        public DateTime LastMessageDate { get; private set; }
         public DateTime LastMessageTime { get; private set; }
+
+        public DateTime LastUnreadMessageTime
+        {
+            get
+            {
+                if (HasUnreadMsg)
+                    return LastMessageTime;
+                return DateTime.MinValue;
+            }
+        }
 
         public ObservableCollection<VATRPChatMessage> Messages
         {
@@ -575,11 +587,12 @@ namespace VATRP.Core.Model
             }
             set
             {
-                if (!IsSelected)
+                if (!IsSelected || UpdateUnreadCounter)
                 {
                     this._unreadMsgCount = value;
                     base.OnPropertyChanged("UnreadMsgCount");
                     base.OnPropertyChanged("HasUnreadMsg");
+                    base.OnPropertyChanged("LastUnreadMessageTime");
                 }
             }
         }
@@ -603,7 +616,9 @@ namespace VATRP.Core.Model
 
         public int CharsCountInBubble { get; set; }
 
-        public bool IsSelected { get; set; } 
+        public bool IsSelected { get; set; }
+
+        public bool UpdateUnreadCounter { get; set; }
     }
 }
 

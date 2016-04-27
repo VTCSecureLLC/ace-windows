@@ -53,8 +53,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 return;
             }
 
-            var newArgs = new DeclineMessageArgs(args.MessageHeader, args.DeclineMessage);
-            newArgs.Sender = args.Sender;
+            var newArgs = new DeclineMessageArgs(args.MessageHeader, args.DeclineMessage) {Sender = args.Sender};
             if (DeclineMessageReceived != null) 
                 DeclineMessageReceived(sender, newArgs);
         }
@@ -77,6 +76,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _receiverAddress = string.Empty;
             LoadContacts();
             this.ContactsListView = CollectionViewSource.GetDefaultView(this.Contacts);
+            this.ContactsListView.SortDescriptions.Add(new SortDescription("LastUnreadMessageTime", ListSortDirection.Descending));
+            this.ContactsListView.SortDescriptions.Add(new SortDescription("ContactUI", ListSortDirection.Ascending));
             this.ContactsListView.Filter = new Predicate<object>(this.FilterContactsList);
         }
 
@@ -87,6 +88,13 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             if (UnreadMessagesCountChanged != null)
                 UnreadMessagesCountChanged(this, EventArgs.Empty);
+        }
+
+        protected override void RefreshContactsList()
+        {
+            if (ContactsListView != null)
+                ContactsListView.Refresh();
+            OnPropertyChanged("ContactsListView");
         }
 
         internal void SendMessage(string message)
@@ -164,7 +172,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
-       
         #endregion
 
         internal bool CheckReceiverContact()
@@ -210,6 +217,13 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 ReceiverAddress = contact.RegistrationName;
 
             return true;
+        }
+
+        internal void ShowUnreadMessageInfo(bool updUnreadCounter)
+        {
+            if (Chat == null)
+                return;
+            Chat.UpdateUnreadCounter = updUnreadCounter;
         }
     }
 }
