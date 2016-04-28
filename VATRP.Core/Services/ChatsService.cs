@@ -57,6 +57,9 @@ namespace VATRP.Core.Services
         public event EventHandler<DeclineMessageArgs> ConversationDeclineMessageReceived;
 
         public bool IsRTTenabled { get; set; }
+
+        public bool UpdateUnreadCounter { get; set; }
+        
         public ChatsService(ServiceManagerBase mngBase)
         {
             this._serviceManager = mngBase;
@@ -72,6 +75,7 @@ namespace VATRP.Core.Services
             this._linphoneSvc.OnChatMessageReceivedEvent += OnChatMessageReceived;
             this._linphoneSvc.OnChatMessageStatusChangedEvent += OnChatStatusChanged;
             IsRTTenabled = true;
+            UpdateUnreadCounter = true;
         }
 
         private void OnContactsLoadCompleted(object sender, EventArgs e)
@@ -149,7 +153,7 @@ namespace VATRP.Core.Services
             }
         }
 
-        private void OnChatMessageComposing(string remoteUser, IntPtr chatPtr, uint rttCode)
+        private void OnChatMessageComposing(string remoteUser, IntPtr callPtr, uint rttCode)
         {
             string dn, un, host;
             int port;
@@ -272,17 +276,26 @@ namespace VATRP.Core.Services
 
                         if (this.RttReceived != null)
                         {
-                            this.RttReceived(this, EventArgs.Empty);
+                            this.RttReceived(callPtr, EventArgs.Empty);
+                        }
+
+                        if (!message.IsIncompleteMessage)
+                        {
+                            chat.UpdateUnreadCounter = this.UpdateUnreadCounter;
+                            chat.UnreadMsgCount++;
+                            if (!chat.IsSelected)
+                                contact.UnreadMsgCount++;
+                            OnConversationUnReadStateChanged(chat);
                         }
                     }
                 });
         }
 
-        private void OnChatMessageReceived(IntPtr chatPtr, IntPtr callChatPtr, string remoteUser, VATRPChatMessage chatMessage)
+        private void OnChatMessageReceived(IntPtr chatPtr, List<IntPtr> callChatPtrList, string remoteUser, VATRPChatMessage chatMessage)
         {
             string dn, un, host;
             int port;
-            if (callChatPtr == chatPtr /*&& RttEnabled*/)
+            if (callChatPtrList.Contains(chatPtr) /*&& RttEnabled*/)
             {
                 return;
             }

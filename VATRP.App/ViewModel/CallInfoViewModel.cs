@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Threading;
 using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Model;
+using VATRP.Core.Services;
 using VATRP.Linphone.VideoWrapper;
 using VATRP.LinphoneWrapper;
 using VATRP.LinphoneWrapper.Enums;
@@ -322,7 +323,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             if (call == null || call.CallState != VATRPCallState.StreamsRunning)
             {
-                ResetCallInfoView();
+                if (ServiceManager.Instance.LinphoneService.GetActiveCallsCount == 1)
+                    ResetCallInfoView();
                 return;
             }
 
