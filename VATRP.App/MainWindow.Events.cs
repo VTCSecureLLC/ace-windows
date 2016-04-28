@@ -459,12 +459,15 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                         ctrlCall.ctrlOverlay.StopCallTimer();
                         ShowCallOverlayWindow(false);
                         _mainViewModel.IsMessagingDocked = false;
-			            if (_mainViewModel.ActiveCallModel.DeclinedMessage.NotBlank())
-			                _mainViewModel.ActiveCallModel.ShowDeclinedMessage = true;
-			            else
-			            {
-                            _mainViewModel.ActiveCallModel.WaitForDeclineMessage = true;
-			            }
+
+                        // ToDo VATRP-3878 
+
+                        //if (_mainViewModel.ActiveCallModel.DeclinedMessage.NotBlank())
+                        //    _mainViewModel.ActiveCallModel.ShowDeclinedMessage = true;
+                        //else
+                        //{
+                        //    _mainViewModel.ActiveCallModel.WaitForDeclineMessage = true;
+                        //}
 			            if (deferredHideTimer != null)
 			            {
 			                lock (deferredLock)
@@ -1262,18 +1265,20 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 	                    {
 	                        case VATRPCallState.Closed:
 	                        case VATRPCallState.Declined:
-                            _mainViewModel.ActiveCallModel.ShowInfoMessage = false;    
-                            _mainViewModel.ActiveCallModel.ShowDeclinedMessage = true;
+                                // ToDo VATRP-3878
+                            //_mainViewModel.ActiveCallModel.ShowInfoMessage = false;    
+                            //_mainViewModel.ActiveCallModel.ShowDeclinedMessage = true;
                             ctrlCall.ctrlOverlay.ShowInfoMsgWindow(false);
 	                            restartTimer = true;
 	                            break;
                             case VATRPCallState.Connected:
                             case VATRPCallState.StreamsRunning:
-                                _mainViewModel.ActiveCallModel.ShowInfoMessage = true;
-                                RearrangeUICallView(GetCallViewSize());
-                                ctrlCall.ctrlOverlay.UpdateInfoMsg(args.MessageHeader, args.DeclineMessage);
-                                ctrlCall.ctrlOverlay.ShowInfoMsgWindow(this.WindowState != WindowState.Minimized);
-	                            _mainViewModel.ActiveCallModel.DeferredHideMessageControl();
+                                // ToDo VATRP-3878
+                                //_mainViewModel.ActiveCallModel.ShowInfoMessage = true;
+                                // RearrangeUICallView(GetCallViewSize());
+                                //ctrlCall.ctrlOverlay.UpdateInfoMsg(args.MessageHeader, args.DeclineMessage);
+                                //ctrlCall.ctrlOverlay.ShowInfoMsgWindow(this.WindowState != WindowState.Minimized);
+                                //_mainViewModel.ActiveCallModel.DeferredHideMessageControl();
 	                            return;
 	                    }
 	                }
