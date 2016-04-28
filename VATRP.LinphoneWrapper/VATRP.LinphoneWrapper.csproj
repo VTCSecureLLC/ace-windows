@@ -99,6 +99,9 @@
     <Compile Include="LinphoneAPI.QoS.cs">
       <DependentUpon>LinphoneAPI.cs</DependentUpon>
     </Compile>
+    <Compile Include="LinphoneAPI.Devices.cs">
+      <DependentUpon>LinphoneAPI.cs</DependentUpon>
+    </Compile>
     <Compile Include="LinphoneAPI.VCard.cs">
       <DependentUpon>LinphoneAPI.cs</DependentUpon>
     </Compile>
