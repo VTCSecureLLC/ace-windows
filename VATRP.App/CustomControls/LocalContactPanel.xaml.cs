@@ -57,10 +57,12 @@ namespace com.vtcsecure.ace.windows.CustomControls
             if (CallResourceRequested != null)
             {
                 // sanity check here.
-                if ((App.CurrentAccount != null) && !string.IsNullOrEmpty(App.CurrentAccount.VideoMailUri))
+                if (App.CurrentAccount != null) 
                 {
                     ResourceInfo resourceInfo = new ResourceInfo();
-                    resourceInfo.address = App.CurrentAccount.VideoMailUri;
+                    resourceInfo.address = !string.IsNullOrEmpty(App.CurrentAccount.VideoMailUri)
+                        ? App.CurrentAccount.VideoMailUri
+                        : App.CurrentAccount.Username;
                     resourceInfo.name = "Video Mail";
                     CallResourceRequested(resourceInfo);
                 }
