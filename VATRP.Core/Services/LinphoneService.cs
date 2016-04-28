@@ -175,7 +175,7 @@ namespace VATRP.Core.Services
         public delegate void IsComposingReceivedDelegate(string remoteUser, IntPtr chatPtr, uint rttCode);
         public event IsComposingReceivedDelegate IsComposingReceivedEvent;
 
-        public delegate void OnMessageReceivedDelegate(IntPtr chatPtr, IntPtr callChatPtr, string remote_party, VATRPChatMessage chatMessage);
+        public delegate void OnMessageReceivedDelegate(IntPtr chatPtr, List<IntPtr> callChatPtrList, string remote_party, VATRPChatMessage chatMessage);
         public event OnMessageReceivedDelegate OnChatMessageReceivedEvent;
 
         public delegate void OnMessageStatusChangedDelegate(IntPtr chatMsgPtr, LinphoneChatMessageState state);
@@ -1328,7 +1328,7 @@ namespace VATRP.Core.Services
                 chat.NativePtr = chatPtr;
 
                 msgPtr = LinphoneAPI.linphone_chat_room_create_message(chat.NativePtr, message);
-                LinphoneAPI.linphone_call_ref(msgPtr);
+                LinphoneAPI.linphone_chat_message_ref(msgPtr);
             }
             if (msgPtr != IntPtr.Zero)
             {
@@ -2549,6 +2549,20 @@ namespace VATRP.Core.Services
         {
             if (linphoneCore == IntPtr.Zero) return;
 
+            IntPtr callPtr = IntPtr.Zero;
+
+            lock (callLock)
+            {
+                foreach (var call in callsList)
+                {
+                    if (LinphoneAPI.linphone_call_get_chat_room(call.NativeCallPtr) == chatPtr)
+                    {
+                        callPtr = call.NativeCallPtr;
+                        break;
+                    }
+                }
+            }
+
             var remoteUser = string.Empty;
             IntPtr remoteAddress = LinphoneAPI.linphone_chat_room_get_peer_address(chatPtr);
             if (remoteAddress != IntPtr.Zero)
@@ -2561,28 +2575,32 @@ namespace VATRP.Core.Services
                 }
             }
 
+            uint rttCode = 0;
             lock (messagingLock)
             {
-                uint rttCode = LinphoneAPI.linphone_chat_room_get_char(chatPtr);
-                if (rttCode == 0)
-                    return;
+                rttCode = LinphoneAPI.linphone_chat_room_get_char(chatPtr);
 
-                if (IsComposingReceivedEvent != null)
-                    IsComposingReceivedEvent(remoteUser, chatPtr, rttCode);
             }
+
+            if (rttCode == 0)
+                return;
+            if (IsComposingReceivedEvent != null)
+                IsComposingReceivedEvent(remoteUser, callPtr, rttCode);
+            
         }
 
         private void OnMessageReceived(IntPtr lc, IntPtr roomPtr, IntPtr message)
         {
             if (linphoneCore == IntPtr.Zero) return;
 
-            IntPtr callChatRoomPtr = IntPtr.Zero;
+            var callChatRoomPtrList = new List<IntPtr>();
 
             if (LinphoneAPI.linphone_core_in_call(linphoneCore) != 0)
             {
-                IntPtr activeCallPtr = LinphoneAPI.linphone_core_get_current_call(linphoneCore);
-                if (activeCallPtr != IntPtr.Zero)
-                    callChatRoomPtr = LinphoneAPI.linphone_call_get_chat_room(activeCallPtr);
+                lock (callLock)
+                {
+                    callChatRoomPtrList.AddRange(callsList.Select(call => LinphoneAPI.linphone_call_get_chat_room(call.NativeCallPtr)));
+                }
             }
 
             lock (messagingLock)
@@ -2628,7 +2646,7 @@ namespace VATRP.Core.Services
                 };
 
                 if (OnChatMessageReceivedEvent != null)
-                    OnChatMessageReceivedEvent(roomPtr, callChatRoomPtr, from, chatMessage);
+                    OnChatMessageReceivedEvent(roomPtr, callChatRoomPtrList, from, chatMessage);
             }
         }
 

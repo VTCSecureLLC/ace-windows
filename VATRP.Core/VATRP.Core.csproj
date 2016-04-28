@@ -86,6 +86,8 @@
     <Compile Include="Enums\UserStatus.cs" />
     <Compile Include="Events\CardDavContactEventArgs.cs" />
     <Compile Include="Events\CardDavSyncEventArgs.cs" />
+    <Compile Include="Events\TextMessageEventArgs.cs" />
+    <Compile Include="Events\MessageComposingEventArgs.cs" />
     <Compile Include="Events\DeclineMessageArgs.cs" />
     <Compile Include="Events\InfoEventArgs.cs" />
     <Compile Include="Events\HttpDownloadEventArgs.cs" />
@@ -102,6 +104,7 @@
     <Compile Include="Events\EventHandlerTrigger.cs" />
     <Compile Include="Events\HistoryEventTypes.cs" />
     <Compile Include="Events\TypingInChatEventArgs.cs" />
+    <Compile Include="Events\ChatMessageEventArgs.cs" />
     <Compile Include="Events\VATRPCallEventArgs.cs" />
     <Compile Include="Events\VATRPEventArgs.cs" />
     <Compile Include="Events\StringEventArgs.cs" />
