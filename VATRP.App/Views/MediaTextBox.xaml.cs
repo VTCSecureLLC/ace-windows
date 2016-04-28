@@ -86,7 +86,7 @@ namespace com.vtcsecure.ace.windows.Views
                 if (contactModel != null && contactModel.Contact != _viewModel.Contact.Contact)
                     ContactsList.SelectedItem = _viewModel.Contact;
 
-                _viewModel.SendMessage(_viewModel.MessageText);
+                _viewModel.SendSimpleMessage(_viewModel.MessageText);
             }
             else
             {
