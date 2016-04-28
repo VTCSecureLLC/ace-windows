@@ -33,7 +33,7 @@ namespace VATRP.Core.Services
         private Thread _msgProcessorThread;
         private bool _isRunning;
         private Queue<TextMessageEventArgs> _receiveMsgQueue = new Queue<TextMessageEventArgs>();
-        private ManualResetEvent regulator = new ManualResetEvent(false);
+        private AutoResetEvent regulator = new AutoResetEvent(false);
 
         private ObservableCollection<VATRPChat> _chatItems;
 
@@ -159,13 +159,11 @@ namespace VATRP.Core.Services
 
         private void ProcessReceivedMessages()
         {
-            int wait_time = 5;
+            var wait_time = Int32.MaxValue;
 
             while (_isRunning)
             {
                 regulator.WaitOne(wait_time);
-
-                wait_time = 1;
 
                 TextMessageEventArgs recvMsg;
                 lock (_receiveMsgQueue)
@@ -187,6 +185,10 @@ namespace VATRP.Core.Services
                         OnChatMessageReceived(recvMsg as ChatMessageEventArgs);
                     else if (recvMsg is MessageComposingEventArgs)
                         OnChatMessageComposing(recvMsg as MessageComposingEventArgs);
+                }
+                lock (_receiveMsgQueue)
+                {
+                    wait_time = _receiveMsgQueue.Count == 0 ? Int32.MaxValue : 1;
                 }
             }
         }

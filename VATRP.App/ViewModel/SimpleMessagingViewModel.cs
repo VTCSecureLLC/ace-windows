@@ -105,16 +105,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
         protected override void ProcessInputCharacters(object obj)
         {
             var sendBuffer = new StringBuilder();
-            int wait_time = 5;
-            bool readyToDeque = true;
+            var wait_time = Int32.MaxValue;
+
             while (_isRunning)
             {
                 regulator.WaitOne(wait_time);
-
-                wait_time = 1;
-
-                if (!readyToDeque)
-                    continue;
 
                 lock (_inputTypingQueue)
                 {
@@ -125,7 +120,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     else
                     {
                         wait_time = Int32.MaxValue;
-                        readyToDeque = true;
                         continue;
                     }
                 }
@@ -133,7 +127,10 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 SendMessage(sendBuffer.ToString());
 
                 sendBuffer.Remove(0, sendBuffer.Length);
-                readyToDeque = true;
+                lock (_inputTypingQueue)
+                {
+                    wait_time = _inputTypingQueue.Count == 0 ? Int32.MaxValue : 1;
+                }
             }
         }
 

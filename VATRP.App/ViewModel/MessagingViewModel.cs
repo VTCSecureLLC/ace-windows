@@ -41,7 +41,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         protected Thread _inputProcessorThread;
         protected bool _isRunning;
         protected Queue<string> _inputTypingQueue = new Queue<string>();
-        protected ManualResetEvent regulator = new ManualResetEvent(false);
+        protected AutoResetEvent regulator = new AutoResetEvent(false);
 
         #endregion
 
