@@ -38,6 +38,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         protected ICollectionView messagesListView;
 
+        protected Thread _inputProcessorThread;
+        protected bool _isRunning;
+        protected Queue<string> _inputTypingQueue = new Queue<string>();
+        protected ManualResetEvent regulator = new ManualResetEvent(false);
+
         #endregion
 
         #region Events
@@ -253,9 +258,29 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         }
 
+        protected virtual void ProcessInputCharacters(object obj)
+        {
+            
+        }
+
         #endregion
 
         #region Methods
+
+        internal void EnqueueInput(string inputString)
+        {
+            lock (_inputTypingQueue)
+            {
+                _inputTypingQueue.Enqueue(inputString);
+            }
+            regulator.Set();
+        }
+
+        internal void StopInputProcessor()
+        {
+            _isRunning = false;
+            regulator.Set();
+        }
 
         public void LoadContacts()
         {

@@ -178,6 +178,13 @@ namespace com.vtcsecure.ace.windows
                     _mainViewModel.MoreMenuModel.VideoMailCount = App.CurrentAccount.VideoMailCount;
 
                 ServiceManager.Instance.AccountService.Save();
+
+                ResourceInfo resourceInfo = new ResourceInfo();
+                resourceInfo.address = !string.IsNullOrEmpty(App.CurrentAccount.VideoMailUri)
+                    ? App.CurrentAccount.VideoMailUri
+                    : App.CurrentAccount.Username;
+                resourceInfo.name = "Video Mail";
+                OnCallResourceRequested(resourceInfo);
             }
         }
 
@@ -451,6 +458,7 @@ namespace com.vtcsecure.ace.windows
             registerRequested = false;
             base.Window_Closing(sender, e);
             _mainViewModel.RttMessagingModel.StopInputProcessor();
+            _mainViewModel.SipSimpleMessagingModel.StopInputProcessor();
             ServiceManager.Instance.LinphoneCoreStoppedEvent -= OnLinphoneCoreStopped;
             ServiceManager.Instance.Stop();
         }

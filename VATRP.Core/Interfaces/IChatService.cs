@@ -7,17 +7,25 @@ namespace VATRP.Core.Interfaces
 {
     public interface IChatService : IVATRPservice
     {
+        #region Properties
+
         VATRPChat GetChat(VATRPContact contact);
         VATRPContact FindContact(ContactID contactID);
         ObservableCollection<VATRPContact> Contacts { get; }
+        bool UpdateUnreadCounter { get; set; }
 
+        #endregion
+
+        #region Methods
         bool ComposeAndSendMessage(IntPtr callPtr, VATRPChat chat, char key, bool inCompleteMessage);
 		bool ComposeAndSendMessage(VATRPChat chat, string text);
         void MarkChatAsRead(ChatID chat);
         void UpdateRTTFontFamily(string newFont);
         bool HasUnreadMessages();
         void ActivateChat(VATRPChat chat);
+        #endregion
 
+        #region Events
         event EventHandler<ConversationEventArgs> ConversationClosed;
         event EventHandler<ConversationEventArgs> ConversationStateChanged;
         event EventHandler<ConversationEventArgs> ConversationUnReadStateChanged;
@@ -28,6 +36,7 @@ namespace VATRP.Core.Interfaces
         event EventHandler<ConversationEventArgs> NewConversationCreated;
         event EventHandler<EventArgs> RttReceived;
         event EventHandler<DeclineMessageArgs> ConversationDeclineMessageReceived;
+        #endregion
         
     }
 }
