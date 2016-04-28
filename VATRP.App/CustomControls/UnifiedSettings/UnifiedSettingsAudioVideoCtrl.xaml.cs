@@ -246,15 +246,29 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         private void OnSelectCamera(object sender, RoutedEventArgs e)
         {
+            if (App.CurrentAccount == null || !_initialized) return;
             Console.WriteLine("Camera Selected");
-            if (App.CurrentAccount == null)
-                return;
 
+            bool updateData = false;
             VATRPDevice selectedCamera = (VATRPDevice)SelectCameraComboBox.SelectedItem;
             string selectedCameraId = App.CurrentAccount.SelectedCameraId;
-            if (!string.IsNullOrEmpty(selectedCameraId) && (selectedCamera != null) && !selectedCamera.deviceId.Equals(selectedCameraId))
+            if (string.IsNullOrEmpty(selectedCameraId))
             {
-                App.CurrentAccount.SelectedCameraId = selectedCamera.deviceId;
+                if (SelectCameraComboBox.Items.Count > 0)
+                {
+                    var device = SelectCameraComboBox.Items.GetItemAt(0) as VATRPDevice;
+                    if (device != null)
+                    {
+                        updateData = true;
+                        App.CurrentAccount.SelectedCameraId = device.deviceId;
+                        selectedCameraId = device.deviceId;
+                    }
+                }
+            }
+            if ((selectedCamera != null && selectedCamera.deviceId != selectedCameraId) || updateData)
+            {
+                if (selectedCamera != null) 
+                    App.CurrentAccount.SelectedCameraId = selectedCamera.deviceId;
                 ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
             }
@@ -262,14 +276,30 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         private void OnSelectMicrophone(object sender, RoutedEventArgs e)
         {
+            if (App.CurrentAccount == null || !_initialized) return;
             Console.WriteLine("Microphone Selected");
-            if (App.CurrentAccount == null)
-                return;
+            bool updateData = false;
             VATRPDevice selectedMicrophone = (VATRPDevice)SelectMicrophoneComboBox.SelectedItem;
             string selectedMicrophoneId = App.CurrentAccount.SelectedMicrophoneId;
-            if (!string.IsNullOrEmpty(selectedMicrophoneId) && (selectedMicrophone != null) && !selectedMicrophone.deviceId.Equals(selectedMicrophoneId))
+
+            if (string.IsNullOrEmpty(selectedMicrophoneId))
             {
-                App.CurrentAccount.SelectedCameraId = selectedMicrophone.deviceId;
+                if (SelectMicrophoneComboBox.Items.Count > 0)
+                {
+                    var device = SelectMicrophoneComboBox.Items.GetItemAt(0) as VATRPDevice;
+                    if (device != null)
+                    {
+                        updateData = true;
+                        App.CurrentAccount.SelectedMicrophoneId = device.deviceId;
+                        selectedMicrophoneId = device.deviceId;
+                    }
+                }
+            }
+
+            if ((selectedMicrophone != null && selectedMicrophone.deviceId != selectedMicrophoneId) || updateData )
+            {
+                if (selectedMicrophone != null) 
+                    App.CurrentAccount.SelectedMicrophoneId = selectedMicrophone.deviceId;
                 ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
             }
@@ -277,18 +307,35 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         private void OnSelectSpeaker(object sender, RoutedEventArgs e)
         {
+            if (App.CurrentAccount == null || !_initialized) return;
             Console.WriteLine("Speaker Selected");
-            if (App.CurrentAccount == null)
-                return;
+            bool updateData = false;
             VATRPDevice selectedSpeaker = (VATRPDevice)SelectSpeakerComboBox.SelectedItem;
             string selectedSpeakerId = App.CurrentAccount.SelectedSpeakerId;
-            if (!string.IsNullOrEmpty(selectedSpeakerId) && (selectedSpeaker != null) && !selectedSpeaker.deviceId.Equals(selectedSpeakerId))
+            
+            if (string.IsNullOrEmpty(selectedSpeakerId))
             {
-                App.CurrentAccount.SelectedCameraId = selectedSpeaker.deviceId;
+                if (SelectSpeakerComboBox.Items.Count > 0)
+                {
+                    var device = SelectSpeakerComboBox.Items.GetItemAt(0) as VATRPDevice;
+                    if (device != null)
+                    {
+                        updateData = true;
+                        App.CurrentAccount.SelectedSpeakerId = device.deviceId;
+                        selectedSpeakerId = device.deviceId;
+                    }
+                }
+            }
+
+            if ((selectedSpeaker != null && selectedSpeaker.deviceId != selectedSpeakerId) || updateData)
+            {
+                if (selectedSpeaker != null) 
+                    App.CurrentAccount.SelectedSpeakerId = selectedSpeaker.deviceId;
                 ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
             }
         }
+
         #endregion
 
         private bool IsPreferredVideoSizeChanged()
