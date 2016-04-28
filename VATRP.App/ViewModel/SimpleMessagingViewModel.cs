@@ -10,6 +10,7 @@ using VATRP.Core.Events;
 using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
+using System.Text;
 
 
 namespace com.vtcsecure.ace.windows.ViewModel
@@ -72,6 +73,10 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         private void Init()
         {
+            _isRunning = true;
+            _inputProcessorThread = new Thread(ProcessInputCharacters) { IsBackground = true };
+            _inputProcessorThread.Start();
+
             _contactSearchCriteria = string.Empty;
             _receiverAddress = string.Empty;
             LoadContacts();
@@ -97,13 +102,67 @@ namespace com.vtcsecure.ace.windows.ViewModel
             OnPropertyChanged("ContactsListView");
         }
 
-        internal void SendMessage(string message)
+        protected override void ProcessInputCharacters(object obj)
         {
-            if (!message.NotBlank() || (Chat == null && string.IsNullOrEmpty( ReceiverAddress)))
-                return;
+            var sendBuffer = new StringBuilder();
+            int wait_time = 5;
+            bool readyToDeque = true;
+            while (_isRunning)
+            {
+                regulator.WaitOne(wait_time);
 
-            _chatsManager.ComposeAndSendMessage(Chat, message);
+                wait_time = 1;
+
+                if (!readyToDeque)
+                    continue;
+
+                lock (_inputTypingQueue)
+                {
+                    if (_inputTypingQueue.Count != 0)
+                    {
+                        sendBuffer.Append(_inputTypingQueue.Dequeue());
+                    }
+                    else
+                    {
+                        wait_time = Int32.MaxValue;
+                        readyToDeque = true;
+                        continue;
+                    }
+                }
+
+                SendMessage(sendBuffer.ToString());
+
+                sendBuffer.Remove(0, sendBuffer.Length);
+                readyToDeque = true;
+            }
+        }
+
+        internal bool SendSimpleMessage(string message)
+        {
+            if (!message.NotBlank() || (Chat == null && string.IsNullOrEmpty(ReceiverAddress)))
+                return false;
+            EnqueueInput(message);
             MessageText = string.Empty;
+            return true;
+        }
+
+        private void SendMessage(string message)
+        {
+            Dispatcher dispatcher;
+            try
+            {
+                dispatcher = ServiceManager.Instance.Dispatcher;
+            }
+            catch (NullReferenceException)
+            {
+                return;
+            }
+
+            if (dispatcher != null)
+                dispatcher.BeginInvoke((Action) delegate()
+                {
+                    _chatsManager.ComposeAndSendMessage(Chat, message);
+                });
         }
 
         public bool FilterContactsList(object item)

@@ -527,7 +527,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                         if (_simpleMessageViewModel != null)
                         {
                             _simpleMessageViewModel.SetActiveChatContact(contact, IntPtr.Zero);
-                            _simpleMessageViewModel.SendMessage(string.Format("{0}{1}", VATRPChatMessage.DECLINE_PREFIX, message));
+                            _simpleMessageViewModel.SendSimpleMessage(string.Format("{0}{1}", VATRPChatMessage.DECLINE_PREFIX, message));
                         }
                     }
                 }

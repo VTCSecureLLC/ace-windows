@@ -22,9 +22,18 @@ namespace VATRP.Core.Services
 {
     public class ChatsService : IChatService
     {
+        #region Members
+        private bool _isStarted;
+        private bool _isStopped;
+
         private readonly IContactsService _contactSvc;
         private readonly ILinphoneService _linphoneSvc;
         private readonly ServiceManagerBase _serviceManager;
+
+        private Thread _msgProcessorThread;
+        private bool _isRunning;
+        private Queue<TextMessageEventArgs> _receiveMsgQueue = new Queue<TextMessageEventArgs>();
+        private ManualResetEvent regulator = new ManualResetEvent(false);
 
         private ObservableCollection<VATRPChat> _chatItems;
 
@@ -35,7 +44,9 @@ namespace VATRP.Core.Services
         private const char UNLF = '\u2028'; // U - 2028
         private const char CR = '\r'; 
         private const char LF = '\n'; 
+        #endregion
 
+        #region Properties
         public event EventHandler<ConversationEventArgs> ConversationClosed;
 
         public event EventHandler<ConversationEventArgs> ConversationStateChanged;
@@ -57,8 +68,56 @@ namespace VATRP.Core.Services
         public event EventHandler<DeclineMessageArgs> ConversationDeclineMessageReceived;
 
         public bool IsRTTenabled { get; set; }
+
+        public bool UpdateUnreadCounter { get; set; }
+
+        public int ChatsCount
+        {
+            get
+            {
+                if (this._chatItems == null)
+                {
+                    return 0;
+                }
+                return this._chatItems.Count;
+            }
+        }
+
+        public ObservableCollection<VATRPContact> Contacts
+        {
+            get
+            {
+                if (_contacts == null)
+                    _contacts = new ObservableCollection<VATRPContact>();
+                return _contacts;
+            }
+        }
+
+        public ObservableCollection<VATRPChat> ChatItems
+        {
+            get
+            {
+                if (_chatItems == null)
+                    _chatItems = new ObservableCollection<VATRPChat>();
+                return _chatItems;
+            }
+            set { _chatItems = value; }
+        }
+
+        #endregion
+
+        #region Events
+        
+        public event EventHandler<EventArgs> ServiceStarted;
+        public event EventHandler<EventArgs> ServiceStopped;
+        
+        #endregion
+        
+        #region Methods
         public ChatsService(ServiceManagerBase mngBase)
         {
+            _isStarted = false;
+            _isStopped = false;
             this._serviceManager = mngBase;
             this._contactSvc = _serviceManager.ContactService;
             this._linphoneSvc = _serviceManager.LinphoneService;
@@ -72,320 +131,16 @@ namespace VATRP.Core.Services
             this._linphoneSvc.OnChatMessageReceivedEvent += OnChatMessageReceived;
             this._linphoneSvc.OnChatMessageStatusChangedEvent += OnChatStatusChanged;
             IsRTTenabled = true;
+            UpdateUnreadCounter = true;
         }
 
-        private void OnContactsLoadCompleted(object sender, EventArgs e)
+        public void EnqueueReceivedMsg(TextMessageEventArgs args)
         {
-            if (_contactSvc.Contacts == null)
-                return;
-
-            foreach (var contact in _contactSvc.Contacts)
+            lock (_receiveMsgQueue)
             {
-                if (contact.IsLoggedIn)
-                    continue;
-                VATRPChat chat = AddChat(contact, string.Empty);
-                Contacts.Add(contact);
-                if (ContactAdded != null)
-                    ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
+                _receiveMsgQueue.Enqueue(args);
             }
-            new Thread((ThreadStart)LoadLinphoneChatEvents).Start();
-        }
-
-        private void OnContactAdded(object sender, ContactEventArgs e)
-        {
-            VATRPContact contact = this._contactSvc.FindContact(e.Contact);
-            if (contact != null)
-            {
-                if (contact.IsLoggedIn)
-                    return;
-                VATRPChat chat = AddChat(contact, string.Empty);
-                Contacts.Add(contact);
-                if (ContactAdded != null)
-                    ContactAdded(this, new ContactEventArgs(new ContactID(e.Contact)));
-            }
-        }
-
-        private void OnContactsChanged(object sender, EventArgs eventArgs)
-        {
-            foreach (var contact in this._contactSvc.Contacts)
-            {
-                VATRPContact chatContact = FindContact(new ContactID(contact.ID, contact.NativePtr));
-                if (chatContact == null)
-                {
-                    AddChat(contact, contact.ID);
-                    Contacts.Add(contact);
-                }
-            }
-
-            foreach (var chatContact in this.Contacts)
-            {
-                VATRPContact contact = this._contactSvc.FindContact(new ContactID(chatContact.ID, chatContact.NativePtr));
-                if (contact == null)
-                {
-                    RemoveChat(GetChat(chatContact));
-                    Contacts.Remove(chatContact);
-                }
-            }
-
-            if (ContactsChanged != null)
-                ContactsChanged(this, null);
-        }
-
-        public void OnContactRemoved(object sender, ContactRemovedEventArgs e)
-        {
-            VATRPContact contact = this._contactSvc.FindContact(e.contactId);
-            if (contact != null)
-            {
-                VATRPChat chat = FindChat(contact);
-                if (chat != null)
-                {
-                    if (ConversationClosed != null)
-                        ConversationClosed(this, new ConversationEventArgs(chat));
-                    RemoveChat(chat);
-                }
-                Contacts.Remove(contact);
-                if (ContactRemoved != null)
-                    ContactRemoved(this, new ContactRemovedEventArgs(new ContactID(contact), true));
-            }
-        }
-
-        private void OnChatMessageComposing(string remoteUser, IntPtr chatPtr, uint rttCode)
-        {
-            string dn, un, host;
-            int port;
-            System.Windows.Threading.Dispatcher dispatcher = null;
-            try
-            {
-                dispatcher = this._serviceManager.Dispatcher;
-            }
-            catch (NullReferenceException)
-            {
-                return;
-            }
-            if (dispatcher != null)
-                dispatcher.BeginInvoke((Action) delegate()
-                {
-                    if (!VATRPCall.ParseSipAddressEx(remoteUser, out dn, out un,
-                        out host, out port))
-                        un = "";
-
-                    if (!un.NotBlank() )
-                        return;
-                    var contactAddress = string.Format("{0}@{1}", un, host);
-                    var contactID = new ContactID(contactAddress, IntPtr.Zero);
-
-                    VATRPContact contact = FindContact(contactID);
-
-                    if (contact == null)
-                    {
-                        contact = new VATRPContact(contactID)
-                        {
-                            DisplayName = dn,
-                            Fullname = dn.NotBlank() ? dn : un,
-                            RegistrationName = remoteUser,
-                            SipUsername = un
-                        };
-                        _contactSvc.AddContact(contact, "");
-                    }
-
-                    VATRPChat chat = GetChat(contact);
-
-                    chat.UnreadMsgCount++;
-
-                    chat.CharsCountInBubble++;
-                    var rttCodeArray = new char[2];
-                    var rttCodearrayLength = 1;
-                    if (chat.CharsCountInBubble == 201)
-                    {
-                        rttCodeArray[0] = UNLF;
-                        try
-                        {
-                            rttCodeArray[1] = Convert.ToChar(rttCode);
-                        }
-                        catch (Exception)
-                        {
-                            
-                        }
-                        rttCodearrayLength = 2;
-                        chat.CharsCountInBubble = 0;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            rttCodeArray[0] = Convert.ToChar(rttCode);
-                        }
-                        catch
-                        {
-
-                        }
-                    }
-
-                    for (int i = 0; i < rttCodearrayLength; i++)
-                    {
-                        VATRPChatMessage message = chat.SearchIncompleteMessage(MessageDirection.Incoming);
-
-                        if (message == null)
-                        {
-                            message = new VATRPChatMessage(MessageContentType.Text)
-                            {
-                                Direction = MessageDirection.Incoming,
-                                IsIncompleteMessage = true,
-                                Chat = chat,
-                                IsRTTMarker = false,
-                            };
-
-                            chat.AddMessage(message, false);
-                        }
-
-                        try
-                        {
-                            var sb = new StringBuilder(message.Content);
-                            switch (rttCodeArray[i])
-                            {
-                                case UNLF: //
-                                case CR:
-                                case LF:
-                                    message.IsIncompleteMessage = false;
-                                    break;
-                                case '\b':
-                                    if (sb.Length > 0)
-                                        sb.Remove(sb.Length - 1, 1);
-                                    break;
-                                default:
-                                    sb.Append(rttCodeArray[i]);
-                                    break;
-                            }
-                            if (message.IsIncompleteMessage)
-                                message.Content = sb.ToString();
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine("Error in OnChatMessageComposing: " + ex.Message);
-                            message.IsIncompleteMessage = false;
-                        }
-                        if (string.IsNullOrEmpty(message.Content))
-                            chat.DeleteMessage(message);
-                        else
-                            chat.UpdateLastMessage(false);
-                        this.OnConversationUpdated(chat, true);
-
-                        if (this.RttReceived != null)
-                        {
-                            this.RttReceived(this, EventArgs.Empty);
-                        }
-                    }
-                });
-        }
-
-        private void OnChatMessageReceived(IntPtr chatPtr, IntPtr callChatPtr, string remoteUser, VATRPChatMessage chatMessage)
-        {
-            string dn, un, host;
-            int port;
-            if (callChatPtr == chatPtr /*&& RttEnabled*/)
-            {
-                return;
-            }
-
-            System.Windows.Threading.Dispatcher dispatcher = null;
-            try
-            {
-               dispatcher = this._serviceManager.Dispatcher;
-            }
-            catch (NullReferenceException)
-            {
-                return;
-            }
-
-            if (dispatcher != null)
-                dispatcher.BeginInvoke((Action) delegate()
-                {
-                    if (!VATRPCall.ParseSipAddressEx(remoteUser, out dn, out un,
-                        out host, out port))
-                        un = "";
-
-                    if (!un.NotBlank())
-                        return;
-
-                    var contactAddress = string.Format("{0}@{1}", un, host);
-                    var contactID = new ContactID(contactAddress, IntPtr.Zero);
-                    VATRPContact contact = FindContact(contactID);
-
-                    if (contact == null)
-                    {
-                        contact = new VATRPContact(contactID)
-                        {
-                            DisplayName = dn,
-                            Fullname = dn.NotBlank() ? dn : un,
-                            SipUsername = un,
-                            RegistrationName = contactAddress
-                        };
-                        _contactSvc.AddContact(contact, "");
-                        Contacts.Add(contact);
-                        if (ContactAdded != null)
-                            ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
-                    }
-
-                    VATRPChat chat = GetChat(contact);
-                    chat.NativePtr = chatPtr;
-
-                    if (chat.CheckMessage(chatMessage))
-                    {
-                        chat.UnreadMsgCount++;
-                        if (!chat.IsSelected)
-                            contact.UnreadMsgCount++;
-                        chatMessage.IsRTTMessage = false;
-                        chatMessage.IsIncompleteMessage = false;
-                        chatMessage.Chat = chat;
-                        if (chatMessage.Content.StartsWith(VATRPChatMessage.DECLINE_PREFIX))
-                        {
-                            chatMessage.Content = chatMessage.Content.Substring(VATRPChatMessage.DECLINE_PREFIX.Length);
-
-                            chatMessage.IsDeclineMessage = true;
-                            if (ConversationDeclineMessageReceived != null)
-                            {
-                                var header = "Call declined with message";
-                                var declineArgs = new DeclineMessageArgs(header, chatMessage.Content) { Sender = contact };
-                                ConversationDeclineMessageReceived(this, declineArgs);
-                            }
-                        }
-
-                        chat.AddMessage(chatMessage, false);
-                        chat.UpdateLastMessage(false);
-
-                        OnConversationUnReadStateChanged(chat);
-                        this.OnConversationUpdated(chat, true);
-                    }
-                });
-        }
-
-        private void OnChatStatusChanged(IntPtr chatMsgPtr, LinphoneChatMessageState state)
-        {
-            System.Windows.Threading.Dispatcher dispatcher = null;
-            try
-            {
-                dispatcher = this._serviceManager.Dispatcher;
-            }
-            catch (NullReferenceException)
-            {
-                return;
-            }
-            if (dispatcher != null)
-                dispatcher.BeginInvoke((Action) delegate()
-                {
-                    lock (this._chatItems)
-                    {
-                        foreach (var chatItem in this._chatItems)
-                        {
-                            var chatMessage = chatItem.FindMessage(chatMsgPtr);
-                            if (chatMessage != null)
-                            {
-                                chatMessage.Status = state;
-                                return;
-                            }
-                        }
-                    }
-                });
+            regulator.Set();
         }
 
         private VATRPChat AddChat(VATRPContact contact, string dialogId)
@@ -400,6 +155,40 @@ namespace VATRP.Core.Services
                 }
             }
             return item;
+        }
+
+        private void ProcessReceivedMessages()
+        {
+            int wait_time = 5;
+
+            while (_isRunning)
+            {
+                regulator.WaitOne(wait_time);
+
+                wait_time = 1;
+
+                TextMessageEventArgs recvMsg;
+                lock (_receiveMsgQueue)
+                {
+                    if (_receiveMsgQueue.Count != 0)
+                    {
+                        recvMsg = _receiveMsgQueue.Dequeue();
+                    }
+                    else
+                    {
+                        wait_time = Int32.MaxValue;
+                        continue;
+                    }
+                }
+
+                if (recvMsg != null)
+                {
+                    if (recvMsg is ChatMessageEventArgs)
+                        OnChatMessageReceived(recvMsg as ChatMessageEventArgs);
+                    else if (recvMsg is MessageComposingEventArgs)
+                        OnChatMessageComposing(recvMsg as MessageComposingEventArgs);
+                }
+            }
         }
 
         private void CheckTopPosition(VATRPChat chat)
@@ -572,7 +361,7 @@ namespace VATRP.Core.Services
             {
                 return new List<VATRPChat>();
             }
-            return Enumerable.ToList<VATRPChat>((IEnumerable<VATRPChat>) this._chatItems);
+            return Enumerable.ToList<VATRPChat>((IEnumerable<VATRPChat>)this._chatItems);
         }
 
         public VATRPChat GetChat(VATRPContact contact)
@@ -666,50 +455,13 @@ namespace VATRP.Core.Services
                 {
                     if (message.ID == msgID)
                     {
-                        Debug.WriteLine("ChatList_Manager:IsMessageAlreadyExistCheckByMsgID: msg exist msgId = " + 
+                        Debug.WriteLine("ChatList_Manager:IsMessageAlreadyExistCheckByMsgID: msg exist msgId = " +
                             msgID);
                         return true;
                     }
                 }
             }
             return false;
-        }
-
-        private void OnConversationClosed(VATRPChat chat)
-        {
-            if ((chat != null) && (this.ConversationClosed != null))
-            {
-                this.ConversationClosed(this, new ConversationEventArgs(chat));
-            }
-        }
-
-        private void OnConversationStateChanged(VATRPChat chat)
-        {
-            if ((chat != null) && (this.ConversationStateChanged != null))
-            {
-                this.ConversationStateChanged(this, new ConversationEventArgs(chat));
-            }
-        }
-
-        private void OnConversationUnReadStateChanged(VATRPChat chat)
-        {
-            if ((chat != null) && (this.ConversationUnReadStateChanged != null))
-            {
-                this.ConversationUnReadStateChanged(this, new ConversationEventArgs(chat));
-            }
-        }
-
-        public void OnConversationUpdated(VATRPChat chat, bool allowUpdate)
-        {
-            if (chat != null)
-            {
-                if (this.ConversationUpdated != null)
-                {
-                    var args = new ConversationUpdatedEventArgs(chat);
-                    args.AllowToChangeUnreadMessageCounter = allowUpdate;
-                    this.ConversationUpdated(this, args);
-                }
-            }
         }
 
         public void MarkChatAsRead(ChatID chatId)
@@ -719,7 +471,7 @@ namespace VATRP.Core.Services
             {
                 chat.UnreadMsgCount = 0;
                 OnConversationUnReadStateChanged(chat);
-                if ( chat.Contact != null )
+                if (chat.Contact != null)
                 {
                     chat.Contact.UnreadMsgCount = 0;
                 }
@@ -738,14 +490,6 @@ namespace VATRP.Core.Services
             }
 
             return null;
-        }
-
-        private void OnNewConversationCreated(VATRPChat chat)
-        {
-            if ((chat != null) && (this.NewConversationCreated != null))
-            {
-                this.NewConversationCreated(this, new ConversationEventArgs(chat));
-            }
         }
 
         private bool RemoveChat(VATRPChat chat)
@@ -814,7 +558,6 @@ namespace VATRP.Core.Services
 
             VATRPContact loggedContact = _contactSvc.FindLoggedInContact();
 
-            
             var message = chat.SearchIncompleteMessage(MessageDirection.Outgoing);
             if (message == null)
             {
@@ -825,7 +568,7 @@ namespace VATRP.Core.Services
                 {
                     Direction = MessageDirection.Outgoing,
                     Status = LinphoneChatMessageState.LinphoneChatMessageStateIdle,
-                    IsRTTMessage = true, 
+                    IsRTTMessage = true,
                     Chat = chatID
                 };
                 chatID.AddMessage(message, false);
@@ -835,7 +578,7 @@ namespace VATRP.Core.Services
                 message.MessageTime = DateTime.Now;
             }
 
-            var rttCode = (uint) key;
+            var rttCode = (uint)key;
             var createBubble = false;
             if (key != '\r')
             {
@@ -856,7 +599,7 @@ namespace VATRP.Core.Services
             }
 
             message.IsIncompleteMessage = !createBubble;
-            
+
             // send message to linphone
             var chatPtr = chat.NativePtr;
             var msgPtr = message.NativePtr;
@@ -903,9 +646,9 @@ namespace VATRP.Core.Services
             _linphoneSvc.SendChatMessage(chat, text, ref msgPtr);
             if (msgPtr != IntPtr.Zero)
                 message.MessageTime = Time.ConvertUtcTimeToLocalTime(LinphoneAPI.linphone_chat_message_get_time(msgPtr));
-            
+
             message.NativePtr = msgPtr;
-            
+
             chat.AddMessage(message, false);
             chat.UpdateLastMessage(false);
 
@@ -1004,52 +747,6 @@ namespace VATRP.Core.Services
 
         }
 
-        public int ChatsCount
-        {
-            get
-            {
-                if (this._chatItems == null)
-                {
-                    return 0;
-                }
-                return this._chatItems.Count;
-            }
-        }
-
-
-        public bool IsLoaded { get; set; }
-
-
-        public ObservableCollection<VATRPContact> Contacts
-        {
-            get
-            {
-                if (_contacts == null)
-                    _contacts = new ObservableCollection<VATRPContact>();
-                return _contacts;
-            }
-        }
-
-        public ObservableCollection<VATRPChat> ChatItems
-        {
-            get
-            {
-                if (_chatItems == null)
-                    _chatItems = new ObservableCollection<VATRPChat>();
-                return _chatItems;
-            }
-            set { _chatItems = value; }
-        }
-
-
-        #region IVATRPService
-        public bool Start()
-        {
-            if (ServiceStarted != null)
-                ServiceStarted(this, EventArgs.Empty);
-            return true;
-        }
-
         private void LoadLinphoneChatEvents()
         {
             if (_chatItems == null)
@@ -1080,10 +777,10 @@ namespace VATRP.Core.Services
                             {
                                 var remoteParty = LinphoneAPI.PtrToStringUtf8(tmpPtr);
                                 LinphoneAPI.ortp_free(tmpPtr);
-                                 string dn, un, host;
+                                string dn, un, host;
                                 int port;
                                 if (
-                                    !VATRPCall.ParseSipAddressEx( remoteParty, out dn, out un,
+                                    !VATRPCall.ParseSipAddressEx(remoteParty, out dn, out un,
                                         out host, out port))
                                     un = "";
 
@@ -1136,7 +833,7 @@ namespace VATRP.Core.Services
                     msMessagePtr.prev = IntPtr.Zero;
                     msMessagePtr.data = IntPtr.Zero;
 
-                    msMessagePtr = (MSList) Marshal.PtrToStructure(msgListPtr, typeof (MSList));
+                    msMessagePtr = (MSList)Marshal.PtrToStructure(msgListPtr, typeof(MSList));
                     if (msMessagePtr.data != IntPtr.Zero)
                     {
                         IntPtr tmpPtr = LinphoneAPI.linphone_chat_message_get_from_address(msMessagePtr.data);
@@ -1235,17 +932,422 @@ namespace VATRP.Core.Services
             }
         }
 
+        #endregion
+
+        #region Event handlers
+        private void OnContactsLoadCompleted(object sender, EventArgs e)
+        {
+            if (_contactSvc.Contacts == null)
+                return;
+
+            foreach (var contact in _contactSvc.Contacts)
+            {
+                if (contact.IsLoggedIn)
+                    continue;
+                VATRPChat chat = AddChat(contact, string.Empty);
+                Contacts.Add(contact);
+                if (ContactAdded != null)
+                    ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
+            }
+            new Thread((ThreadStart)LoadLinphoneChatEvents).Start();
+        }
+
+        private void OnContactAdded(object sender, ContactEventArgs e)
+        {
+            VATRPContact contact = this._contactSvc.FindContact(e.Contact);
+            if (contact != null)
+            {
+                if (contact.IsLoggedIn)
+                    return;
+                VATRPChat chat = AddChat(contact, string.Empty);
+                Contacts.Add(contact);
+                if (ContactAdded != null)
+                    ContactAdded(this, new ContactEventArgs(new ContactID(e.Contact)));
+            }
+        }
+
+        private void OnContactsChanged(object sender, EventArgs eventArgs)
+        {
+            foreach (var contact in this._contactSvc.Contacts)
+            {
+                VATRPContact chatContact = FindContact(new ContactID(contact.ID, contact.NativePtr));
+                if (chatContact == null)
+                {
+                    AddChat(contact, contact.ID);
+                    Contacts.Add(contact);
+                }
+            }
+
+            foreach (var chatContact in this.Contacts)
+            {
+                VATRPContact contact = this._contactSvc.FindContact(new ContactID(chatContact.ID, chatContact.NativePtr));
+                if (contact == null)
+                {
+                    RemoveChat(GetChat(chatContact));
+                    Contacts.Remove(chatContact);
+                }
+            }
+
+            if (ContactsChanged != null)
+                ContactsChanged(this, null);
+        }
+
+        public void OnContactRemoved(object sender, ContactRemovedEventArgs e)
+        {
+            VATRPContact contact = this._contactSvc.FindContact(e.contactId);
+            if (contact != null)
+            {
+                VATRPChat chat = FindChat(contact);
+                if (chat != null)
+                {
+                    if (ConversationClosed != null)
+                        ConversationClosed(this, new ConversationEventArgs(chat));
+                    RemoveChat(chat);
+                }
+                Contacts.Remove(contact);
+                if (ContactRemoved != null)
+                    ContactRemoved(this, new ContactRemovedEventArgs(new ContactID(contact), true));
+            }
+        }
+
+        private void OnChatMessageComposing(string remoteUser, IntPtr callPtr, uint rttCode)
+        {
+            var args = new MessageComposingEventArgs(remoteUser, callPtr, rttCode);
+            EnqueueReceivedMsg(args);
+        }
+
+        private void OnChatMessageReceived(IntPtr chatPtr, List<IntPtr> callChatPtrList, string remoteUser,
+            VATRPChatMessage chatMessage)
+        {
+            var args = new ChatMessageEventArgs(remoteUser, chatPtr, callChatPtrList, chatMessage);
+            EnqueueReceivedMsg(args);
+        }
+
+        private void OnChatMessageComposing(MessageComposingEventArgs args)
+        {
+            if (args == null)
+                return;
+            string dn, un, host;
+            int port;
+            System.Windows.Threading.Dispatcher dispatcher = null;
+            try
+            {
+                dispatcher = this._serviceManager.Dispatcher;
+            }
+            catch (NullReferenceException)
+            {
+                return;
+            }
+            if (dispatcher != null)
+                dispatcher.BeginInvoke((Action) delegate()
+                {
+                    if (!VATRPCall.ParseSipAddressEx(args.Remote, out dn, out un,
+                        out host, out port))
+                        un = "";
+
+                    if (!un.NotBlank() )
+                        return;
+                    var contactAddress = string.Format("{0}@{1}", un, host);
+                    var contactID = new ContactID(contactAddress, IntPtr.Zero);
+
+                    VATRPContact contact = FindContact(contactID);
+
+                    if (contact == null)
+                    {
+                        contact = new VATRPContact(contactID)
+                        {
+                            DisplayName = dn,
+                            Fullname = dn.NotBlank() ? dn : un,
+                            RegistrationName = args.Remote,
+                            SipUsername = un
+                        };
+                        _contactSvc.AddContact(contact, "");
+                    }
+
+                    VATRPChat chat = GetChat(contact);
+
+                    chat.UnreadMsgCount++;
+
+                    chat.CharsCountInBubble++;
+                    var rttCodeArray = new char[2];
+                    var rttCodearrayLength = 1;
+                    if (chat.CharsCountInBubble == 201)
+                    {
+                        rttCodeArray[0] = UNLF;
+                        try
+                        {
+                            rttCodeArray[1] = Convert.ToChar(args.RTTCode);
+                        }
+                        catch (Exception)
+                        {
+                            
+                        }
+                        rttCodearrayLength = 2;
+                        chat.CharsCountInBubble = 0;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            rttCodeArray[0] = Convert.ToChar(args.RTTCode);
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+
+                    for (int i = 0; i < rttCodearrayLength; i++)
+                    {
+                        VATRPChatMessage message = chat.SearchIncompleteMessage(MessageDirection.Incoming);
+
+                        if (message == null)
+                        {
+                            message = new VATRPChatMessage(MessageContentType.Text)
+                            {
+                                Direction = MessageDirection.Incoming,
+                                IsIncompleteMessage = true,
+                                Chat = chat,
+                                IsRTTMarker = false,
+                            };
+
+                            chat.AddMessage(message, false);
+                        }
+
+                        try
+                        {
+                            var sb = new StringBuilder(message.Content);
+                            switch (rttCodeArray[i])
+                            {
+                                case UNLF: //
+                                case CR:
+                                case LF:
+                                    message.IsIncompleteMessage = false;
+                                    break;
+                                case '\b':
+                                    if (sb.Length > 0)
+                                        sb.Remove(sb.Length - 1, 1);
+                                    break;
+                                default:
+                                    sb.Append(rttCodeArray[i]);
+                                    break;
+                            }
+                            if (message.IsIncompleteMessage)
+                                message.Content = sb.ToString();
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine("Error in OnChatMessageComposing: " + ex.Message);
+                            message.IsIncompleteMessage = false;
+                        }
+                        if (string.IsNullOrEmpty(message.Content))
+                            chat.DeleteMessage(message);
+                        else
+                            chat.UpdateLastMessage(false);
+                        this.OnConversationUpdated(chat, true);
+
+                        if (this.RttReceived != null)
+                        {
+                            this.RttReceived(args.CallPtr, EventArgs.Empty);
+                        }
+
+                        if (!message.IsIncompleteMessage)
+                        {
+                            chat.UpdateUnreadCounter = this.UpdateUnreadCounter;
+                            chat.UnreadMsgCount++;
+                            if (!chat.IsSelected)
+                                contact.UnreadMsgCount++;
+                            OnConversationUnReadStateChanged(chat);
+                        }
+                    }
+                });
+        }
+
+        private void OnChatMessageReceived(ChatMessageEventArgs args)
+        {
+            if (args == null) return;
+
+            string dn, un, host;
+            int port;
+            if (args.CallsChatPtrList.Contains(args.ChatPtr) /*&& RttEnabled*/)
+            {
+                return;
+            }
+
+            System.Windows.Threading.Dispatcher dispatcher = null;
+            try
+            {
+               dispatcher = this._serviceManager.Dispatcher;
+            }
+            catch (NullReferenceException)
+            {
+                return;
+            }
+
+            if (dispatcher != null)
+                dispatcher.BeginInvoke((Action) delegate()
+                {
+                    if (!VATRPCall.ParseSipAddressEx(args.Remote, out dn, out un,
+                        out host, out port))
+                        un = "";
+
+                    if (!un.NotBlank())
+                        return;
+
+                    var contactAddress = string.Format("{0}@{1}", un, host);
+                    var contactID = new ContactID(contactAddress, IntPtr.Zero);
+                    VATRPContact contact = FindContact(contactID);
+
+                    if (contact == null)
+                    {
+                        contact = new VATRPContact(contactID)
+                        {
+                            DisplayName = dn,
+                            Fullname = dn.NotBlank() ? dn : un,
+                            SipUsername = un,
+                            RegistrationName = contactAddress
+                        };
+                        _contactSvc.AddContact(contact, "");
+                        Contacts.Add(contact);
+                        if (ContactAdded != null)
+                            ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
+                    }
+
+                    VATRPChat chat = GetChat(contact);
+                    chat.NativePtr = args.ChatPtr;
+
+                    if (chat.CheckMessage(args.ChatMessage))
+                    {
+                        chat.UnreadMsgCount++;
+                        if (!chat.IsSelected)
+                            contact.UnreadMsgCount++;
+                        args.ChatMessage.IsRTTMessage = false;
+                        args.ChatMessage.IsIncompleteMessage = false;
+                        args.ChatMessage.Chat = chat;
+                        if (args.ChatMessage.Content.StartsWith(VATRPChatMessage.DECLINE_PREFIX))
+                        {
+                            args.ChatMessage.Content = args.ChatMessage.Content.Substring(VATRPChatMessage.DECLINE_PREFIX.Length);
+
+                            args.ChatMessage.IsDeclineMessage = true;
+                            if (ConversationDeclineMessageReceived != null)
+                            {
+                                var header = "Call declined with message";
+                                var declineArgs = new DeclineMessageArgs(header, args.ChatMessage.Content) { Sender = contact };
+                                ConversationDeclineMessageReceived(this, declineArgs);
+                            }
+                        }
+
+                        chat.AddMessage(args.ChatMessage, false);
+                        chat.UpdateLastMessage(false);
+
+                        OnConversationUnReadStateChanged(chat);
+                        this.OnConversationUpdated(chat, true);
+                    }
+                });
+        }
+
+        private void OnChatStatusChanged(IntPtr chatMsgPtr, LinphoneChatMessageState state)
+        {
+            System.Windows.Threading.Dispatcher dispatcher = null;
+            try
+            {
+                dispatcher = this._serviceManager.Dispatcher;
+            }
+            catch (NullReferenceException)
+            {
+                return;
+            }
+            if (dispatcher != null)
+                dispatcher.BeginInvoke((Action) delegate()
+                {
+                    lock (this._chatItems)
+                    {
+                        foreach (var chatItem in this._chatItems)
+                        {
+                            var chatMessage = chatItem.FindMessage(chatMsgPtr);
+                            if (chatMessage != null)
+                            {
+                                chatMessage.Status = state;
+                                return;
+                            }
+                        }
+                    }
+                });
+        }
+        
+        private void OnConversationClosed(VATRPChat chat)
+        {
+            if ((chat != null) && (this.ConversationClosed != null))
+            {
+                this.ConversationClosed(this, new ConversationEventArgs(chat));
+            }
+        }
+
+        private void OnConversationUnReadStateChanged(VATRPChat chat)
+        {
+            if ((chat != null) && (this.ConversationUnReadStateChanged != null))
+            {
+                this.ConversationUnReadStateChanged(this, new ConversationEventArgs(chat));
+            }
+        }
+
+        public void OnConversationUpdated(VATRPChat chat, bool allowUpdate)
+        {
+            if (chat != null)
+            {
+                if (this.ConversationUpdated != null)
+                {
+                    var args = new ConversationUpdatedEventArgs(chat);
+                    args.AllowToChangeUnreadMessageCounter = allowUpdate;
+                    this.ConversationUpdated(this, args);
+                }
+            }
+        }
+
+        private void OnNewConversationCreated(VATRPChat chat)
+        {
+            if ((chat != null) && (this.NewConversationCreated != null))
+            {
+                this.NewConversationCreated(this, new ConversationEventArgs(chat));
+            }
+        }
+
+        #endregion
+
+        #region IVATRPService
+        public bool Start()
+        {
+            if (_isStarted)
+                return true;
+
+            _isRunning = true;
+            _msgProcessorThread = new Thread(ProcessReceivedMessages) { IsBackground = true };
+            _msgProcessorThread.Start();
+
+            _isStarted = true;
+            _isStopped = false;
+            
+            if (ServiceStarted != null)
+                ServiceStarted(this, EventArgs.Empty);
+            return true;
+        }
+
+
         public bool Stop()
         {
+            if (_isStopped)
+                return true;
+            _isRunning = false;
+            regulator.Set();
+            _isStarted = false;
+            _isStopped = true;
+
             if (ServiceStopped != null)
                 ServiceStopped(this, EventArgs.Empty);
 
             return true;
         }
         
-        public event EventHandler<EventArgs> ServiceStarted;
-        public event EventHandler<EventArgs> ServiceStopped;
-
         #endregion
     }
 }

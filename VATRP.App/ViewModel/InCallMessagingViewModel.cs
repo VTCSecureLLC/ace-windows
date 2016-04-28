@@ -17,11 +17,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         #region Members
 
-        private Thread _inputProcessorThread;
-        private bool _isRunning;
-        private Queue<string> _inputTypingQueue = new Queue<string>();
-        private static ManualResetEvent regulator = new ManualResetEvent(false);
-
         private ObservableCollection<string> _textSendModes;
         private string _selectedTextSendMode;
         private string _sendButtonTitle;
@@ -163,7 +158,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             OnPropertyChanged("Chat");
         }
 
-        private void ProcessInputCharacters(object obj)
+        protected override void ProcessInputCharacters(object obj)
         {
             var sb = new StringBuilder();
             int wait_time = 5;
@@ -200,15 +195,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 sb.Remove(0, sb.Length);
                 readyToDeque = true;
             }
-        }
-
-        internal void EnqueueInput(string inputString)
-        {
-            lock (_inputTypingQueue)
-            {
-                _inputTypingQueue.Enqueue(inputString);
-            }
-            regulator.Set();
         }
 
         #endregion
@@ -250,10 +236,5 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         #endregion
 
-        internal void StopInputProcessor()
-        {
-            _isRunning = false;
-            regulator.Set();
-        }
     }
 }

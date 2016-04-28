@@ -458,6 +458,7 @@ namespace com.vtcsecure.ace.windows
             registerRequested = false;
             base.Window_Closing(sender, e);
             _mainViewModel.RttMessagingModel.StopInputProcessor();
+            _mainViewModel.SipSimpleMessagingModel.StopInputProcessor();
             ServiceManager.Instance.LinphoneCoreStoppedEvent -= OnLinphoneCoreStopped;
             ServiceManager.Instance.Stop();
         }
