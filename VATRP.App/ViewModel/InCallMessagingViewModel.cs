@@ -216,9 +216,16 @@ namespace com.vtcsecure.ace.windows.ViewModel
             get { return _conversationStartTime; }
             set
             {
-                _conversationStartTime = value; 
-                if (MessagesListView != null)
-                    MessagesListView.Refresh();
+                _conversationStartTime = value;
+                try
+                {
+                    if (MessagesListView != null && this.Messages != null)
+                        MessagesListView.Refresh();
+                }
+                catch (Exception)
+                {
+                    
+                }
             }
         }
         
