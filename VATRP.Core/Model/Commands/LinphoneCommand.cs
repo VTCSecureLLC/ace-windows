@@ -28,6 +28,7 @@ namespace VATRP.Core.Model.Commands
         TerminateCall,
         StopLinphone,
         MuteCall,
-        SendChatMessage
+        SendChatMessage,
+        ToggleCamera
     }
 }

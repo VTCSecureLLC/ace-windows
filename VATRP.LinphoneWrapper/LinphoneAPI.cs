@@ -8,6 +8,8 @@ namespace VATRP.LinphoneWrapper
     public static partial class LinphoneAPI
     {
         public const string DllName = "linphone.dll";
+        public const string MSBase_DllName = "mediastreamer_base.dll";
+        public const string MSVoip_DllName = "mediastreamer_voip.dll";
 
         #region Constants
 
@@ -316,79 +318,6 @@ namespace VATRP.LinphoneWrapper
 
         public static extern IntPtr linphone_call_get_chat_room(IntPtr call);
 
-        /* sound functions */
-/* returns a null terminated static array of string describing the sound devices */
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_core_get_sound_devices(IntPtr lc);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_core_reload_sound_devices(IntPtr lc);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern byte linphone_core_sound_device_can_capture(IntPtr lc, string device);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern byte linphone_core_sound_device_can_playback(IntPtr lc, string device);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int linphone_core_get_ring_level(IntPtr lc);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int linphone_core_get_play_level(IntPtr lc);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int linphone_core_get_rec_level(IntPtr lc);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_core_set_ring_level(IntPtr lc, int level);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_core_set_play_level(IntPtr lc, int level);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-
-        public static extern void linphone_core_set_mic_gain_db(IntPtr lc, float level);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern float linphone_core_get_mic_gain_db(IntPtr lc);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_core_set_playback_gain_db(IntPtr lc, float level);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern float linphone_core_get_playback_gain_db(IntPtr lc);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-
-        public static extern void linphone_core_set_rec_level(IntPtr lc, int level);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_core_get_ringer_device(IntPtr lc);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_core_get_playback_device(IntPtr lc);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_core_get_capture_device(IntPtr lc);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int linphone_core_set_ringer_device(IntPtr lc, string devid);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int linphone_core_set_playback_device(IntPtr lc, string devid);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int linphone_core_set_capture_device(IntPtr lc, string devid);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_core_stop_ringing(IntPtr lc);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_core_set_ring(IntPtr lc, string path);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_core_get_ring(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_verify_server_certificates(IntPtr lc, bool yesno);
@@ -1216,8 +1145,6 @@ namespace VATRP.LinphoneWrapper
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_refresh_registers(IntPtr lc);
 
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_core_get_ms_factory(IntPtr lc);
 
         #region Call Info
 

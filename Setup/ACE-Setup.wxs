@@ -34,6 +34,11 @@
               </Directory>
             </Directory>
           </Directory>
+          <Directory Id='_F1E804A1_7030_40A8_9AC4_B8D09C43A1EC' Name='images'>
+                <Component Id='com_CAMERA_DISABLED.JPG' Guid='4274A6E1-DB18-476C-A2AD-932721E1DC87' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+                  <File Id='CAMERA_DISABLED.JPG' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='camera_disabled.jpg' Source='VATRP.App\bin\$(var.Configuration)\images\camera_disabled.jpg' KeyPath='yes' />
+                </Component>
+          </Directory>
 
           <Component Id='com_ACE.EXE' Guid='4A11254E-C1B4-4067-9E51-D4A29B0BE04D' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='_ACE.EXE' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='ACE.exe' Source='VATRP.App\bin\$(var.Configuration)\ACE.exe' KeyPath='yes' />
@@ -250,6 +255,7 @@
       <ComponentRef Id='com_CUSTOMACTIONS.DLL'/>
       <ComponentRef Id='com_ROOTCA.PEM'/>
       <ComponentRef Id='com_LEGALRELEASE.TXT'/>
+	  <ComponentRef Id='com_CAMERA_DISABLED.JPG' />
     </ComponentGroup>
     <!-- The composite feature of the installation package. -->
     <Feature Id='CompleteInstall' Title='All Files' Level='1'>

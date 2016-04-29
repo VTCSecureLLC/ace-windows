@@ -746,6 +746,11 @@
     <Resource Include="Resources\security_ko.png" />
     <Resource Include="Resources\security_ok.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="images\camera_disabled.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /b "$(SolutionDir)thirdparties\liblinphone\*.dll" "$(TargetDir)"

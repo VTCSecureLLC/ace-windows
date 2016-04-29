@@ -386,15 +386,22 @@ namespace VATRP.Core.Services
                 string codeBase = Assembly.GetExecutingAssembly().CodeBase;
                 UriBuilder uri = new UriBuilder(codeBase);
                 string path = Uri.UnescapeDataString(uri.Path);
+			    string directory = String.Empty;
 			    if (!string.IsNullOrEmpty(path))
 			    {
-			        var directory = Path.GetDirectoryName(path);
-			        if (directory != null)
-			        {
-			            var rootCAPath = Path.Combine(directory, "rootca.pem");
-			            LinphoneAPI.linphone_core_set_root_ca(linphoneCore, rootCAPath);
-			        }
+			        directory = Path.GetDirectoryName(path);
 			    }
+
+			    if (!string.IsNullOrEmpty(directory ))
+                {
+                    var rootCAPath = Path.Combine(directory, "rootca.pem");
+                    LinphoneAPI.linphone_core_set_root_ca(linphoneCore, rootCAPath);
+
+                    var noVideoImagePath = Path.Combine(directory, "images");
+                    noVideoImagePath = Path.Combine(noVideoImagePath, "camera_disabled.jpg");
+                    LinphoneAPI.ms_static_image_set_default_image(noVideoImagePath);
+                }
+
 			    LinphoneAPI.linphone_core_verify_server_cn(linphoneCore, true);
                 LinphoneAPI.linphone_core_verify_server_certificates(linphoneCore, true);
 
@@ -436,9 +443,11 @@ namespace VATRP.Core.Services
         {
             LOG.Debug("Main loop started");
             bool isRunning = true;
+            bool dequeCommand;
             while (isRunning)
             {
                 regulator.WaitOne(30); // fire each 30 msec
+                dequeCommand = true;
                 try
                 {
                     if (commandQueue.Count > 0)
@@ -446,7 +455,7 @@ namespace VATRP.Core.Services
                         LinphoneCommand command;
                         lock(commandQueue)
                         {
-                            command = commandQueue.Dequeue();
+                            command = commandQueue.Peek();
                         }
 
                         if (command != null)
@@ -480,7 +489,8 @@ namespace VATRP.Core.Services
                                     if (createCmd != null)
                                     {
                                         // enable rtt
-                                        LinphoneAPI.linphone_call_params_enable_realtime_text(createCmd.CallParamsPtr, createCmd.EnableRtt);
+                                        LinphoneAPI.linphone_call_params_enable_realtime_text(createCmd.CallParamsPtr,
+                                            createCmd.EnableRtt);
                                         MuteCall(createCmd.MuteMicrophone);
                                         MuteSpeaker(createCmd.MuteSpeaker);
 
@@ -505,21 +515,30 @@ namespace VATRP.Core.Services
                                     var pauseCmd = command as PauseCallCommand;
                                     if (pauseCmd != null)
                                     {
-                                        LinphoneAPI.linphone_core_pause_call(linphoneCore, pauseCmd.CallPtr);
+                                        dequeCommand = LinphoneAPI.linphone_call_media_in_progress(pauseCmd.CallPtr) == 0;
+                                        if (dequeCommand)
+                                            LinphoneAPI.linphone_core_pause_call(linphoneCore, pauseCmd.CallPtr);
                                     }
                                     break;
                                 case LinphoneCommandType.ResumeCall:
                                     var resumeCmd = command as ResumeCallCommand;
                                     if (resumeCmd != null)
                                     {
-                                        LinphoneAPI.linphone_core_resume_call(linphoneCore, resumeCmd.CallPtr);
+                                        dequeCommand = LinphoneAPI.linphone_call_media_in_progress(resumeCmd.CallPtr) == 0;
+                                        if (dequeCommand)
+                                            LinphoneAPI.linphone_core_resume_call(linphoneCore, resumeCmd.CallPtr);
                                     }
                                     break;
                                 case LinphoneCommandType.MuteCall:
                                     var muteCmd = command as MuteCallCommand;
                                     if (muteCmd != null)
                                     {
-                                        LinphoneAPI.linphone_core_enable_mic(linphoneCore, muteCmd.MuteOn);
+                                        IntPtr callPtr = LinphoneAPI.linphone_core_get_current_call(linphoneCore);
+                                        dequeCommand = callPtr == IntPtr.Zero;
+                                        if (callPtr != IntPtr.Zero)
+                                            dequeCommand = LinphoneAPI.linphone_call_media_in_progress(callPtr) == 0;
+                                        if (dequeCommand)
+                                            LinphoneAPI.linphone_core_enable_mic(linphoneCore, muteCmd.MuteOn);
                                     }
                                     break;
                                 case LinphoneCommandType.SendChatMessage:
@@ -533,13 +552,36 @@ namespace VATRP.Core.Services
                                         LinphoneAPI.linphone_chat_message_cbs_set_msg_state_changed(callbacks,
                                             Marshal.GetFunctionPointerForDelegate(message_status_changed));
                                         LinphoneAPI.linphone_chat_room_send_chat_message(msgCmd.ChatPtr, msgCmd.CallPtr);
-                                        LinphoneAPI.linphone_call_unref(msgCmd.CallPtr);
+                                        LinphoneAPI.linphone_chat_message_unref(msgCmd.CallPtr);
+                                    }
+                                    break;
+                                }
+                                case LinphoneCommandType.ToggleCamera:
+                                {
+                                    var msgCmd = command as ToggleCameraCommand;
+                                    if (msgCmd != null)
+                                    {
+                                        IntPtr callPtr = LinphoneAPI.linphone_core_get_current_call(linphoneCore);
+
+                                        if (msgCmd.CallPtr == callPtr)
+                                        {
+                                            LinphoneAPI.linphone_call_enable_camera(callPtr, msgCmd.EnableCamera);
+                                        }
                                     }
                                     break;
                                 }
                             }
                         }
+
+                        if (dequeCommand)
+                        {
+                            lock (commandQueue)
+                            {
+                                commandQueue.Dequeue();
+                            }
+                        }
                     }
+                    
                     LinphoneAPI.linphone_core_iterate(linphoneCore); // roll
                 }
                 catch (Exception ex)
@@ -1148,43 +1190,45 @@ namespace VATRP.Core.Services
 
         public void ToggleVideo(bool enableVideo, IntPtr callPtr)
         {
-			if (linphoneCore == IntPtr.Zero)
-				return;
-
-            if (callPtr == IntPtr.Zero)
-            {
-                LOG.Error("LinphoneService.ToggleVideo: Attempting to pause video but the call pointer is null. Returing without modifying call.");
-                return;
-            }
-
-            // ToDo VATRP-842: Set static image instead of using default
-            // LinphoneAPI.linphone_core_set_static_picture(linphoneCore, "Resources\\contacts.png");
-            LinphoneAPI.linphone_call_enable_camera(callPtr, enableVideo);
-        }
-
-        public void SendCameraSwtichAsInfo(IntPtr callPtr, bool muteCamera)
-        {
             if (linphoneCore == IntPtr.Zero)
                 return;
 
             if (callPtr == IntPtr.Zero)
             {
-                LOG.Error("LinphoneService.SendCameraSwtichAsInfo: Attempting to switch camera but the call pointer is null. Returing without modifying call.");
+                LOG.Error("ToggleVideo: Attempting to switch camera but the call pointer is null. Returing without modifying call.");
                 return;
             }
 
-            LOG.Info("Send Mute Camera info. Call- " + callPtr + " Mute: " + muteCamera);
-
-            IntPtr im = LinphoneAPI.linphone_core_create_info_message(linphoneCore);
-            if (im == IntPtr.Zero)
+            var cmd = new ToggleCameraCommand(callPtr, enableVideo);
+            lock (commandQueue)
             {
-                LOG.Error("LinphoneService.SendCameraSwtichAsInfo: Failed to create info message");
-                return;
+                commandQueue.Enqueue(cmd);
             }
+        }
+
+        public void SendCameraSwtichAsInfo(IntPtr callPtr, bool muteCamera)
+        {
+//            if (linphoneCore == IntPtr.Zero)
+//                return;
+
+//            if (callPtr == IntPtr.Zero)
+//            {
+//                LOG.Error("LinphoneService.SendCameraSwtichAsInfo: Attempting to switch camera but the call pointer is null. Returing without modifying call.");
+//                return;
+//            }
+
+//            LOG.Info("Send Mute Camera info. Call- " + callPtr + " Mute: " + muteCamera);
+//            IntPtr im = LinphoneAPI.linphone_core_create_info_message(linphoneCore);
+//            if (im == IntPtr.Zero)
+//            {
+//                LOG.Error("LinphoneService.SendCameraSwtichAsInfo: Failed to create info message");
+//                return;
+//            }
             
-            LinphoneAPI.linphone_info_message_add_header(im, "action", !muteCamera ? "camera_mute_on" : "camera_mute_off");
-            LinphoneAPI.linphone_call_send_info_message(callPtr, im);
-            LinphoneAPI.linphone_info_message_destroy(im);
+//            LinphoneAPI.linphone_info_message_add_header(im, "action", !muteCamera ? "camera_mute_on" : "camera_mute_off");
+//            LinphoneAPI.linphone_call_send_info_message(callPtr, im);
+//            LinphoneAPI.linphone_info_message_destroy(im);
+
         }
 
         public void SendDtmf(VATRPCall call, char dtmf)
@@ -2501,28 +2545,28 @@ namespace VATRP.Core.Services
 		
         private void OnInfoEventReceived(IntPtr lc, IntPtr callPtr, IntPtr msgPtr)
 		{
-			if (linphoneCore == IntPtr.Zero) 
-                return;
+            //if (linphoneCore == IntPtr.Zero) 
+            //    return;
             
-		    if (msgPtr != IntPtr.Zero)
-		    {
-		        lock (callLock)
-		        {
-                    VATRPCall call = FindCall(callPtr);
+            //if (msgPtr != IntPtr.Zero)
+            //{
+            //    lock (callLock)
+            //    {
+            //        VATRPCall call = FindCall(callPtr);
 
-		            if (call != null)
-		            {
-		                IntPtr valuePtr = LinphoneAPI.linphone_info_message_get_header(msgPtr, "action");
-		                if (valuePtr != IntPtr.Zero)
-		                {
-		                    string val = Marshal.PtrToStringAnsi(valuePtr);
-                            if (val == "camera_mute_on" || val == "camera_mute_off"  || val == "isCameraMuted")
-                                if (OnCameraMuteEvent != null)
-                                    OnCameraMuteEvent(new CameraMuteEventArgs(call, val == "camera_mute_off"));
-		                }
-		            }
-		        }
-		    }
+            //        if (call != null)
+            //        {
+            //            IntPtr valuePtr = LinphoneAPI.linphone_info_message_get_header(msgPtr, "action");
+            //            if (valuePtr != IntPtr.Zero)
+            //            {
+            //                string val = Marshal.PtrToStringAnsi(valuePtr);
+            //                if (val == "camera_mute_on" || val == "camera_mute_off"  || val == "isCameraMuted")
+            //                    if (OnCameraMuteEvent != null)
+            //                        OnCameraMuteEvent(new CameraMuteEventArgs(call, val == "camera_mute_off"));
+            //            }
+            //        }
+            //    }
+            //}
 		}
         
         private void OnNetworkReachable(IntPtr lc, bool reachable)
