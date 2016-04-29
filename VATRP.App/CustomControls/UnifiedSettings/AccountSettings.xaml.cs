@@ -44,10 +44,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 PasswordTextBox.Password = App.CurrentAccount.Password;
                 DomainTextBox.Text = App.CurrentAccount.ProxyHostname;
                 ProxyTextBox.Text = Convert.ToString(App.CurrentAccount.ProxyPort);
-                if (App.CurrentAccount.UseOutboundProxy && string.IsNullOrEmpty(OutboundProxyTextBox.Text))
-                    OutboundProxyTextBox.Text = App.CurrentAccount.ProxyHostname;
-
-                OutboundProxyTextBox.Text = App.CurrentAccount.OutboundProxyAddress;
                 string transport = App.CurrentAccount.Transport;
                 CardDAVServerTextBox.Text = App.CurrentAccount.CardDavServerPath;
                 CardDAVRealmTextBox.Text = App.CurrentAccount.CardDavRealm;
@@ -99,8 +95,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             TransportLabel.Visibility = visibleSetting;
             TransportComboBox.Visibility = visibleSetting;
 
-            OutboundProxyTextBox.Visibility = visibleSetting;
-            OutboundProxyLabel.Visibility = visibleSetting;
         }
 
         public override void ShowSuperOptions(bool show)
@@ -342,24 +336,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
         }
 
-        public void OnOutboundProxyChanged(Object sender, RoutedEventArgs args)
-        {
-            if ((App.CurrentAccount == null) || !this.IsVisible)
-                return;
-            string newProxy = this.OutboundProxyTextBox.Text.Trim();
-            if (string.Compare(newProxy, App.CurrentAccount.OutboundProxyAddress, StringComparison.InvariantCultureIgnoreCase) != 0)
-            {
-                if (App.CurrentAccount.UseOutboundProxy)
-                {
-                    if (string.IsNullOrEmpty(newProxy))
-                        App.CurrentAccount.UseOutboundProxy = false;
-
-                    App.CurrentAccount.OutboundProxyAddress = newProxy;
-                    OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType.RegistrationChanged);
-                }
-            }
-        }
-
         public void OnCardDAVServerChanged(Object sender, RoutedEventArgs args)
         {
             if ((App.CurrentAccount == null) || !this.IsVisible)
@@ -382,13 +358,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
         }
 
-        private void OnProxyChangedByUser(object sender, KeyEventArgs e)
-        {
-            App.CurrentAccount.UseOutboundProxy = true;
-        }
-
         #endregion
-
 
         #region VoiceMail Uri & MWI
         private void OnVideoMailUriChanged(Object sender, RoutedEventArgs args)

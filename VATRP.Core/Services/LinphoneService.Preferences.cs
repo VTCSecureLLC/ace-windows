@@ -12,7 +12,6 @@ namespace VATRP.Core.Services
             public Preferences()
             {
                 IsOutboundProxyOn = true;
-                OutboundProxyAddress = string.Empty;
                 Expires = 280;
                 CardDavUser = string.Empty;
                 CardDavPass = string.Empty;
@@ -49,7 +48,7 @@ namespace VATRP.Core.Services
             public string AuthID { get; set; }
 
             public bool IsOutboundProxyOn { get; set; }
-            public string OutboundProxyAddress { get; set; }
+
             public int Expires { get; set; }
 
             public string CardDavUser { get; set; }

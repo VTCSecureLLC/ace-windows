@@ -345,9 +345,6 @@ namespace com.vtcsecure.ace.windows.Services
             LinphoneService.LinphoneConfig.Username = App.CurrentAccount.RegistrationUser;
             LinphoneService.LinphoneConfig.DisplayName = App.CurrentAccount.DisplayName;
             LinphoneService.LinphoneConfig.Password = App.CurrentAccount.RegistrationPassword;
-            LinphoneService.LinphoneConfig.IsOutboundProxyOn = App.CurrentAccount.UseOutboundProxy;
-            LinphoneService.LinphoneConfig.OutboundProxyAddress = App.CurrentAccount.OutboundProxyAddress;
-
             string[] transportList = {"UDP", "TCP", "DTLS", "TLS"};
 
             if (transportList.All(s => App.CurrentAccount.Transport != s))
