@@ -274,6 +274,8 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			        }
 
 					callViewModel.OnConnected();
+                    if (_mainViewModel.IsRTTViewEnabled)
+                        _mainViewModel.RttMessagingModel.ConversationStartTime = call.CallEstablishTime;
                     if (_flashWindowHelper != null)
                         _flashWindowHelper.StopFlashing();
 					stopPlayback = true;

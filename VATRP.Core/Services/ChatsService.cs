@@ -1111,6 +1111,7 @@ namespace VATRP.Core.Services
                                 IsIncompleteMessage = true,
                                 Chat = chat,
                                 IsRTTMarker = false,
+                                IsRTTMessage = true
                             };
 
                             chat.AddMessage(message, false);

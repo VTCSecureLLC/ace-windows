@@ -11,6 +11,7 @@ using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
 using System.Text;
+using VATRP.Core.Enums;
 
 
 namespace com.vtcsecure.ace.windows.ViewModel
@@ -80,7 +81,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _contactSearchCriteria = string.Empty;
             _receiverAddress = string.Empty;
             LoadContacts();
-            this.ContactsListView = CollectionViewSource.GetDefaultView(this.Contacts);
+            this.ContactsListView = new CollectionViewSource { Source = this.Contacts }.View;  
             this.ContactsListView.SortDescriptions.Add(new SortDescription("LastUnreadMessageTime", ListSortDirection.Descending));
             this.ContactsListView.SortDescriptions.Add(new SortDescription("ContactUI", ListSortDirection.Ascending));
             this.ContactsListView.Filter = new Predicate<object>(this.FilterContactsList);
@@ -88,6 +89,20 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
 
         #region Methods
+
+        protected override bool FilterMessages(object obj)
+        {
+            var message = obj as VATRPChatMessage;
+
+            if (message != null)
+            {
+                if (message.Direction == MessageDirection.Incoming)
+                    return !message.IsIncompleteMessage && !message.IsRTTStartMarker && !message.IsRTTEndMarker;
+                return !message.IsRTTMarker;
+            }
+
+            return false;
+        }
 
         protected override void ChangeUnreadCounter()
         {

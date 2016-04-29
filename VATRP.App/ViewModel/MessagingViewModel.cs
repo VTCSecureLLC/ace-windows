@@ -263,6 +263,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
             
         }
 
+        protected virtual bool FilterMessages(object obj)
+        {
+            return true;
+        }
+
         #endregion
 
         #region Methods
@@ -305,8 +310,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 return;
             }
 
-            Console.WriteLine("SetActiveChat " + contact.Fullname);
-
             this._chat = _chatsManager.GetChat(contact);
 
             var contactVM = FindContactViewModel(contact);
@@ -346,13 +349,14 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _contactViewModel.IsSelected = true;
             IsMessagesLoaded = false;
 
-            if ( Messages != null)
+            if (Messages != null)
             {
-                this.MessagesListView = CollectionViewSource.GetDefaultView(this.Messages);
+                this.MessagesListView = new CollectionViewSource {Source = this.Messages}.View;
                 this.MessagesListView.SortDescriptions.Add(new SortDescription("MessageTime",
                     ListSortDirection.Ascending));
+                this.MessagesListView.Filter = new Predicate<object>(this.FilterMessages);
             }
-			
+
             OnPropertyChanged("Chat");
 			if (MessagesListView != null)
 			     MessagesListView.Refresh();
@@ -360,7 +364,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 ConversationUpdated(this, EventArgs.Empty);
         }
 
-        
         private ContactViewModel FindContactViewModel(ContactID contact)
         {
             if (contact != null)
@@ -475,11 +478,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             get { return this.messagesListView; }
             protected set
             {
-                if (value == this.messagesListView)
-                {
-                    return;
-                }
-
                 this.messagesListView = value;
                 OnPropertyChanged("MessagesListView");
             }
