@@ -75,15 +75,6 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_core_create_proxy_config(IntPtr lc);
-		
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_proxy_config_ref(IntPtr cfg);
-		
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_proxy_config_unref(IntPtr cfg);
-		
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int linphone_proxy_config_set_identity_address(IntPtr cfg, IntPtr identity);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_clear_proxy_config(IntPtr lc);
@@ -122,8 +113,6 @@ namespace VATRP.LinphoneWrapper
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_proxy_config_enable_register(IntPtr obj, bool val);
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_proxy_config_enable_publish(IntPtr obj, bool val);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_proxy_config_set_avpf_mode(IntPtr cfg, LinphoneAVPFMode mode);
@@ -132,24 +121,10 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_proxy_config_set_avpf_rr_interval(IntPtr cfg, byte interval);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr linphone_address_new(string addr);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_address_destroy(IntPtr u);
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern	int linphone_address_set_display_name(IntPtr u, string display_name);
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern	int linphone_address_set_username(IntPtr uri, string username);
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int linphone_address_set_domain(IntPtr uri, string host);
 
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int linphone_address_set_transport(IntPtr uri, LinphoneTransportType type);
-        
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_core_add_proxy_config(IntPtr lc, IntPtr cfg);
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int linphone_core_remove_proxy_config(IntPtr lc, IntPtr cfg);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_set_default_proxy_config(IntPtr lc, IntPtr config);
