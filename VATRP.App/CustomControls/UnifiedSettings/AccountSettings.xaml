@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="400">
     <Grid>
-        <Grid  Background="{StaticResource RecentsPageMainBg}" Margin="2,0">
+        <Grid  Background="{StaticResource RecentsPageMainBg}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -96,43 +96,35 @@
                 <TextBlock >TLS</TextBlock>
             </ComboBox>
 
-            <!-- Row 8: Otbound proxy -->
-            <Label Grid.Column="0" Grid.Row="8" Content="Outbound Proxy" Name="OutboundProxyLabel" VerticalContentAlignment="Center" Visibility="Collapsed"
-                   HorizontalAlignment="Left">
+            <!-- Row 8: Video Main URI checkbox -->
+            <Label Grid.Column="0" Grid.Row="8" Content="Video Mail URI" VerticalAlignment="Center" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left" Name="VideoMailUriLabel">
             </Label>
-            <TextBox Grid.Column="1" Grid.Row="8" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" Text=""  VerticalAlignment="Top" Foreground="Blue" Name="OutboundProxyTextBox" LostFocus="OnOutboundProxyChanged" PreviewKeyUp="OnProxyChangedByUser" Visibility="Collapsed"/>
-
+            <TextBox Grid.Column="1" Grid.Row="8" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
+                     Height="23" Margin="0,0,0,0" Text=""  VerticalAlignment="Center"
+                     VerticalContentAlignment="Center" FontSize="12" Foreground="Blue" Name="VideoMailUriTextBox"  LostFocus="OnVideoMailUriChanged"/>
+            <!-- Row 9: Video Main URI checkbox -->
+            <Label Grid.Column="0" Grid.Row="9" Content="Mail Waiting URI" VerticalAlignment="Center" VerticalContentAlignment="Center" 
+                   HorizontalAlignment="Left" Name="MWIUriLabel">
+            </Label>
+            <TextBox Grid.Column="1" Grid.Row="9" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
+                     Height="23" Margin="0,0,0,0" Text=""  VerticalAlignment="Center" VerticalContentAlignment="Center" FontSize="12" 
+                     Foreground="Blue" Name="MWIUriTextBox"  LostFocus="MWIUriTextBox_LostFocus"/>
             <!-- Row 10: CardDAV server Text box -->
-            <Label Grid.Column="0" Grid.Row="9" Content="CardDAV URI" VerticalAlignment="Center" VerticalContentAlignment="Center" 
+            <Label Grid.Column="0" Grid.Row="10" Content="CardDAV URI" VerticalAlignment="Center" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Visibility="Visible" Name="CardDAVServerLabel">
             </Label>
-            <TextBox Grid.Column="1" Grid.Row="9" HorizontalAlignment="Stretch" 
+            <TextBox Grid.Column="1" Grid.Row="10" HorizontalAlignment="Stretch" 
                      Height="23" Margin="0,0,0,0" Text=""  VerticalAlignment="Center" Foreground="Blue" VerticalContentAlignment="Center" FontSize="12"
                      Name="CardDAVServerTextBox" LostFocus="OnCardDAVServerChanged" IsEnabled="true"/>
 
             <!-- Row 11: CardDAV realm Text box -->
-            <Label Grid.Column="0" Grid.Row="10" Content="CardDAV Realm" VerticalAlignment="Center" VerticalContentAlignment="Center" 
+            <Label Grid.Column="0" Grid.Row="11" Content="CardDAV Realm" VerticalAlignment="Center" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Visibility="Visible" Name="CardDAVRealmLabel">
             </Label>
-            <TextBox Grid.Column="1" Grid.Row="10" HorizontalAlignment="Stretch" 
+            <TextBox Grid.Column="1" Grid.Row="11" HorizontalAlignment="Stretch" 
                      Height="23" Margin="0,0,0,0" TextWrapping="Wrap" Text=""  VerticalAlignment="Center" VerticalContentAlignment="Center" FontSize="12" Foreground="Blue" 
                      Name="CardDAVRealmTextBox" LostFocus="OnCardDAVRealmChanged" IsEnabled="true"/>
-
-            <!-- Row 8: Video Main URI checkbox -->
-            <Label Grid.Column="0" Grid.Row="11" Content="Video Mail URI" VerticalAlignment="Center" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left" Name="VideoMailUriLabel">
-            </Label>
-            <TextBox Grid.Column="1" Grid.Row="11" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" Text=""  VerticalAlignment="Center"
-                     VerticalContentAlignment="Center" FontSize="12" Foreground="Blue" Name="VideoMailUriTextBox"  LostFocus="OnVideoMailUriChanged"/>
-            <!-- Row 9: Video Main URI checkbox -->
-            <Label Grid.Column="0" Grid.Row="12" Content="Mail Waiting URI" VerticalAlignment="Center" VerticalContentAlignment="Center" 
-                   HorizontalAlignment="Left" Name="MWIUriLabel">
-            </Label>
-            <TextBox Grid.Column="1" Grid.Row="12" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" 
-                     Height="23" Margin="0,0,0,0" Text=""  VerticalAlignment="Center" VerticalContentAlignment="Center" FontSize="12" 
-                     Foreground="Blue" Name="MWIUriTextBox"  LostFocus="MWIUriTextBox_LostFocus"/>
 
         </Grid>
         </Grid>
