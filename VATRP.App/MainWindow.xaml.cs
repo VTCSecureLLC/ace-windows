@@ -606,7 +606,6 @@ namespace com.vtcsecure.ace.windows
             ctrlMoreMenu.SettingsClicked += OnShowSettings;
             ctrlMoreMenu.SelfViewClicked += OnSelfViewClicked;
             ctrlMoreMenu.VideoMailClicked += OnVideoMailClicked;
-            ctrlLocalContact.VideomailCountReset += OnVideoMailClicked;
 
             ctrlCall.KeypadClicked += OnKeypadClicked;
             ctrlCall.RttToggled += OnRttToggled;
@@ -636,7 +635,6 @@ namespace com.vtcsecure.ace.windows
             //ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
 
             ctrlResource.CallResourceRequested += OnCallResourceRequested;
-            ctrlLocalContact.CallResourceRequested += OnCallResourceRequested;
 
             // reset provider selection in dialpad
             ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL, Configuration.ConfEntry.CURRENT_PROVIDER, "");
