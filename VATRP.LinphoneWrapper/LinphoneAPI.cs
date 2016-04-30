@@ -666,7 +666,7 @@ namespace VATRP.LinphoneWrapper
         public static extern IntPtr linphone_core_get_video_devices(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int linphone_core_set_video_device(IntPtr lc, string id);
+        public static extern int linphone_core_set_video_device(IntPtr lc, byte[] deviecid);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_core_get_video_device(IntPtr lc);

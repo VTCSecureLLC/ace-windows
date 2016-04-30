@@ -3143,7 +3143,8 @@ namespace VATRP.Core.Services
         {
             if (!string.IsNullOrEmpty(deviceId))
             {
-                LinphoneAPI.linphone_core_set_video_device(linphoneCore, deviceId);
+                var strBytes = Encoding.UTF8.GetBytes(deviceId);
+                LinphoneAPI.linphone_core_set_video_device(linphoneCore, strBytes);
             }
         }
 
@@ -3174,7 +3175,8 @@ namespace VATRP.Core.Services
                 while ((current = Marshal.ReadIntPtr(soundDevicesPtr, offset)) != IntPtr.Zero)
                 {
                     string device = LinphoneAPI.PtrToStringUtf8(current);
-                    if (LinphoneAPI.linphone_core_sound_device_can_capture(linphoneCore, device) == 1)
+                    var strBytes = Encoding.UTF8.GetBytes(device);
+                    if (LinphoneAPI.linphone_core_sound_device_can_capture(linphoneCore, strBytes) == 1)
                     {
                         VATRPDevice newDevice = new VATRPDevice(device, VATRPDeviceType.MICROPHONE);
                         microphoneList.Add(newDevice);
@@ -3189,7 +3191,8 @@ namespace VATRP.Core.Services
         {
             if (!string.IsNullOrEmpty(deviceId))
             {
-                LinphoneAPI.linphone_core_set_capture_device(linphoneCore, deviceId);
+                var strBytes = Encoding.UTF8.GetBytes(deviceId);
+                LinphoneAPI.linphone_core_set_capture_device(linphoneCore, strBytes);
             }
         }
 
@@ -3220,7 +3223,8 @@ namespace VATRP.Core.Services
                 while ((current = Marshal.ReadIntPtr(soundDevicesPtr, offset)) != IntPtr.Zero)
                 {
                     string device = LinphoneAPI.PtrToStringUtf8(current);
-                    if (LinphoneAPI.linphone_core_sound_device_can_playback(linphoneCore, device) == 1)
+                    var strBytes = Encoding.UTF8.GetBytes(device);
+                    if (LinphoneAPI.linphone_core_sound_device_can_playback(linphoneCore, strBytes) == 1)
                     {
                         VATRPDevice newDevice = new VATRPDevice(device, VATRPDeviceType.SPEAKER);
                         speakerList.Add(newDevice);
@@ -3235,7 +3239,8 @@ namespace VATRP.Core.Services
         {
             if (!string.IsNullOrEmpty(deviceId))
             {
-                LinphoneAPI.linphone_core_set_playback_device(linphoneCore, deviceId);
+                var strBytes = Encoding.UTF8.GetBytes(deviceId);
+                LinphoneAPI.linphone_core_set_playback_device(linphoneCore, strBytes);
             }
         }
 
