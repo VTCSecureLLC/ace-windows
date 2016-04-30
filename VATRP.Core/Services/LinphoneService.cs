@@ -2847,7 +2847,7 @@ namespace VATRP.Core.Services
             IntPtr chatRoomPtr = LinphoneAPI.linphone_core_get_chat_room(linphoneCore, friendAddressPtr);
             if (chatRoomPtr == IntPtr.Zero)
                 return;
-            IntPtr historyListPtr = LinphoneAPI.linphone_chat_room_get_history(chatRoomPtr, 0); // load all messages
+            IntPtr historyListPtr = LinphoneAPI.linphone_chat_room_get_history(chatRoomPtr, 100); // load all messages
 
             MSList curStruct;
             do
