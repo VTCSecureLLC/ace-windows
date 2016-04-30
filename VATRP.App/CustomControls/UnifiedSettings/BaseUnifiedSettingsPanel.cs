@@ -34,6 +34,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private MainControllerViewModel _parentViewModel;
 
         protected bool _initialized;
+        protected bool _firstTimeInitialize = true;
         internal bool IsDirty { get; set; }
 
         public string Title { get; set; }
@@ -122,7 +123,12 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             IsDirty = false;
             //ShowNormalOptions();
         }
-		
+
+        public virtual void Uninitialize()
+        {
+            _initialized = false;
+        }
+
         public virtual void SaveData()
         {
         }

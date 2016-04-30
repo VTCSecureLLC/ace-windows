@@ -149,6 +149,9 @@
           <Component Id='com_GSM.DLL' Guid='4F587610-3541-4169-BFAC-04A0323BEE77' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='GSM.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='gsm.dll' Source='ThirdParties\liblinphone\gsm.dll' KeyPath='yes' />
           </Component>
+          <Component Id='com_NAUDIO.DLL' Guid='11CF6A95-07F7-4905-A9B8-61884831F6E6' Permanent='no' SharedDllRefCount='no' Transitive='no'>
+            <File Id='NAUDIO.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='naudio.dll' Source='VATRP.App\bin\$(var.Configuration)\naudio.dll' KeyPath='yes' />
+          </Component>
           <Component Id='com_SQLITE3.DLL' Guid='24556154-50D0-4406-9366-E5BDA60D471D' Permanent='no' SharedDllRefCount='no' Transitive='no'>
             <File Id='SQLITE3.DLL' DiskId='1' Hidden='no' ReadOnly='no' System='no' Vital='yes' Compressed='yes' Name='sqlite3.dll' Source='ThirdParties\liblinphone\sqlite3.dll' KeyPath='yes' />
           </Component>
@@ -253,6 +256,7 @@
       <ComponentRef Id='com_MSVCP120.DLL'/>
       <ComponentRef Id='com_CUSTOMACTIONS.CA.DLL'/>
       <ComponentRef Id='com_CUSTOMACTIONS.DLL'/>
+	  <ComponentRef Id='com_NAUDIO.DLL'/>
       <ComponentRef Id='com_ROOTCA.PEM'/>
       <ComponentRef Id='com_LEGALRELEASE.TXT'/>
 	  <ComponentRef Id='com_CAMERA_DISABLED.JPG' />
