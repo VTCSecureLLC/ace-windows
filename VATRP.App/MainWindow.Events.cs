@@ -1005,12 +1005,13 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 				App.CurrentAccount.ProxyHostname,
 				App.CurrentAccount.ProxyPort));
 
+		    App.CurrentAccount.VideoMailCount = 0;
             _mainViewModel.IsAccountLogged = true;
             // VATRP-1899: This is a quick and dirty solution for POC. It will be funational, but not the end implementation we will want.
             if ((App.CurrentAccount != null) && (!App.CurrentAccount.UserNeedsAgentView))
             {
                 OpenDialpadAnimated();
-                UpdateVideomailCount();
+                UpdateVideomailCount(false);
 
                 _mainViewModel.IsCallHistoryDocked = true;
                 _mainViewModel.IsContactDocked = false;
@@ -1030,13 +1031,13 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 		    ServiceManager.Instance.StartupLinphoneCore();
 		}
 
-	    private void UpdateVideomailCount()
+	    private void UpdateVideomailCount(bool showMWI)
 	    {
 	        if (_mainViewModel.ContactModel != null)
 	            _mainViewModel.ContactModel.VideoMailCount = App.CurrentAccount.VideoMailCount;
 	        if (_mainViewModel.MoreMenuModel != null)
 	            _mainViewModel.MoreMenuModel.VideoMailCount = App.CurrentAccount.VideoMailCount;
-	        _mainViewModel.ShowVideomailIndicator = App.CurrentAccount.VideoMailCount > 0;
+	        _mainViewModel.ShowVideomailIndicator = showMWI;
 	    }
 
 	    private void OnChildVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e)
