@@ -821,7 +821,7 @@ namespace VATRP.Core.Services
 
         private void LoadMessages(VATRPChat chat, IntPtr chatRoomPtr)
         {
-            IntPtr msgListPtr = LinphoneAPI.linphone_chat_room_get_history(chatRoomPtr, 0);
+            IntPtr msgListPtr = LinphoneAPI.linphone_chat_room_get_history(chatRoomPtr, 100);
             if (msgListPtr != IntPtr.Zero)
             {
                 MSList msMessagePtr;
