@@ -191,8 +191,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
             if (_contactViewModel != null && _contactViewModel.Contact == e.Conversation.Contact )
             {
-                if (MessagesListView != null)
-                    MessagesListView.Refresh();
+                try
+                {
+                    if (MessagesListView != null && this.Messages != null)
+                        MessagesListView.Refresh();
+                }
+                catch (Exception)
+                {
+
+                }
                 if (ConversationUpdated != null)
                     ConversationUpdated(this, EventArgs.Empty);
             }
@@ -358,8 +365,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
 
             OnPropertyChanged("Chat");
-			if (MessagesListView != null)
+            try
+			{
+                if (MessagesListView != null && this.Messages != null)
 			     MessagesListView.Refresh();
+            }
+            catch (Exception)
+            {
+
+            }
             if (ConversationUpdated != null)
                 ConversationUpdated(this, EventArgs.Empty);
         }
