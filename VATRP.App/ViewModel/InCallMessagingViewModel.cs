@@ -153,8 +153,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
             if (Chat != null)
                 Chat.ClearRttMarkers(callPtr);
 
-            if (MessagesListView != null)
-                MessagesListView.Refresh();
+            try
+            {
+                if (MessagesListView != null && this.Messages != null)
+                    MessagesListView.Refresh();
+            }
+            catch (Exception ex)
+            {
+                
+            }
             OnPropertyChanged("Chat");
         }
 

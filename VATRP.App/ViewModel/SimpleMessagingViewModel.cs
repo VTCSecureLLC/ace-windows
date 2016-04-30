@@ -112,8 +112,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         protected override void RefreshContactsList()
         {
-            if (ContactsListView != null)
-                ContactsListView.Refresh();
+            try
+            {
+                if (ContactsListView != null && this.Contacts != null)
+                    ContactsListView.Refresh();
+            }
+            catch (Exception)
+            {
+
+            }
             OnPropertyChanged("ContactsListView");
         }
 
@@ -223,7 +230,15 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     _contactSearchCriteria = value;
                     OnPropertyChanged("ContactSearchCriteria");
                     OnPropertyChanged("ShowSearchHint");
-                    ContactsListView.Refresh();
+                    try
+                    {
+                        if (ContactsListView != null && this.Contacts != null)
+                            ContactsListView.Refresh();
+                    }
+                    catch (Exception)
+                    {
+                        
+                    }
                 }
             }
         }
