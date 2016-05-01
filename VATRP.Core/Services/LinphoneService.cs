@@ -31,11 +31,11 @@ namespace VATRP.Core.Services
 		private static readonly ILog LOG = LogManager.GetLogger(typeof(LinphoneService) );
 		private readonly Preferences preferences;
 		private readonly ServiceManagerBase manager;
-		private IntPtr linphoneCore;
-		private IntPtr proxy_cfg;
-		private IntPtr auth_info;
+		private IntPtr linphoneCore = IntPtr.Zero;
+		private IntPtr proxy_cfg = IntPtr.Zero;
+        private IntPtr auth_info = IntPtr.Zero;
         private IntPtr carddav_auth = IntPtr.Zero;
-		private IntPtr t_configPtr;
+		private IntPtr t_configPtr = IntPtr.Zero;
 		private IntPtr vtablePtr;
 		private string identity;
 		Thread coreLoop;
@@ -92,6 +92,7 @@ namespace VATRP.Core.Services
             "%10I64d", "%-9i", "%-19s", "%-19g", "%-10g", "%-20s" };
         SortedList<int, string> placeHolderItems = new SortedList<int, string>();
         private object logLock = new object();
+        private bool _clearProxyInformation;
         #endregion
 
 		#region Delegates
@@ -419,7 +420,9 @@ namespace VATRP.Core.Services
                     LinphoneAPI.linphone_proxy_config_enable_register(proxy_cfg, false);
                     LinphoneAPI.linphone_proxy_config_done(proxy_cfg);
 			    }
-                
+
+                ClearProxyInformation();
+
                 IntPtr coreConfig = LinphoneAPI.linphone_core_get_config(linphoneCore);
                 if (coreConfig != IntPtr.Zero)
                 {
@@ -600,11 +603,18 @@ namespace VATRP.Core.Services
             }
 
             LinphoneAPI.linphone_core_iterate(linphoneCore); // roll
-            
+
             if (vtablePtr != IntPtr.Zero)
+            {
                 Marshal.FreeHGlobal(vtablePtr);
+                vtablePtr = IntPtr.Zero;
+            }
+
             if (t_configPtr != IntPtr.Zero)
+            {
                 Marshal.FreeHGlobal(t_configPtr);
+                t_configPtr = IntPtr.Zero;
+            }
 
             if (_cardDavStatsPtr != IntPtr.Zero)
             {
@@ -630,8 +640,6 @@ namespace VATRP.Core.Services
             linphoneCore = proxy_cfg = auth_info = t_configPtr = IntPtr.Zero;
             call_stats_updated = null;
             coreLoop = null;
-            identity = null;
-            server_addr = null;
             _isStarting = false;
             _isStarted = false;
             _isStopping = false;
@@ -749,25 +757,13 @@ namespace VATRP.Core.Services
             //if ((currentRegistrationState == LinphoneRegistrationState.LinphoneRegistrationOk) ||
             if (currentRegistrationState == LinphoneRegistrationState.LinphoneRegistrationProgress)
             {
+                LOG.Warn("LinphoneService: Registration is in progress. Skip ");
                 return false;
             }
 
-            // check for network connectivity
-		    byte isReachable = LinphoneAPI.linphone_core_is_network_reachable(linphoneCore);
-		    if (isReachable == 0)
-		    {
-                SetTimeout(delegate
-                {
-                    if (RegistrationStateChangedEvent != null)
-                        RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationFailed, LinphoneReason.LinphoneReasonUnknown);
-                }, 50);
-
-		        return false;
-		    }
-
 		    if (t_configPtr == IntPtr.Zero)
 		    {
-		        t_config = new LCSipTransports()
+                t_config = new LCSipTransports
 		        {
 		            udp_port = LinphoneAPI.LC_SIP_TRANSPORT_RANDOM,
 		            tcp_port = LinphoneAPI.LC_SIP_TRANSPORT_RANDOM,
@@ -800,7 +796,7 @@ namespace VATRP.Core.Services
 			server_addr = string.Format("sip:{0}:{1};transport={2}", preferences.ProxyHost,
                 port, preferences.Transport.ToLower());
 
-            LOG.Info(string.Format("Registering SIP account: {0} Server: {1}", identity, server_addr));
+            LOG.Info(string.Format("LinphoneService: Register SIP account: {0} Server: {1}. Auth: {2}", identity, server_addr, preferences.AuthID));
 
             if (auth_info != IntPtr.Zero)
             {
@@ -864,28 +860,28 @@ namespace VATRP.Core.Services
             IntPtr proxyCfg = LinphoneAPI.linphone_core_get_default_proxy_config(LinphoneCore);
             if (proxyCfg != IntPtr.Zero && LinphoneAPI.linphone_proxy_config_is_registered(proxyCfg) == 1)
             {
-                if (RegistrationStateChangedEvent != null)
+                LOG.Info("LinphoneService: Unregister account ");
+
+                if (IsStopping &&RegistrationStateChangedEvent != null)
                     RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationProgress, LinphoneReason.LinphoneReasonNone); // disconnecting
 
+                _clearProxyInformation = true;
                 try
                 {
                     LinphoneAPI.linphone_proxy_config_edit(proxyCfg);
                     LinphoneAPI.linphone_proxy_config_enable_register(proxyCfg, false);
                     LinphoneAPI.linphone_proxy_config_done(proxyCfg);
-                    if (RegistrationStateChangedEvent != null)
+                    if (IsStopping && RegistrationStateChangedEvent != null)
                         RegistrationStateChangedEvent(LinphoneRegistrationState.LinphoneRegistrationCleared, LinphoneReason.LinphoneReasonNone);
                 }
                 catch (Exception ex)
                 {
                     LOG.Error("DoUnregister: " + ex.Message);
                 }
-                if (t_configPtr != IntPtr.Zero)
-                {
-                    Marshal.FreeHGlobal(t_configPtr);
-                    t_configPtr = IntPtr.Zero;
-                }
             }
-			ClearProxyInformation();
+            else
+                ClearProxyInformation();
+			
 	    }
 
         public void ClearProxyInformation()
@@ -899,11 +895,20 @@ namespace VATRP.Core.Services
                 return;
             }
 
+            LOG.Info("LinphoneService: Clear proxy information ");
             // remove all proxy entries from linphone configuration file
             LinphoneAPI.linphone_core_clear_proxy_config(linphoneCore);
             // remove all authorization information
             LinphoneAPI.linphone_core_clear_all_auth_info(linphoneCore);
+
+            if (t_configPtr != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(t_configPtr);
+                t_configPtr = IntPtr.Zero;
+            }
+            _clearProxyInformation = false;
         }
+
         public void ClearAccountInformation()
         {
             ClearProxyInformation();
@@ -2290,11 +2295,13 @@ namespace VATRP.Core.Services
             }
 		    var erroeReason = LinphoneAPI.linphone_error_info_get_reason(cfg);
 
-            LOG.Info("LinphoneService.OnRegistrationChanged called. Call State was:" + currentRegistrationState.ToString() + " call state changing to " + cstate.ToString());
-            if (cfg == proxy_cfg)
+            LOG.InfoFormat("LinphoneService.OnRegistrationChanged [{0}] Reg State was: {1} Changed to {2}",  cfg, 
+                currentRegistrationState, cstate);
+            
+		    if (cfg == proxy_cfg)
 		    {
-                var reason = LinphoneAPI.linphone_proxy_config_get_error(cfg);
-                currentRegistrationState = cstate;
+		        var reason = LinphoneAPI.linphone_proxy_config_get_error(cfg);
+		        currentRegistrationState = cstate;
 		        if (RegistrationStateChangedEvent != null)
 		            RegistrationStateChangedEvent(cstate, reason);
 		        switch (cstate)
@@ -2307,8 +2314,11 @@ namespace VATRP.Core.Services
 		                LinphoneAPI.linphone_core_enable_keep_alive(linphoneCore, false);
 		                break;
 		        }
+
+                if (_clearProxyInformation && cstate == LinphoneRegistrationState.LinphoneRegistrationCleared)
+                    ClearProxyInformation();
 		    }
-        }
+		}
 
 		void OnGlobalStateChanged(IntPtr lc, LinphoneGlobalState gstate, string message)
 		{
