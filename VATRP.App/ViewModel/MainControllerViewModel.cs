@@ -32,7 +32,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private DialpadViewModel _dialPadViewModel;
         private CallHistoryViewModel _historyViewModel;
         private LocalContactViewModel _contactViewModel;
-        private InCallMessagingViewModel _inCallMessageViewModel;
         private SimpleMessagingViewModel _simpleMessageViewModel;
         private SettingsViewModel _settingsViewModel;
         private MenuViewModel _menuViewModel;
@@ -61,8 +60,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _historyViewModel = new CallHistoryViewModel(ServiceManager.Instance.HistoryService, _dialPadViewModel);
             _contactsViewModel = new ContactsViewModel(ServiceManager.Instance.ContactService, _dialPadViewModel);
             _contactViewModel = new LocalContactViewModel(ServiceManager.Instance.ContactService);
-            _inCallMessageViewModel = new InCallMessagingViewModel(ServiceManager.Instance.ChatService,
-                ServiceManager.Instance.ContactService);
             _simpleMessageViewModel = new SimpleMessagingViewModel(ServiceManager.Instance.ChatService,
                 ServiceManager.Instance.ContactService);
             _settingsViewModel = new SettingsViewModel();
@@ -303,11 +300,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
         public LocalContactViewModel ContactModel
         {
             get { return _contactViewModel; }
-        }
-
-        public InCallMessagingViewModel RttMessagingModel
-        {
-            get { return _inCallMessageViewModel; }
         }
 
         public SimpleMessagingViewModel SipSimpleMessagingModel

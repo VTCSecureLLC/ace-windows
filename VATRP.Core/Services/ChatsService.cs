@@ -8,6 +8,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Input;
+using log4net;
+using log4net.Config;
 using VATRP.Core.Enums;
 using VATRP.Core.Events;
 using VATRP.Core.Extensions;
@@ -23,6 +25,7 @@ namespace VATRP.Core.Services
     public class ChatsService : IChatService
     {
         #region Members
+        private static readonly ILog LOG = LogManager.GetLogger(typeof(ChatsService));
         private bool _isStarted;
         private bool _isStopped;
 
@@ -143,7 +146,7 @@ namespace VATRP.Core.Services
             regulator.Set();
         }
 
-        private VATRPChat AddChat(VATRPContact contact, string dialogId)
+        private VATRPChat AddChat(VATRPContact contact, string dialogId, bool isRtt)
         {
             VATRPChat item = null;
             if (contact != null)
@@ -151,7 +154,7 @@ namespace VATRP.Core.Services
                 item = this.FindChat(contact);
                 if (item == null)
                 {
-                    item = this.CreateChat(contact, dialogId);
+                    item = this.CreateChat(contact, dialogId, isRtt);
                 }
             }
             return item;
@@ -245,28 +248,31 @@ namespace VATRP.Core.Services
             }
         }
 
-        public VATRPChat CreateChat(VATRPContact contact)
+        public VATRPChat CreateChat(VATRPContact contact, bool isRtt)
         {
             if (contact == null)
             {
                 return null;
             }
-            return this.CreateChat(contact, string.Empty);
+            return this.CreateChat(contact, string.Empty, isRtt);
         }
 
-        public VATRPChat CreateChat(VATRPContact contact, string dialogId)
+        public VATRPChat CreateChat(VATRPContact contact, string dialogId, bool isRtt)
         {
             if (contact == null)
             {
                 return null;
             }
 
-            VATRPChat chatRoom = new VATRPChat(contact, dialogId);
+            VATRPChat chatRoom = new VATRPChat(contact, dialogId, isRtt);
             var loggedContact = _contactSvc.FindLoggedInContact();
             if (loggedContact != null)
                 chatRoom.AddContact(loggedContact);
 
-            _chatItems.InsertToTop<VATRPChat>(chatRoom);
+            lock (this._chatItems)
+            {
+                _chatItems.InsertToTop<VATRPChat>(chatRoom);
+            }
             this.OnNewConversationCreated(chatRoom);
             return chatRoom;
         }
@@ -290,7 +296,27 @@ namespace VATRP.Core.Services
             {
                 foreach (VATRPChat chatItem in this._chatItems)
                 {
-                    if ((chatItem != null) && chatItem.NativePtr == chatPtr)
+                    if ((chatItem != null) && chatItem.NativePtr == chatPtr && !chatItem.IsRttChat )
+                    {
+                        return chatItem;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private VATRPChat FindRTTChat(IntPtr chatPtr)
+        {
+            if (chatPtr == IntPtr.Zero)
+            {
+                return null;
+            }
+            lock (this._chatItems)
+            {
+                foreach (VATRPChat chatItem in this._chatItems)
+                {
+                    if ((chatItem != null) && chatItem.NativePtr == chatPtr && chatItem.IsRttChat)
                     {
                         return chatItem;
                     }
@@ -366,12 +392,12 @@ namespace VATRP.Core.Services
             return Enumerable.ToList<VATRPChat>((IEnumerable<VATRPChat>)this._chatItems);
         }
 
-        public VATRPChat GetChat(VATRPContact contact)
+        public VATRPChat GetChat(VATRPContact contact, bool isRtt)
         {
             VATRPChat chat = this.FindChat(contact);
             if (chat == null)
             {
-                chat = this.AddChat(contact, string.Empty);
+                chat = this.AddChat(contact, string.Empty, isRtt);
                 this.Contacts.Add(contact);
                 if (ContactAdded != null)
                     ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
@@ -494,13 +520,36 @@ namespace VATRP.Core.Services
             return null;
         }
 
+        public VATRPChat InsertRttChat(VATRPContact contact, IntPtr chatPtr, IntPtr callPtr)
+        {
+            VATRPChat chat = FindRTTChat(chatPtr);
+
+            if (chat != null)
+                return chat;
+
+            chat = new VATRPChat(contact, callPtr + "_rtt", true) {NativePtr = chatPtr, CallPtr = callPtr};
+
+            lock (this._chatItems)
+            {
+                this._chatItems.Add(chat);
+            }
+
+            return chat;
+        }
+
         private bool RemoveChat(VATRPChat chat)
         {
+            var retValue = false;
             if (chat == null)
             {
-                return false;
+                return retValue;
             }
-            return this._chatItems.Remove(chat);
+
+            lock (this._chatItems)
+            {
+                retValue = this._chatItems.Remove(chat);
+            }
+            return retValue;
         }
 
         public void UpdateRTTFontFamily(string newFont)
@@ -552,9 +601,10 @@ namespace VATRP.Core.Services
 
         public bool ComposeAndSendMessage(IntPtr callPtr, VATRPChat chat, char key, bool inCompleteMessage)
         {
-            VATRPChat chatID = this.FindChat(chat);
+            VATRPChat chatID = this.FindRTTChat(chat.NativePtr);
             if ((chatID == null) || (chatID.Contact == null))
             {
+                LOG.Warn("ComposeAndSendMessage Null Chat: for " + chat.NativePtr);
                 return false;
             }
 
@@ -726,7 +776,7 @@ namespace VATRP.Core.Services
             {
                 VATRPChat chat = this.FindChat(contact);
                 if ((((chat != null) && ((chat.Messages != null) && (chat.Messages.Count != 0))) &&
-                     msgText.Equals(chat.Messages[chat.Messages.Count - 1])) &&
+                     msgText == chat.Messages[chat.Messages.Count - 1].Content) &&
                     (status > chat.Messages[chat.Messages.Count - 1].Status))
                 {
                     chat.Messages[chat.Messages.Count - 1].Status = status;
@@ -803,7 +853,7 @@ namespace VATRP.Core.Services
                                         _contactSvc.AddContact(contact, string.Empty);
                                     }
 
-                                    var chat = this.AddChat(contact, string.Empty);
+                                    var chat = this.AddChat(contact, string.Empty, false);
                                     chat.NativePtr = msChatRoomList.data;
                                     LoadMessages(chat, chat.NativePtr);
                                     OnConversationUpdated(chat, true);
@@ -821,7 +871,7 @@ namespace VATRP.Core.Services
 
         private void LoadMessages(VATRPChat chat, IntPtr chatRoomPtr)
         {
-            IntPtr msgListPtr = LinphoneAPI.linphone_chat_room_get_history(chatRoomPtr, 100);
+            IntPtr msgListPtr = LinphoneAPI.linphone_chat_room_get_history(chatRoomPtr, 0);
             if (msgListPtr != IntPtr.Zero)
             {
                 MSList msMessagePtr;
@@ -946,7 +996,7 @@ namespace VATRP.Core.Services
             {
                 if (contact.IsLoggedIn)
                     continue;
-                VATRPChat chat = AddChat(contact, string.Empty);
+                VATRPChat chat = AddChat(contact, string.Empty, false);
                 Contacts.Add(contact);
                 if (ContactAdded != null)
                     ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
@@ -961,7 +1011,7 @@ namespace VATRP.Core.Services
             {
                 if (contact.IsLoggedIn)
                     return;
-                VATRPChat chat = AddChat(contact, string.Empty);
+                VATRPChat chat = AddChat(contact, string.Empty, false);
                 Contacts.Add(contact);
                 if (ContactAdded != null)
                     ContactAdded(this, new ContactEventArgs(new ContactID(e.Contact)));
@@ -975,7 +1025,7 @@ namespace VATRP.Core.Services
                 VATRPContact chatContact = FindContact(new ContactID(contact.ID, contact.NativePtr));
                 if (chatContact == null)
                 {
-                    AddChat(contact, contact.ID);
+                    AddChat(contact, contact.ID, false);
                     Contacts.Add(contact);
                 }
             }
@@ -985,7 +1035,7 @@ namespace VATRP.Core.Services
                 VATRPContact contact = this._contactSvc.FindContact(new ContactID(chatContact.ID, chatContact.NativePtr));
                 if (contact == null)
                 {
-                    RemoveChat(GetChat(chatContact));
+                    RemoveChat(GetChat(chatContact, false));
                     Contacts.Remove(chatContact);
                 }
             }
@@ -1012,9 +1062,9 @@ namespace VATRP.Core.Services
             }
         }
 
-        private void OnChatMessageComposing(string remoteUser, IntPtr callPtr, uint rttCode)
+        private void OnChatMessageComposing(IntPtr chatPtr, uint rttCode)
         {
-            var args = new MessageComposingEventArgs(remoteUser, callPtr, rttCode);
+            var args = new MessageComposingEventArgs(chatPtr, rttCode);
             EnqueueReceivedMsg(args);
         }
 
@@ -1029,8 +1079,6 @@ namespace VATRP.Core.Services
         {
             if (args == null)
                 return;
-            string dn, un, host;
-            int port;
             System.Windows.Threading.Dispatcher dispatcher = null;
             try
             {
@@ -1043,32 +1091,13 @@ namespace VATRP.Core.Services
             if (dispatcher != null)
                 dispatcher.BeginInvoke((Action) delegate()
                 {
-                    if (!VATRPCall.ParseSipAddressEx(args.Remote, out dn, out un,
-                        out host, out port))
-                        un = "";
+                    VATRPChat chat = FindRTTChat(args.ChatRoomPtr);
 
-                    if (!un.NotBlank() )
-                        return;
-                    var contactAddress = string.Format("{0}@{1}", un, host);
-                    var contactID = new ContactID(contactAddress, IntPtr.Zero);
-
-                    VATRPContact contact = FindContact(contactID);
-
-                    if (contact == null)
+                    if (chat == null)
                     {
-                        contact = new VATRPContact(contactID)
-                        {
-                            DisplayName = dn,
-                            Fullname = dn.NotBlank() ? dn : un,
-                            RegistrationName = args.Remote,
-                            SipUsername = un
-                        };
-                        _contactSvc.AddContact(contact, "");
+                        LOG.WarnFormat("RTT Chat not found Ptr: {0} ", args.ChatRoomPtr);
+                        return;
                     }
-
-                    VATRPChat chat = GetChat(contact);
-
-                    chat.UnreadMsgCount++;
 
                     chat.CharsCountInBubble++;
                     var rttCodeArray = new char[2];
@@ -1151,16 +1180,7 @@ namespace VATRP.Core.Services
 
                         if (this.RttReceived != null)
                         {
-                            this.RttReceived(args.CallPtr, EventArgs.Empty);
-                        }
-
-                        if (!message.IsIncompleteMessage)
-                        {
-                            chat.UpdateUnreadCounter = this.UpdateUnreadCounter;
-                            chat.UnreadMsgCount++;
-                            if (!chat.IsSelected)
-                                contact.UnreadMsgCount++;
-                            OnConversationUnReadStateChanged(chat);
+                            this.RttReceived(chat.CallPtr, EventArgs.Empty);
                         }
                     }
                 });
@@ -1216,7 +1236,7 @@ namespace VATRP.Core.Services
                             ContactAdded(this, new ContactEventArgs(new ContactID(contact)));
                     }
 
-                    VATRPChat chat = GetChat(contact);
+                    VATRPChat chat = GetChat(contact, false);
                     chat.NativePtr = args.ChatPtr;
 
                     if (chat.CheckMessage(args.ChatMessage))

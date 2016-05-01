@@ -174,7 +174,7 @@ namespace VATRP.Core.Services
         public delegate void CallStatisticsChangedDelegate(VATRPCall call);
         public event CallStatisticsChangedDelegate CallStatisticsChangedEvent;
 
-        public delegate void IsComposingReceivedDelegate(string remoteUser, IntPtr chatPtr, uint rttCode);
+        public delegate void IsComposingReceivedDelegate(IntPtr chatPtr, uint rttCode);
         public event IsComposingReceivedDelegate IsComposingReceivedEvent;
 
         public delegate void OnMessageReceivedDelegate(IntPtr chatPtr, List<IntPtr> callChatPtrList, string remote_party, VATRPChatMessage chatMessage);
@@ -2474,7 +2474,7 @@ namespace VATRP.Core.Services
 		                        };
 		                    }
 		                    contact.RegistrationName = contactAddress;
-		                    call.ChatRoom = new VATRPChat(contact, "rtt");
+                            call.ChatRoom = manager.ChatService.InsertRttChat(contact, chatPtr, callPtr);
 		                    var loggedContact = manager.ContactService.FindLoggedInContact();
 		                    if (loggedContact != null)
 		                        call.ChatRoom.AddContact(loggedContact);
@@ -2595,18 +2595,6 @@ namespace VATRP.Core.Services
                 }
             }
 
-            var remoteUser = string.Empty;
-            IntPtr remoteAddress = LinphoneAPI.linphone_chat_room_get_peer_address(chatPtr);
-            if (remoteAddress != IntPtr.Zero)
-            {
-                IntPtr addressPtr = LinphoneAPI.linphone_address_as_string(remoteAddress);
-                if (addressPtr != IntPtr.Zero)
-                {
-                    remoteUser = Marshal.PtrToStringAnsi(addressPtr);
-                    LinphoneAPI.ortp_free(addressPtr);
-                }
-            }
-
             uint rttCode = 0;
             lock (messagingLock)
             {
@@ -2617,7 +2605,7 @@ namespace VATRP.Core.Services
             if (rttCode == 0)
                 return;
             if (IsComposingReceivedEvent != null)
-                IsComposingReceivedEvent(remoteUser, callPtr, rttCode);
+                IsComposingReceivedEvent(chatPtr, rttCode);
             
         }
 

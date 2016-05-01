@@ -83,8 +83,8 @@ namespace com.vtcsecure.ace.windows.Views
             if (_viewModel.CheckReceiverContact())
             {
                 var contactModel = ContactsList.SelectedItem as ContactViewModel;
-                if (contactModel != null && contactModel.Contact != _viewModel.Contact.Contact)
-                    ContactsList.SelectedItem = _viewModel.Contact;
+                if (contactModel != null && contactModel.Contact != _viewModel.ChatViewContact.Contact)
+                    ContactsList.SelectedItem = _viewModel.ChatViewContact;
 
                 _viewModel.SendSimpleMessage(_viewModel.MessageText);
             }

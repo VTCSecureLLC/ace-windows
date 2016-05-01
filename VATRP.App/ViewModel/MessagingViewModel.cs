@@ -20,7 +20,7 @@ using VATRP.Core.Model;
 
 namespace com.vtcsecure.ace.windows.ViewModel
 {
-    public class MessagingViewModel : ViewModelBase
+    public class MessagingViewModel : ViewModelBase, IEquatable<MessagingViewModel>
     {
 
         #region Members
@@ -58,7 +58,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             this._chatsManager = chatMng;
             this._contactsManager = contactsMng;
-            this._chatsManager.ConversationUpdated += OnConversationUpdated;
             this._chatsManager.NewConversationCreated += OnNewConversationCreated;
             this._chatsManager.ConversationClosed += OnConversationClosed;
             this._chatsManager.ContactsChanged += OnContactsChanged;
@@ -136,9 +135,9 @@ namespace com.vtcsecure.ace.windows.ViewModel
             VATRPContact contact = e.Conversation.Contact;
             if (contact != null)
             {
-                if (_contactViewModel != null && _contactViewModel.Contact == e.Conversation.Contact)
+                if (ChatViewContact != null && ChatViewContact.Contact == e.Conversation.Contact)
                 {
-                    _contactViewModel = null;
+                    ChatViewContact = null;
                 }
 
                 RemoveContact(contact);
@@ -178,42 +177,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     return;
                 }
             }
-        }
-
-        private void OnConversationUpdated(object sender, ConversationUpdatedEventArgs e)
-        {
-            if (ServiceManager.Instance.Dispatcher.Thread != Thread.CurrentThread)
-            {
-                ServiceManager.Instance.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
-                    new EventHandler<ConversationUpdatedEventArgs>(OnConversationUpdated), sender, new object[] { e });
-                return;
-            }
-
-            if (_contactViewModel != null && _contactViewModel.Contact == e.Conversation.Contact )
-            {
-                try
-                {
-                    if (MessagesListView != null && this.Messages != null)
-                        MessagesListView.Refresh();
-                }
-                catch (Exception)
-                {
-
-                }
-                if (ConversationUpdated != null)
-                    ConversationUpdated(this, EventArgs.Empty);
-            }
-            else
-            {
-                foreach (var contactVM in this.Contacts)
-                {
-                    if (contactVM.Contact == e.Conversation.Contact)
-                    {
-                        contactVM.LastUnreadMessageTime = e.Conversation.LastUnreadMessageTime;
-                    }
-                }
-            }
-            RefreshContactsList();
         }
 
         private void OnContactsChanged(object sender, EventArgs e)
@@ -279,6 +242,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         #region Methods
 
+        protected void RaiseConversationChanged()
+        {
+            if (ConversationUpdated != null)
+                ConversationUpdated(this, EventArgs.Empty);
+        }
+
         internal void EnqueueInput(string inputString)
         {
             lock (_inputTypingQueue)
@@ -290,6 +259,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         internal void StopInputProcessor()
         {
+            if (!_isRunning)
+                return;
             _isRunning = false;
             regulator.Set();
         }
@@ -301,6 +272,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 this.Contacts.Add(new ContactViewModel(contact));
             }
             OnPropertyChanged("Contacts");
+        }
+
+        protected void UpdateMessagingView()
+        {
+            if (ConversationUpdated != null)
+                ConversationUpdated(this, EventArgs.Empty);
         }
 
         public void SetActiveChatContact(VATRPContact contact, IntPtr callPtr)
@@ -317,7 +294,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 return;
             }
 
-            this._chat = _chatsManager.GetChat(contact);
+            this._chat = _chatsManager.GetChat(contact, false);
 
             var contactVM = FindContactViewModel(contact);
             if (contactVM == null)
@@ -325,13 +302,13 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 contactVM = new ContactViewModel(contact);
                 this.Contacts.Add(contactVM);
             }
-            
-            if (_contactViewModel != null && _contactViewModel.Contact != contactVM.Contact)
+
+            if (ChatViewContact != null && ChatViewContact.Contact != contactVM.Contact)
             {
-                _contactViewModel.IsSelected = false;
+                ChatViewContact.IsSelected = false;
             }
 
-            _contactViewModel = contactVM;
+            ChatViewContact = contactVM;
 
             if (Chat != null)
             {
@@ -353,16 +330,12 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 }
             }
 
-            _contactViewModel.IsSelected = true;
+            ChatViewContact.IsSelected = true;
             IsMessagesLoaded = false;
 
-            if (Messages != null)
-            {
-                this.MessagesListView = new CollectionViewSource {Source = this.Messages}.View;
-                this.MessagesListView.SortDescriptions.Add(new SortDescription("MessageTime",
-                    ListSortDirection.Ascending));
-                this.MessagesListView.Filter = new Predicate<object>(this.FilterMessages);
-            }
+            this.MessagesListView = CollectionViewSource.GetDefaultView(this.Messages);
+            this.MessagesListView.SortDescriptions.Add(new SortDescription("MessageTime",
+                ListSortDirection.Ascending));
 
             OnPropertyChanged("Chat");
             try
@@ -378,7 +351,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 ConversationUpdated(this, EventArgs.Empty);
         }
 
-        private ContactViewModel FindContactViewModel(ContactID contact)
+        protected ContactViewModel FindContactViewModel(ContactID contact)
         {
             if (contact != null)
             {
@@ -471,11 +444,18 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
        
-        public ContactViewModel Contact
+        public ContactViewModel ChatViewContact
         {
             get
             {
                 return _contactViewModel;
+            }
+
+            set
+            {
+                _contactViewModel = value;
+                Debug.WriteLine("Contact View model changed to " + value);
+                OnPropertyChanged("ChatContact");
             }
         }
 
@@ -498,6 +478,23 @@ namespace com.vtcsecure.ace.windows.ViewModel
         }
 
         #endregion
-        
+
+
+        public bool Equals(MessagingViewModel other)
+        {
+            if (other == null)
+                return false;
+
+            if (this.Chat == null && other.Chat == null)
+                return true;
+
+            if (this.Chat == null)
+                return false;
+
+            if (other.Chat == null)
+                return false;
+
+            return this.Chat.Equals(other.Chat);
+        }
     }
 }
