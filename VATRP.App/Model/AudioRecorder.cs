@@ -56,15 +56,16 @@ namespace com.vtcsecure.ace.windows.Model
             {
                 var mixerLine = waveIn.GetMixerLine();
                 //new MixerLine((IntPtr)waveInDeviceNumber, 0, MixerFlags.WaveIn);
-                foreach (var control in mixerLine.Controls)
-                {
-                    if (control.ControlType == MixerControlType.Volume)
+                if (mixerLine != null)
+                    foreach (var control in mixerLine.Controls)
                     {
-                        this.volumeControl = control as UnsignedMixerControl;
-                        MicrophoneLevel = desiredVolume;
-                        break;
+                        if (control != null && control.ControlType == MixerControlType.Volume)
+                        {
+                            this.volumeControl = control as UnsignedMixerControl;
+                            MicrophoneLevel = desiredVolume;
+                            break;
+                        }
                     }
-                }
             }
             else
             {
@@ -99,7 +100,14 @@ namespace com.vtcsecure.ace.windows.Model
                 desiredVolume = value;
                 if (volumeControl != null)
                 {
-                    volumeControl.Percent = value;
+                    try
+                    {
+                        volumeControl.Percent = value;
+                    }
+                    catch (Exception ex)
+                    {
+                        
+                    }
                 }
             }
         }
