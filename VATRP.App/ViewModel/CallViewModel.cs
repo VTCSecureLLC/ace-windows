@@ -37,6 +37,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private bool subscribedForStats;
         private System.Timers.Timer timerCall;
         private CallInfoViewModel _callInfoViewModel;
+        private InCallMessagingViewModel _rttViewModel;
         private bool _showIncomingCallPanel;
         private bool _showOutgoingCallPanel;
         private SolidColorBrush _ringCounterBrush;
@@ -131,6 +132,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             ringTimer.Elapsed += OnUpdateRingCounter;
 
             _callInfoViewModel = new CallInfoViewModel();
+            _rttViewModel = new InCallMessagingViewModel(ServiceManager.Instance.ChatService, ServiceManager.Instance.ContactService);
         }
 
         public CallViewModel(ILinphoneService linphoneSvc, VATRPCall call) : this()
@@ -493,6 +495,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
         public CallInfoViewModel CallInfoModel
         {
             get { return _callInfoViewModel; }
+        }
+
+        public InCallMessagingViewModel RTTViewModel
+        {
+            get { return _rttViewModel; }
         }
 
         public CallInfoView CallInfoCtrl { get; set; }
@@ -1112,6 +1119,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
             StopAnimation();
 
             UnsubscribeCallStaistics();
+
+            _rttViewModel.ClearRTTConversation();
 
             lock (timerCallLock)
             {

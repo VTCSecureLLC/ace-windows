@@ -44,6 +44,8 @@ namespace com.vtcsecure.ace.windows.ViewModel
             Init();
             _chatsManager.ConversationUnReadStateChanged += OnUnreadStateChanged;
             _chatsManager.ConversationDeclineMessageReceived += OnDeclineMessageReceived;
+            _chatsManager.ConversationUpdated += OnChatRoomUpdated;
+
         }
 
         private void OnDeclineMessageReceived(object sender, DeclineMessageArgs args)
@@ -81,7 +83,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _contactSearchCriteria = string.Empty;
             _receiverAddress = string.Empty;
             LoadContacts();
-            this.ContactsListView = new CollectionViewSource { Source = this.Contacts }.View;  
+            this.ContactsListView = CollectionViewSource.GetDefaultView(this.Contacts);  
             this.ContactsListView.SortDescriptions.Add(new SortDescription("LastUnreadMessageTime", ListSortDirection.Descending));
             this.ContactsListView.SortDescriptions.Add(new SortDescription("ContactUI", ListSortDirection.Ascending));
             this.ContactsListView.Filter = new Predicate<object>(this.FilterContactsList);
@@ -89,6 +91,44 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
 
         #region Methods
+
+        private void OnChatRoomUpdated(object sender, ConversationUpdatedEventArgs e)
+        {
+            if (e.Conversation.IsRttChat) return;
+
+            if (ServiceManager.Instance.Dispatcher.Thread != Thread.CurrentThread)
+            {
+                ServiceManager.Instance.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                    new EventHandler<ConversationUpdatedEventArgs>(OnChatRoomUpdated), sender, new object[] { e });
+                return;
+            }
+
+            if (ChatViewContact != null && ChatViewContact.Contact == e.Conversation.Contact)
+            {
+                try
+                {
+                    if (MessagesListView != null && MessagesListView.SourceCollection != null)
+                        MessagesListView.Refresh();
+                }
+                catch (Exception)
+                {
+
+                }
+
+                RaiseConversationChanged();
+            }
+            else
+            {
+                foreach (var contactVM in this.Contacts)
+                {
+                    if (contactVM.Contact == e.Conversation.Contact)
+                    {
+                        contactVM.LastUnreadMessageTime = e.Conversation.LastUnreadMessageTime;
+                    }
+                }
+            }
+            RefreshContactsList();
+        }
 
         protected override bool FilterMessages(object obj)
         {
@@ -114,7 +154,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             try
             {
-                if (ContactsListView != null && this.Contacts != null)
+                if (ContactsListView != null && ContactsListView.SourceCollection != null)
                     ContactsListView.Refresh();
             }
             catch (Exception)
@@ -232,7 +272,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     OnPropertyChanged("ShowSearchHint");
                     try
                     {
-                        if (ContactsListView != null && this.Contacts != null)
+                        if (ContactsListView != null && this.ContactsListView.SourceCollection != null)
                             ContactsListView.Refresh();
                     }
                     catch (Exception)
@@ -268,7 +308,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 receiver = ReceiverAddress.Trim();
             }
 
-            if (Contact != null && receiver == Contact.Contact.RegistrationName)
+            if (ChatViewContact != null && receiver == ChatViewContact.Contact.RegistrationName)
                 return true;
 
             VATRPContact contact = _chatsManager.FindContact(new ContactID(receiver, IntPtr.Zero));
@@ -307,6 +347,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         internal void ShowUnreadMessageInfo(bool updUnreadCounter)
         {
+            _chatsManager.UpdateUnreadCounter = updUnreadCounter;
             if (Chat == null)
                 return;
             Chat.UpdateUnreadCounter = updUnreadCounter;

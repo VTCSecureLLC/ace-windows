@@ -9,9 +9,10 @@ namespace VATRP.Core.Model
             this.DialogID = chatID.DialogID;
         }
 
-        public ChatID(ContactID contactId, string dialogId) : base(contactId.ID, contactId.NativePtr)
+        public ChatID(ContactID contactId, bool isRTT, string dialogId) : base(contactId.ID, contactId.NativePtr)
         {
             this.DialogID = dialogId;
+            this.IsRttChat = isRTT;
         }
 
         public virtual bool Equals(ChatID other)
@@ -24,11 +25,13 @@ namespace VATRP.Core.Model
             {
                 return true;
             }
-            if (!string.IsNullOrEmpty( this.DialogID) && !string.IsNullOrEmpty( other.DialogID))
+            
+            if (this.IsRttChat != other.IsRttChat)
             {
-                return (this.DialogID == other.DialogID);
+                return false;
             }
-            return (string.IsNullOrEmpty(this.DialogID) && string.IsNullOrEmpty(other.DialogID) && base.Equals((ContactID)other));
+
+            return base.Equals((ContactID)other);
         }
 
         public override bool Equals(object obj)
@@ -56,6 +59,8 @@ namespace VATRP.Core.Model
         }
 
         public string DialogID { get; protected set; }
+
+        public bool IsRttChat { get; protected set; }
 
     }
 }
