@@ -116,6 +116,8 @@ namespace com.vtcsecure.ace.windows
 					CallInfoCtrl = _callInfoView
 				};
 
+                callViewModel.RTTViewModel.RttReceived += OnRttReceived;
+                callViewModel.RTTViewModel.CreateRttConversation(call.ChatRoom);
 			    callViewModel.CallConnectingTimeout += OnCallConnectingTimeout;
                 callViewModel.HideMessageWindowTimeout += OnMessageHideTimeout;
 			    callViewModel.CallQualityChangedEvent += OnCallQualityChanged;
@@ -265,8 +267,6 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			            Configuration.ConfEntry.USE_RTT, true))
 			        {
 			            _mainViewModel.IsRTTViewEnabled = true;
-			            ctrlRTT.SetViewModel(_mainViewModel.RttMessagingModel);
-			            _mainViewModel.RttMessagingModel.CreateRttConversation(call.RemoteParty.Username, call.NativeCallPtr);
 			        }
 			        else
 			        {
@@ -274,8 +274,6 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			        }
 
 					callViewModel.OnConnected();
-                    if (_mainViewModel.IsRTTViewEnabled)
-                        _mainViewModel.RttMessagingModel.ConversationStartTime = call.CallEstablishTime;
                     if (_flashWindowHelper != null)
                         _flashWindowHelper.StopFlashing();
 					stopPlayback = true;
@@ -283,9 +281,10 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			        callViewModel.IsRTTEnabled =
 			            ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
 			                Configuration.ConfEntry.USE_RTT, true) && callViewModel.ActiveCall != null &&
-			            _linphoneService.IsRttEnabled(callViewModel.ActiveCall.NativeCallPtr);
+			    _linphoneService.IsRttEnabled(callViewModel.ActiveCall.NativeCallPtr);
+			        ctrlRTT.SetViewModel(callViewModel.IsRTTEnabled ? callViewModel.RTTViewModel : null);
 
-					ShowCallOverlayWindow(true);
+			        ShowCallOverlayWindow(true);
                     ShowOverlayNewCallWindow(false);
 					ctrlCall.ctrlOverlay.SetCallerInfo(callViewModel.CallerInfo);
 					ctrlCall.ctrlOverlay.SetCallState("Connected");
@@ -419,7 +418,8 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                             if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                         Configuration.ConfEntry.USE_RTT, true))
                             {
-                                _mainViewModel.RttMessagingModel.CreateRttConversation(call.RemoteParty.Username, call.NativeCallPtr);
+                                _mainViewModel.IsRTTViewEnabled = true;
+                                ctrlRTT.SetViewModel(callViewModel.RTTViewModel);
                             }
 			            }
 			            else
@@ -442,11 +442,12 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                     callViewModel.OnClosed(ref isError, call.LinphoneMessage, call.SipErrorCode, callDeclined);
 					stopPlayback = true;
 			        destroycall = true;
+                    callViewModel.RTTViewModel.RttReceived -= OnRttReceived;
                     callViewModel.CallQualityChangedEvent -= OnCallQualityChanged;
+                    callViewModel.RTTViewModel.ClearRTTConversation();
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                        Configuration.ConfEntry.USE_RTT, true))
                     {
-                        _mainViewModel.RttMessagingModel.ClearRTTConversation(call.NativeCallPtr);
                         ctrlRTT.SetViewModel(null);
                     }
                     ShowOverlayNewCallWindow(false);
@@ -532,12 +533,11 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			                            Configuration.ConfEntry.USE_RTT, true))
 			                        {
 			                            _mainViewModel.IsRTTViewEnabled = true;
-			                            ctrlRTT.SetViewModel(_mainViewModel.RttMessagingModel);
-			                            _mainViewModel.RttMessagingModel.CreateRttConversation(
-			                                nextVM.ActiveCall.RemoteParty.Username, nextVM.ActiveCall.NativeCallPtr);
+                                        ctrlRTT.SetViewModel(nextVM.RTTViewModel);
 			                        }
 			                        else
 			                        {
+			                            ctrlRTT.SetViewModel(null);
 			                            _mainViewModel.IsRTTViewEnabled = false;
 			                        }
 			                        ShowCallOverlayWindow(true);
@@ -570,13 +570,14 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                         _flashWindowHelper.StopFlashing();
 			        ctrlCall.BackgroundCallViewModel = null;
 			        isError = true;
+                    callViewModel.RTTViewModel.RttReceived -= OnRttReceived;
                     callViewModel.OnClosed(ref isError, call.LinphoneMessage, call.SipErrorCode, false);
                     callViewModel.CallSwitchLastTimeVisibility = Visibility.Hidden;
 					stopPlayback = true;
+                    callViewModel.RTTViewModel.ClearRTTConversation();
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                        Configuration.ConfEntry.USE_RTT, true))
                     {
-                        _mainViewModel.RttMessagingModel.ClearRTTConversation(call.NativeCallPtr);
                         ctrlRTT.SetViewModel(null);
                     }
 
@@ -750,8 +751,8 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 	            if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
 	                Configuration.ConfEntry.USE_RTT, true))
 	            {
-	                _mainViewModel.RttMessagingModel.CreateRttConversation(callViewModel.ActiveCall.RemoteParty.Username,
-	                    callViewModel.ActiveCall.NativeCallPtr);
+                    _mainViewModel.IsRTTViewEnabled = true;
+                    ctrlRTT.SetViewModel(callViewModel.RTTViewModel);
 	            }
 	        }
 	        else
@@ -1061,8 +1062,8 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			        if (_mainViewModel.SipSimpleMessagingModel != null)
 			        {
                         _mainViewModel.SipSimpleMessagingModel.ShowUnreadMessageInfo(true);
-                        if (bShow && _mainViewModel.SipSimpleMessagingModel.Contact != null)
-                            _mainViewModel.SipSimpleMessagingModel.SetActiveChatContact(_mainViewModel.SipSimpleMessagingModel.Contact.Contact, IntPtr.Zero);
+                        if (bShow && _mainViewModel.SipSimpleMessagingModel.ChatViewContact != null)
+                            _mainViewModel.SipSimpleMessagingModel.SetActiveChatContact(_mainViewModel.SipSimpleMessagingModel.ChatViewContact.Contact, IntPtr.Zero);
                         _mainViewModel.SipSimpleMessagingModel.ShowUnreadMessageInfo(!bShow);
 			        }
 			        break;

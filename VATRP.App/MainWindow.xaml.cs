@@ -457,7 +457,6 @@ namespace com.vtcsecure.ace.windows
             App.AllowDestroyWindows = true;
             registerRequested = false;
             base.Window_Closing(sender, e);
-            _mainViewModel.RttMessagingModel.StopInputProcessor();
             _mainViewModel.SipSimpleMessagingModel.StopInputProcessor();
             ServiceManager.Instance.LinphoneCoreStoppedEvent -= OnLinphoneCoreStopped;
             ServiceManager.Instance.Stop();
@@ -622,7 +621,6 @@ namespace com.vtcsecure.ace.windows
             ctrlDialpad.KeypadPressed += OnDialpadClicked;
             _mainViewModel.DialpadHeight = ctrlDialpad.ActualHeight;
 
-            _mainViewModel.RttMessagingModel.RttReceived += OnRttReceived;
             _mainViewModel.SipSimpleMessagingModel.DeclineMessageReceived += OnDeclineMessageReceived;
             ServiceManager.Instance.LinphoneService.OnMWIReceivedEvent += OnVideoMailCountChanged;
 
@@ -878,10 +876,17 @@ namespace com.vtcsecure.ace.windows
 
         private void OnRttReceived(object sender, EventArgs e)
         {
+            IntPtr callPtr = (IntPtr)sender;
+
             if (!_mainViewModel.IsMessagingDocked)
             {
-                ctrlCall.CheckRttButton();
-                OnRttToggled(true);
+                if (_mainViewModel.ActiveCallModel != null &&
+                    _mainViewModel.ActiveCallModel.ActiveCall != null &&
+                     callPtr == _mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr)
+                {
+                    ctrlCall.CheckRttButton();
+                    OnRttToggled(true);
+                }
             }
         }
         
