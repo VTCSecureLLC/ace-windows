@@ -57,7 +57,7 @@ namespace VATRP.Core.Model
         public static string LINPHONE_SIP_SERVER = "stl.vatrp.net";
 		public static ushort LINPHONE_SIP_PORT = 25060;
 		public static string DISPLAY_NAME = "John Doe";
-		public static string LINPHONE_USERAGENT = "VATRP";
+		public static string LINPHONE_USERAGENT = "ACE-APP";
         public static string DEFAULT_REQUEST = @"https://crm.videoremoteassistance.com/users/sign_in";
 	}
 }

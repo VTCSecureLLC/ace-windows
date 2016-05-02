@@ -35,7 +35,6 @@ namespace com.vtcsecure.ace.windows.CustomControls
             InitializeComponent();
             pasteHandlerTimer.Tick += OnCheckPastedText;
             DataObject.AddPastingHandler(MessageTextBox, PasteHandler);
-            ServiceManager.Instance.ChatService.ConversationUpdated += ChatManagerOnConversationUpdated;
         }
 
         private void OnCheckPastedText(object sender, EventArgs e)
@@ -83,6 +82,9 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         public void SetViewModel(InCallMessagingViewModel viewModel)
         {
+            if (_viewModel != null && _viewModel.Equals(viewModel))
+                return;
+
             if (_viewModel != null && _viewModel != viewModel)
             {
                 _viewModel.ConversationUpdated -= OnConversationUpdated;
@@ -109,11 +111,6 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
            
         }
-
-       private void ChatManagerOnConversationUpdated(object sender, VATRP.Core.Events.ConversationUpdatedEventArgs e)
-       {
-           ScrollToEnd();
-       }
 
        private void ScrollToEnd()
        {
