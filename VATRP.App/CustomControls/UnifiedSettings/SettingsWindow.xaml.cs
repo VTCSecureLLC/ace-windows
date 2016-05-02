@@ -144,13 +144,18 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnClose(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Close Clicked");
-            _currentContent.SaveData();
+            if (_currentContent != null)
+            {
+                _currentContent.SaveData();
+                _currentContent.Uninitialize();
+            }
             this.Hide();
         }
 
         private void SetHidden()
         {
-            _currentContent.SaveData();
+            if (_currentContent != null) 
+                _currentContent.SaveData();
             this.Hide();
         }
 
@@ -162,7 +167,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 //        }
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _currentContent.SaveData();
+            if (_currentContent != null)
+                _currentContent.SaveData();
             if (GeneralTab.IsSelected)
             {
                 _currentContent = GeneralSettings;
@@ -270,5 +276,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 _currentContent.IsDirty = true;
             }
         }
+
     }
 }

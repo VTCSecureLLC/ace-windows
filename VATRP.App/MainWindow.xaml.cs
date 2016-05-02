@@ -220,7 +220,15 @@ namespace com.vtcsecure.ace.windows
             {
                 _settingsWindow = new SettingsWindow(ctrlCall, OnAccountChangeRequested);
             }
-            _settingsWindow.Show();
+
+            try
+            {
+                _settingsWindow.Show();
+            }
+            catch (Exception ex)
+            {
+                
+            }
         }
 
         private void btnDialpad_Click(object sender, RoutedEventArgs e)

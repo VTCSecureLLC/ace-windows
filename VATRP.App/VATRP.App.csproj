@@ -62,6 +62,10 @@
     <Reference Include="log4net">
       <HintPath>..\ThirdParties\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="NAudio, Version=1.7.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NAudio.1.7.3\lib\net35\NAudio.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -160,6 +164,9 @@
     <Compile Include="CustomControls\Resources\ResourcePanel.xaml.cs">
       <DependentUpon>ResourcePanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\UnifiedSettings\EmbeddedSelfView.xaml.cs">
+      <DependentUpon>EmbeddedSelfView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\UnifiedSettings\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
@@ -210,6 +217,8 @@
     <Compile Include="Enums\VATRPSettings.cs" />
     <Compile Include="Json\JsonFactoryConfig.cs" />
     <Compile Include="Model\ActionCommand.cs" />
+    <Compile Include="Model\AudioRecorder.cs" />
+    <Compile Include="Model\SampleAggregator.cs" />
     <Compile Include="Services\Win32NativeAPI.cs" />
     <Compile Include="Utilities\ConfigLookup.cs" />
     <Compile Include="Utilities\JsonDeserializer.cs" />
@@ -382,6 +391,10 @@
     <Page Include="CustomControls\UnifiedSettings\AdvancedSettings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\UnifiedSettings\EmbeddedSelfView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="CustomControls\UnifiedSettings\SettingsWindow.xaml">
       <SubType>Designer</SubType>

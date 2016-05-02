@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using VATRP.Linphone.VideoWrapper;
 
 namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 {
@@ -22,16 +23,61 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
     /// </summary>
     public partial class EmbeddedSelfView : UserControl
     {
-        public bool ResetNativePreviewHandle { get; set; }
+        public double VideoWidth
+        {
+            get
+            {
+                var managedVideoControl = this.ctrlVideo;
+                if (managedVideoControl != null)
+                    return managedVideoControl.Width;
+                return 0;
+            }
 
+            set
+            {
+                var managedVideoControl = this.ctrlVideo;
+                if (managedVideoControl != null)
+                    managedVideoControl.Width = value;
+            }
+        }
+
+        public double VideoHeight {
+            get
+            {
+                var managedVideoControl = this.ctrlVideo;
+                if (managedVideoControl != null)
+                    return managedVideoControl.Height;
+                return 0;
+            }
+
+            set
+            {
+                var managedVideoControl = this.ctrlVideo;
+                if (managedVideoControl != null) 
+                    managedVideoControl.Height = value;
+            }
+        }
+
+        private string currentCameraID = String.Empty;
         public EmbeddedSelfView()
         {
             InitializeComponent();
         }
 
-        public void OnVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e)
+        public void Initialize(string cameraID)
         {
-            SwitchPreviewPanel(Convert.ToBoolean(e.NewValue));
+            if (string.IsNullOrEmpty(cameraID) || currentCameraID == cameraID)
+                return;
+            currentCameraID = cameraID;
+            SwitchPreviewPanel(false);
+            ServiceManager.Instance.LinphoneService.SetCamera(cameraID);
+            SwitchPreviewPanel(true);
+        }
+
+        public void Uninitialize()
+        {
+            SwitchPreviewPanel(false);
+            currentCameraID = string.Empty;
         }
 
         private void SwitchPreviewPanel(bool bOn)
@@ -41,30 +87,13 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
                 return;
             if (!bOn)
             {
-                if (ResetNativePreviewHandle)
-                    _linphone.SetVideoPreviewWindowHandle(IntPtr.Zero, true);
-                ctrlVideo.DrawCameraImage = false;
+                _linphone.SetVideoPreviewWindowHandle(IntPtr.Zero, true);
             }
             else
             {
                 _linphone.SetPreviewVideoSizeByName("cif");
                 ServiceManager.Instance.LinphoneService.SetVideoPreviewWindowHandle(ctrlVideo.GetVideoControlPtr);
-                ctrlVideo.DrawCameraImage = true;
                 ctrlVideo.Visibility = System.Windows.Visibility.Visible;
-                
-
-/*                HwndSource source = (HwndSource)HwndSource.FromVisual(ContentPanel);
-                if (source != null)
-                {
-                    IntPtr hWnd = source.Handle;
-                    if (hWnd != IntPtr.Zero)
-                    {
-                        _linphone.SetVideoPreviewWindowHandle(hWnd);
-                    }
-
-                }
-                ResetNativePreviewHandle = true;
- * */
             }
         }
 

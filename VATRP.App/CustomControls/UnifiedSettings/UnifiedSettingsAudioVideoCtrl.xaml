@@ -6,6 +6,34 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="400">
+    <UserControl.Resources>
+        <Style x:Key="{x:Type ProgressBar}"
+     TargetType="{x:Type ProgressBar}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ProgressBar}">
+                        <Grid MinHeight="14" MinWidth="200">
+                            <Border Name="PART_Track">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Offset="0" Color="#FF00FF00" />
+                                        <GradientStop Offset="0.9" Color="#FFFFFF00" />
+                                        <GradientStop Offset="1" Color="#FFFF0000" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                            </Border>
+                            <DockPanel>
+                                <Rectangle DockPanel.Dock="Left" Name="PART_Indicator" />
+                                <Rectangle Name="Mask" Fill="#C0C0C0" />
+                            </DockPanel>
+                            <Border BorderThickness="1" BorderBrush="#888888" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
     <Grid>
         <Grid  Background="{StaticResource RecentsPageMainBg}">
             <Grid.RowDefinitions>
@@ -15,9 +43,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
+                
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="160"/>
@@ -27,7 +53,7 @@
             <Label Grid.Column="0" Grid.Row="0" Content="Preferred Video Size" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="PreferredVideoSizeLabel" Visibility="Visible">
             </Label>
-            <ComboBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" x:Name="PreferredVideoSizeComboBox" FontSize="12" Margin="0,3,0,3" Width="220" Height="24" 
+            <ComboBox Grid.Row="0" Grid.Column="1"  x:Name="PreferredVideoSizeComboBox" FontSize="12" Margin="0,3,0,3" Width="220" Height="24" 
                        VerticalAlignment="Center" HorizontalAlignment="Center" SelectionChanged="OnPreferredVideoSize" Visibility="Visible">
                 <TextBlock >720p (1280x720)</TextBlock>
                 <TextBlock >vga (640x480)</TextBlock>
@@ -87,8 +113,11 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
 
+            <!--Decibel control-->
+            <ProgressBar Grid.Row="3" Grid.Column="1" Name="MicLevelMeter" Height="20" Margin="0,3,0,8" Width="220" Orientation="Horizontal" Value="0" Maximum="100" />
+
             <!-- Row 3: Select Speaker -->
-            <Label Grid.Column="0" Grid.Row="3" Content="Select Speaker" VerticalContentAlignment="Center" 
+            <Label Grid.Column="0" Grid.Row="4" Content="Select Speaker" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="SelectSpeakerLabel">
             </Label>
  <!--           <Label Grid.Column="1" Grid.Row="3" Content="" VerticalContentAlignment="Center" 
@@ -97,10 +126,10 @@
             <Label Grid.Column="2" Grid.Row="3" Content=">" VerticalContentAlignment="Center" 
                    HorizontalAlignment="Left" Name="SelectedSpeakerLabel2" MouseDown="OnShowSpeakerOptions" TouchDown="OnShowSpeakerOptions">
             </Label>-->
-            <!--<ComboBox  Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" x:Name="SelectSpeakerComboBox" FontSize="14" Margin="0,3,0,3" Width="160" Height="24" 
+            <!--<ComboBox  Grid.Row="6" Grid.Column="1"  x:Name="SelectSpeakerComboBox" FontSize="14" Margin="0,3,0,3" Width="160" Height="24" 
                        VerticalAlignment="Center" HorizontalAlignment="Right" SelectionChanged="OnSelectSpeaker" SelectedValuePath="Content">
             </ComboBox>-->
-            <ComboBox Grid.Row="3" Grid.Column="1" ItemsSource="{Binding Path=SpeakerList}" FontSize="12" Margin="0,3,0,3" Width="220" Height="24"
+            <ComboBox Grid.Row="4" Grid.Column="1" ItemsSource="{Binding Path=SpeakerList}" FontSize="12" Margin="0,3,0,3" Width="220" Height="24"
                            VerticalAlignment="Center" HorizontalAlignment="Center" SelectionChanged="OnSelectSpeaker" x:Name="SelectSpeakerComboBox">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
@@ -115,10 +144,9 @@
             </ComboBox>
 
 
-            <!-- Row 8: Settings Content-->
-            <ScrollViewer Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3"  MaxHeight="150" MaxWidth="400">
-                <ContentControl  Name="ContentPanel" VerticalAlignment="Stretch"></ContentControl>
-            </ScrollViewer>
+            <!-- Row 5: Preview window -->
+
+            <local:EmbeddedSelfView x:Name="SelfPreviewCtrl" Grid.Row="5" Grid.Column="1" Width="200" Height="200" ></local:EmbeddedSelfView>
 
         </Grid>
 
