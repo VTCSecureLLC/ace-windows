@@ -675,9 +675,10 @@ namespace com.vtcsecure.ace.windows.Services
 
         internal void ApplyDtmfInbandChanges()
         {
-            bool val = this.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
-                Configuration.ConfEntry.DTMF_INBAND, false);
-            LinphoneService.SendDtmfAsTelephoneEvent(val);
+            // ToDo VATRP-3039 enable RFC2833/4733 
+            //bool val = this.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
+            //    Configuration.ConfEntry.DTMF_INBAND, false);
+            LinphoneService.SendDtmfAsTelephoneEvent(true);
         }
 
         private LinphoneMediaEncryption GetMediaEncryptionText(string s)
