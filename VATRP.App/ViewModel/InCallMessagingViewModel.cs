@@ -21,7 +21,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private string _selectedTextSendMode;
         private string _sendButtonTitle;
         private bool _isSendingModeRtt = true;
-        private DateTime _conversationStartTime;
+
         #endregion
 
         #region Events
@@ -165,16 +165,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             OnPropertyChanged("Chat");
         }
 
-        protected override bool FilterMessages(object obj)
-        {
-            var message = obj as VATRPChatMessage;
-
-            if (message != null)
-                return ( message.MessageTime >= ConversationStartTime && ( message.IsRTTMessage || message.IsRTTMarker));
-
-            return false;
-        }
-
         protected override void ProcessInputCharacters(object obj)
         {
             var sb = new StringBuilder();
@@ -218,23 +208,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         #region Properties
 
-        public DateTime ConversationStartTime
-        {
-            get { return _conversationStartTime; }
-            set
-            {
-                _conversationStartTime = value;
-                try
-                {
-                    if (MessagesListView != null && this.Messages != null)
-                        MessagesListView.Refresh();
-                }
-                catch (Exception)
-                {
-                    
-                }
-            }
-        }
         
         public ObservableCollection<string> TextSendModes
         {
