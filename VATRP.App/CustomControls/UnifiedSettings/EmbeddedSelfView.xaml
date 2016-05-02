@@ -7,11 +7,8 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <ScrollViewer Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="3"  MaxHeight="150" MaxWidth="400">
-            <videoWrapper:ManagedVideoControl x:Name="ctrlVideo" Width="{Binding VideoWidth}" Height="{Binding VideoHeight}" 
-												  VerticalAlignment="Center" HorizontalAlignment="Center">
+            <videoWrapper:ManagedVideoControl x:Name="ctrlVideo" VerticalAlignment="Center" HorizontalAlignment="Center">
             </videoWrapper:ManagedVideoControl>
-        </ScrollViewer>
 
     </Grid>
 </UserControl>

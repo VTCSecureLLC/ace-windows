@@ -66,8 +66,7 @@
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="50"/>
             </Grid.RowDefinitions>
-    
-        <TabControl Grid.Row="0"  x:Name="tc" Margin="5" SelectedIndex="0">
+            <TabControl Grid.Row="0"  x:Name="tc" Margin="5" SelectedIndex="0" SelectionChanged="TabControl_SelectionChanged" >
             <TabControl.Resources>
                 <Style TargetType="TabItem">
                     <Setter Property="FontSize" Value="14" />

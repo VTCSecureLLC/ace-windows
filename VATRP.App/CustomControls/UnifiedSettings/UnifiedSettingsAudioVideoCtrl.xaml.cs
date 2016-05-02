@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -14,8 +15,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using com.vtcsecure.ace.windows.Model;
 using VATRP.Core.Model;
 using com.vtcsecure.ace.windows.ViewModel;
+using NAudio.Wave;
 
 namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 {
@@ -36,11 +39,15 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         public ObservableCollection<VATRPDevice> SpeakerList { get; private set; }
         public ObservableCollection<VATRPDevice> MicrophoneList { get; private set; }
 
+        private readonly AudioRecorder recorder;
+        private float lastPeak;
+        private bool _isInitializing;
         public UnifiedSettingsAudioVideoCtrl()
         {
             InitializeComponent();
             Title = "Audio/Video";
             this.Loaded += UnifiedSettingsAudioVideoCtrl_Loaded;
+            this.Unloaded += UnifiedSettingsAudioVideoCtrl_Unloaded;
 /*            _cameraSelectionCtrl = new UnifiedSettingsDeviceCtrl();
             _cameraSelectionCtrl.OnDeviceSelected += HandleDeviceSelected;
 
@@ -53,22 +60,33 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             CameraList = new ObservableCollection<VATRPDevice>();
             MicrophoneList = new ObservableCollection<VATRPDevice>();
             SpeakerList = new ObservableCollection<VATRPDevice>();
-
+            recorder = new AudioRecorder();
             this.DataContext = this;
 
         }
 
+        
         // ToDo VATRP987 - Liz E. these need to be hooked into acutal settings. not sure where they live.
         private void UnifiedSettingsAudioVideoCtrl_Loaded(object sender, RoutedEventArgs e)
         {
             Initialize();
         }
 
+        private void UnifiedSettingsAudioVideoCtrl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            Uninitialize();
+        }
+
         public override void Initialize()
         {
             base.Initialize();
+            this.recorder.Stopped += OnRecorderStopped;
+            recorder.SampleAggregator.MaximumCalculated += OnRecorderPeekCalculated;
+
+            MicLevelMeter.Value = 0;
             if (App.CurrentAccount == null)
                 return;
+            _isInitializing = true;
 /*            List<VATRPDevice> cameraList = ServiceManager.Instance.GetAvailableCameras();
             string storedCameraId = App.CurrentAccount.SelectedCameraId;
             if (cameraList != null)
@@ -133,120 +151,54 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
             }
 
-            /*            string selectedCameraId = App.CurrentAccount.SelectedCameraId;
-            if (string.IsNullOrEmpty(selectedCameraId))
+            if (selectedMicrophone != null)
             {
-                VATRPDevice selectedCamera = ServiceManager.Instance.GetSelectedCamera();
-//                SelectedCameraLabel.Content = selectedCamera.displayName;
-//                SelectedCameraLabel.ToolTip = selectedCamera.displayName;
-            }
-            else
-            {
-                foreach (VATRPDevice camera in availableCameras)
+                int recordingDevId = -1;
+
+                for (int n = 0; n < WaveIn.DeviceCount; n++)
                 {
-                    if (!string.IsNullOrEmpty(selectedCameraId) && selectedCameraId.Equals(camera.deviceId))
+                    if (WaveIn.GetCapabilities(n).ProductName.Contains(selectedMicrophone.displayName))
                     {
-                        SelectCameraComboBox.SelectedItem = camera;
-//                        SelectedCameraLabel.Content = camera.displayName;
-//                        SelectedCameraLabel.ToolTip = camera.displayName;
+                        recordingDevId = n;
+                        break;
                     }
                 }
-            }
-            
-            List<VATRPDevice> availableMicrophones = ServiceManager.Instance.GetAvailableMicrophones();
-            string selectedMicrophoneId = App.CurrentAccount.SelectedMicrophoneId;
-            if (string.IsNullOrEmpty(selectedMicrophoneId))
-            {
-                VATRPDevice selectedMicrophone = ServiceManager.Instance.GetSelectedMicrophone();
-                SelectedMicrophoneLabel.Content = selectedMicrophone.displayName;
-                SelectedMicrophoneLabel.ToolTip = selectedMicrophone.displayName;
-            }
-            else
-            {
-                foreach (VATRPDevice microphone in availableMicrophones)
+                if (recordingDevId != -1)
                 {
-                    if (!string.IsNullOrEmpty(selectedMicrophoneId) && selectedMicrophoneId.Equals(microphone.deviceId))
-                    {
-                        SelectedMicrophoneLabel.Content = microphone.displayName;
-                        SelectedMicrophoneLabel.ToolTip = microphone.displayName;
-                    }
+                    recorder.MicrophoneLevel = 100;
+                    recorder.BeginMonitoring(recordingDevId);
                 }
             }
 
-            List<VATRPDevice> availableSpeakers = ServiceManager.Instance.GetAvailableSpeakers();
-            string selectedSpeakerId = App.CurrentAccount.SelectedSpeakerId;
-            if (string.IsNullOrEmpty(selectedSpeakerId))
+            SelfPreviewCtrl.VideoWidth = 200;
+            SelfPreviewCtrl.VideoHeight = 200;
+
+            if (selectedCamera != null && !_firstTimeInitialize)
             {
-                VATRPDevice selectedSpeaker = ServiceManager.Instance.GetSelectedSpeakers();
-                SelectedSpeakerLabel.Content = selectedSpeaker.displayName;
-                SelectedSpeakerLabel.ToolTip = selectedSpeaker.displayName;
+                SelfPreviewCtrl.Initialize(selectedCamera.deviceId);
             }
-            else
-            {
-                foreach (VATRPDevice speaker in availableSpeakers)
-                {
-                    if (!string.IsNullOrEmpty(selectedSpeakerId) && selectedSpeakerId.Equals(speaker.deviceId))
-                    {
-                        SelectedSpeakerLabel.Content = speaker.displayName;
-                        SelectedSpeakerLabel.ToolTip = speaker.displayName;
-                    }
-                }
-            }
-             * */
+
+            _firstTimeInitialize = false;
+            _isInitializing = false;
+
         }
 
 
-
+        public override void Uninitialize()
+        {
+            SelfPreviewCtrl.Uninitialize();
+            recorder.Stop();
+            this.recorder.Stopped -= OnRecorderStopped;
+            recorder.SampleAggregator.MaximumCalculated -= OnRecorderPeekCalculated;
+        }
 
 
         // VATRP-1200 TODO - store settings, update Linphone
         #region Device selection
-/*        private void OnShowCameraOptions(object sender, RoutedEventArgs e)
-        {
-            List<VATRPDevice> availableCameras = ServiceManager.Instance.GetAvailableCameras();
-            _cameraSelectionCtrl.deviceList = availableCameras;
-            _cameraSelectionCtrl.Initialize();
-            this.ContentPanel.Content = _cameraSelectionCtrl;
-        }
-
-        private void OnShowMicrophoneOptions(object sender, RoutedEventArgs e)
-        {
-            List<VATRPDevice> availableMicrophones = ServiceManager.Instance.GetAvailableMicrophones();
-            _microphoneSelectionCtrl.deviceList = availableMicrophones;
-            _microphoneSelectionCtrl.Initialize();
-            this.ContentPanel.Content = _microphoneSelectionCtrl;
-        }
-
-        private void OnShowSpeakerOptions(object sender, RoutedEventArgs e)
-        {
-            List<VATRPDevice> availableSpeakers = ServiceManager.Instance.GetAvailableSpeakers();
-            _speakerSelectionCtrl.deviceList = availableSpeakers;
-            _speakerSelectionCtrl.Initialize();
-            this.ContentPanel.Content = _speakerSelectionCtrl;
-        }
-
-        private void HandleDeviceSelected(VATRPDevice device)
-        {
-            this.ContentPanel.Content = null;
-            if (device == null)
-                return;
-
-            switch (device.deviceType)
-            {
-                case VATRPDeviceType.CAMERA: HandleCameraSelected(device);
-                    break;
-                case VATRPDeviceType.MICROPHONE: HandleMicrophoneSelected(device);
-                    break;
-                case VATRPDeviceType.SPEAKER: HandleSpeakerSelected(device);
-                    break;
-                default: break;
-            }
-        }
-*/
 
         private void OnSelectCamera(object sender, RoutedEventArgs e)
         {
-            if (App.CurrentAccount == null || !_initialized) return;
+            if (App.CurrentAccount == null || !_initialized || _isInitializing) return;
             Console.WriteLine("Camera Selected");
 
             bool updateData = false;
@@ -276,7 +228,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         private void OnSelectMicrophone(object sender, RoutedEventArgs e)
         {
-            if (App.CurrentAccount == null || !_initialized) return;
+            if (App.CurrentAccount == null || !_initialized || _isInitializing) return;
             Console.WriteLine("Microphone Selected");
             bool updateData = false;
             VATRPDevice selectedMicrophone = (VATRPDevice)SelectMicrophoneComboBox.SelectedItem;
@@ -300,14 +252,34 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             {
                 if (selectedMicrophone != null) 
                     App.CurrentAccount.SelectedMicrophoneId = selectedMicrophone.deviceId;
+                recorder.Stop();
+                MicLevelMeter.Value = 0;
                 ServiceManager.Instance.ApplyMediaSettingsChanges();
                 ServiceManager.Instance.SaveAccountSettings();
+                if (selectedMicrophone != null)
+                {
+                    int recordingDevId = -1;
+                    
+                    for (int n = 0; n < WaveIn.DeviceCount; n++)
+                    {
+                        if (WaveIn.GetCapabilities(n).ProductName.Contains(selectedMicrophone.displayName))
+                        {
+                            recordingDevId = n;
+                            break;
+                        }
+                    }
+                    if (recordingDevId != -1)
+                    {
+                        recorder.MicrophoneLevel = 100;
+                        recorder.BeginMonitoring(recordingDevId);
+                    }
+                }
             }
         }
 
         private void OnSelectSpeaker(object sender, RoutedEventArgs e)
         {
-            if (App.CurrentAccount == null || !_initialized) return;
+            if (App.CurrentAccount == null || !_initialized || _isInitializing) return;
             Console.WriteLine("Speaker Selected");
             bool updateData = false;
             VATRPDevice selectedSpeaker = (VATRPDevice)SelectSpeakerComboBox.SelectedItem;
@@ -340,7 +312,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         private bool IsPreferredVideoSizeChanged()
         {
-            if (App.CurrentAccount == null)
+            if (App.CurrentAccount == null || _isInitializing)
                 return false;
 
             var tb = PreferredVideoSizeComboBox.SelectedItem as TextBlock;
@@ -366,7 +338,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnPreferredVideoSize(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Preferred Video Size Clicked");
-            if (App.CurrentAccount == null)
+            if (App.CurrentAccount == null || _isInitializing)
                 return;
             if (!IsPreferredVideoSizeChanged())
             {
@@ -384,6 +356,17 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             }
             ServiceManager.Instance.ApplyMediaSettingsChanges();
             ServiceManager.Instance.SaveAccountSettings();
+        }
+        
+        private void OnRecorderPeekCalculated(object sender, MaxSampleEventArgs e)
+        {
+            lastPeak = Math.Max(e.MaxSample, Math.Abs(e.MinSample));
+            this.MicLevelMeter.Value = lastPeak * 100;
+        }
+
+        private void OnRecorderStopped(object sender, EventArgs e)
+        {
+            this.MicLevelMeter.Value = 0;
         }
     }
 }
