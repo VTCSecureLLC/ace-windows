@@ -880,6 +880,8 @@ namespace com.vtcsecure.ace.windows
             {
                 RearrangeUICallView(GetCallViewSize());
             }
+            if (switch_on)
+                ctrlRTT.MessageTextBox.Focus();
         }
 
         private void OnRttReceived(object sender, EventArgs e)
