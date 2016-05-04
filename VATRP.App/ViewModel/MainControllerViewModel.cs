@@ -32,7 +32,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
         private DialpadViewModel _dialPadViewModel;
         private CallHistoryViewModel _historyViewModel;
         private LocalContactViewModel _contactViewModel;
-        private InCallMessagingViewModel _inCallMessageViewModel;
         private SimpleMessagingViewModel _simpleMessageViewModel;
         private SettingsViewModel _settingsViewModel;
         private MenuViewModel _menuViewModel;
@@ -61,8 +60,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             _historyViewModel = new CallHistoryViewModel(ServiceManager.Instance.HistoryService, _dialPadViewModel);
             _contactsViewModel = new ContactsViewModel(ServiceManager.Instance.ContactService, _dialPadViewModel);
             _contactViewModel = new LocalContactViewModel(ServiceManager.Instance.ContactService);
-            _inCallMessageViewModel = new InCallMessagingViewModel(ServiceManager.Instance.ChatService,
-                ServiceManager.Instance.ContactService);
             _simpleMessageViewModel = new SimpleMessagingViewModel(ServiceManager.Instance.ChatService,
                 ServiceManager.Instance.ContactService);
             _settingsViewModel = new SettingsViewModel();
@@ -305,11 +302,6 @@ namespace com.vtcsecure.ace.windows.ViewModel
             get { return _contactViewModel; }
         }
 
-        public InCallMessagingViewModel RttMessagingModel
-        {
-            get { return _inCallMessageViewModel; }
-        }
-
         public SimpleMessagingViewModel SipSimpleMessagingModel
         {
             get { return _simpleMessageViewModel; }
@@ -431,32 +423,29 @@ namespace com.vtcsecure.ace.windows.ViewModel
             return false;
         }
 
-        internal void TerminateCall(CallViewModel viewModel)
+        internal bool TerminateCall(CallViewModel viewModel, string message)
         {
             lock (CallsViewModelList)
             {
                 if (FindCallViewModel(viewModel))
                 {
-                    if (viewModel.CallState == VATRPCallState.Declined)
+                    if (viewModel.CallState != VATRPCallState.Declined)
                     {
-
-                    }
-                    else
-                    {
-                        LOG.Info(String.Format("Terminating call call for {0}. {1}", viewModel.CallerInfo,
+                        LOG.Info(String.Format("Terminating call for {0}. {1}", viewModel.CallerInfo,
                             viewModel.ActiveCall.NativeCallPtr));
-
                         try
                         {
-                            _linphoneService.TerminateCall(viewModel.ActiveCall.NativeCallPtr);
+                            _linphoneService.TerminateCall(viewModel.ActiveCall.NativeCallPtr, message);
                         }
                         catch (Exception ex)
                         {
                             ServiceManager.LogError("TerminateCall", ex);
                         }
+                        return true;
                     }
                 }
             }
+            return false;
         }
 
         internal void AcceptCall(CallViewModel viewModel)
@@ -530,7 +519,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                         if (_simpleMessageViewModel != null)
                         {
                             _simpleMessageViewModel.SetActiveChatContact(contact, IntPtr.Zero);
-                            _simpleMessageViewModel.SendMessage(string.Format("{0}{1}", VATRPChatMessage.DECLINE_PREFIX, message));
+                            _simpleMessageViewModel.SendSimpleMessage(string.Format("{0}{1}", VATRPChatMessage.DECLINE_PREFIX, message));
                         }
                     }
                 }
@@ -544,7 +533,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
                 CallViewModel nextCall = GetNextViewModel(viewModel);
                 if (nextCall != null)
                 {
-                    TerminateCall(nextCall);
+                    TerminateCall(nextCall, "Call terminated");
 
                     AcceptCall(viewModel);
                 }

@@ -1,14 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
+using System.Windows.Data;
 using System.Windows.Threading;
 using com.vtcsecure.ace.windows.Services;
 using VATRP.Core.Extensions;
 using VATRP.Core.Interfaces;
 using VATRP.Core.Model;
+using VATRP.Core.Events;
 
 namespace com.vtcsecure.ace.windows.ViewModel
 {
@@ -17,16 +20,11 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         #region Members
 
-        private Thread _inputProcessorThread;
-        private bool _isRunning;
-        private Queue<string> _inputTypingQueue = new Queue<string>();
-        private static ManualResetEvent regulator = new ManualResetEvent(false);
-
         private ObservableCollection<string> _textSendModes;
         private string _selectedTextSendMode;
         private string _sendButtonTitle;
         private bool _isSendingModeRtt = true;
-
+        private DateTime _conversationStartTime;
         #endregion
 
         #region Events
@@ -45,6 +43,7 @@ namespace com.vtcsecure.ace.windows.ViewModel
         {
             Init();
             _chatsManager.RttReceived += OnRttReceived;
+            _chatsManager.ConversationUpdated += OnChatRoomUpdated;
         }
 
         private void Init()
@@ -65,6 +64,33 @@ namespace com.vtcsecure.ace.windows.ViewModel
             {
                 RttReceived(sender, EventArgs.Empty);
             }
+        }
+
+        private void OnChatRoomUpdated(object sender, ConversationUpdatedEventArgs e)
+        {
+            if (!e.Conversation.IsRttChat) return;
+
+            if (ServiceManager.Instance.Dispatcher.Thread != Thread.CurrentThread)
+            {
+                ServiceManager.Instance.Dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                    new EventHandler<ConversationUpdatedEventArgs>(OnChatRoomUpdated), sender, new object[] {e});
+                return;
+            }
+
+            if (!e.Conversation.Equals(this.Chat))
+                return;
+
+            try
+            {
+                if (MessagesListView != null && MessagesListView.SourceCollection != null)
+                    MessagesListView.Refresh();
+            }
+            catch (Exception)
+            {
+
+            }
+
+            RaiseConversationChanged();
         }
 
         #region Methods
@@ -117,53 +143,80 @@ namespace com.vtcsecure.ace.windows.ViewModel
                     if (!message.NotBlank())
                         return;
 
-                    Debug.WriteLine("Sending message: Count - " + message.Length + " \r" + message);
                     _chatsManager.ComposeAndSendMessage(Chat, message);
                 });
         }
-		
-        public void CreateRttConversation(string remoteUsername, IntPtr callPtr)
-        {
-            string un, host;
-            int port;
-            VATRPCall.ParseSipAddress(remoteUsername, out un, out host, out port);
-            var contactAddress = string.Format("{0}@{1}", un, host.NotBlank() ? host : App.CurrentAccount.ProxyHostname);
-            var contactID = new ContactID(contactAddress, IntPtr.Zero);
 
-            VATRPContact contact =
-                ServiceManager.Instance.ContactService.FindContact(contactID);
-            if (contact == null)
+        public void CreateRttConversation(VATRPChat chatRoom)
+        {
+            if (chatRoom == null)
+                return;
+
+            if (this.Chat != null)
+                _chatsManager.CloseChat(this.Chat);
+
+            this.Chat = chatRoom;
+
+            var contactVM = FindContactViewModel(chatRoom.Contact);
+            if (contactVM == null)
             {
-                contact = new VATRPContact(contactID)
-                {
-                    Fullname = un,
-                    DisplayName = un,
-                    SipUsername = un,
-                    RegistrationName = contactAddress
-                };
-                ServiceManager.Instance.ContactService.AddContact(contact, string.Empty);
+                contactVM = new ContactViewModel(chatRoom.Contact);
+                this.Contacts.Add(contactVM);
             }
-            SetActiveChatContact(contact, callPtr);
+
+            this.ChatViewContact = contactVM;
+
+            Chat.CharsCountInBubble = 0;
+            Chat.UnreadMsgCount = 0;
+            if (App.CurrentAccount != null)
+            {
+                Chat.MessageFont = App.CurrentAccount.RTTFontFamily;
+            }
+
+            ChatViewContact.IsSelected = true;
+
+            this.MessagesListView = CollectionViewSource.GetDefaultView(this.Messages);
+            this.MessagesListView.SortDescriptions.Add(new SortDescription("MessageTime",
+                ListSortDirection.Ascending));
+
+            OnPropertyChanged("Chat");
+            try
+            {
+                if (MessagesListView != null && MessagesListView.SourceCollection != null)
+                    MessagesListView.Refresh();
+            }
+            catch (Exception)
+            {
+
+            }
+
+            UpdateMessagingView();
 #if false
             if (Chat != null)
                 Chat.InsertRttWrapupMarkers(callPtr);
 #endif
         }
 
-        public void ClearRTTConversation(IntPtr callPtr)
+        public void ClearRTTConversation()
         {
-            _messageText = string.Empty;
-            _contactViewModel = null;
+            StopInputProcessor();
 
-            if (Chat != null)
-                Chat.ClearRttMarkers(callPtr);
+            Debug.WriteLine("Clear RTT Conversation for " + Chat);
+            if (Chat == null)
+                return;
 
-            if (MessagesListView != null)
-                MessagesListView.Refresh();
+            _chatsManager.CloseChat(Chat);
+            this.Chat = null;
+            
             OnPropertyChanged("Chat");
         }
 
-        private void ProcessInputCharacters(object obj)
+        protected override bool FilterMessages(object obj)
+        {
+            return true;
+        }
+
+        protected override void ProcessInputCharacters(object obj)
         {
             var sb = new StringBuilder();
             int wait_time = 5;
@@ -202,20 +255,10 @@ namespace com.vtcsecure.ace.windows.ViewModel
             }
         }
 
-        internal void EnqueueInput(string inputString)
-        {
-            lock (_inputTypingQueue)
-            {
-                _inputTypingQueue.Enqueue(inputString);
-            }
-            regulator.Set();
-        }
-
         #endregion
 
         #region Properties
 
-        
         public ObservableCollection<string> TextSendModes
         {
             get { return _textSendModes ?? (_textSendModes = new ObservableCollection<string>()); }
@@ -250,10 +293,5 @@ namespace com.vtcsecure.ace.windows.ViewModel
 
         #endregion
 
-        internal void StopInputProcessor()
-        {
-            _isRunning = false;
-            regulator.Set();
-        }
     }
 }

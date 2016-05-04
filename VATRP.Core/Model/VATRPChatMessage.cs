@@ -11,7 +11,7 @@ using VATRP.LinphoneWrapper.Enums;
 
 namespace VATRP.Core.Model
 {
-    public class VATRPChatMessage : INotifyPropertyChanged, IComparable<VATRPChatMessage>
+    public class VATRPChatMessage : INotifyPropertyChanged, IComparable<VATRPChatMessage>, ICloneable
     {
         protected VATRPChat _chatID;
         protected string _content;
@@ -29,7 +29,7 @@ namespace VATRP.Core.Model
         private bool _isRTTMarker;
         private bool _isDeclineMessage;
 
-        public static string DECLINE_PREFIX = "!@$%#CALL_DECLINE_MESSAGE#";
+        public static string DECLINE_PREFIX = "@@info@@ ";
 
         public VATRPChatMessage()
         {
@@ -304,6 +304,16 @@ namespace VATRP.Core.Model
         }
 
         #endregion
+
+        #region ICloneable
+        
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+        
+        #endregion
+
     }
 }
 

@@ -95,7 +95,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             _callControl = callControl;
             TextSettings.CallControl = _callControl;
 //            AudioSettings.CallControl = _callControl;
-            AudioVideoSettings.CallControl = _callControl;
+            GeneralSettings.CallControl = _callControl;
         }
 
         private void InitializePanelAndEvents(BaseUnifiedSettingsPanel panel)
@@ -144,13 +144,18 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         private void OnClose(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Close Clicked");
-            _currentContent.SaveData();
+            if (_currentContent != null)
+            {
+                _currentContent.SaveData();
+                _currentContent.Uninitialize();
+            }
             this.Hide();
         }
 
         private void SetHidden()
         {
-            _currentContent.SaveData();
+            if (_currentContent != null) 
+                _currentContent.SaveData();
             this.Hide();
         }
 
@@ -162,7 +167,8 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 //        }
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _currentContent.SaveData();
+            if (_currentContent != null)
+                _currentContent.SaveData();
             if (GeneralTab.IsSelected)
             {
                 _currentContent = GeneralSettings;
@@ -220,13 +226,21 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         private void UpdateVideoSettingsIfOpen(ACEMenuSettingsUpdateType menuSetting)
         {
-            if (AdvancedSettings.IsLoaded)
+//<<<<<<< HEAD
+////            if (VideoSettingsSettings.IsLoaded)
+////            {
+////                VideoSettingsSettings.UpdateForMenuSettingChange(menuSetting);
+////            }
+            if (GeneralSettings.IsLoaded)
+//=======
+//            if (AdvancedSettings.IsLoaded)
+//            {
+//                AdvancedSettings.UpdateForMenuSettingChange(menuSetting);
+//            }
+//            if (AudioVideoSettings.IsLoaded)
+//>>>>>>> master
             {
-                AdvancedSettings.UpdateForMenuSettingChange(menuSetting);
-            }
-            if (AudioVideoSettings.IsLoaded)
-            {
-                AudioVideoSettings.UpdateForMenuSettingChange(menuSetting);
+                GeneralSettings.UpdateForMenuSettingChange(menuSetting);
             }
         }
         private void UpdateAudioSettingsIfOpen(ACEMenuSettingsUpdateType menuSetting)
@@ -235,9 +249,9 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 //            {
 //                AdvancedSettings.UpdateForMenuSettingChange(menuSetting);
 //            }
-            if (AudioVideoSettings.IsLoaded)
+            if (GeneralSettings.IsLoaded)
             {
-                AudioVideoSettings.UpdateForMenuSettingChange(menuSetting);
+                GeneralSettings.UpdateForMenuSettingChange(menuSetting);
             }
         }
         #endregion
@@ -254,6 +268,14 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
 
         #endregion
 
+        private void OnVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            var isVisible = (bool) e.NewValue;
+            if (!isVisible && (_currentContent != null))
+            {
+                _currentContent.IsDirty = true;
+            }
+        }
 
     }
 }

@@ -24,8 +24,14 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
         {
             InitializeComponent();
             Title = "Theme";
+            this.Loaded += UnifiedSettingsThemeCtrl_Loaded;
+        }
+
+        void UnifiedSettingsThemeCtrl_Loaded(object sender, RoutedEventArgs e)
+        {
             Initialize();
         }
+
         // ToDo VATRP-988 - implement color picker, connect Force  508
         private void OnForegroundColor(object sender, RoutedEventArgs e)
         {
@@ -45,14 +51,6 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             {
                 int colorInt = dlg.Color.ToArgb();
 
-            }
-        }
-        private void OnForce508(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Coming Soon: High Contrast Theme");
-            if (Force508CheckBox.IsChecked ?? false)
-            {
-                System.Windows.MessageBox.Show("Coming soon", "ACE", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 

@@ -116,6 +116,10 @@ namespace com.vtcsecure.ace.windows
 					CallInfoCtrl = _callInfoView
 				};
 
+                callViewModel.RTTViewModel.RttReceived += OnRttReceived;
+                callViewModel.RTTViewModel.CreateRttConversation(call.ChatRoom);
+			    callViewModel.CallConnectingTimeout += OnCallConnectingTimeout;
+                callViewModel.HideMessageWindowTimeout += OnMessageHideTimeout;
 			    callViewModel.CallQualityChangedEvent += OnCallQualityChanged;
 
                 callViewModel.VideoWidth = (int)CombinedUICallViewSize.Width;
@@ -222,12 +226,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                     
                     if (_flashWindowHelper != null)
                         _flashWindowHelper.FlashWindow(this);
-			        if (WindowState == WindowState.Minimized)
-                        this.WindowState = WindowState.Normal;
-                    
-                    Topmost = true;
-                    Activate();
-                    Topmost = false;
+			        BringToFront();
 			        break;
 				case VATRPCallState.Ringing:
                     this.ShowSelfPreviewItem.IsEnabled = false;
@@ -268,8 +267,6 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			            Configuration.ConfEntry.USE_RTT, true))
 			        {
 			            _mainViewModel.IsRTTViewEnabled = true;
-			            ctrlRTT.SetViewModel(_mainViewModel.RttMessagingModel);
-			            _mainViewModel.RttMessagingModel.CreateRttConversation(call.RemoteParty.Username, call.NativeCallPtr);
 			        }
 			        else
 			        {
@@ -284,9 +281,10 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			        callViewModel.IsRTTEnabled =
 			            ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
 			                Configuration.ConfEntry.USE_RTT, true) && callViewModel.ActiveCall != null &&
-			            _linphoneService.IsRttEnabled(callViewModel.ActiveCall.NativeCallPtr);
+			    _linphoneService.IsRttEnabled(callViewModel.ActiveCall.NativeCallPtr);
+			        ctrlRTT.SetViewModel(callViewModel.IsRTTEnabled ? callViewModel.RTTViewModel : null);
 
-					ShowCallOverlayWindow(true);
+			        ShowCallOverlayWindow(true);
                     ShowOverlayNewCallWindow(false);
 					ctrlCall.ctrlOverlay.SetCallerInfo(callViewModel.CallerInfo);
 					ctrlCall.ctrlOverlay.SetCallState("Connected");
@@ -420,7 +418,8 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                             if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                         Configuration.ConfEntry.USE_RTT, true))
                             {
-                                _mainViewModel.RttMessagingModel.CreateRttConversation(call.RemoteParty.Username, call.NativeCallPtr);
+                                _mainViewModel.IsRTTViewEnabled = true;
+                                ctrlRTT.SetViewModel(callViewModel.RTTViewModel);
                             }
 			            }
 			            else
@@ -443,11 +442,12 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                     callViewModel.OnClosed(ref isError, call.LinphoneMessage, call.SipErrorCode, callDeclined);
 					stopPlayback = true;
 			        destroycall = true;
+                    callViewModel.RTTViewModel.RttReceived -= OnRttReceived;
                     callViewModel.CallQualityChangedEvent -= OnCallQualityChanged;
+                    callViewModel.RTTViewModel.ClearRTTConversation();
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                        Configuration.ConfEntry.USE_RTT, true))
                     {
-                        _mainViewModel.RttMessagingModel.ClearRTTConversation(call.NativeCallPtr);
                         ctrlRTT.SetViewModel(null);
                     }
                     ShowOverlayNewCallWindow(false);
@@ -462,12 +462,15 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                         ctrlCall.ctrlOverlay.StopCallTimer();
                         ShowCallOverlayWindow(false);
                         _mainViewModel.IsMessagingDocked = false;
-			            if (_mainViewModel.ActiveCallModel.DeclinedMessage.NotBlank())
-			                _mainViewModel.ActiveCallModel.ShowDeclinedMessage = true;
-			            else
-			            {
-                            _mainViewModel.ActiveCallModel.WaitForDeclineMessage = true;
-			            }
+
+                        // ToDo VATRP-3878 
+
+                        //if (_mainViewModel.ActiveCallModel.DeclinedMessage.NotBlank())
+                        //    _mainViewModel.ActiveCallModel.ShowDeclinedMessage = true;
+                        //else
+                        //{
+                        //    _mainViewModel.ActiveCallModel.WaitForDeclineMessage = true;
+                        //}
 			            if (deferredHideTimer != null)
 			            {
 			                lock (deferredLock)
@@ -530,12 +533,11 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			                            Configuration.ConfEntry.USE_RTT, true))
 			                        {
 			                            _mainViewModel.IsRTTViewEnabled = true;
-			                            ctrlRTT.SetViewModel(_mainViewModel.RttMessagingModel);
-			                            _mainViewModel.RttMessagingModel.CreateRttConversation(
-			                                nextVM.ActiveCall.RemoteParty.Username, nextVM.ActiveCall.NativeCallPtr);
+                                        ctrlRTT.SetViewModel(nextVM.RTTViewModel);
 			                        }
 			                        else
 			                        {
+			                            ctrlRTT.SetViewModel(null);
 			                            _mainViewModel.IsRTTViewEnabled = false;
 			                        }
 			                        ShowCallOverlayWindow(true);
@@ -568,13 +570,14 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                         _flashWindowHelper.StopFlashing();
 			        ctrlCall.BackgroundCallViewModel = null;
 			        isError = true;
+                    callViewModel.RTTViewModel.RttReceived -= OnRttReceived;
                     callViewModel.OnClosed(ref isError, call.LinphoneMessage, call.SipErrorCode, false);
                     callViewModel.CallSwitchLastTimeVisibility = Visibility.Hidden;
 					stopPlayback = true;
+                    callViewModel.RTTViewModel.ClearRTTConversation();
                     if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
                        Configuration.ConfEntry.USE_RTT, true))
                     {
-                        _mainViewModel.RttMessagingModel.ClearRTTConversation(call.NativeCallPtr);
                         ctrlRTT.SetViewModel(null);
                     }
 
@@ -648,6 +651,45 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 		    }
 		}
 
+	    private void BringToFront()
+	    {
+	        if (WindowState == WindowState.Minimized)
+	            this.WindowState = WindowState.Normal;
+
+	        Topmost = true;
+	        Activate();
+	        Topmost = false;
+	    }
+
+	    private void OnCallConnectingTimeout(object sender, EventArgs e)
+        {
+            var callViewModel = sender as CallViewModel;
+
+            if (callViewModel != null && callViewModel.ActiveCall != null)
+            {
+                _mainViewModel.TerminateCall(callViewModel, "NotReachable");
+            }
+        }
+
+        private void OnMessageHideTimeout(object sender, EventArgs e)
+        {
+            if (this.Dispatcher == null)
+                return;
+
+            if (this.Dispatcher.Thread != Thread.CurrentThread)
+            {
+                this.Dispatcher.BeginInvoke((Action)(() => this.OnMessageHideTimeout(sender, e)));
+                return;
+            }
+
+            var callViewModel = sender as CallViewModel;
+            if (callViewModel != null && callViewModel.ShowInfoMessage)
+            {
+                _mainViewModel.ActiveCallModel.ShowInfoMessage = false;
+                ctrlCall.ctrlOverlay.ShowInfoMsgWindow(false);
+            }
+        }
+
         private void WakeupScreenSaver()
         {
             // simulate mouse move event
@@ -681,6 +723,11 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                     : MediaEncryptionIndicator.On;
                 ctrlCall.ctrlOverlay.UpdateEncryptionIndicator(encryption);
                 ctrlCall.ctrlOverlay.ShowEncryptionIndicatorWindow(this.WindowState != WindowState.Minimized);
+
+                if (_mainViewModel.ActiveCallModel.ShowInfoMessage)
+                {
+                    ctrlCall.ctrlOverlay.ShowInfoMsgWindow(this.WindowState != WindowState.Minimized);
+                }
             }
         }
 
@@ -704,8 +751,8 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 	            if (ServiceManager.Instance.ConfigurationService.Get(Configuration.ConfSection.GENERAL,
 	                Configuration.ConfEntry.USE_RTT, true))
 	            {
-	                _mainViewModel.RttMessagingModel.CreateRttConversation(callViewModel.ActiveCall.RemoteParty.Username,
-	                    callViewModel.ActiveCall.NativeCallPtr);
+                    _mainViewModel.IsRTTViewEnabled = true;
+                    ctrlRTT.SetViewModel(callViewModel.RTTViewModel);
 	            }
 	        }
 	        else
@@ -715,7 +762,8 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 	    }
 
 	    private void ShowCallOverlayWindow(bool bShow)
-		{
+	    {
+	        bShow &= (this.WindowState != WindowState.Minimized);
             if (bShow)
                 RearrangeUICallView(GetCallViewSize());
 
@@ -732,6 +780,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                 ctrlCall.ctrlOverlay.ShowOnHoldWindow(false);
                 ctrlCall.ctrlOverlay.ShowQualityIndicatorWindow(false);
                 ctrlCall.ctrlOverlay.ShowEncryptionIndicatorWindow(false);
+                ctrlCall.ctrlOverlay.ShowInfoMsgWindow(false);
             }
 		}
 
@@ -1010,6 +1059,13 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 			            this.ShowMessagingViewItem.IsChecked = bShow;
 			            _mainViewModel.IsChatViewEnabled = bShow;
 			        }
+			        if (_mainViewModel.SipSimpleMessagingModel != null)
+			        {
+                        _mainViewModel.SipSimpleMessagingModel.ShowUnreadMessageInfo(true);
+                        if (bShow && _mainViewModel.SipSimpleMessagingModel.ChatViewContact != null)
+                            _mainViewModel.SipSimpleMessagingModel.SetActiveChatContact(_mainViewModel.SipSimpleMessagingModel.ChatViewContact.Contact, IntPtr.Zero);
+                        _mainViewModel.SipSimpleMessagingModel.ShowUnreadMessageInfo(!bShow);
+			        }
 			        break;
 				case VATRPWindowType.RECENTS_VIEW:
 					BtnRecents.IsChecked = bShow;
@@ -1056,6 +1112,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 		            return;
 		    }
 
+		    BringToFront();
 		    _mainViewModel.DialpadModel.RemotePartyNumber = "";
 			MediaActionHandler.MakeVideoCall(called_address);
 		}
@@ -1191,7 +1248,7 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
             }
         }
 
-	    private void OnDeclineMessageReceived(object sender, Model.DeclineMessageArgs args)
+	    private void OnDeclineMessageReceived(object sender, DeclineMessageArgs args)
 	    {
 	        var restartTimer = false;
 
@@ -1203,11 +1260,26 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 	                    _mainViewModel.ActiveCallModel.Contact.Equals(args.Sender))
 	                {
 	                    _mainViewModel.ActiveCallModel.DeclinedMessage = args.DeclineMessage;
-	                    if (_mainViewModel.ActiveCallModel.CallState == VATRPCallState.Closed ||
-	                        _mainViewModel.ActiveCallModel.CallState == VATRPCallState.Declined)
+	                    _mainViewModel.ActiveCallModel.DeclinedMessageHeader = args.MessageHeader;
+	                    switch (_mainViewModel.ActiveCallModel.CallState)
 	                    {
-	                        _mainViewModel.ActiveCallModel.ShowDeclinedMessage = true;
-	                        restartTimer = true;
+	                        case VATRPCallState.Closed:
+	                        case VATRPCallState.Declined:
+                                // ToDo VATRP-3878
+                            //_mainViewModel.ActiveCallModel.ShowInfoMessage = false;    
+                            //_mainViewModel.ActiveCallModel.ShowDeclinedMessage = true;
+                            ctrlCall.ctrlOverlay.ShowInfoMsgWindow(false);
+	                            restartTimer = true;
+	                            break;
+                            case VATRPCallState.Connected:
+                            case VATRPCallState.StreamsRunning:
+                                // ToDo VATRP-3878
+                                //_mainViewModel.ActiveCallModel.ShowInfoMessage = true;
+                                // RearrangeUICallView(GetCallViewSize());
+                                //ctrlCall.ctrlOverlay.UpdateInfoMsg(args.MessageHeader, args.DeclineMessage);
+                                //ctrlCall.ctrlOverlay.ShowInfoMsgWindow(this.WindowState != WindowState.Minimized);
+                                //_mainViewModel.ActiveCallModel.DeferredHideMessageControl();
+	                            return;
 	                    }
 	                }
 	            }
@@ -1296,5 +1368,54 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
 	            registrationTimer = null;
 	        }
 	    }
+
+        private void OnHideDeclineMessage(object sender, EventArgs e)
+        {
+            lock (deferredLock)
+            {
+                if (deferredHideTimer != null && deferredHideTimer.IsEnabled)
+                {
+                    deferredHideTimer.Stop();
+                }
+            }
+
+            lock (_mainViewModel.CallsViewModelList)
+            {
+                if (_mainViewModel.ActiveCallModel != null)
+                {
+                    var viewModel = _mainViewModel.ActiveCallModel;
+                    if (viewModel.CallState == VATRPCallState.Closed ||
+                        viewModel.CallState == VATRPCallState.Declined ||
+                        viewModel.CallState == VATRPCallState.Error)
+                    {
+                        viewModel.ShowInfoMessage = false;
+                        viewModel.DeclinedMessage = string.Empty;
+                        viewModel.ShowDeclinedMessage = false;
+
+                        if (_mainViewModel.CallsViewModelList.Count == 1)
+                        {
+                            _mainViewModel.ActiveCallModel = null;
+                            _mainViewModel.RemoveCalViewModel(viewModel);
+                        }
+
+                        if (ServiceManager.Instance.LinphoneService.GetActiveCallsCount == 0)
+                            ctrlCall.SetCallViewModel(null);
+                        _mainViewModel.IsCallPanelDocked = false;
+                    }
+                    else
+                    {
+                        if (viewModel.ShowInfoMessage)
+                        {
+                            _mainViewModel.ActiveCallModel.ShowInfoMessage = false;
+                            ctrlCall.ctrlOverlay.ShowInfoMsgWindow(false);
+                        }
+                    }
+                }
+                else
+                {
+                    _mainViewModel.IsCallPanelDocked = false;
+                }
+            }
+        }
 	}
 }

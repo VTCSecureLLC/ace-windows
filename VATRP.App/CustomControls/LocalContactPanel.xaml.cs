@@ -16,17 +16,9 @@ namespace com.vtcsecure.ace.windows.CustomControls
     /// </summary>
     public partial class LocalContactPanel : UserControl
     {
-        public Resources_CallResource CallResourceRequested;
-
         #region Members
 
         private LocalContactViewModel _viewModel;
-        #endregion
-
-        #region Events
-
-        public event EventHandler VideomailCountReset;
-
         #endregion
 
         public LocalContactPanel()
@@ -43,28 +35,6 @@ namespace com.vtcsecure.ace.windows.CustomControls
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             
-        }
-
-        private void ResetVideoMailCount(object sender, RoutedEventArgs e)
-        {
-            if (VideomailCountReset != null) 
-                VideomailCountReset(this, EventArgs.Empty);
-        }
-
-        //OnCallVideoMail
-        private void OnCallVideoMail(object sender, RoutedEventArgs e)
-        {
-            if (CallResourceRequested != null)
-            {
-                // sanity check here.
-                if ((App.CurrentAccount != null) && !string.IsNullOrEmpty(App.CurrentAccount.VideoMailUri))
-                {
-                    ResourceInfo resourceInfo = new ResourceInfo();
-                    resourceInfo.address = App.CurrentAccount.VideoMailUri;
-                    resourceInfo.name = "Video Mail";
-                    CallResourceRequested(resourceInfo);
-                }
-            }
         }
     }
 }

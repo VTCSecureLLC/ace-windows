@@ -37,7 +37,7 @@ namespace com.vtcsecure.ace.windows.CustomControls.UnifiedSettings
             Initialize();
         }
 
-        public void Initialize()
+        public override void Initialize()
         {
             if (App.CurrentAccount == null)
                 return;

@@ -24,7 +24,7 @@
         <conv:CallDurationConverter x:Key="cdc"/>
 
     </UserControl.Resources>
-    <Grid Background="{DynamicResource AppMainWindowBrush}">
+    <Grid Background="{DynamicResource AppMainWindowBrush}" MouseDown="OnControlClicked">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
@@ -145,7 +145,7 @@
                     </Style.Triggers>
                 </Style>
             </StackPanel.Style>
-                <TextBlock Margin="2" Text="Call declined with message" HorizontalAlignment="Center"
+                <TextBlock Margin="2" Text="{Binding DeclinedMessageHeader}" HorizontalAlignment="Center"
 					    FontSize="26" VerticalAlignment="Center"
 						   Foreground="{StaticResource AppMainBorderBrush}"/>
             <TextBlock Margin="2" Text="{Binding DeclinedMessage}" HorizontalAlignment="Center"
@@ -158,13 +158,12 @@
             <Button Grid.Column="0"  Width="240" Click="OnEndCall"  
 					BorderThickness="0" HorizontalAlignment="Center" 
 					VerticalContentAlignment="Center"
-                    Visibility="{Binding ErrorMessage.Length, Converter={StaticResource ivc}}"
 					>
                 <Button.Resources>
                     <Grid x:Key="CallButtonNormal" 
 							Background="{StaticResource CallBarEndCallBg}"  
 								>
-                        <TextBlock Text="Hang Up" FontSize="40" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="Cancel" FontSize="40" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Grid>
                 </Button.Resources>
 
@@ -1861,11 +1860,48 @@
                     </Grid>
                 </videoWrapper:VATRPOverlay.OverlayEncryptionIndicatorChild>
 
+                <videoWrapper:VATRPOverlay.OverlayInfoMsgChild>
+                    <Grid x:Name="InfoMsgContainer" Grid.Row="0" PreviewMouseDown="OnControlClicked">
+                        <StackPanel x:Name="InfoMsgBox" Background="{StaticResource CallBarEndCallBg}" 
+                    VerticalAlignment="Stretch" Height="120"  Margin="40,30">
+                            <!--<StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Style.Triggers>
+                                        <DataTrigger Value="True">
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard RepeatBehavior="Forever" >
+                                                        <DoubleAnimation  Storyboard.TargetProperty = "Opacity"
+						From="1.0" To="0.1" Duration="0:0:0.3" AutoReverse="True" />
+                                                        <DoubleAnimation  Storyboard.TargetProperty = "Opacity"
+							From="0.1" To="1.0" Duration="0:0:0.3" AutoReverse="True">
+                                                            <DoubleAnimation.EasingFunction>
+                                                                <PowerEase EasingMode="EaseOut" Power="4" />
+                                                            </DoubleAnimation.EasingFunction>
+                                                        </DoubleAnimation>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>-->
+                            <TextBlock Margin="2" Name="MsgHeader" Text="" HorizontalAlignment="Center"
+					    FontSize="26" VerticalAlignment="Center"
+						   Foreground="{StaticResource AppMainBorderBrush}"/>
+                            <TextBlock Margin="2" Name="Info" Text="" HorizontalAlignment="Center"
+					    FontSize="45" VerticalAlignment="Center"
+						   Foreground="{StaticResource AppMainBorderBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </videoWrapper:VATRPOverlay.OverlayInfoMsgChild>
+
                 <videoWrapper:ManagedVideoControl x:Name="ctrlVideo" Width="{Binding VideoWidth}" Height="{Binding VideoHeight}" 
 												  VerticalAlignment="Center" HorizontalAlignment="Center" 
 											      MouseEnter="CtrlVideo_OnMouseEnter"
                                                   MouseLeave="CtrlVideo_OnMouseLeave"
                                                   MouseMove="CtrlVideo_OnMouseMove"
+                                                  MouseDown="CtrlVieo_MouseDown"
                                                   >
                 </videoWrapper:ManagedVideoControl>
 

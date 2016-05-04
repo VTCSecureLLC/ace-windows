@@ -178,6 +178,13 @@ namespace com.vtcsecure.ace.windows
                     _mainViewModel.MoreMenuModel.VideoMailCount = App.CurrentAccount.VideoMailCount;
 
                 ServiceManager.Instance.AccountService.Save();
+
+                ResourceInfo resourceInfo = new ResourceInfo();
+                resourceInfo.address = !string.IsNullOrEmpty(App.CurrentAccount.VideoMailUri)
+                    ? App.CurrentAccount.VideoMailUri
+                    : App.CurrentAccount.Username;
+                resourceInfo.name = "Video Mail";
+                OnCallResourceRequested(resourceInfo);
             }
         }
 
@@ -213,7 +220,15 @@ namespace com.vtcsecure.ace.windows
             {
                 _settingsWindow = new SettingsWindow(ctrlCall, OnAccountChangeRequested);
             }
-            _settingsWindow.Show();
+
+            try
+            {
+                _settingsWindow.Show();
+            }
+            catch (Exception ex)
+            {
+                
+            }
         }
 
         private void btnDialpad_Click(object sender, RoutedEventArgs e)
@@ -233,6 +248,7 @@ namespace com.vtcsecure.ace.windows
             _mainViewModel.IsCallHistoryDocked = false;
             _mainViewModel.IsContactDocked = false;
             _mainViewModel.IsSettingsDocked = false;
+            ctrlResource.ActivateDeafHohResource();
             _mainViewModel.IsResourceDocked = true;
             _mainViewModel.IsMenuDocked = true;
         }
@@ -386,7 +402,7 @@ namespace com.vtcsecure.ace.windows
 
                 if (r == MessageBoxResult.OK)
                 {
-                    _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr);
+                    _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr, "Call ended");
                 }
                 return;
             }
@@ -449,7 +465,7 @@ namespace com.vtcsecure.ace.windows
             App.AllowDestroyWindows = true;
             registerRequested = false;
             base.Window_Closing(sender, e);
-            _mainViewModel.RttMessagingModel.StopInputProcessor();
+            _mainViewModel.SipSimpleMessagingModel.StopInputProcessor();
             ServiceManager.Instance.LinphoneCoreStoppedEvent -= OnLinphoneCoreStopped;
             ServiceManager.Instance.Stop();
         }
@@ -583,6 +599,8 @@ namespace com.vtcsecure.ace.windows
             _historyView.MakeCallRequested += OnMakeCallRequested;
             _contactBox.IsVisibleChanged += OnChildVisibilityChanged;
             _dialpadBox.IsVisibleChanged += OnChildVisibilityChanged;
+            _messagingWindow.MakeCallRequested += OnMakeCallRequested;
+
             //_settingsView.IsVisibleChanged += OnChildVisibilityChanged;
             _messagingWindow.IsVisibleChanged += OnChildVisibilityChanged;
             _selfView.IsVisibleChanged += OnChildVisibilityChanged;
@@ -595,13 +613,13 @@ namespace com.vtcsecure.ace.windows
             ctrlMoreMenu.SettingsClicked += OnShowSettings;
             ctrlMoreMenu.SelfViewClicked += OnSelfViewClicked;
             ctrlMoreMenu.VideoMailClicked += OnVideoMailClicked;
-            ctrlLocalContact.VideomailCountReset += OnVideoMailClicked;
 
             ctrlCall.KeypadClicked += OnKeypadClicked;
             ctrlCall.RttToggled += OnRttToggled;
             ctrlCall.FullScreenOnToggled += OnFullScreenToggled;
             ctrlCall.SwitchHoldCallsRequested += OnSwitchHoldCallsRequested;
             ctrlCall.VideoOnToggled += OnCameraSwitched;
+            ctrlCall.HideDeclineMessageRequested += OnHideDeclineMessage;
 
             _callOverlayView.CallManagerView = _callView;
             ctrlHistory.MakeCallRequested += OnMakeCallRequested;
@@ -611,7 +629,6 @@ namespace com.vtcsecure.ace.windows
             ctrlDialpad.KeypadPressed += OnDialpadClicked;
             _mainViewModel.DialpadHeight = ctrlDialpad.ActualHeight;
 
-            _mainViewModel.RttMessagingModel.RttReceived += OnRttReceived;
             _mainViewModel.SipSimpleMessagingModel.DeclineMessageReceived += OnDeclineMessageReceived;
             ServiceManager.Instance.LinphoneService.OnMWIReceivedEvent += OnVideoMailCountChanged;
 
@@ -624,7 +641,6 @@ namespace com.vtcsecure.ace.windows
             //ctrlSettings.CallSettingsChangeClicked += OnSettingsChangeRequired;
 
             ctrlResource.CallResourceRequested += OnCallResourceRequested;
-            ctrlLocalContact.CallResourceRequested += OnCallResourceRequested;
 
             // reset provider selection in dialpad
             ServiceManager.Instance.ConfigurationService.Set(Configuration.ConfSection.GENERAL, Configuration.ConfEntry.CURRENT_PROVIDER, "");
@@ -818,10 +834,28 @@ namespace com.vtcsecure.ace.windows
 
                 ctrlCall.ctrlOverlay.ShowEncryptionIndicatorWindow(false);
                 ctrlCall.ctrlOverlay.Refresh();
-                if (_mainViewModel.ActiveCallModel != null &&
-                    _mainViewModel.ActiveCallModel.CallState != VATRPCallState.Closed)
+
+                if (_mainViewModel.ActiveCallModel == null) return;
+
+                if (_mainViewModel.ActiveCallModel.CallState != VATRPCallState.Closed &&
+                    _mainViewModel.ActiveCallModel.CallState != VATRPCallState.Declined &&
+                    _mainViewModel.ActiveCallModel.CallState != VATRPCallState.Error)
+                {
                     ctrlCall.ctrlOverlay.ShowEncryptionIndicatorWindow(this.WindowState != WindowState.Minimized);
 
+                    // ToDo VATRP - 3878
+                    //if (_mainViewModel.ActiveCallModel.ShowInfoMessage)
+                    //{
+                    //    ctrlCall.ctrlOverlay.InfoMsgWindowLeftMargin = topleftInScreen.X +
+                    //                          (callViewDimensions.Width -
+                    //                           ctrlCall.ctrlOverlay.InfoMsgOverlayWidth) / 2 + offset;
+                    //    ctrlCall.ctrlOverlay.InfoMsgWindowTopMargin = ctrlCall.ctrlOverlay.CommandWindowTopMargin -
+                    //                                                 ctrlCall.ctrlOverlay.InfoMsgOverlayHeight - 30;
+
+                    //    ctrlCall.ctrlOverlay.ShowInfoMsgWindow(this.WindowState != WindowState.Minimized);
+                    //}
+                    ctrlCall.ctrlOverlay.Refresh();
+                }
             }
             catch (Exception ex)
             {
@@ -846,14 +880,23 @@ namespace com.vtcsecure.ace.windows
             {
                 RearrangeUICallView(GetCallViewSize());
             }
+            if (switch_on)
+                ctrlRTT.MessageTextBox.Focus();
         }
 
         private void OnRttReceived(object sender, EventArgs e)
         {
+            IntPtr callPtr = (IntPtr)sender;
+
             if (!_mainViewModel.IsMessagingDocked)
             {
-                ctrlCall.CheckRttButton();
-                OnRttToggled(true);
+                if (_mainViewModel.ActiveCallModel != null &&
+                    _mainViewModel.ActiveCallModel.ActiveCall != null &&
+                     callPtr == _mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr)
+                {
+                    ctrlCall.CheckRttButton();
+                    OnRttToggled(true);
+                }
             }
         }
         
@@ -893,7 +936,7 @@ namespace com.vtcsecure.ace.windows
 
                 if (r == MessageBoxResult.OK)
                 {
-                    _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr);
+                    _linphoneService.TerminateCall(_mainViewModel.ActiveCallModel.ActiveCall.NativeCallPtr, "Call ended");
                 }
             }
 
@@ -977,6 +1020,7 @@ namespace com.vtcsecure.ace.windows
             var feedbackView = new FeedbackView();
             feedbackView.Show();
         }
+
         private async void OnCheckForUpdates(object sender, RoutedEventArgs e)
         {
             // Liz E. - not entirely certain this check works - putting it into the build to test it, but I believe it should already be being called
@@ -1000,6 +1044,12 @@ namespace com.vtcsecure.ace.windows
             {
                 LOG.Error("OnCheckUpdates", ex);
             }
+        }
+
+        private void OnSyncContacts(object sender, RoutedEventArgs e)
+        {
+            // T.M  VATRP - 3664 Moved from resources page
+            ServiceManager.Instance.LinphoneService.CardDAVSync();
         }
 
         // View Menu

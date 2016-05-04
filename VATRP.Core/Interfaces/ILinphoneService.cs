@@ -58,7 +58,7 @@ namespace VATRP.Core.Interfaces
         void MakeCall(string destination, bool videoOn, bool rttEnabled, bool muteMicrophone, bool muteSpeaker, bool enableVideo, string geolocation);
         void AcceptCall(IntPtr callPtr, bool rttEnabled, bool muteMicrophone, bool muteSpaker, bool enableVideo);
         void DeclineCall(IntPtr callPtr);
-        bool TerminateCall(IntPtr callPtr);
+        bool TerminateCall(IntPtr callPtr, string message);
         void ResumeCall(IntPtr callPtr);
         void PauseCall(IntPtr callPtr);
         bool IsRttEnabled(IntPtr callPtr);
@@ -130,6 +130,7 @@ namespace VATRP.Core.Interfaces
         void UpdatePrivateDataPath();
         void CardDAVSync();
         void RemoveCardDAVAuthInfo();
+        void SetIncomingCallRingingTimeout(int timeout);
 
         #endregion
     }
