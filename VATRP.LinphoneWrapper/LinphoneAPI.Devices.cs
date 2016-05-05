@@ -36,10 +36,10 @@ namespace VATRP.LinphoneWrapper
         public static extern void linphone_core_reload_sound_devices(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern byte linphone_core_sound_device_can_capture(IntPtr lc, string device);
+        public static extern byte linphone_core_sound_device_can_capture(IntPtr lc, byte[] device);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern byte linphone_core_sound_device_can_playback(IntPtr lc, string device);
+        public static extern byte linphone_core_sound_device_can_playback(IntPtr lc, byte[] device);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_core_get_ring_level(IntPtr lc);
@@ -83,19 +83,19 @@ namespace VATRP.LinphoneWrapper
         public static extern IntPtr linphone_core_get_capture_device(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int linphone_core_set_ringer_device(IntPtr lc, string devid);
+        public static extern int linphone_core_set_ringer_device(IntPtr lc, byte[] devid);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int linphone_core_set_playback_device(IntPtr lc, string devid);
+        public static extern int linphone_core_set_playback_device(IntPtr lc, byte[] devid);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int linphone_core_set_capture_device(IntPtr lc, string devid);
+        public static extern int linphone_core_set_capture_device(IntPtr lc, byte[] devid);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void linphone_core_stop_ringing(IntPtr lc);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void linphone_core_set_ring(IntPtr lc, string path);
+        public static extern void linphone_core_set_ring(IntPtr lc, byte[] path);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr linphone_core_get_ring(IntPtr lc);
