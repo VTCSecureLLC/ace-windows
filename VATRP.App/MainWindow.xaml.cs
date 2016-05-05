@@ -167,6 +167,7 @@ namespace com.vtcsecure.ace.windows
 
         private void OnVideoMailClicked(object sender, EventArgs e)
         {
+            _mainViewModel.IsMenuDocked = false;
             CloseMeunAnimated();
             if (App.CurrentAccount != null)
             {
@@ -176,8 +177,6 @@ namespace com.vtcsecure.ace.windows
                     _mainViewModel.ContactModel.VideoMailCount = App.CurrentAccount.VideoMailCount;
                 if (_mainViewModel.MoreMenuModel != null)
                     _mainViewModel.MoreMenuModel.VideoMailCount = App.CurrentAccount.VideoMailCount;
-
-                ServiceManager.Instance.AccountService.Save();
 
                 ResourceInfo resourceInfo = new ResourceInfo();
                 resourceInfo.address = !string.IsNullOrEmpty(App.CurrentAccount.VideoMailUri)
@@ -191,6 +190,7 @@ namespace com.vtcsecure.ace.windows
         private void OnSelfViewClicked(object sender, EventArgs e)
         {
             CloseMeunAnimated();
+            _mainViewModel.IsMenuDocked = false;
             if (_selfView != null)
             {
                 bool enabled = _mainViewModel.MoreMenuModel.IsSelfViewActive;
@@ -207,6 +207,7 @@ namespace com.vtcsecure.ace.windows
         private void OnShowSettings(object sender, EventArgs e)
         {
             CloseMeunAnimated();
+            _mainViewModel.IsMenuDocked = false;
 //            CloseDialpadAnimated();
 //            if (_mainViewModel.IsSettingsDocked)
 //                return;
@@ -239,6 +240,7 @@ namespace com.vtcsecure.ace.windows
                 OpenDialpadAnimated();
             else
                 CloseDialpadAnimated();
+            _mainViewModel.IsMenuDocked = false;
         }
 
         private void btnShowResources(object sender, EventArgs e)
@@ -250,7 +252,7 @@ namespace com.vtcsecure.ace.windows
             _mainViewModel.IsSettingsDocked = false;
             ctrlResource.ActivateDeafHohResource();
             _mainViewModel.IsResourceDocked = true;
-            _mainViewModel.IsMenuDocked = true;
+            _mainViewModel.IsMenuDocked = false;
         }
 
         private void btnShowChatClicked(object sender, RoutedEventArgs e)
@@ -260,6 +262,8 @@ namespace com.vtcsecure.ace.windows
                 bool enabled = BtnChatView.IsChecked ?? false;
                 ActivateChatWindow(enabled);
                 ShowMessagingViewItem.IsChecked = enabled;
+                CloseMeunAnimated();
+                _mainViewModel.IsMenuDocked = false;
             }
             else
             {
@@ -270,10 +274,13 @@ namespace com.vtcsecure.ace.windows
 
         private void btnMoreMenuClicked(object sender, RoutedEventArgs e)
         {
-            OpenMenuAnimated();
-            _mainViewModel.ShowVideomailIndicator = false;
-            if (_mainViewModel.IsSettingsDocked || _mainViewModel.IsResourceDocked)
-                _mainViewModel.IsMenuDocked = true;
+            if (_mainViewModel.IsMenuDocked)
+            {
+                OpenMenuAnimated();
+                _mainViewModel.ShowVideomailIndicator = false;
+            }
+            else
+                CloseMeunAnimated();
         }
 
         private void OnAccountChangeRequested(Enums.ACEMenuSettingsUpdateType changeType)
@@ -653,6 +660,7 @@ namespace com.vtcsecure.ace.windows
             }
             if ((App.CurrentAccount != null) && autoLogin && !string.IsNullOrEmpty(App.CurrentAccount.Password))
             {
+                App.CurrentAccount.VideoMailCount = 0;
                 if (!string.IsNullOrEmpty(App.CurrentAccount.ProxyHostname) &&
                     !string.IsNullOrEmpty(App.CurrentAccount.RegistrationPassword) &&
                     !string.IsNullOrEmpty(App.CurrentAccount.RegistrationUser) &&
@@ -664,7 +672,7 @@ namespace com.vtcsecure.ace.windows
                     if (!App.CurrentAccount.UserNeedsAgentView)
                     {
                         OpenDialpadAnimated();
-                        UpdateVideomailCount();
+                        UpdateVideomailCount(false);
                         _mainViewModel.IsCallHistoryDocked = true;
                         _mainViewModel.DialpadModel.UpdateProvider();
                         SetToUserAgentView(false);
@@ -910,9 +918,13 @@ namespace com.vtcsecure.ace.windows
 
             if (App.CurrentAccount != null)
             {
-                if (args != null) 
-                    App.CurrentAccount.VideoMailCount += args.MwiCount;
-                UpdateVideomailCount();
+                bool showMWI = false;
+                if (args != null)
+                {
+                    App.CurrentAccount.VideoMailCount = args.MwiCount;
+                    showMWI = args.MessageWaiting;
+                }
+                UpdateVideomailCount(showMWI);
                 ServiceManager.Instance.AccountService.Save();
             }
         }

@@ -2525,15 +2525,47 @@ namespace VATRP.Core.Services
 
 		    if (bodyPtr != IntPtr.Zero)
 		    {
-		        IntPtr subTypePtr = LinphoneAPI.linphone_content_get_subtype(bodyPtr);
+		        IntPtr subTypePtr = LinphoneAPI.linphone_content_get_buffer(bodyPtr);
 		        if (subTypePtr != IntPtr.Zero)
 		        {
-		            if (Marshal.PtrToStringAnsi(subTypePtr) == "simple-message-summary")
+		            var content = LinphoneAPI.PtrToStringUtf8(subTypePtr);
+
+		            var lines = content.Split(new[] {'\r', '\n'});
+		            bool waiting = false;
+		            int unreadCount = 0;
+		            bool notify = false;
+                    foreach (var line in lines)
 		            {
-		                if (OnMWIReceivedEvent != null)
-                            OnMWIReceivedEvent(new MWIEventArgs(1));
-		                return;
+		                if (line.StartsWith("Messages-Waiting: "))
+		                {
+		                    waiting = line.Substring("Messages-Waiting: ".Length).ToLower() == "yes";
+		                    notify = true;
+		                }
+                        else if (line.StartsWith("Voicemail: "))
+		                {
+		                    try
+		                    {
+		                        int pos = line.IndexOf(@"/");
+		                        if (pos != -1)
+		                        {
+		                            var len = "Voicemail: ".Length;
+		                            unreadCount = Convert.ToInt32(line.Substring(len, pos - len));
+                                    notify = true;
+		                        }
+		                    }
+		                    catch (Exception)
+		                    {
+		                        
+		                    }
+		                }
 		            }
+
+		            if (OnMWIReceivedEvent != null && notify)
+		            {
+                        var args = new MWIEventArgs(unreadCount, waiting);
+		                OnMWIReceivedEvent(args);
+		            }
+		            return;
 		        }
 		    }
 
