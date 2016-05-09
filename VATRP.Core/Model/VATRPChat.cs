@@ -28,11 +28,11 @@ namespace VATRP.Core.Model
         private string _messageFont;
         public int ChatUniqueID;
 
-        public VATRPChat() : this(null, string.Empty)
+        public VATRPChat() : this(null, string.Empty, false)
         {
             
         }
-        public VATRPChat(VATRPContact contact, string dialogId ) : base(contact, dialogId)
+        public VATRPChat(VATRPContact contact, string dialogId, bool isRtt) : base(contact, isRtt, dialogId)
         {
             this._typing_text = string.Empty;
             this._is_messagesLoaded = true;
@@ -583,6 +583,8 @@ namespace VATRP.Core.Model
         {
             get
             {
+                if (IsRttChat)
+                    return 0; 
                 return this._unreadMsgCount;
             }
             set

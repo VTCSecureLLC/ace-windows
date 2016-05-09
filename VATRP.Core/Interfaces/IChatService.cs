@@ -9,20 +9,25 @@ namespace VATRP.Core.Interfaces
     {
         #region Properties
 
-        VATRPChat GetChat(VATRPContact contact);
-        VATRPContact FindContact(ContactID contactID);
         ObservableCollection<VATRPContact> Contacts { get; }
         bool UpdateUnreadCounter { get; set; }
 
         #endregion
 
         #region Methods
+
+        VATRPChat GetChat(VATRPContact contact, bool isRtt);
+        VATRPContact FindContact(ContactID contactID);
+
         bool ComposeAndSendMessage(IntPtr callPtr, VATRPChat chat, char key, bool inCompleteMessage);
 		bool ComposeAndSendMessage(VATRPChat chat, string text);
         void MarkChatAsRead(ChatID chat);
         void UpdateRTTFontFamily(string newFont);
         bool HasUnreadMessages();
         void ActivateChat(VATRPChat chat);
+        VATRPChat InsertRttChat(VATRPContact contact, IntPtr chatPtr, IntPtr callPtr);
+        void CloseChat(VATRPChat chat);
+
         #endregion
 
         #region Events
