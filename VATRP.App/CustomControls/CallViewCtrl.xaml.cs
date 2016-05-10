@@ -351,7 +351,7 @@ namespace com.vtcsecure.ace.windows.CustomControls
                 BtnRTT.IsChecked = _viewModel.IsRttOn;
                 BtnInfo.IsChecked = _viewModel.IsCallInfoOn;
                 BtnHold.IsChecked = _viewModel.IsCallOnHold;
-
+                BtnFullScreen.IsChecked = _viewModel.IsFullScreenOn;
                 _viewModel.ToggleCallStatisticsInfo(BtnInfo.IsChecked ?? false);
             }
 
@@ -471,8 +471,15 @@ namespace com.vtcsecure.ace.windows.CustomControls
 
         private void RestoreControlsVisibility()
         {
-            if (!restoreVisibilityStates)
+            if (!restoreVisibilityStates )
                 return;
+
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            if (mainWindow != null && !mainWindow.AllowCallviewActivate(true))
+            {
+                RestartInactivityDetectionTimer();
+                return;
+            }
 
             if (_viewModel == null || _viewModel.CallState == VATRPCallState.Closed)
             {
@@ -509,6 +516,13 @@ namespace com.vtcsecure.ace.windows.CustomControls
         {
             if (_viewModel == null || restoreVisibilityStates)
                 return;
+
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            if (mainWindow != null && !mainWindow.AllowCallviewActivate(false))
+            {
+                RestartInactivityDetectionTimer();
+                return;
+            }
 
             var wndObject = ctrlOverlay.CallInfoWindow;
             if (wndObject != null)

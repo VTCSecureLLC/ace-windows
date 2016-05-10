@@ -1418,5 +1418,29 @@ ServiceManager.Instance.ContactService.FindContact(new ContactID(string.Format("
                 }
             }
         }
-	}
+
+        internal bool AllowCallviewActivate(bool showControls)
+        {
+            if (!showControls && _mainViewModel.CallsViewModelList.Count == 0)
+                return true;
+            if (!this.IsActive)
+                return false;
+
+            if (_mainViewModel.IsMessagingDocked)
+            {
+                if (_messagingWindow.IsActive)
+                    return false;
+            }
+
+            if (_mainViewModel.IsSettingsDocked)
+            {
+                if (_settingsWindow.IsActive)
+                    return false;
+            }
+
+            if (_callInfoView.IsActive)
+                return false;
+            return true;
+        }
+    }
 }
