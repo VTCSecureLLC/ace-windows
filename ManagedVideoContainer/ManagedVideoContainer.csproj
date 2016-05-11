@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="IRenderable.cs" />
     <Compile Include="MediaEncryptionIndicator.cs" />
+    <Compile Include="OutlinedTextControl.cs" />
     <Compile Include="QualityIndicator.cs" />
     <Compile Include="VATRPTranslucentWindow.cs" />
     <Compile Include="VATRPOverlay.cs" />

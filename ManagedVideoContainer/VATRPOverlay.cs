@@ -307,7 +307,7 @@ namespace VATRP.Linphone.VideoWrapper
         public void SetCallerInfo(string callerInfo)
         {
             var textBlock =
-                FindChild<TextBlock>(callInfoWindow.TransparentWindow, "CallerInfoLabel");
+                FindChild<OutlinedTextControl>(callInfoWindow.TransparentWindow, "CallerInfoLabel");
             if (textBlock != null)
                 textBlock.Text = callerInfo;
         }
@@ -315,7 +315,7 @@ namespace VATRP.Linphone.VideoWrapper
         public void SetCallState(string callState)
         {
             var textBlock =
-                FindChild<TextBlock>(callInfoWindow.TransparentWindow, "CallStateLabel");
+                FindChild<OutlinedTextControl>(callInfoWindow.TransparentWindow, "CallStateLabel");
             if (textBlock != null)
             {
                 textBlock.Text = callState;
@@ -371,7 +371,7 @@ namespace VATRP.Linphone.VideoWrapper
             else
                 str = string.Format("{0:D2}:{1:D2}", _foregroundCallDuration/60, _foregroundCallDuration%60);
             var textBlock =
-                FindChild<TextBlock>(callInfoWindow.TransparentWindow, "CallDurationLabel");
+                FindChild<OutlinedTextControl>(callInfoWindow.TransparentWindow, "CallDurationLabel");
             if (textBlock != null)
             {
                 textBlock.Text = str;
